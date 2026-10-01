@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { NavItemType } from '../shared/types/navigation';
 import {
   NavDashboardIcon,
@@ -5,6 +6,8 @@ import {
   NavSettingsIcon,
   NavUserManagementIcon,
 } from '../shared/components/icons';
+import { useDynamicDefinitions } from '../modules/generator/runtime/hooks';
+import { buildDynamicNavItems } from '../modules/generator/runtime/dynamicNav';
 
 export const navItems: NavItemType[] = [
   {
@@ -61,3 +64,35 @@ export const navItems: NavItemType[] = [
 },
 // __GENERATOR_NAV_ITEMS__
 ];
+
+/**
+ * Item nav dari definisi published. Path yang sudah ada statis disembunyikan
+ * agar tidak ganda selama koeksistensi (cutover otomatis saat entri statis
+ * dihapus — FASE 8 menghapus seluruh blok statis di atas).
+ */
+export function useDynamicNavItems(): NavItemType[] {
+  const { data } = useDynamicDefinitions('published');
+  return useMemo(() => {
+    if (!data) return [];
+    const staticPaths = new Set<string>();
+    for (const item of navItems) {
+      if (item.path) staticPaths.add(item.path);
+      for (const child of item.children ?? []) {
+        if (child.path) staticPaths.add(child.path);
+      }
+    }
+    const dynamic = buildDynamicNavItems(data);
+    const visible: NavItemType[] = [];
+    for (const item of dynamic) {
+      if (item.path) {
+        if (!staticPaths.has(item.path)) visible.push(item);
+        continue;
+      }
+      const children = (item.children ?? []).filter(
+        (child) => !child.path || !staticPaths.has(child.path),
+      );
+      if (children.length > 0) visible.push({ ...item, children });
+    }
+    return visible;
+  }, [data]);
+}

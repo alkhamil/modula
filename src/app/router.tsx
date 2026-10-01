@@ -16,6 +16,10 @@ import {
 } from '../modules/user';
 import { GeneratorPage } from '../modules/generator';
 import {
+  DynamicModuleRoutes,
+  DynamicPreviewPage,
+} from '../modules/generator/runtime/DynamicRoutes';
+import {
   CompanyListPage,
   CompanyCreatePage,
   CompanyViewPage,
@@ -410,6 +414,12 @@ export const router = createBrowserRouter([
                 },
               },
               // __GENERATOR_ROUTES__
+              {
+                path: 'preview/:definitionKey',
+                element: <DynamicPreviewPage />,
+                handle: { breadcrumb: [{ label: 'Preview' }] },
+              },
+              { element: <DynamicModuleRoutes /> },
               { path: '*', element: <ErrorStatePage type="404" />, handle: { notFound: true } },
             ],
           },
