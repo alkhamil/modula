@@ -1,0 +1,145 @@
+{
+  "moduleKey": "new-claim",
+  "rows": [
+    {
+      "id": 1,
+      "data": {
+        "policyNumber": "Policy Number 1",
+        "policyDate": "2024-01-10"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-01-10T02:00:00.000Z"
+    },
+    {
+      "id": 10,
+      "data": {
+        "policyNumber": "Policy Number 10",
+        "policyDate": "2024-01-10"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-01-10T02:00:00.000Z"
+    },
+    {
+      "id": 11,
+      "data": {
+        "policyNumber": "Policy Number 11",
+        "policyDate": "2024-02-11"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-02-11T02:00:00.000Z"
+    },
+    {
+      "id": 12,
+      "data": {
+        "policyNumber": "Policy Number 12",
+        "policyDate": "2024-03-12"
+      },
+      "status": "inactive",
+      "createdBy": "System",
+      "createdAt": "2024-03-12T02:00:00.000Z"
+    },
+    {
+      "id": 13,
+      "data": {
+        "policyNumber": "Policy Number 13",
+        "policyDate": "2024-04-13"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-04-13T02:00:00.000Z"
+    },
+    {
+      "id": 14,
+      "data": {
+        "policyNumber": "Policy Number 14",
+        "policyDate": "2024-05-14"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-05-14T02:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "data": {
+        "policyNumber": "Policy Number 2",
+        "policyDate": "2024-02-11"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-02-11T02:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "data": {
+        "policyNumber": "Policy Number 3",
+        "policyDate": "2024-03-12"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-03-12T02:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "data": {
+        "policyNumber": "Policy Number 4",
+        "policyDate": "2024-04-13"
+      },
+      "status": "inactive",
+      "createdBy": "System",
+      "createdAt": "2024-04-13T02:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "data": {
+        "policyNumber": "Policy Number 5",
+        "policyDate": "2024-05-14"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-05-14T02:00:00.000Z"
+    },
+    {
+      "id": 6,
+      "data": {
+        "policyNumber": "Policy Number 6",
+        "policyDate": "2024-06-15"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-06-15T02:00:00.000Z"
+    },
+    {
+      "id": 7,
+      "data": {
+        "policyNumber": "Policy Number 7",
+        "policyDate": "2024-07-16"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-07-16T02:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "data": {
+        "policyNumber": "Policy Number 8",
+        "policyDate": "2024-08-17"
+      },
+      "status": "inactive",
+      "createdBy": "System",
+      "createdAt": "2024-08-17T02:00:00.000Z"
+    },
+    {
+      "id": 9,
+      "data": {
+        "policyNumber": "Policy Number 9",
+        "policyDate": "2024-09-18"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-09-18T02:00:00.000Z"
+    }
+  ]
+}

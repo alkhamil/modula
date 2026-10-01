@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -14,6 +15,20 @@ import {
   uniqueFieldNames,
   type QueryFieldMeta,
 } from './record-query';
+import {
+  bulkExampleRow,
+  bulkHeaders,
+  exportCellValue,
+  exportHeaders,
+  validateBulkRow,
+  type BulkUploadResult,
+} from './bulk';
+import { buildWorkbook, readWorkbookRows, type ExcelCell } from './excel';
+import type { BuiltRecordQuery } from './record-query';
+
+/** Batas proteksi: export dibatasi 10rb baris, bulk 5rb baris per file. */
+export const MAX_EXPORT_ROWS = 10000;
+export const MAX_BULK_ROWS = 5000;
 
 export interface RecordListItem {
   id: number;
@@ -120,6 +135,21 @@ export class RecordsService {
     }
   }
 
+  private async runListQuery(
+    moduleKey: string,
+    built: BuiltRecordQuery,
+    page: number,
+    size: number,
+  ): Promise<[RecordEntity[], number]> {
+    const qb = this.records
+      .createQueryBuilder('record')
+      .where('record.moduleKey = :moduleKey', { moduleKey });
+    for (const fragment of built.where) qb.andWhere(fragment, built.params);
+    qb.orderBy(built.orderExpr, built.orderDir).addOrderBy('record.id', 'ASC');
+    qb.skip((page - 1) * size).take(size);
+    return qb.getManyAndCount();
+  }
+
   async list(
     apiPlural: string,
     query: Record<string, string | undefined>,
@@ -127,22 +157,13 @@ export class RecordsService {
     const def = await this.resolveDefinition(apiPlural);
     const meta = this.metaOf(def);
     const built = buildRecordQuery(meta, query);
-    const run = async (page: number): Promise<[RecordEntity[], number]> => {
-      const qb = this.records
-        .createQueryBuilder('record')
-        .where('record.moduleKey = :moduleKey', { moduleKey: def.key });
-      for (const fragment of built.where) qb.andWhere(fragment, built.params);
-      qb.orderBy(built.orderExpr, built.orderDir).addOrderBy('record.id', 'ASC');
-      qb.skip((page - 1) * built.size).take(built.size);
-      return qb.getManyAndCount();
-    };
-    const [rows, total] = await run(built.page);
+    const [rows, total] = await this.runListQuery(def.key, built, built.page, built.size);
     const totalPages = Math.max(1, Math.ceil(total / built.size));
     const safePage = Math.min(built.page, totalPages);
     const content =
       safePage === built.page
         ? rows
-        : (await run(safePage))[0];
+        : (await this.runListQuery(def.key, built, safePage, built.size))[0];
     return okResponse({
       list: {
         pagination: {
@@ -223,6 +244,142 @@ export class RecordsService {
       { detail: this.toDetail(saved, this.metaOf(def)) },
       'Data berhasil dipulihkan.',
     );
+  }
+
+  private assertFeature(def: ModuleDefinitionEntity, feature: string): void {
+    if ((def.features as Record<string, boolean> | null)?.[feature] !== true) {
+      throw new NotFoundException(`Fitur ${feature} tidak aktif untuk modul ini.`);
+    }
+  }
+
+  async exportWorkbook(
+    apiPlural: string,
+    query: Record<string, string | undefined>,
+  ): Promise<{ filename: string; buffer: Buffer }> {
+    const def = await this.resolveDefinition(apiPlural);
+    this.assertFeature(def, 'export');
+    const meta = this.metaOf(def);
+    const built = buildRecordQuery(
+      meta,
+      { ...query, page: '1', size: String(MAX_EXPORT_ROWS) },
+      MAX_EXPORT_ROWS,
+    );
+    const [rows] = await this.runListQuery(def.key, built, 1, MAX_EXPORT_ROWS);
+    const labels = (def.fields as { label?: unknown }[]).map((field) =>
+      String(field.label ?? ''),
+    );
+    const types = meta.map((field) => field.type);
+    const headers = exportHeaders(labels.map((label) => ({ label })));
+    const body: ExcelCell[][] = rows.map((row) => [
+      ...meta.map((field, index) =>
+        exportCellValue(types[index] ?? 'textField', row.data[field.name]),
+      ),
+      row.status,
+      formatCreatedDate(row.createdAt),
+    ]);
+    const stamp = new Date().toISOString().slice(0, 10);
+    return { filename: `${apiPlural}-${stamp}.xlsx`, buffer: buildWorkbook(headers, body) };
+  }
+
+  async bulkTemplate(apiPlural: string): Promise<{ filename: string; buffer: Buffer }> {
+    const def = await this.resolveDefinition(apiPlural);
+    this.assertFeature(def, 'bulkUpload');
+    return {
+      filename: `${apiPlural}-template.xlsx`,
+      buffer: buildWorkbook(bulkHeaders(def.fields), [bulkExampleRow(def.fields)]),
+    };
+  }
+
+  async bulkUpload(
+    apiPlural: string,
+    file: Buffer,
+  ): Promise<ApiResponse<BulkUploadResult>> {
+    const def = await this.resolveDefinition(apiPlural);
+    this.assertFeature(def, 'bulkUpload');
+    const { headers, rows } = readWorkbookRows(file);
+    const expected = bulkHeaders(def.fields);
+    const headerIndex = new Map(headers.map((header, i) => [header.trim().toLowerCase(), i]));
+    const missing = expected.filter((header) => !headerIndex.has(header.trim().toLowerCase()));
+    if (missing.length > 0) {
+      return okResponse({
+        totalRows: rows.length,
+        successCount: 0,
+        failedCount: rows.length,
+        errors: missing.map((field) => ({
+          row: 1,
+          field,
+          message: `Kolom "${field}" tidak ditemukan di file.`,
+        })),
+      });
+    }
+    if (rows.length === 0) {
+      return okResponse({
+        totalRows: 0,
+        successCount: 0,
+        failedCount: 0,
+        errors: [{ row: 1, message: 'File tidak berisi data.' }],
+      });
+    }
+    if (rows.length > MAX_BULK_ROWS) {
+      throw new BadRequestException(`Maksimal ${MAX_BULK_ROWS} baris per upload.`);
+    }
+    const meta = this.metaOf(def);
+    const taken = await this.preloadTakenValues(def.key, meta);
+    const accepted: Record<string, unknown>[] = [];
+    const errors: BulkUploadResult['errors'] = [];
+    rows.forEach((row, index) => {
+      const mapped: Record<string, unknown> = {};
+      for (const header of expected) {
+        const source = headers[headerIndex.get(header.trim().toLowerCase()) ?? -1] ?? '';
+        mapped[header] = row[source] ?? '';
+      }
+      const { payload, errors: rowErrors } = validateBulkRow(def.fields, mapped, (field, value) =>
+        taken.get(field)?.has(value) ?? false,
+      );
+      if (!payload) {
+        for (const rowError of rowErrors) {
+          errors.push({ row: index + 2, field: rowError.field, message: rowError.message });
+        }
+        return;
+      }
+      for (const name of uniqueFieldNames(meta)) {
+        const value = payload[name];
+        if (value !== undefined && value !== null && value !== '') {
+          taken.get(name)?.add(String(value));
+        }
+      }
+      accepted.push(payload);
+    });
+    if (accepted.length > 0) {
+      await this.records.save(
+        accepted.map((data) =>
+          this.records.create({ moduleKey: def.key, data, status: 'active', createdBy: 'Bulk Upload' }),
+        ),
+      );
+    }
+    return okResponse({
+      totalRows: rows.length,
+      successCount: accepted.length,
+      failedCount: rows.length - accepted.length,
+      errors,
+    });
+  }
+
+  /** Muat nilai existing per unique-field sekali (cek duplikat existing + dalam file). */
+  private async preloadTakenValues(
+    moduleKey: string,
+    meta: QueryFieldMeta[],
+  ): Promise<Map<string, Set<string>>> {
+    const taken = new Map<string, Set<string>>();
+    for (const name of uniqueFieldNames(meta)) {
+      const rows = (await this.records
+        .createQueryBuilder('record')
+        .select(`DISTINCT record.data->>'$."${name}"'`, 'value')
+        .where('record.moduleKey = :moduleKey', { moduleKey })
+        .getRawMany<{ value: string | null }>()) as { value: string | null }[];
+      taken.set(name, new Set(rows.map((row) => String(row.value ?? '')).filter(Boolean)));
+    }
+    return taken;
   }
 
   /**

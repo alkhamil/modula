@@ -70,6 +70,7 @@ export function toQueryMeta(fields: Record<string, unknown>[]): QueryFieldMeta[]
 export function buildRecordQuery(
   fields: QueryFieldMeta[],
   query: Record<string, string | undefined>,
+  maxSize = 100,
 ): BuiltRecordQuery {
   const where: string[] = [];
   const params: Record<string, unknown> = {};
@@ -200,7 +201,7 @@ export function buildRecordQuery(
   }
   const orderDir = query.sort === 'desc' ? 'DESC' : 'ASC';
   const page = Math.max(Math.floor(Number(query.page)) || 1, 1);
-  const size = Math.min(Math.max(Math.floor(Number(query.size)) || 10, 1), 100);
+  const size = Math.min(Math.max(Math.floor(Number(query.size)) || 10, 1), maxSize);
 
   return { where, params, orderExpr, orderDir, page, size };
 }

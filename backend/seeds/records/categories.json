@@ -1,0 +1,201 @@
+{
+  "moduleKey": "mater-data/category",
+  "rows": [
+    {
+      "id": 1,
+      "data": {
+        "categoryName": "Category Name 1",
+        "description": "Description 1 text",
+        "source": [
+          "SOURCE_1",
+          "SOURCE_2"
+        ]
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-01-10T02:00:00.000Z"
+    },
+    {
+      "id": 10,
+      "data": {
+        "categoryName": "Category Name 10",
+        "description": "Description 10 text",
+        "source": [
+          "SOURCE_5",
+          "SOURCE_1"
+        ]
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-01-10T02:00:00.000Z"
+    },
+    {
+      "id": 11,
+      "data": {
+        "categoryName": "Category Name 11",
+        "description": "Description 11 text",
+        "source": [
+          "SOURCE_1",
+          "SOURCE_2"
+        ]
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-02-11T02:00:00.000Z"
+    },
+    {
+      "id": 12,
+      "data": {
+        "categoryName": "Category Name 12",
+        "description": "Description 12 text",
+        "source": [
+          "SOURCE_2",
+          "SOURCE_3"
+        ]
+      },
+      "status": "inactive",
+      "createdBy": "System",
+      "createdAt": "2024-03-12T02:00:00.000Z"
+    },
+    {
+      "id": 13,
+      "data": {
+        "categoryName": "Category Name 13",
+        "description": "Description 13 text",
+        "source": [
+          "SOURCE_3",
+          "SOURCE_4"
+        ]
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-04-13T02:00:00.000Z"
+    },
+    {
+      "id": 14,
+      "data": {
+        "categoryName": "Category Name 14",
+        "description": "Description 14 text",
+        "source": [
+          "SOURCE_4",
+          "SOURCE_5"
+        ]
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-05-14T02:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "data": {
+        "categoryName": "Category Name 2",
+        "description": "Description 2 text",
+        "source": [
+          "SOURCE_2",
+          "SOURCE_3"
+        ]
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-02-11T02:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "data": {
+        "categoryName": "Category Name 3",
+        "description": "Description 3 text",
+        "source": [
+          "SOURCE_3",
+          "SOURCE_4"
+        ]
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-03-12T02:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "data": {
+        "categoryName": "Category Name 4",
+        "description": "Description 4 text",
+        "source": [
+          "SOURCE_4",
+          "SOURCE_5"
+        ]
+      },
+      "status": "inactive",
+      "createdBy": "System",
+      "createdAt": "2024-04-13T02:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "data": {
+        "categoryName": "Category Name 5",
+        "description": "Description 5 text",
+        "source": [
+          "SOURCE_5",
+          "SOURCE_1"
+        ]
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-05-14T02:00:00.000Z"
+    },
+    {
+      "id": 6,
+      "data": {
+        "categoryName": "Category Name 6",
+        "description": "Description 6 text",
+        "source": [
+          "SOURCE_1",
+          "SOURCE_2"
+        ]
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-06-15T02:00:00.000Z"
+    },
+    {
+      "id": 7,
+      "data": {
+        "categoryName": "Category Name 7",
+        "description": "Description 7 text",
+        "source": [
+          "SOURCE_2",
+          "SOURCE_3"
+        ]
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-07-16T02:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "data": {
+        "categoryName": "Category Name 8",
+        "description": "Description 8 text",
+        "source": [
+          "SOURCE_3",
+          "SOURCE_4"
+        ]
+      },
+      "status": "inactive",
+      "createdBy": "System",
+      "createdAt": "2024-08-17T02:00:00.000Z"
+    },
+    {
+      "id": 9,
+      "data": {
+        "categoryName": "Category Name 9",
+        "description": "Description 9 text",
+        "source": [
+          "SOURCE_4",
+          "SOURCE_5"
+        ]
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-09-18T02:00:00.000Z"
+    }
+  ]
+}

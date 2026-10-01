@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "key": "mater-data/company",
+  "label": "Companies",
+  "singularLabel": "Company",
+  "parent": "mater-data",
+  "routeBase": "mater-data/companies",
+  "permissionKey": "company",
+  "apiPlural": "companies",
+  "moduleType": "crud",
+  "features": {
+    "list": true,
+    "detail": true,
+    "create": true,
+    "edit": true,
+    "delete": true,
+    "bulkUpload": false,
+    "export": false
+  },
+  "fields": [
+    {
+      "name": "companyName",
+      "label": "Company Name",
+      "type": "textField",
+      "rules": [
+        "required",
+        "min:3",
+        "max:100",
+        "withoutemoticon",
+        "unique"
+      ],
+      "source": "none",
+      "sortable": true,
+      "filterable": false,
+      "filterCriteria": null
+    },
+    {
+      "name": "companyGroup",
+      "label": "Company Group",
+      "type": "selectField",
+      "rules": [
+        "required",
+        "withoutemoticon"
+      ],
+      "source": "mockPagingInfinityScroll",
+      "sortable": false,
+      "filterable": true,
+      "filterCriteria": "optionExact"
+    },
+    {
+      "name": "companyAddress",
+      "label": "Company Address",
+      "type": "textareaField",
+      "rules": [],
+      "source": "none",
+      "sortable": false,
+      "filterable": false,
+      "filterCriteria": null
+    }
+  ],
+  "layout": {
+    "form": [
+      {
+        "field": "companyName",
+        "order": 0,
+        "colSpan": 12
+      },
+      {
+        "field": "companyGroup",
+        "order": 1,
+        "colSpan": 12
+      },
+      {
+        "field": "companyAddress",
+        "order": 2,
+        "colSpan": 12
+      }
+    ],
+    "table": {
+      "order": [
+        "companyName",
+        "companyGroup",
+        "companyAddress"
+      ],
+      "hidden": []
+    }
+  },
+  "deleteMode": "soft",
+  "status": "published"
+}

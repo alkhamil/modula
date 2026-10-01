@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "key": "mater-data/product-variant",
+  "label": "ProductVariants",
+  "singularLabel": "ProductVariant",
+  "parent": "mater-data",
+  "routeBase": "mater-data/product-variants",
+  "permissionKey": "product_variant",
+  "apiPlural": "product-variants",
+  "moduleType": "crud",
+  "features": {
+    "list": true,
+    "detail": true,
+    "create": true,
+    "edit": true,
+    "delete": true,
+    "bulkUpload": true,
+    "export": true
+  },
+  "fields": [
+    {
+      "name": "name",
+      "label": "Name",
+      "type": "textField",
+      "rules": [
+        "required",
+        "min:3",
+        "max:100",
+        "withoutemoticon",
+        "unique"
+      ],
+      "source": "none",
+      "sortable": true,
+      "filterable": false,
+      "filterCriteria": null
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "type": "textareaField",
+      "rules": [
+        "required",
+        "min:10",
+        "max:500",
+        "withoutemoticon"
+      ],
+      "source": "none",
+      "sortable": false,
+      "filterable": false,
+      "filterCriteria": null
+    }
+  ],
+  "layout": {
+    "form": [
+      {
+        "field": "name",
+        "order": 0,
+        "colSpan": 12
+      },
+      {
+        "field": "description",
+        "order": 1,
+        "colSpan": 12
+      }
+    ],
+    "table": {
+      "order": [
+        "name",
+        "description"
+      ],
+      "hidden": []
+    }
+  },
+  "deleteMode": "soft",
+  "status": "published"
+}

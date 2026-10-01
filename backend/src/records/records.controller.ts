@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -10,12 +11,24 @@ import {
   Post,
   Put,
   Query,
+  Res,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import type { Response } from 'express';
 import { RecordsService } from './records.service';
+import { XLSX_MIME } from './excel';
 
 type QueryBag = Record<string, string | undefined>;
 
-/** CRUD generik `/{plural}` sesuai kontrak (export/bulk menyusul di Fase 3). */
+interface UploadedXlsx {
+  buffer: Buffer;
+  originalname: string;
+  mimetype: string;
+}
+
+/** CRUD + export/bulk generik `/{plural}` sesuai kontrak. */
 @Controller()
 export class RecordsController {
   constructor(private readonly service: RecordsService) {}
@@ -23,6 +36,41 @@ export class RecordsController {
   @Get(':plural')
   list(@Param('plural') plural: string, @Query() query: QueryBag) {
     return this.service.list(plural, query);
+  }
+
+  // Route statis di bawah HARUS di atas `:plural/:segment` agar tidak tertangkap segment handler.
+  @Get(':plural/export')
+  async export(
+    @Param('plural') plural: string,
+    @Query() query: QueryBag,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Buffer> {
+    const { filename, buffer } = await this.service.exportWorkbook(plural, query);
+    res.set({
+      'Content-Type': XLSX_MIME,
+      'Content-Disposition': `attachment; filename="${filename}"`,
+    });
+    return buffer;
+  }
+
+  @Get(':plural/bulk-template')
+  async bulkTemplate(
+    @Param('plural') plural: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Buffer> {
+    const { filename, buffer } = await this.service.bulkTemplate(plural);
+    res.set({
+      'Content-Type': XLSX_MIME,
+      'Content-Disposition': `attachment; filename="${filename}"`,
+    });
+    return buffer;
+  }
+
+  @Post(':plural/bulk-upload')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  bulkUpload(@Param('plural') plural: string, @UploadedFile() file?: UploadedXlsx) {
+    if (!file) throw new BadRequestException('File wajib diunggah (field "file").');
+    return this.service.bulkUpload(plural, file.buffer);
   }
 
   @Get(':plural/:segment')

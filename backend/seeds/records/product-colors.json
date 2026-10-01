@@ -1,0 +1,145 @@
+{
+  "moduleKey": "mater-data/product-color",
+  "rows": [
+    {
+      "id": 1,
+      "data": {
+        "colorName": "colorName 1",
+        "hexCode": "hexCode 1"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-01-10T02:00:00.000Z"
+    },
+    {
+      "id": 10,
+      "data": {
+        "colorName": "colorName 10",
+        "hexCode": "hexCode 10"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-01-10T02:00:00.000Z"
+    },
+    {
+      "id": 11,
+      "data": {
+        "colorName": "colorName 11",
+        "hexCode": "hexCode 11"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-02-11T02:00:00.000Z"
+    },
+    {
+      "id": 12,
+      "data": {
+        "colorName": "colorName 12",
+        "hexCode": "hexCode 12"
+      },
+      "status": "inactive",
+      "createdBy": "System",
+      "createdAt": "2024-03-12T02:00:00.000Z"
+    },
+    {
+      "id": 13,
+      "data": {
+        "colorName": "colorName 13",
+        "hexCode": "hexCode 13"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-04-13T02:00:00.000Z"
+    },
+    {
+      "id": 14,
+      "data": {
+        "colorName": "colorName 14",
+        "hexCode": "hexCode 14"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-05-14T02:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "data": {
+        "colorName": "colorName 2",
+        "hexCode": "hexCode 2"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-02-11T02:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "data": {
+        "colorName": "colorName 3",
+        "hexCode": "hexCode 3"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-03-12T02:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "data": {
+        "colorName": "colorName 4",
+        "hexCode": "hexCode 4"
+      },
+      "status": "inactive",
+      "createdBy": "System",
+      "createdAt": "2024-04-13T02:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "data": {
+        "colorName": "colorName 5",
+        "hexCode": "hexCode 5"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-05-14T02:00:00.000Z"
+    },
+    {
+      "id": 6,
+      "data": {
+        "colorName": "colorName 6",
+        "hexCode": "hexCode 6"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-06-15T02:00:00.000Z"
+    },
+    {
+      "id": 7,
+      "data": {
+        "colorName": "colorName 7",
+        "hexCode": "hexCode 7"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-07-16T02:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "data": {
+        "colorName": "colorName 8",
+        "hexCode": "hexCode 8"
+      },
+      "status": "inactive",
+      "createdBy": "System",
+      "createdAt": "2024-08-17T02:00:00.000Z"
+    },
+    {
+      "id": 9,
+      "data": {
+        "colorName": "colorName 9",
+        "hexCode": "hexCode 9"
+      },
+      "status": "active",
+      "createdBy": "System",
+      "createdAt": "2024-09-18T02:00:00.000Z"
+    }
+  ]
+}

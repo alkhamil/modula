@@ -5,11 +5,12 @@ import type { Repository } from 'typeorm';
 import { RecordsService } from './records.service';
 import type { RecordEntity } from './entities/record.entity';
 import type { ModuleDefinitionEntity } from '../definitions/entities/module-definition.entity';
+import { buildWorkbook, readWorkbookRows } from './excel';
 
 const FIELDS = [
-  { name: 'name', type: 'textField', filterable: true, filterCriteria: 'contains', rules: ['required'] },
-  { name: 'code', type: 'textField', filterable: true, filterCriteria: 'exact', rules: ['unique'] },
-  { name: 'role', type: 'selectField', filterable: true, filterCriteria: 'optionExact', rules: [], source: 'mockStatic', options: [{ label: 'Admin', value: 'admin' }, { label: 'User', value: 'user' }] },
+  { name: 'name', label: 'Name', type: 'textField', filterable: true, filterCriteria: 'contains', rules: ['required'] },
+  { name: 'code', label: 'Code', type: 'textField', filterable: true, filterCriteria: 'exact', rules: ['unique'] },
+  { name: 'role', label: 'Role', type: 'selectField', filterable: true, filterCriteria: 'optionExact', rules: [], source: 'mockStatic', options: [{ label: 'Admin', value: 'admin' }, { label: 'User', value: 'user' }] },
 ];
 
 function defEntity(over: Record<string, unknown> = {}): ModuleDefinitionEntity {
@@ -17,6 +18,7 @@ function defEntity(over: Record<string, unknown> = {}): ModuleDefinitionEntity {
     key: 'region',
     apiPlural: 'regions',
     deleteMode: 'soft',
+    features: { list: true, detail: true, create: true, edit: true, delete: true, bulkUpload: true, export: true },
     fields: FIELDS,
     ...over,
   } as unknown as ModuleDefinitionEntity;
@@ -171,5 +173,69 @@ describe('RecordsService', () => {
     await assert.rejects(service.resolveSegment('regions', 'nope'), NotFoundException);
     const { service: missing } = setup({ def: null });
     await assert.rejects(missing.resolveSegment('nope', '1'), NotFoundException);
+  });
+
+  it('exportWorkbook: header + baris sesuai filter', async () => {
+    const { service } = setup({ qb: { rows: [row()], total: 1 } });
+    const { filename, buffer } = await service.exportWorkbook('regions', {});
+    assert.ok(filename.startsWith('regions-') && filename.endsWith('.xlsx'));
+    const parsed = readWorkbookRows(buffer);
+    assert.deepEqual(parsed.headers, ['Name', 'Code', 'Role', 'Status', 'Created Date']);
+    assert.deepEqual(parsed.rows, [
+      { Name: 'R1', Code: 'C1', Role: 'admin', Status: 'active', 'Created Date': '2024-03-02 09:20' },
+    ]);
+  });
+
+  it('exportWorkbook 404 bila fitur mati', async () => {
+    const { service } = setup({ def: defEntity({ features: { export: false } }) });
+    await assert.rejects(service.exportWorkbook('regions', {}), NotFoundException);
+  });
+
+  it('bulkTemplate: header + contoh', async () => {
+    const { service } = setup();
+    const { filename, buffer } = await service.bulkTemplate('regions');
+    assert.equal(filename, 'regions-template.xlsx');
+    const parsed = readWorkbookRows(buffer);
+    assert.deepEqual(parsed.headers, ['Name', 'Code', 'Role']);
+    assert.equal(parsed.rows.length, 1);
+  });
+
+  it('bulkUpload: 1 valid + 1 gagal (required + unik dalam file)', async () => {
+    const { service, calls } = setup({ qb: { raw: [] } });
+    const file = buildWorkbook(
+      ['Name', 'Code', 'Role'],
+      [
+        ['Budi', 'C9', 'admin'],
+        ['', 'C9', 'admin'],
+      ],
+    );
+    const res = await service.bulkUpload('regions', file);
+    assert.deepEqual(res.response_output, {
+      totalRows: 2,
+      successCount: 1,
+      failedCount: 1,
+      errors: [
+        { row: 3, field: 'Name', message: 'Name wajib diisi.' },
+        { row: 3, field: 'Code', message: 'Code sudah dipakai.' },
+      ],
+    });
+    assert.equal(calls.saved.length, 1);
+    const inserted = calls.saved[0] as { data: Record<string, unknown>; createdBy: string }[];
+    assert.deepEqual(inserted[0]?.data, { name: 'Budi', code: 'C9', role: 'admin' });
+    assert.equal(inserted[0]?.createdBy, 'Bulk Upload');
+  });
+
+  it('bulkUpload: header hilang + file kosong', async () => {
+    const { service } = setup();
+    const missing = await service.bulkUpload(
+      'regions',
+      buildWorkbook(['Name'], [['Budi']]),
+    );
+    assert.equal(missing.response_output?.successCount, 0);
+    assert.ok(
+      missing.response_output?.errors.some((e) => e.message === 'Kolom "Code" tidak ditemukan di file.'),
+    );
+    const empty = await service.bulkUpload('regions', buildWorkbook(['Name', 'Code', 'Role'], []));
+    assert.deepEqual(empty.response_output?.errors, [{ row: 1, message: 'File tidak berisi data.' }]);
   });
 });

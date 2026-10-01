@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "key": "mater-data/category",
+  "label": "Categories",
+  "singularLabel": "Category",
+  "parent": "mater-data",
+  "routeBase": "mater-data/categories",
+  "permissionKey": "category",
+  "apiPlural": "categories",
+  "moduleType": "crud",
+  "features": {
+    "list": true,
+    "detail": true,
+    "create": true,
+    "edit": true,
+    "delete": true,
+    "bulkUpload": true,
+    "export": true
+  },
+  "fields": [
+    {
+      "name": "categoryName",
+      "label": "Category Name",
+      "type": "textField",
+      "rules": [
+        "required",
+        "min:3",
+        "max:100",
+        "withoutemoticon"
+      ],
+      "source": "none",
+      "sortable": true,
+      "filterable": false,
+      "filterCriteria": null
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "type": "textareaField",
+      "rules": [
+        "min:10",
+        "max:500",
+        "withoutemoticon"
+      ],
+      "source": "none",
+      "sortable": true,
+      "filterable": false,
+      "filterCriteria": null
+    },
+    {
+      "name": "source",
+      "label": "Source",
+      "type": "selectMultipleField",
+      "rules": [
+        "required"
+      ],
+      "source": "mockPagingInfinityScroll",
+      "sortable": true,
+      "filterable": true,
+      "filterCriteria": "optionAny"
+    }
+  ],
+  "layout": {
+    "form": [
+      {
+        "field": "categoryName",
+        "order": 0,
+        "colSpan": 12
+      },
+      {
+        "field": "description",
+        "order": 1,
+        "colSpan": 12
+      },
+      {
+        "field": "source",
+        "order": 2,
+        "colSpan": 12
+      }
+    ],
+    "table": {
+      "order": [
+        "categoryName",
+        "description",
+        "source"
+      ],
+      "hidden": []
+    }
+  },
+  "deleteMode": "soft",
+  "status": "published"
+}

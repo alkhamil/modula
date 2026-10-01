@@ -70,9 +70,11 @@ Bentuk record: `{ "id": 1, "<fieldCamel>": ..., "status": "active|inactive", "cr
   field option (`{field}` = nama field kebab + `s`, mis. `/users/roles`);
   response list `{label, value}[]`. Bila definisi field memakai
   `source: api` dengan endpoint custom, FE memanggil endpoint itu langsung.
-- `GET /api/v1/{plural}/export` → `.xlsx` (query = filter aktif, tanpa paging).
+- `GET /api/v1/{plural}/export` → `.xlsx` (query = filter aktif, tanpa paging;
+  dibatasi 10.000 baris).
 - `GET /api/v1/{plural}/bulk-template` → `.xlsx` template (header + contoh).
-- `POST /api/v1/{plural}/bulk-upload` → multipart field `file` (`.xlsx`);
+- `POST /api/v1/{plural}/bulk-upload` → multipart field `file` (`.xlsx`,
+  maks 10 MB, maks 5.000 baris);
   response `BulkUploadResult`: `{totalRows, successCount, failedCount,
   errors: [{row, field?, message}]}` (`row` 1-based termasuk header).
   Validasi per baris meniru aturan form + cek `unique` (existing + dalam file).
