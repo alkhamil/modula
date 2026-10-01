@@ -8,23 +8,6 @@ import { useDynamicDefinition, useDynamicDefinitions } from './hooks';
 import DynamicListPage from './DynamicListPage';
 import { DynamicCreatePage, DynamicDetailPage, DynamicEditPage } from './DynamicFormPages';
 
-/**
- * RouteBase yang masih dilayani route statis — dilewati runtime agar tidak
- * render ganda selama koeksistensi. FASE 8: hapus konstanta ini saat cutover.
- */
-const STATIC_COVERED_BASES = new Set([
-  'users',
-  'mater-data/companies',
-  'mater-data/branches',
-  'mater-data/products',
-  'orders',
-  'new-claims',
-  'mater-data/categories',
-  'mater-data/inventories',
-  'mater-data/product-variants',
-  'mater-data/product-colors',
-]);
-
 function routesForDefinition(def: ModuleDefinition): RouteObject[] {
   const permissions = definitionPermissions(def.permissionKey);
   const routes: RouteObject[] = [];
@@ -74,10 +57,7 @@ function routesForDefinition(def: ModuleDefinition): RouteObject[] {
 function DynamicModuleRoutes() {
   const { data, isLoading, isError, refetch } = useDynamicDefinitions('published');
   const routes: RouteObject[] = useMemo(
-    () =>
-      (data ?? [])
-        .filter((def) => !STATIC_COVERED_BASES.has(def.routeBase))
-        .flatMap(routesForDefinition),
+    () => (data ?? []).flatMap(routesForDefinition),
     [data],
   );
   const element = useRoutes(routes);

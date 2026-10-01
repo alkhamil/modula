@@ -36,8 +36,12 @@ Aturan wajib saat menulis atau mengubah kode frontend di repo ini
 
 - Layout: `AppShell` + `Sidebar` + `PageHeader` + `AvatarUser` + `PageContent`
   di `src/shared/components/layout/`. Tidak ada konsep multi-app/registry.
-- Navigasi statis di `src/app/navigation.tsx`, route di `src/app/router.tsx`,
-  halaman di `src/pages/`.
+- Navigasi statis (Dashboard/Generator/Component) di `src/app/navigation.tsx`
+  + item dinamis dari definisi published (`useDynamicNavItems`); route
+  statis + `DynamicModuleRoutes` + `preview/:definitionKey` di
+  `src/app/router.tsx`; halaman di `src/pages/`. Jangan tambah route/nav
+  statis per modul bisnis — modul = data definisi (lihat skill
+  `module-generator`).
 - `Sidebar`/`AppShell` menerima `navItems` via props (bukan registry); session
   user dari `AuthProvider` (`src/modules/auth`) dialirkan ke `AppShell` via
   `src/app/ProtectedAppShell.tsx`.
@@ -65,5 +69,6 @@ Aturan wajib saat menulis atau mengubah kode frontend di repo ini
 
 ## Verifikasi
 
-Setelah perubahan: `npm run lint` dan `npm run build`; perbaiki error
-yang muncul sebelum selesai.
+Setelah perubahan: `npm run lint` dan `npm run build` (tambah
+`cd backend && npm test` bila menyentuh BE); perbaiki error yang muncul
+sebelum selesai.
