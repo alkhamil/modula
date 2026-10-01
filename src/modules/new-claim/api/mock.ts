@@ -172,7 +172,7 @@ export async function mockBulkUploadNewClaims(file: File | ArrayBuffer): Promise
       const source = headers[headerIndex.get(header.trim().toLowerCase()) ?? -1] ?? '';
       mapped[header] = row[source] ?? '';
     }
-    const { payload, errors: rowErrors } = validateBulkNewClaimRow(mapped, (field, value) => {
+    const { payload, errors: rowErrors } = validateBulkNewClaimRow(mapped, (_field, _value) => {
 
       return false;
     });

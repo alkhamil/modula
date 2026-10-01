@@ -1,5 +1,4 @@
 import type { CreateNewClaimPayload } from '../types';
-import { hasEmoticon } from '../../../shared/utils';
 
 export interface BulkFieldError {
   field: string;
@@ -23,7 +22,7 @@ export const BULK_NEWCLAIM_EXAMPLE = ["Contoh Policy Number","2024-01-15"];
  */
 export function validateBulkNewClaimRow(
   row: Record<string, unknown>,
-  isTaken: (field: string, value: string) => boolean,
+  _isTaken: (field: string, value: string) => boolean,
 ): BulkRowValidation {
   const errors: BulkFieldError[] = [];
   const policyNumberValue = String(row["Policy Number"] ?? '').trim();

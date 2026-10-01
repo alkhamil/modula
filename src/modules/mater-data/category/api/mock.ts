@@ -254,7 +254,7 @@ export async function mockBulkUploadCategories(file: File | ArrayBuffer): Promis
       const source = headers[headerIndex.get(header.trim().toLowerCase()) ?? -1] ?? '';
       mapped[header] = row[source] ?? '';
     }
-    const { payload, errors: rowErrors } = validateBulkCategoryRow(mapped, (field, value) => {
+    const { payload, errors: rowErrors } = validateBulkCategoryRow(mapped, (_field, _value) => {
 
       return false;
     });

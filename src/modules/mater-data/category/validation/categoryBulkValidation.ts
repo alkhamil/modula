@@ -23,7 +23,7 @@ export const BULK_CATEGORY_EXAMPLE = ["Contoh Category Name","Contoh Description
  */
 export function validateBulkCategoryRow(
   row: Record<string, unknown>,
-  isTaken: (field: string, value: string) => boolean,
+  _isTaken: (field: string, value: string) => boolean,
 ): BulkRowValidation {
   const errors: BulkFieldError[] = [];
   const categoryNameValue = String(row["Category Name"] ?? '').trim();

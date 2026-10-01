@@ -31,6 +31,7 @@ export {
 export type { ConfigIssue } from './parser';
 export * from './registry';
 export { default as GeneratorPage } from './pages/GeneratorPage';
+export * from './definitions';
 export { buildContext } from './engine/context';
 export type { FieldModel, TemplateContext } from './engine/context';
 export { getModuleFileList } from './engine/featureGenerator';
