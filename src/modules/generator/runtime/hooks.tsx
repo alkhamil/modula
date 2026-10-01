@@ -1,0 +1,429 @@
+/** Hooks TanStack Query + filter + form untuk runtime modul dinamis. */
+import { useMemo, useState, type ReactNode } from 'react';
+import { useNavigate, useSearchParams } from 'react-router';
+import { useQuery, useQueries } from '@tanstack/react-query';
+import {
+  Badge,
+  useToast,
+  type DetailRow,
+} from '../../../shared/components/ui';
+import { useDebounce, useUrlPagination } from '../../../shared/hooks';
+import type { FilterField } from '../../../shared/components/ui';
+import type { ApiList, SubmitResult } from '../../../shared/types';
+import {
+  capitalize,
+  downloadBlob,
+  formatDate,
+  formatDateRange,
+  formatNumber,
+  getErrorStateType,
+  isConnectionError,
+  mapSubmitError,
+  splitFieldErrors,
+} from '../../../shared/utils';
+import type { GeneratorFieldConfig } from '../types';
+import type { ModuleDefinition } from '../definitions';
+import { getDefinition, listDefinitions } from './definitionsApi';
+import {
+  USE_MOCK as RECORDS_USE_MOCK,
+  exportRecords,
+  getRecord,
+  listRecords,
+  makeOptionsLoader,
+  serviceOptionsOf,
+} from './recordsApi';
+import { buildFilterFields } from './filtering';
+import { formDefaultValue, formEditValue, payloadValue, type DynamicFormValues } from './validation';
+import {
+  useDeleteDynamicRecord,
+  useRestoreDynamicRecord,
+  useUpsertDynamicRecord,
+} from './mutations';
+import type {
+  DynamicDetail,
+  DynamicListItem,
+  DynamicListParams,
+  DynamicOption,
+} from './types';
+
+export function useDynamicDefinitions(status = 'published') {
+  return useQuery<ModuleDefinition[]>({
+    queryKey: ['dynamic-definitions', status],
+    queryFn: () => listDefinitions(status),
+    placeholderData: (prev) => prev,
+  });
+}
+
+export function useDynamicDefinition(key: string | undefined) {
+  return useQuery<ModuleDefinition>({
+    queryKey: ['dynamic-definition', key],
+    queryFn: () => getDefinition(key as string),
+    enabled: !!key,
+  });
+}
+
+export function useDynamicDetail(def: ModuleDefinition | undefined, id: string | undefined) {
+  return useQuery<DynamicDetail>({
+    queryKey: ['dynamic-record', def?.key, id],
+    queryFn: () => getRecord(def as ModuleDefinition, id as string),
+    enabled: !!def && !!id,
+  });
+}
+
+/** State filter list generik — meniru `useUserListFilter` untuk sembarang definisi. */
+export function useDynamicListFilter(def: ModuleDefinition) {
+  const [searchParams] = useSearchParams();
+  const { page, setPage, pageSize, setPageSize, handlePageSizeChange } = useUrlPagination();
+  const [sortKey, setSortKey] = useState<string | undefined>(undefined);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') ?? '');
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  const filterFields: FilterField[] = useMemo(
+    () => buildFilterFields(def.fields, (field) => makeOptionsLoader(def, field)),
+    [def],
+  );
+
+  const [filterValues, setFilterValues] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
+    for (const field of filterFields) {
+      const fromUrl = searchParams.get(field.name);
+      if (fromUrl) initial[field.name] = fromUrl;
+    }
+    return initial;
+  });
+
+  const queryParams: DynamicListParams = useMemo(() => {
+    const params: DynamicListParams = {
+      search: debouncedSearchQuery || undefined,
+      order: sortKey,
+      sort: sortKey ? sortDir : undefined,
+      page,
+      size: pageSize,
+    };
+    for (const [key, value] of Object.entries(filterValues)) {
+      if (value) params[key] = value;
+    }
+    return params;
+  }, [debouncedSearchQuery, sortKey, sortDir, page, pageSize, filterValues]);
+
+  const isFilterActive = !!debouncedSearchQuery || Object.values(filterValues).some(Boolean);
+
+  function handleSearchChange(value: string): void {
+    setSearchQuery(value);
+    setPage(1);
+  }
+
+  function handleApply(values: Record<string, string>, options?: { resetPage?: boolean }): void {
+    setFilterValues(values);
+    if (options?.resetPage !== false) setPage(1);
+  }
+
+  function handleReset(): void {
+    setFilterValues({});
+    setPage(1);
+  }
+
+  function handleSort(key: string): void {
+    if (key === sortKey) {
+      setSortDir((dir) => (dir === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
+  }
+
+  return {
+    filterFields,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    handlePageSizeChange,
+    sortKey,
+    sortDir,
+    searchQuery,
+    filterValues,
+    queryParams,
+    isFilterActive,
+    handleSearchChange,
+    handleApply,
+    handleReset,
+    handleSort,
+  };
+}
+
+export function useDynamicList(def: ModuleDefinition, params: DynamicListParams) {
+  const query = useQuery<ApiList<DynamicListItem>>({
+    queryKey: ['dynamic-records', def.key, params],
+    queryFn: () => listRecords(def, params),
+    placeholderData: (prev) => prev,
+  });
+  return {
+    rows: query.data?.list.content ?? [],
+    totalRecords: query.data?.list.pagination?.total_elements ?? 0,
+    isLoading: query.isLoading,
+    error: query.error ? (query.error as Error).message : null,
+    refresh: () => query.refetch(),
+  };
+}
+
+const OPTION_TYPES = new Set(['selectField', 'selectMultipleField', 'radioGroupField', 'checkboxGroupField']);
+
+/**
+ * Opsi per field opsi: mockStatic selalu dari definisi; api → contoh definisi
+ * saat mock, query endpoint saat real; mockPaging selalu via loader.
+ */
+export function useDynamicOptions(def: ModuleDefinition): {
+  optionsOf: (field: GeneratorFieldConfig) => DynamicOption[];
+  loaderOf: (field: GeneratorFieldConfig) => ReturnType<typeof makeOptionsLoader> | undefined;
+} {
+  const apiFields = useMemo(
+    () => def.fields.filter((field) => OPTION_TYPES.has(field.type) && field.source === 'api'),
+    [def],
+  );
+  const results = useQueries({
+    queries: apiFields.map((field) => ({
+      queryKey: ['dynamic-options', def.key, field.name],
+      queryFn: () => serviceOptionsOf(def, field, '', 1, 100),
+      enabled: !RECORDS_USE_MOCK.options,
+      staleTime: Infinity,
+      gcTime: Infinity,
+    })),
+  });
+  const fetched = useMemo(() => {
+    const map = new Map<string, DynamicOption[]>();
+    apiFields.forEach((field, index) => {
+      const data = results[index]?.data;
+      if (data) map.set(field.name, data);
+    });
+    return map;
+  }, [apiFields, results]);
+
+  return useMemo(
+    () => ({
+      optionsOf: (field: GeneratorFieldConfig): DynamicOption[] => {
+        if (field.source === 'mockStatic') return (field.options ?? []).map((o) => ({ ...o }));
+        if (field.source === 'api') {
+          return fetched.get(field.name) ?? (field.options ?? []).map((o) => ({ ...o }));
+        }
+        return [];
+      },
+      loaderOf: (field: GeneratorFieldConfig) => {
+        if (!OPTION_TYPES.has(field.type)) return undefined;
+        if (field.source === 'mockPagingInfinityScroll') return makeOptionsLoader(def, field);
+        return undefined;
+      },
+    }),
+    [def, fetched],
+  );
+}
+
+/** Nilai detail satu field untuk baris DetailCard (meniru `detailRowSnippet`). */
+function detailValue(field: GeneratorFieldConfig, item: DynamicDetail): unknown {
+  const value = item[field.name];
+  switch (field.type) {
+    case 'numberField':
+      return formatNumber(Number(value ?? 0));
+    case 'dateField':
+      return formatDate(String(value ?? ''));
+    case 'dateRangeField':
+      return formatDateRange(String(value ?? ''));
+    case 'checkboxField':
+    case 'switchField':
+      return value ? 'Yes' : 'No';
+    case 'selectField':
+    case 'radioGroupField':
+      return capitalize(String(value ?? ''));
+    case 'selectMultipleField':
+    case 'checkboxGroupField':
+      return ((value as string[] | null) ?? []).join(', ');
+    case 'passwordField':
+      return '••••••';
+    default:
+      return value;
+  }
+}
+
+/** Hook form generik — meniru `useUserForm` (detail, defaults, submit, opsi). */
+export function useDynamicForm(def: ModuleDefinition, id?: string) {
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const isEdit = !!id;
+
+  const query = useDynamicDetail(def, id);
+  const upsertMutation = useUpsertDynamicRecord(def);
+  const { optionsOf, loaderOf } = useDynamicOptions(def);
+  const item = query.data;
+
+  const defaultValues: DynamicFormValues = useMemo(() => {
+    const values: DynamicFormValues = {};
+    for (const field of def.fields) {
+      values[field.name] = item
+        ? formEditValue(field, item as unknown as Record<string, unknown>)
+        : formDefaultValue(field);
+    }
+    return values;
+  }, [def, item]);
+
+  const detailRows: DetailRow[] = useMemo(() => {
+    if (!item) {
+      return [
+        { label: 'Status', value: '' },
+        ...def.fields.map((field) => ({ label: field.label, value: '' })),
+      ];
+    }
+    return [
+      {
+        label: 'Status',
+        value: (
+          <Badge variant={item.status === 'active' ? 'success' : 'secondary'}>
+            {capitalize(item.status)}
+          </Badge>
+        ),
+      },
+      ...def.fields.map((field) => ({
+        label: field.label,
+        value: detailValue(field, item) as ReactNode,
+      })),
+      { label: 'Created By', value: item.createdBy },
+      { label: 'Created Date', value: item.createdDate },
+    ];
+  }, [def, item]);
+
+  async function onSubmit(data: DynamicFormValues): Promise<SubmitResult> {
+    try {
+      const payload: Record<string, unknown> = {};
+      for (const field of def.fields) payload[field.name] = payloadValue(field, data[field.name]);
+      const res = await upsertMutation.mutateAsync({ id: isEdit ? id : undefined, data: payload });
+      showToast({ message: res.message, variant: 'success' });
+      setTimeout(() => navigate(`/${def.routeBase}`), 500);
+      return { success: true };
+    } catch (err: unknown) {
+      const fallback = `Failed to ${isEdit ? 'update' : 'create'} ${def.singularLabel.toLowerCase()}`;
+      const result = mapSubmitError(err, fallback);
+      if (result.fieldErrors) {
+        const { fieldErrors, unknownMessage } = splitFieldErrors(result.fieldErrors, (field) => field);
+        if (unknownMessage) showToast({ message: unknownMessage, variant: 'error' });
+        return Object.keys(fieldErrors).length > 0 ? { success: false, fieldErrors } : { success: false };
+      }
+      if (result.toastMessage) {
+        showToast({ message: result.toastMessage, variant: 'error' });
+      }
+      return result;
+    }
+  }
+
+  function onCancel(): void {
+    navigate(-1);
+  }
+
+  const queryStatus: 'loading' | 'error' | 'success' = query.isLoading
+    ? 'loading'
+    : query.error
+      ? 'error'
+      : 'success';
+
+  return {
+    queryStatus,
+    queryMessage: query.error?.message ?? undefined,
+    errorType: query.error ? getErrorStateType(query.error) : undefined,
+    isNetworkError: query.error ? isConnectionError(query.error) : false,
+    detailRows,
+    defaultValues,
+    isSubmitting: upsertMutation.isPending,
+    isEdit,
+    onSubmit,
+    onCancel,
+    optionsOf,
+    loaderOf,
+  };
+}
+
+/** Aksi list generik: dialog delete/restore + toast — meniru `useUserList`. */
+export function useDynamicListActions(def: ModuleDefinition) {
+  const { showToast } = useToast();
+  const [deleteTarget, setDeleteTarget] = useState<DynamicListItem | null>(null);
+  const [restoreTarget, setRestoreTarget] = useState<DynamicListItem | null>(null);
+  const deleteMutation = useDeleteDynamicRecord(def);
+  const restoreMutation = useRestoreDynamicRecord(def);
+
+  function handleDeleteClick(item: DynamicListItem): void {
+    setDeleteTarget(item);
+  }
+
+  function handleDeleteCancel(): void {
+    setDeleteTarget(null);
+  }
+
+  async function handleDelete(): Promise<void> {
+    if (!deleteTarget) return;
+    try {
+      const res = await deleteMutation.mutateAsync(String(deleteTarget.id));
+      setDeleteTarget(null);
+      showToast({ message: res.message, variant: 'success' });
+    } catch (err: unknown) {
+      const fallback = `Failed to delete ${def.singularLabel.toLowerCase()}`;
+      const result = mapSubmitError(err, fallback);
+      showToast({ message: result.toastMessage ?? fallback, variant: 'error' });
+    }
+  }
+
+  function handleRestoreClick(item: DynamicListItem): void {
+    setRestoreTarget(item);
+  }
+
+  function handleRestoreCancel(): void {
+    setRestoreTarget(null);
+  }
+
+  async function handleRestore(): Promise<void> {
+    if (!restoreTarget) return;
+    try {
+      const res = await restoreMutation.mutateAsync(String(restoreTarget.id));
+      setRestoreTarget(null);
+      showToast({ message: res.message, variant: 'success' });
+    } catch (err: unknown) {
+      const fallback = `Failed to restore ${def.singularLabel.toLowerCase()}`;
+      const result = mapSubmitError(err, fallback);
+      showToast({ message: result.toastMessage ?? fallback, variant: 'error' });
+    }
+  }
+
+  return {
+    deleteTarget,
+    restoreTarget,
+    isDeleting: deleteMutation.isPending,
+    isRestoring: restoreMutation.isPending,
+    handleDeleteClick,
+    handleDeleteCancel,
+    handleDelete,
+    handleRestoreClick,
+    handleRestoreCancel,
+    handleRestore,
+  };
+}
+
+/** Export .xlsx generik — meniru `useUserExport`. */
+export function useDynamicExport(def: ModuleDefinition) {
+  const { showToast } = useToast();
+  const [isExporting, setExporting] = useState(false);
+
+  async function exportData(params: DynamicListParams): Promise<void> {
+    setExporting(true);
+    try {
+      const blob = await exportRecords(def, params);
+      const stamp = new Date().toISOString().slice(0, 10);
+      downloadBlob(blob, `${def.apiPlural}-${stamp}.xlsx`);
+      showToast({ variant: 'success', message: 'Export berhasil diunduh.' });
+    } catch (err: unknown) {
+      const fallback = 'Gagal mengekspor data.';
+      const result = mapSubmitError(err, fallback);
+      showToast({ message: result.toastMessage ?? fallback, variant: 'error' });
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  return { exportData, isExporting };
+}

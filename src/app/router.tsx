@@ -17,6 +17,9 @@ import {
 import { GeneratorPage } from '../modules/generator';
 import {
   DynamicModuleRoutes,
+  DynamicPreviewCreatePage,
+  DynamicPreviewDetailPage,
+  DynamicPreviewEditPage,
   DynamicPreviewPage,
 } from '../modules/generator/runtime/DynamicRoutes';
 import {
@@ -418,6 +421,21 @@ export const router = createBrowserRouter([
                 path: 'preview/:definitionKey',
                 element: <DynamicPreviewPage />,
                 handle: { breadcrumb: [{ label: 'Preview' }] },
+              },
+              {
+                path: 'preview/:definitionKey/create',
+                element: <DynamicPreviewCreatePage />,
+                handle: { breadcrumb: [{ label: 'Preview' }, { label: 'Create' }] },
+              },
+              {
+                path: 'preview/:definitionKey/:recordId/view',
+                element: <DynamicPreviewDetailPage />,
+                handle: { breadcrumb: [{ label: 'Preview' }, { label: 'Detail' }] },
+              },
+              {
+                path: 'preview/:definitionKey/:recordId/edit',
+                element: <DynamicPreviewEditPage />,
+                handle: { breadcrumb: [{ label: 'Preview' }, { label: 'Edit' }] },
               },
               { element: <DynamicModuleRoutes /> },
               { path: '*', element: <ErrorStatePage type="404" />, handle: { notFound: true } },

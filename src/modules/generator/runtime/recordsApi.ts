@@ -2,15 +2,38 @@
 import api from '../../../shared/lib/api';
 import type { ApiDetail, ApiList, ApiResponse } from '../../../shared/types';
 import type { LoadOptionsFn } from '../../../shared/components/ui/fields/SelectField';
+import { XLSX_MIME, buildWorkbook, readWorkbookRows } from '../../../shared/utils';
 import type { GeneratorFieldConfig } from '../types';
 import type { ModuleDefinition } from '../definitions';
 import { filterDynamicRecords, paginateRecords } from './filtering';
+import {
+  bulkExampleRow,
+  bulkHeaders,
+  exportCellValue,
+  exportHeaders,
+  validateBulkRow,
+  type BulkUploadResult,
+} from './bulk';
 import type { DynamicDetail, DynamicListItem, DynamicListParams, DynamicOption } from './types';
+
+export type { BulkUploadResult };
+
+export interface MutationResult {
+  message: string;
+  data: DynamicDetail;
+}
 
 export const USE_MOCK = {
   list: true,
   get: true,
   options: true,
+  create: true,
+  update: true,
+  delete: true,
+  restore: true,
+  export: true,
+  bulkTemplate: true,
+  bulkUpload: true,
 };
 
 function delay(ms: number): Promise<void> {
@@ -97,7 +120,7 @@ async function mockGetRecord(def: ModuleDefinition, id: string): Promise<Dynamic
   };
 }
 
-async function serviceLoadOptions(
+export async function serviceOptionsOf(
   def: ModuleDefinition,
   field: GeneratorFieldConfig,
   search = '',
@@ -137,13 +160,332 @@ function mockLoadOptionsFn(field: GeneratorFieldConfig): LoadOptionsFn {
   };
 }
 
+function mockConflictError(field: string, message: string, code: string): unknown {
+  return {
+    response: {
+      data: {
+        response_schema: {
+          response_code: code,
+          response_message: 'Parameter tidak valid',
+        },
+        response_output: { errors: [{ field, message }] },
+      },
+    },
+  };
+}
+
+function uniqueFields(def: ModuleDefinition): GeneratorFieldConfig[] {
+  return def.fields.filter((field) => field.rules.includes('unique'));
+}
+
+function nowStamp(): string {
+  return new Date().toISOString().slice(0, 16).replace('T', ' ');
+}
+
+async function serviceCreateRecord(
+  def: ModuleDefinition,
+  data: Record<string, unknown>,
+): Promise<MutationResult> {
+  const res = await api.post<ApiResponse<{ detail: DynamicDetail }>>(
+    `/api/v1/${def.apiPlural}`,
+    data,
+  );
+  return {
+    message: res.data.response_schema.response_message,
+    data: res.data.response_output?.detail as DynamicDetail,
+  };
+}
+
+async function mockCreateRecord(
+  def: ModuleDefinition,
+  data: Record<string, unknown>,
+): Promise<MutationResult> {
+  await delay(300);
+  const rows = await seedRows(def.apiPlural);
+  for (const field of uniqueFields(def)) {
+    if (rows.some((row) => row[field.name] === data[field.name])) {
+      throw mockConflictError(
+        field.name,
+        `${field.label} already exists, please use another`,
+        `MOCK-${def.apiPlural.toUpperCase()}-400`,
+      );
+    }
+  }
+  const record: DynamicListItem = {
+    id: Math.max(...rows.map((row) => row.id), 0) + 1,
+    status: 'active',
+    created_by: 'System',
+    created_date: nowStamp(),
+    ...pickKnown(def, data),
+  };
+  rows.push(record);
+  return { message: `${def.singularLabel} created successfully.`, data: toDetail(def, record) };
+}
+
+function pickKnown(
+  def: ModuleDefinition,
+  data: Record<string, unknown>,
+): Record<string, unknown> {
+  const picked: Record<string, unknown> = {};
+  for (const field of def.fields) {
+    if (data[field.name] !== undefined) picked[field.name] = data[field.name];
+  }
+  return picked;
+}
+
+function toDetail(def: ModuleDefinition, row: DynamicListItem): DynamicDetail {
+  const detail: DynamicDetail = {
+    id: String(row.id),
+    status: row.status,
+    createdBy: row.created_by ?? '',
+    createdDate: row.created_date,
+  };
+  for (const field of def.fields) detail[field.name] = row[field.name] ?? null;
+  return detail;
+}
+
+async function serviceUpdateRecord(
+  def: ModuleDefinition,
+  id: string,
+  data: Record<string, unknown>,
+): Promise<MutationResult> {
+  const res = await api.put<ApiResponse<{ detail: DynamicDetail }>>(
+    `/api/v1/${def.apiPlural}/${id}`,
+    data,
+  );
+  return {
+    message: res.data.response_schema.response_message,
+    data: res.data.response_output?.detail as DynamicDetail,
+  };
+}
+
+async function mockUpdateRecord(
+  def: ModuleDefinition,
+  id: string,
+  data: Record<string, unknown>,
+): Promise<MutationResult> {
+  await delay(300);
+  const rows = await seedRows(def.apiPlural);
+  const record = rows.find((row) => String(row.id) === id);
+  if (!record) throw new Error(`${def.singularLabel} not found`);
+  for (const field of uniqueFields(def)) {
+    if (
+      rows.some((row) => String(row.id) !== id && row[field.name] === data[field.name])
+    ) {
+      throw mockConflictError(
+        field.name,
+        `${field.label} already exists, please use another`,
+        `MOCK-${def.apiPlural.toUpperCase()}-400`,
+      );
+    }
+  }
+  Object.assign(record, pickKnown(def, data));
+  return { message: `${def.singularLabel} updated successfully.`, data: toDetail(def, record) };
+}
+
+async function serviceDeleteRecord(
+  def: ModuleDefinition,
+  id: string,
+): Promise<{ message: string }> {
+  const res = await api.delete<ApiResponse<null>>(`/api/v1/${def.apiPlural}/${id}`);
+  return { message: res.data.response_schema.response_message };
+}
+
+async function mockDeleteRecord(
+  def: ModuleDefinition,
+  id: string,
+): Promise<{ message: string }> {
+  await delay(300);
+  const rows = await seedRows(def.apiPlural);
+  const record = rows.find((row) => String(row.id) === id);
+  if (!record) throw new Error(`${def.singularLabel} not found`);
+  if (def.deleteMode === 'hard') {
+    recordCache.set(
+      def.apiPlural,
+      rows.filter((row) => String(row.id) !== id),
+    );
+    return { message: `${def.singularLabel} deleted permanently` };
+  }
+  record.status = 'inactive';
+  return { message: `${def.singularLabel} deleted successfully` };
+}
+
+async function serviceRestoreRecord(
+  def: ModuleDefinition,
+  id: string,
+): Promise<MutationResult> {
+  const res = await api.patch<ApiResponse<{ detail: DynamicDetail }>>(
+    `/api/v1/${def.apiPlural}/${id}/restore`,
+  );
+  return {
+    message: res.data.response_schema.response_message,
+    data: res.data.response_output?.detail as DynamicDetail,
+  };
+}
+
+async function mockRestoreRecord(
+  def: ModuleDefinition,
+  id: string,
+): Promise<MutationResult> {
+  await delay(300);
+  if (def.deleteMode !== 'soft') {
+    throw new Error(`${def.singularLabel} does not support restore`);
+  }
+  const rows = await seedRows(def.apiPlural);
+  const record = rows.find((row) => String(row.id) === id);
+  if (!record) throw new Error(`${def.singularLabel} not found`);
+  record.status = 'active';
+  return { message: `${def.singularLabel} restored successfully`, data: toDetail(def, record) };
+}
+
+async function serviceExportRecords(
+  def: ModuleDefinition,
+  params?: DynamicListParams,
+): Promise<Blob> {
+  const res = await api.get(`/api/v1/${def.apiPlural}/export`, {
+    params,
+    responseType: 'blob',
+  });
+  return res.data as Blob;
+}
+
+async function mockExportRecords(
+  def: ModuleDefinition,
+  params?: DynamicListParams,
+): Promise<Blob> {
+  await delay(300);
+  const rows = await seedRows(def.apiPlural);
+  const items = filterDynamicRecords(def.fields, rows, { ...params, page: undefined, size: undefined });
+  const data = await buildWorkbook(
+    exportHeaders(def.fields),
+    items.map((row) => [
+      ...def.fields.map((field) => exportCellValue(field.type, row[field.name])),
+      row.status,
+      row.created_date,
+    ]),
+  );
+  return new Blob([data], { type: XLSX_MIME });
+}
+
+async function serviceDownloadTemplate(def: ModuleDefinition): Promise<Blob> {
+  const res = await api.get(`/api/v1/${def.apiPlural}/bulk-template`, { responseType: 'blob' });
+  return res.data as Blob;
+}
+
+async function mockDownloadTemplate(def: ModuleDefinition): Promise<Blob> {
+  const data = await buildWorkbook(bulkHeaders(def.fields), [bulkExampleRow(def.fields)]);
+  return new Blob([data], { type: XLSX_MIME });
+}
+
+async function serviceBulkUploadRecords(
+  def: ModuleDefinition,
+  file: File,
+): Promise<BulkUploadResult> {
+  const form = new FormData();
+  form.append('file', file);
+  const res = await api.post<ApiResponse<BulkUploadResult>>(
+    `/api/v1/${def.apiPlural}/bulk-upload`,
+    form,
+  );
+  const output = res.data.response_output;
+  if (!output) throw new Error('Gagal mengunggah file.');
+  return output;
+}
+
+async function mockBulkUploadRecords(
+  def: ModuleDefinition,
+  file: File | ArrayBuffer,
+): Promise<BulkUploadResult> {
+  await delay(500);
+  const buffer = file instanceof ArrayBuffer ? file : await file.arrayBuffer();
+  const { headers, rows } = await readWorkbookRows(buffer);
+  const expected = bulkHeaders(def.fields);
+  const headerIndex = new Map(headers.map((header, i) => [header.trim().toLowerCase(), i]));
+  const missing = expected.filter((header) => !headerIndex.has(header.trim().toLowerCase()));
+  if (missing.length > 0) {
+    return {
+      totalRows: rows.length,
+      successCount: 0,
+      failedCount: rows.length,
+      errors: missing.map((field) => ({
+        row: 1,
+        field,
+        message: `Kolom "${field}" tidak ditemukan di file.`,
+      })),
+    };
+  }
+  if (rows.length === 0) {
+    return {
+      totalRows: 0,
+      successCount: 0,
+      failedCount: 0,
+      errors: [{ row: 1, message: 'File tidak berisi data.' }],
+    };
+  }
+  const store = await seedRows(def.apiPlural);
+  const uniques = uniqueFields(def);
+  const taken = new Map<string, Set<string>>();
+  for (const field of uniques) {
+    taken.set(
+      field.name,
+      new Set(store.map((row) => String(row[field.name] ?? '')).filter(Boolean)),
+    );
+  }
+  let successCount = 0;
+  const errors: BulkUploadResult['errors'] = [];
+  const accepted: Record<string, unknown>[] = [];
+  rows.forEach((row, index) => {
+    const mapped: Record<string, unknown> = {};
+    for (const header of expected) {
+      const source = headers[headerIndex.get(header.trim().toLowerCase()) ?? -1] ?? '';
+      mapped[header] = row[source] ?? '';
+    }
+    const { payload, errors: rowErrors } = validateBulkRow(def.fields, mapped, (field, value) =>
+      taken.get(field)?.has(value) ?? false,
+    );
+    if (!payload) {
+      for (const rowError of rowErrors) {
+        errors.push({ row: index + 2, field: rowError.field, message: rowError.message });
+      }
+      return;
+    }
+    for (const field of uniques) {
+      const value = payload[field.name];
+      if (value !== undefined && value !== null && value !== '') {
+        taken.get(field.name)?.add(String(value));
+      }
+    }
+    accepted.push(payload);
+    successCount += 1;
+  });
+  let nextId = Math.max(...store.map((row) => row.id), 0) + 1;
+  for (const payload of accepted) {
+    store.push({
+      id: nextId,
+      status: 'active',
+      created_by: 'Bulk Upload',
+      created_date: nowStamp(),
+      ...payload,
+    });
+    nextId += 1;
+  }
+  return { totalRows: rows.length, successCount, failedCount: rows.length - successCount, errors };
+}
+
 export const listRecords = USE_MOCK.list ? mockListRecords : serviceListRecords;
 export const getRecord = USE_MOCK.get ? mockGetRecord : serviceGetRecord;
+export const createRecord = USE_MOCK.create ? mockCreateRecord : serviceCreateRecord;
+export const updateRecord = USE_MOCK.update ? mockUpdateRecord : serviceUpdateRecord;
+export const deleteRecord = USE_MOCK.delete ? mockDeleteRecord : serviceDeleteRecord;
+export const restoreRecord = USE_MOCK.restore ? mockRestoreRecord : serviceRestoreRecord;
+export const exportRecords = USE_MOCK.export ? mockExportRecords : serviceExportRecords;
+export const downloadTemplate = USE_MOCK.bulkTemplate ? mockDownloadTemplate : serviceDownloadTemplate;
+export const bulkUploadRecords = USE_MOCK.bulkUpload ? mockBulkUploadRecords : serviceBulkUploadRecords;
 
 export function makeOptionsLoader(
   def: ModuleDefinition,
   field: GeneratorFieldConfig,
 ): LoadOptionsFn {
   if (USE_MOCK.options) return mockLoadOptionsFn(field);
-  return (search = '', page = 1) => serviceLoadOptions(def, field, search, page, 20);
+  return (search = '', page = 1) => serviceOptionsOf(def, field, search, page, 20);
 }
