@@ -33,22 +33,7 @@ import {
   type DynamicFormValues,
 } from './validation';
 import type { LoadOptionsFn } from '../../../shared/components/ui/fields/SelectField';
-
-/** Kelas kolom grid statis (Tailwind tidak bisa membangkitkan nama dinamis). */
-const COL_SPAN: Record<number, string> = {
-  1: 'col-span-1',
-  2: 'col-span-2',
-  3: 'col-span-3',
-  4: 'col-span-4',
-  5: 'col-span-5',
-  6: 'col-span-6',
-  7: 'col-span-7',
-  8: 'col-span-8',
-  9: 'col-span-9',
-  10: 'col-span-10',
-  11: 'col-span-11',
-  12: 'col-span-12',
-};
+import { colSpanClass } from './grid';
 
 interface DynamicFormProps {
   def: ModuleDefinition;
@@ -291,7 +276,7 @@ function DynamicForm({
                   const field = byName.get(item.field);
                   if (!field) return null;
                   return (
-                    <div key={field.name} className={COL_SPAN[item.colSpan] ?? 'col-span-12'}>
+                    <div key={field.name} className={colSpanClass(item.colSpan)}>
                       {renderField(field)}
                     </div>
                   );

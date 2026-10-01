@@ -1,5 +1,7 @@
 export * from './types';
 export { buildFilterFields, filterDynamicRecords, paginateRecords } from './filtering';
+export { colSpanClass, COL_SPAN_CLASS } from './grid';
+export { moveFormItem, moveTableColumn, setFormSpan, toggleTableColumn } from './layoutOps';
 export {
   bulkExampleRow,
   bulkHeaders,

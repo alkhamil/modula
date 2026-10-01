@@ -22,11 +22,14 @@ import ModuleInfoStep, {
 } from '../components/ModuleInfoStep';
 import FeaturesStep from '../components/FeaturesStep';
 import FieldsStep from '../components/FieldsStep';
+import LayoutStep from '../components/LayoutStep';
 import ReviewStep from '../components/ReviewStep';
 import OutputPanel from '../components/OutputPanel';
 import type { GeneratorFieldConfig } from '../types';
+import type { ModuleLayout } from '../definitions';
+import { defaultLayoutForFields, normalizeLayout } from '../definitions';
 
-const STEPS = ['Module Info', 'Features', 'Fields', 'Review'] as const;
+const STEPS = ['Module Info', 'Features', 'Fields', 'Layout', 'Review'] as const;
 
 const DEFAULT_FEATURES: Record<FeatureKey, boolean> = {
   list: true,
@@ -77,6 +80,7 @@ function GeneratorPage() {
   });
   const [features, setFeatures] = useState<Record<FeatureKey, boolean>>(DEFAULT_FEATURES);
   const [fields, setFields] = useState<GeneratorFieldConfig[]>([]);
+  const [layout, setLayout] = useState<ModuleLayout | null>(null);
   const [stepError, setStepError] = useState<string | null>(null);
   const [output, setOutput] = useState<GeneratedFile[] | null>(null);
   const [usedConfig, setUsedConfig] = useState<GeneratorConfig | null>(null);
@@ -141,6 +145,12 @@ function GeneratorPage() {
       return;
     }
     setStepError(null);
+    if (step === 2) {
+      // Masuk langkah Layout: selaraskan layout dengan fields terkini.
+      setLayout((prev) =>
+        normalizeLayout(prev ?? defaultLayoutForFields(fields), fields.map((f) => f.name)),
+      );
+    }
     setStep((prev) => Math.min(prev + 1, STEPS.length - 1));
   }
 
@@ -291,7 +301,7 @@ function GeneratorPage() {
     <div className="flex flex-col stack-gap">
       <StepIndicator step={step} />
       {stepError && <Alert variant="error" message={stepError} />}
-      <Card title={step === 3 ? 'Review' : `Create New Module — ${STEPS[step]}`}>
+      <Card title={step === 4 ? 'Review' : `Create New Module — ${STEPS[step]}`}>
         {step === 0 && (
           <ModuleInfoStep
             value={info}
@@ -304,7 +314,15 @@ function GeneratorPage() {
         )}
         {step === 1 && <FeaturesStep value={features} onChange={setFeatures} />}
         {step === 2 && <FieldsStep fields={fields} onChange={setFields} />}
-        {step === 3 && <ReviewStep config={buildConfig()} />}
+        {step === 3 && (
+          <LayoutStep
+            fields={fields}
+            layout={layout}
+            onChange={setLayout}
+            previewTitle={info.moduleName.trim() || 'Preview'}
+          />
+        )}
+        {step === 4 && <ReviewStep config={buildConfig()} />}
 
         <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
           <Button variant="secondary" onClick={handleBack} disabled={step === 0}>
