@@ -1,0 +1,26 @@
+interface Props {
+  className?: string;
+}
+
+function CalendarIcon({ className }: Props) {
+  return (
+    <svg
+      className={className}
+      width="15"
+      height="17"
+      viewBox="0 0 15 17"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M14.0833 7.41667H0.75M14.0833 7.41667V14.0833C14.0833 15.0038 13.3371 15.75 12.4167 15.75H2.41667C1.49619 15.75 0.75 15.0038 0.75 14.0833V4.08333C0.75 3.16286 1.49619 2.41667 2.41667 2.41667H12.4167C13.3371 2.41667 14.0833 3.16286 14.0833 4.08333V7.41667ZM9.91667 0.75V4.08333M4.91667 0.75V4.08333"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export default CalendarIcon;

@@ -1,0 +1,116 @@
+import { useState, type ReactNode } from 'react';
+import { Outlet, useLocation, useMatches } from 'react-router';
+import Sidebar from './Sidebar';
+import PageHeader, { type BreadcrumbItem } from './PageHeader';
+import AvatarUser, { type AvatarUserData } from './AvatarUser';
+import PageContent from './PageContent';
+import { type NavItemType } from '../../types/navigation';
+import { filterNavItems } from '../../utils';
+import { useMediaQuery, useSessionStorage } from '../../hooks';
+import { ThemeCustomizer } from '../../theme';
+
+interface AppShellProps {
+  navItems: NavItemType[];
+  permissions?: string[];
+  user: AvatarUserData | null;
+  onLogout?: () => void;
+  profilePath?: string;
+  logo?: ReactNode;
+  appName?: string;
+  /** Judul header; default diselesaikan otomatis dari navigasi & pathname. */
+  title?: string;
+  /** Tampilkan floating button pengatur thema (default: false). */
+  showThemeCustomizer?: boolean;
+}
+
+function AppShell({
+  navItems: allNavItems,
+  permissions = [],
+  user,
+  onLogout,
+  profilePath,
+  logo,
+  appName,
+  title: titleOverride,
+  showThemeCustomizer = false,
+}: AppShellProps) {
+  const isNarrowScreen = useMediaQuery('(max-width: 1023px)');
+  const [storedCollapsed, setStoredCollapsed] = useSessionStorage<boolean | null>(
+    'sidebar-collapsed',
+    null,
+  );
+  const sidebarCollapsed = storedCollapsed ?? isNarrowScreen;
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  const location = useLocation();
+  const matches = useMatches();
+  const navItems = filterNavItems(allNavItems, permissions);
+
+  // Route yang jatuh ke catch-all (`path="*"`) tidak boleh memakai judul menu
+  // hasil pencocokan prefix pathname.
+  const isNotFoundRoute = matches.some(
+    (match) => (match.handle as { notFound?: boolean } | undefined)?.notFound === true,
+  );
+
+  function findActiveParent() {
+    for (const item of navItems) {
+      if (item.children) {
+        const match = item.children.some(
+          (child) =>
+            location.pathname === child.path || location.pathname.startsWith(child.path + '/'),
+        );
+        if (match) return item;
+      } else if (location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  const parent = isNotFoundRoute ? null : findActiveParent();
+
+  const title = titleOverride ?? (isNotFoundRoute ? 'Page Not Found' : (parent?.label ?? ''));
+  const breadcrumb: BreadcrumbItem[] = isNotFoundRoute
+    ? []
+    : matches.flatMap(
+        (match) =>
+          (match.handle as { breadcrumb?: BreadcrumbItem[] } | undefined)?.breadcrumb ?? [],
+      );
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar
+        items={allNavItems}
+        permissions={permissions}
+        collapsed={sidebarCollapsed}
+        mobileOpen={mobileSidebarOpen}
+        onToggle={() => setStoredCollapsed(!sidebarCollapsed)}
+        onMobileClose={() => setMobileSidebarOpen(false)}
+        logo={logo}
+        appName={appName}
+      />
+
+      <div
+        id="main-content"
+        className={`
+          relative flex min-w-0 flex-1 flex-col bg-surface transition-all duration-300
+          ${sidebarCollapsed ? 'md:ml-16' : 'md:ml-64'}
+        `}
+      >
+        <PageHeader
+          title={title}
+          breadcrumb={breadcrumb.length > 0 ? breadcrumb : undefined}
+          onMenuToggle={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+        >
+          <AvatarUser user={user} onLogout={onLogout} profilePath={profilePath} />
+        </PageHeader>
+        <PageContent>
+          <Outlet />
+        </PageContent>
+      </div>
+      {showThemeCustomizer && <ThemeCustomizer />}
+    </div>
+  );
+}
+
+export default AppShell;
