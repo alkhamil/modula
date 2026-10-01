@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "oxlint src vite.config.ts vite-plugin",
+    "lint": "oxlint src backend/src vite.config.ts vite-plugin",
     "preview": "vite preview"
   },
   "dependencies": {
