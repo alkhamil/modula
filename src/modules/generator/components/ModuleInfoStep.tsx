@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { SelectField, TextField } from '../../../shared/components/ui';
 import type { ModuleType } from '../types';
 import { moduleTypeOptions } from '../registry';
-import { NEW_PARENT_VALUE, getParentModuleOptions } from '../parentModules';
+import { NEW_PARENT_VALUE } from '../definitions/parents';
 
 export interface ModuleInfoValue {
   /** '' = root, nama parent yang ada, atau NEW_PARENT_VALUE. */
@@ -24,16 +24,18 @@ interface ModuleInfoStepProps {
   value: ModuleInfoValue;
   onChange: (value: ModuleInfoValue) => void;
   errors: Record<string, string>;
+  /** Parent dari definisi yang sudah terdaftar (draft maupun published). */
+  parentOptions: string[];
 }
 
-function ModuleInfoStep({ value, onChange, errors }: ModuleInfoStepProps) {
-  const parentOptions = useMemo(
+function ModuleInfoStep({ value, onChange, errors, parentOptions }: ModuleInfoStepProps) {
+  const options = useMemo(
     () => [
-      { label: '(root) — src/modules/', value: '' },
-      ...getParentModuleOptions().map((parent) => ({ label: parent, value: parent })),
+      { label: '(root) — modul top-level', value: '' },
+      ...parentOptions.map((parent) => ({ label: parent, value: parent })),
       { label: '+ Parent baru…', value: NEW_PARENT_VALUE },
     ],
-    [],
+    [parentOptions],
   );
   const isNewParent = value.parentName === NEW_PARENT_VALUE;
 
@@ -44,13 +46,13 @@ function ModuleInfoStep({ value, onChange, errors }: ModuleInfoStepProps) {
         <SelectField
           value={value.parentName}
           onChange={(next) => onChange({ ...value, parentName: next })}
-          options={parentOptions}
+          options={options}
           clearable={false}
           searchable
           error={errors.parentName}
         />
         <p className="mt-1 text-xs text-muted-foreground">
-          Opsi dari direktori parent yang ada di src/modules. Pilih (root) untuk modul top-level.
+          Opsi dari parent modul yang sudah terdaftar. Pilih (root) untuk modul top-level.
         </p>
       </div>
       {isNewParent && (

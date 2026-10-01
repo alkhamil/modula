@@ -18,7 +18,13 @@ export {
   payloadValue,
 } from './validation';
 export type { DynamicFormValues } from './validation';
-export { USE_MOCK as DEFINITIONS_USE_MOCK, listDefinitions, getDefinition } from './definitionsApi';
+export {
+  USE_MOCK as DEFINITIONS_USE_MOCK,
+  listDefinitions,
+  getDefinition,
+  saveDefinition,
+} from './definitionsApi';
+export type { SaveDefinitionResult } from './definitionsApi';
 export {
   USE_MOCK as RECORDS_USE_MOCK,
   bulkUploadRecords,

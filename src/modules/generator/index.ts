@@ -7,7 +7,6 @@ export type {
   ApiSourceConfig,
   GeneratorFieldConfig,
   GeneratorConfig,
-  GeneratedFile,
 } from './types';
 export {
   toKebabCase,
@@ -32,7 +31,3 @@ export type { ConfigIssue } from './parser';
 export * from './registry';
 export { default as GeneratorPage } from './pages/GeneratorPage';
 export * from './definitions';
-export { buildContext } from './engine/context';
-export type { FieldModel, TemplateContext } from './engine/context';
-export { getModuleFileList } from './engine/featureGenerator';
-export { generateModule, GeneratorConfigError } from './engine/moduleGenerator';

@@ -62,8 +62,8 @@ async function seedRows(apiPlural: string): Promise<DynamicListItem[]> {
   const cached = recordCache.get(apiPlural);
   if (cached) return cached;
   const entry = Object.entries(seedFiles).find(([file]) => file.endsWith(`/${apiPlural}.json`));
-  if (!entry) throw new Error(`Seed records "${apiPlural}" tidak ditemukan.`);
-  const seed = (await entry[1]()) as SeedFile;
+  // Modul baru hasil publish belum punya seed → mulai dari daftar kosong.
+  const seed = (entry ? await entry[1]() : { rows: [] }) as SeedFile;
   const rows: DynamicListItem[] = seed.rows.map((row) => ({
     id: row.id,
     status: row.status,

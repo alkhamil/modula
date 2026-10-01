@@ -1,21 +1,20 @@
-import { useState } from 'react';
-import { Alert, Button, Card, Dialog, useToast } from '../../../shared/components/ui';
+import { useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router';
+import { Alert, Button, Card, useToast } from '../../../shared/components/ui';
 import { StepDoneIcon, StepInProgressIcon, StepOutGoingIcon } from '../../../shared/components/icons';
-import type {
-  FeatureKey,
-  GeneratedFile,
-  GeneratorConfig,
-  ModuleRegistration,
-} from '../types';
-import { generateModule, GeneratorConfigError } from '../engine/moduleGenerator';
-import { buildRegistration } from '../engine/registration';
-import { normalizeModuleName, validateConfig } from '../parser';
-import { NEW_PARENT_VALUE, getParentModuleOptions } from '../parentModules';
+import type { FeatureKey, GeneratorConfig, GeneratorFieldConfig } from '../types';
+import { normalizeModuleName } from '../parser';
+import type { ModuleDefinition, ModuleLayout } from '../definitions';
 import {
-  WriteConflictError,
-  WriteEndpointUnavailableError,
-  writeModuleToRepo,
-} from '../api/writeToRepo';
+  NEW_PARENT_VALUE,
+  configToDefinition,
+  defaultLayoutForFields,
+  normalizeLayout,
+  parentOptionsFromDefinitions,
+  validateDefinition,
+} from '../definitions';
+import { saveDefinition, useDynamicDefinitions } from '../runtime';
 import ModuleInfoStep, {
   resolveEffectiveParent,
   type ModuleInfoValue,
@@ -24,10 +23,6 @@ import FeaturesStep from '../components/FeaturesStep';
 import FieldsStep from '../components/FieldsStep';
 import LayoutStep from '../components/LayoutStep';
 import ReviewStep from '../components/ReviewStep';
-import OutputPanel from '../components/OutputPanel';
-import type { GeneratorFieldConfig } from '../types';
-import type { ModuleLayout } from '../definitions';
-import { defaultLayoutForFields, normalizeLayout } from '../definitions';
 
 const STEPS = ['Module Info', 'Features', 'Fields', 'Layout', 'Review'] as const;
 
@@ -68,30 +63,38 @@ function StepIndicator({ step }: { step: number }) {
   );
 }
 
+const INITIAL_INFO: ModuleInfoValue = {
+  parentName: '',
+  newParentName: '',
+  moduleName: '',
+  type: 'crud',
+  permissionKey: '',
+};
+
+interface PublishResult {
+  definition: ModuleDefinition;
+  created: boolean;
+}
+
 function GeneratorPage() {
   const { showToast } = useToast();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
-  const [info, setInfo] = useState<ModuleInfoValue>({
-    parentName: '',
-    newParentName: '',
-    moduleName: '',
-    type: 'crud',
-    permissionKey: '',
-  });
+  const [info, setInfo] = useState<ModuleInfoValue>(INITIAL_INFO);
   const [features, setFeatures] = useState<Record<FeatureKey, boolean>>(DEFAULT_FEATURES);
   const [fields, setFields] = useState<GeneratorFieldConfig[]>([]);
   const [layout, setLayout] = useState<ModuleLayout | null>(null);
   const [stepError, setStepError] = useState<string | null>(null);
-  const [output, setOutput] = useState<GeneratedFile[] | null>(null);
-  const [usedConfig, setUsedConfig] = useState<GeneratorConfig | null>(null);
-  const [writeStatus, setWriteStatus] = useState<
-    | { state: 'idle' }
-    | { state: 'writing' }
-    | { state: 'written'; count: number; registered: { routes: number; navigation: boolean } | null }
-    | { state: 'conflict'; existing: string[] }
-    | { state: 'unavailable' | 'error'; message: string }
-  >({ state: 'idle' });
-  const [pendingRegistration, setPendingRegistration] = useState<ModuleRegistration | null>(null);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishResult, setPublishResult] = useState<PublishResult | null>(null);
+
+  // '' = semua status (draft + published) untuk opsi parent.
+  const definitionsQuery = useDynamicDefinitions('');
+  const parentOptions = useMemo(
+    () => parentOptionsFromDefinitions(definitionsQuery.data ?? []),
+    [definitionsQuery.data],
+  );
 
   function buildConfig(): GeneratorConfig {
     const parent = resolveEffectiveParent(info);
@@ -115,7 +118,7 @@ function GeneratorPage() {
         if (!/^[a-zA-Z0-9 /_-]*$/.test(info.newParentName)) {
           return 'Parent module mengandung karakter tidak valid.';
         }
-      } else if (info.parentName !== '' && !getParentModuleOptions().includes(info.parentName)) {
+      } else if (info.parentName !== '' && !parentOptions.includes(info.parentName)) {
         return 'Parent module tidak dikenal. Pilih dari daftar atau buat parent baru.';
       }
       if (!info.permissionKey.trim()) return 'Permission key wajib diisi.';
@@ -159,140 +162,99 @@ function GeneratorPage() {
     setStep((prev) => Math.max(prev - 1, 0));
   }
 
-  async function writeFiles(
-    files: GeneratedFile[],
-    overwrite: boolean,
-    registration: ModuleRegistration | null,
-  ): Promise<void> {
-    setWriteStatus({ state: 'writing' });
-    try {
-      const result = await writeModuleToRepo(
-        files,
-        overwrite,
-        registration ?? undefined,
+  function resetWizard(): void {
+    setStep(0);
+    setInfo(INITIAL_INFO);
+    setFeatures(DEFAULT_FEATURES);
+    setFields([]);
+    setLayout(null);
+    setStepError(null);
+    setPublishResult(null);
+  }
+
+  async function handlePublish(targetStatus: 'draft' | 'published'): Promise<void> {
+    const config = buildConfig();
+    const effectiveLayout = normalizeLayout(
+      layout ?? defaultLayoutForFields(fields),
+      fields.map((f) => f.name),
+    );
+    const definition = configToDefinition(config, {
+      status: targetStatus,
+      layout: effectiveLayout,
+    });
+    const issues = validateDefinition(definition);
+    if (issues.length > 0) {
+      const shown = issues
+        .slice(0, 3)
+        .map((issue) => `${issue.path}: ${issue.message}`)
+        .join('; ');
+      setStepError(
+        `${issues.length} masalah definisi: ${shown}${issues.length > 3 ? '…' : ''} Periksa kembali langkah sebelumnya.`,
       );
-      setWriteStatus({
-        state: 'written',
-        count: result.written.length,
-        registered: result.registered,
-      });
-      const reg = result.registered;
+      return;
+    }
+    setIsPublishing(true);
+    setStepError(null);
+    try {
+      const saved = await saveDefinition(definition);
+      await queryClient.invalidateQueries({ queryKey: ['dynamic-definitions'] });
+      await queryClient.invalidateQueries({ queryKey: ['dynamic-definition', saved.definition.key] });
+      setPublishResult({ definition: saved.definition, created: saved.created });
       showToast({
         variant: 'success',
         message:
-          reg && (reg.routes > 0 || reg.navigation)
-            ? `${result.written.length} file ditulis ke repo. Routes + navigasi terdaftar.`
-            : `${result.written.length} file ditulis ke repo.`,
+          targetStatus === 'published'
+            ? `Modul "${saved.definition.key}" terbit dan langsung live.`
+            : `Draft "${saved.definition.key}" tersimpan.`,
       });
     } catch (err) {
-      if (err instanceof WriteConflictError) {
-        setWriteStatus({ state: 'conflict', existing: err.existing });
-      } else if (err instanceof WriteEndpointUnavailableError) {
-        setWriteStatus({ state: 'unavailable', message: err.message });
-      } else {
-        setWriteStatus({
-          state: 'error',
-          message: err instanceof Error ? err.message : 'Gagal menulis ke repo.',
-        });
-      }
+      setStepError(err instanceof Error ? err.message : 'Gagal menyimpan definisi.');
+    } finally {
+      setIsPublishing(false);
     }
   }
 
-  function handleGenerate(): void {
-    const config = buildConfig();
-    const issues = validateConfig({ ...config, moduleName: config.moduleName });
-    if (issues.length > 0) {
-      setStepError(`${issues.length} masalah konfigurasi. Periksa kembali langkah sebelumnya.`);
-      return;
-    }
-    try {
-      const files = generateModule(config);
-      const registration = buildRegistration(config);
-      setUsedConfig(config);
-      setOutput(files);
-      setPendingRegistration(registration);
-      setStepError(null);
-      showToast({ variant: 'success', message: `${files.length} file berhasil di-generate.` });
-      void writeFiles(files, false, registration);
-    } catch (err) {
-      if (err instanceof GeneratorConfigError) {
-        setStepError(err.issues.map((issue) => `${issue.path}: ${issue.message}`).join('; '));
-      } else {
-        setStepError('Gagal men-generate modul.');
-      }
-    }
-  }
-
-  if (output && usedConfig) {
+  if (publishResult) {
+    const { definition, created } = publishResult;
+    const isLive = definition.status === 'published';
     return (
       <div className="flex flex-col stack-gap">
-        {writeStatus.state === 'writing' && (
-          <Alert variant="info" message="Menulis file ke repo…" />
-        )}
-        {writeStatus.state === 'written' && (
-          <Alert
-            variant="success"
-            message={`${writeStatus.count} file sudah ditulis ke repo.${
-              writeStatus.registered &&
-              (writeStatus.registered.routes > 0 || writeStatus.registered.navigation)
-                ? ` ${writeStatus.registered.routes} route(s) + navigasi terdaftar otomatis — modul langsung bisa dibuka.`
-                : ' Routes + navigasi sudah terdaftar sebelumnya.'
-            }`}
-          />
-        )}
-        {(writeStatus.state === 'unavailable' || writeStatus.state === 'error') && (
-          <Alert
-            variant="warning"
-            message={`${writeStatus.message} File tetap bisa disalin/download manual di bawah.`}
-          />
-        )}
-        <Card title={`Output: ${usedConfig.moduleName}`}>
-          <OutputPanel
-            files={output}
-            config={usedConfig}
-            onBack={() => {
-              setOutput(null);
-              setWriteStatus({ state: 'idle' });
-            }}
-          />
-        </Card>
-        <Dialog
-          testId="generator-overwrite-dialog"
-          open={writeStatus.state === 'conflict'}
-          onClose={() => setWriteStatus({ state: 'idle' })}
-          title="File sudah ada"
-          maxWidth="md"
-          closeOnEscape
-          closeOnBackdropClick
-        >
-          <p className="text-sm text-foreground">
-            {writeStatus.state === 'conflict' ? writeStatus.existing.length : 0} file sudah ada di
-            repo dan akan ditimpa:
-          </p>
-          <ul className="mt-2 max-h-48 overflow-y-auto rounded-lg border border-border bg-surface px-3 py-2 font-mono text-xs text-foreground">
-            {writeStatus.state === 'conflict' &&
-              writeStatus.existing.map((path) => (
-                <li key={path} className="py-0.5">
-                  {path}
-                </li>
-              ))}
-          </ul>
-          <div className="mt-6 flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setWriteStatus({ state: 'idle' })}
-            >
-              Batal
+        <Alert
+          variant="success"
+          message={
+            isLive
+              ? `Modul "${definition.key}" ${created ? 'dibuat' : 'diperbarui'} dan langsung live di navigasi + routes.`
+              : `Draft "${definition.key}" ${created ? 'disimpan' : 'diperbarui'}. Terbitkan untuk menampilkannya di navigasi.`
+          }
+        />
+        <Card title={`Modul: ${definition.singularLabel}`}>
+          <dl className="grid grid-cols-[160px_1fr] gap-y-2 text-sm">
+            <dt className="text-muted-foreground">Key</dt>
+            <dd className="font-mono text-xs text-foreground">{definition.key}</dd>
+            <dt className="text-muted-foreground">Route</dt>
+            <dd className="font-mono text-xs text-foreground">/{definition.routeBase}</dd>
+            <dt className="text-muted-foreground">API</dt>
+            <dd className="font-mono text-xs text-foreground">/api/v1/{definition.apiPlural}</dd>
+            <dt className="text-muted-foreground">Status</dt>
+            <dd className="text-foreground">{isLive ? 'Published' : 'Draft'}</dd>
+            <dt className="text-muted-foreground">Fields</dt>
+            <dd className="text-foreground">{definition.fields.length} field(s)</dd>
+          </dl>
+          <div className="mt-6 flex flex-wrap justify-end gap-2">
+            <Button type="button" variant="secondary" onClick={() => setPublishResult(null)}>
+              Ubah lagi
+            </Button>
+            <Button type="button" variant="secondary" onClick={resetWizard}>
+              Buat modul baru
             </Button>
             <Button
               type="button"
-              onClick={() => void writeFiles(output, true, pendingRegistration)}
+              onClick={() => navigate(`/preview/${encodeURIComponent(definition.key)}`)}
             >
-              Timpa & tulis
+              Buka pratinjau
             </Button>
           </div>
-        </Dialog>
+        </Card>
       </div>
     );
   }
@@ -310,6 +272,7 @@ function GeneratorPage() {
               setStepError(null);
             }}
             errors={{}}
+            parentOptions={parentOptions}
           />
         )}
         {step === 1 && <FeaturesStep value={features} onChange={setFeatures} />}
@@ -322,17 +285,37 @@ function GeneratorPage() {
             previewTitle={info.moduleName.trim() || 'Preview'}
           />
         )}
-        {step === 4 && <ReviewStep config={buildConfig()} />}
-
-        <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
-          <Button variant="secondary" onClick={handleBack} disabled={step === 0}>
-            Back
+        {step === 4 && <ReviewStep config={buildConfig()} layout={layout} />}
+        <div className="mt-6 flex justify-between gap-2">
+          <Button type="button" variant="secondary" onClick={handleBack} disabled={step === 0}>
+            Kembali
           </Button>
-          {step < STEPS.length - 1 ? (
-            <Button onClick={handleNext}>Next</Button>
-          ) : (
-            <Button onClick={handleGenerate}>Generate</Button>
-          )}
+          <div className="flex gap-2">
+            {step < 4 && (
+              <Button type="button" onClick={handleNext}>
+                Lanjut
+              </Button>
+            )}
+            {step === 4 && (
+              <>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={isPublishing}
+                  onClick={() => void handlePublish('draft')}
+                >
+                  {isPublishing ? 'Menyimpan…' : 'Simpan sebagai Draft'}
+                </Button>
+                <Button
+                  type="button"
+                  disabled={isPublishing}
+                  onClick={() => void handlePublish('published')}
+                >
+                  {isPublishing ? 'Menerbitkan…' : 'Publish'}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </Card>
     </div>

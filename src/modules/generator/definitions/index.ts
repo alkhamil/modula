@@ -16,3 +16,4 @@ export {
 } from './normalize';
 export type { ConfigToDefinitionOptions } from './normalize';
 export { validateDefinition } from './validate';
+export { NEW_PARENT_VALUE, parentOptionsFromDefinitions } from './parents';
