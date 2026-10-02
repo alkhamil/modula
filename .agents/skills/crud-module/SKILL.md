@@ -6,8 +6,9 @@ description: Pola modul CRUD dinamis — bentuk ModuleDefinition v1, runtime gen
 # CRUD Module Pattern
 
 Tidak ada folder per modul di repo ini — setiap modul CRUD adalah satu
-`ModuleDefinition v1` yang di-render komponen generik. Referensi hidup:
-seed kanonis di `backend/seeds/definitions/*.json` (10 modul).
+`ModuleDefinition v1` yang di-render komponen generik. Referensi:
+seed di `backend/seeds/definitions/*.json` (dibuat via wizard/publish)
++ contoh bentuk di bawah.
 
 ## Bentuk definisi (v1)
 

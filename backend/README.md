@@ -9,7 +9,8 @@ NestJS + TypeORM + MySQL. Melayani definisi modul dinamis + records generik
 cp .env.example .env          # sekali saja
 docker compose up -d          # MySQL :3306
 npm run migration:run         # skema awal
-npm run seed                  # seed definisi + sample records
+npm run seed                  # seed definisi + records (saat ini kosong)
+npm run db:clean              # hapus SEMUA modul (records + definitions)
 npm run start:dev             # API :3000 (/api/v1/...)
 ```
 

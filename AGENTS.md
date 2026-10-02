@@ -49,8 +49,8 @@ Muse Code reads this file as project rules when it runs in this directory.
 - `src/shared/` — `theme/` (token thema), `lib/`, `hooks/`, `utils/`,
   `types/`, `components/` (`layout/`, `ui/`, `icons/`).
 - `backend/` — NestJS: `module-definitions` CRUD + API records generik
-  `/:plural` + export/bulk `.xlsx`; `seeds/` = sumber kanonis 10 definisi
-  modul + records (juga dipakai mock FE).
+  `/:plural` + export/bulk `.xlsx`; `seeds/` = seed JSON definisi + records
+  (juga dipakai mock FE; `npm run db:clean` mengosongkan DB).
 - `docs/backend-contract.md` — kontrak API FE↔BE.
 - `.agents/skills/` — project skills (hasil `muse skills validate` harus
   `valid: true` tanpa diagnostics setelah diubah).

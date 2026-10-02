@@ -24,7 +24,7 @@ cd backend
 npm install
 docker compose -f compose.yaml up -d   # MySQL
 npm run migration:run
-npm run seed                             # 10 definisi modul + records
+npm run seed                             # seed definisi + records (saat ini kosong)
 npm run start:dev                        # :3000, prefix /api/v1
 ```
 
@@ -67,7 +67,7 @@ backend/
 │   ├── health/              (GET /api/v1/health)
 │   ├── migrations/ + seeds/ (skema + seed dari backend/seeds/*.json)
 │   └── common/              (envelope response_output + exception filter)
-├── seeds/              (kanonis: 10 definisi modul + records; dipakai mock FE)
+├── seeds/              (seed JSON definisi + records; dipakai mock FE)
 └── compose.yaml        (MySQL dev)
 ```
 
