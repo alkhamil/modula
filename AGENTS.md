@@ -42,7 +42,7 @@ Muse Code reads this file as project rules when it runs in this directory.
   `DynamicModuleRoutes` + `preview/:definitionKey`),
   `ProtectedAppShell.tsx` (shell + session user).
 - `src/pages/` — Login, Dashboard, `components/` (dokumentasi shared).
-- `src/modules/` — hanya `auth/` (login mock + guard + `useAuth`) dan
+- `src/modules/` — hanya `auth/` (login JWT ke BE + guard + `useAuth`) dan
   `generator/` (`definitions/` = `ModuleDefinition v1` murni + Node-safe,
   `runtime/` = render generik + client API + mock, `components/` +
   `pages/` = wizard, `parser.ts`/`naming.ts`/`registry/` = bantu wizard).

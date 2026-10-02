@@ -3,8 +3,8 @@ import { normalizePermissions } from '../../../shared/utils';
 import { mockUserRecords } from './mockUsers';
 
 export const USE_MOCK = {
-  login: true,
-  logout: true,
+  login: false,
+  logout: false,
 };
 
 function delay(ms: number): Promise<void> {

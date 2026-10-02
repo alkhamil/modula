@@ -12,7 +12,10 @@ export interface MockUserRecord extends AuthUser {
   description: string;
 }
 
-/** Config akun demo (mock only). */
+/**
+ * Config akun demo — cermin seed BE (`backend/src/seeds/seed.ts`).
+ * Dipakai mock login (bila `USE_MOCK` true) + daftar akun di halaman login.
+ */
 export const mockUserRecords: MockUserRecord[] = [
   {
     username: 'admin',
@@ -21,27 +24,6 @@ export const mockUserRecords: MockUserRecord[] = [
     role: 'admin',
     permissions: ['*'],
     description: 'Akses penuh (wildcard)',
-  },
-  {
-    username: 'editor',
-    password: 'editor123',
-    name: 'Editor',
-    role: 'editor',
-    permissions: [
-      'user:view,create,update,export,bulk_upload',
-      'company.view',
-      'company.create',
-      'company.update',
-    ],
-    description: 'Kelola user & company tanpa hapus',
-  },
-  {
-    username: 'viewer',
-    password: 'viewer123',
-    name: 'Viewer',
-    role: 'viewer',
-    permissions: ['user.view', 'user.export', 'company.view'],
-    description: 'Lihat + export saja',
   },
 ];
 

@@ -22,12 +22,22 @@ axios (`src/shared/lib/api.ts`, baseURL `VITE_API_BASE_URL`).
 - Error: HTTP status semestinya (400 validasi, 404 tidak ada, 409 konflik)
   dengan `response_output: null` dan `response_schema.response_message` terisi.
 - Update memakai `PUT` (bukan PATCH); restore memakai `PATCH /{id}/restore`.
-- Auth: v1 belum ada guard JWT — endpoint terbuka; cek permission tetap di FE.
-  (Endpoint `/api/v1/auth/*` = follow-up.)
+- Auth: login JWT via `/api/v1/auth/*`; endpoint lain v1 belum ada guard —
+  terbuka, cek permission tetap di FE. FE mengirim
+  `Authorization: Bearer <token>` (token dari login, simpan `auth_token`).
 
 ## Health
 
 - `GET /api/v1/health` → 200 `{ "status": "ok" }` (tanpa envelope).
+
+## Auth
+
+- `POST /api/v1/auth/login` → 200. Body `{ "username", "password" }`;
+  `response_output = { "user": { "username", "name", "role" },
+  "token": "<JWT>", "permissions": ["*"] }`. Kredensial salah → 401
+  `response_message: 'Username atau password salah.'`.
+- `POST /api/v1/auth/logout` → 200 `{ "success": true }` (stateless;
+  FE yang membuang token).
 
 ## Module definitions
 

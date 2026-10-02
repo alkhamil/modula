@@ -86,10 +86,11 @@ Aturan: shared components **wajib** memakai token thema — dilarang hardcode wa
   `module-generator`, `crud-module`.
 - `docs/backend-contract.md` — kontrak API FE↔BE.
 
-## Auth (mock)
+## Auth (BE + JWT)
 
-Login di `/login` memakai akun demo dari config (`src/modules/auth/api/mockUsers.ts`).
-Response login membawa permission list user; guard membaca permission key:
+Login di `/login` memanggil `POST /api/v1/auth/login` (butuh BE + MySQL jalan
++ `npm run seed` untuk akun admin). Response membawa JWT + permission list
+user; guard membaca permission key:
 
 - `RequireAuth`: belum login → redirect `/login`.
 - `PermissionGate`: route dengan `handle.requiredPermission` → 403 bila key tidak dimiliki.
@@ -98,11 +99,10 @@ Response login membawa permission list user; guard membaca permission key:
 | Username | Password  | Role   |
 | -------- | --------- | ------ |
 | admin    | admin123  | penuh  |
-| editor   | editor123 | kelola tanpa hapus |
-| viewer   | viewer123 | lihat + export saja |
 
-Klik baris akun di halaman login untuk isi otomatis. Untuk API real, ubah
-`USE_MOCK` di `src/modules/auth/api/mock.ts` menjadi `false`.
+Klik baris akun di halaman login untuk isi otomatis. Password seed bisa diubah
+via `ADMIN_PASSWORD` di `backend/.env`. Untuk kembali ke mock (tanpa BE), ubah
+`USE_MOCK` di `src/modules/auth/api/mock.ts` menjadi `true`.
 
 ## Generator modul
 

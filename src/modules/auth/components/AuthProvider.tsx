@@ -54,7 +54,10 @@ export function AuthProvider() {
   }, []);
 
   const logout = useCallback(() => {
-    void logoutRequest().finally(() => {
+    // Gagal request (mis. BE mati) tidak boleh menghalangi bersih sesi lokal.
+    void logoutRequest()
+      .catch(() => {})
+      .finally(() => {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(PERMISSIONS_KEY);

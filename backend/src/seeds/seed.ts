@@ -1,11 +1,13 @@
 /* eslint-disable no-console */
-/** Seed idempoten: definisi (upsert) + records (replace per modul). Jalan: `npm run seed`. */
+/** Seed idempoten: users + definisi (upsert) + records (replace per modul). Jalan: `npm run seed`. */
 import 'reflect-metadata';
 import fs from 'node:fs';
 import path from 'node:path';
+import bcrypt from 'bcryptjs';
 import dataSource from '../config/data-source';
 import { ModuleDefinitionEntity } from '../definitions/entities/module-definition.entity';
 import { RecordEntity } from '../records/entities/record.entity';
+import { UserEntity } from '../auth/entities/user.entity';
 
 const SEEDS_DIR = path.resolve(__dirname, '..', '..', 'seeds');
 
@@ -26,6 +28,21 @@ async function main(): Promise<void> {
   try {
     const defRepo = dataSource.getRepository(ModuleDefinitionEntity);
     const recordRepo = dataSource.getRepository(RecordEntity);
+    const userRepo = dataSource.getRepository(UserEntity);
+
+    const adminPassword = process.env.ADMIN_PASSWORD ?? 'admin123';
+    const existingAdmin = await userRepo.findOne({ where: { username: 'admin' } });
+    await userRepo.save(
+      userRepo.create({
+        id: existingAdmin?.id,
+        username: 'admin',
+        passwordHash: bcrypt.hashSync(adminPassword, 10),
+        name: 'Administrator',
+        role: 'admin',
+        permissions: ['*'],
+      }),
+    );
+    console.log('user: admin');
 
     const defDir = path.join(SEEDS_DIR, 'definitions');
     const defFiles = fs.readdirSync(defDir).filter((file) => file.endsWith('.json'));

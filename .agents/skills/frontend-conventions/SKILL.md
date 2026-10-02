@@ -58,9 +58,11 @@ Aturan wajib saat menulis atau mengubah kode frontend di repo ini
 
 ## Auth & permission
 
-- Login/logout mock-first di `src/modules/auth` (akun demo di
-  `api/mockUsers.ts`, `USE_MOCK` di `api/mock.ts`; response login membawa
-  permission list user).
+- Login/logout di `src/modules/auth` memakai BE (`POST /api/v1/auth/login`
+  → JWT + permission list; `USE_MOCK` di `api/mock.ts` = fallback mock,
+  akun cermin seed di `api/mockUsers.ts`). Token tersimpan di localStorage
+  key `auth_token` dan dikirim via interceptor axios
+  (`Authorization: Bearer`).
 - Guard ganda: `RequireAuth` (belum login → redirect `/login`) dan
   `PermissionGate` (baca `handle.requiredPermission` route → 403 bila key
   tidak dimiliki).
