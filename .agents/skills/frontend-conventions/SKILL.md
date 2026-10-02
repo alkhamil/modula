@@ -6,7 +6,7 @@ description: Konvensi frontend generator-module-app — token thema, spacing sem
 # Frontend Conventions
 
 Aturan wajib saat menulis atau mengubah kode frontend di repo ini
-(React 19 + TypeScript + Vite + Tailwind CSS 4 + TanStack Query + axios).
+(React 19 + TypeScript + Vite + Tailwind CSS 4 + TanStack Query, mock-only tanpa backend).
 
 ## Thema (sumber kebenaran tunggal)
 
@@ -58,19 +58,16 @@ Aturan wajib saat menulis atau mengubah kode frontend di repo ini
 
 ## Auth & permission
 
-- Login/logout di `src/modules/auth` memakai BE (`POST /api/v1/auth/login`
-  → JWT + permission list; `USE_MOCK` di `api/mock.ts` = fallback mock,
-  akun cermin seed di `api/mockUsers.ts`). Token tersimpan di localStorage
-  key `auth_token` dan dikirim via interceptor axios
-  (`Authorization: Bearer`).
+- Login/logout mock di `src/modules/auth` (akun demo di `api/mockUsers.ts`;
+  response login membawa permission list user). Sesi tersimpan di
+  localStorage (`auth_token`, `auth_user`, `permissions`).
 - Guard ganda: `RequireAuth` (belum login → redirect `/login`) dan
-  `PermissionGate` (baca `handle.requiredPermission` route → 403 bila key
-  tidak dimiliki).
+  `PermissionGate` (baca `handle.requiredPermission` route statis → 403 bila
+  key tidak dimiliki; halaman dinamis dijaga `RequireDynamicPermission`).
 - Sidebar memfilter `permissionKey` nav; `'*'` = wildcard akses penuh.
 - Cek manual di komponen: `useAuth().can(key)`.
 
 ## Verifikasi
 
-Setelah perubahan: `npm run lint` dan `npm run build` (tambah
-`cd backend && npm test` bila menyentuh BE); perbaiki error yang muncul
-sebelum selesai.
+Setelah perubahan: `npm run lint` dan `npm run build`; perbaiki error
+yang muncul sebelum selesai.

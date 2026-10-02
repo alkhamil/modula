@@ -1,5 +1,5 @@
 /**
- * Kelas kolom grid 12 statis — dipakai DynamicForm + canvas LayoutStep.
+ * Kelas kolom grid 12 statis — dipakai DynamicForm + kanvas builder.
  * (Tailwind tidak bisa membangkitkan nama kelas dinamis.)
  */
 export const COL_SPAN_CLASS: Record<number, string> = {

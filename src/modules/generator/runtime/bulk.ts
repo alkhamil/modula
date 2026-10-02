@@ -1,5 +1,5 @@
 /**
- * Engine bulk upload generik FE (mock) — cermin `backend/src/records/bulk.ts`.
+ * Engine bulk upload generik (mock-only): header/template + validasi per baris.
  * Kepala + pesan + perilaku SAMA PERSIS agar mock dan BE sejalan.
  * Murni & Node-safe.
  */

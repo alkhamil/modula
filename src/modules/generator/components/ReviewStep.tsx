@@ -1,19 +1,25 @@
 import { useMemo } from 'react';
 import { Alert, Badge } from '../../../shared/components/ui';
 import type { FeatureKey, GeneratorConfig } from '../types';
-import type { ModuleLayout } from '../definitions';
+import type { DeleteMode, ModuleLayout } from '../definitions';
 import { configToDefinition, validateDefinition } from '../definitions';
-import { featureRegistry, filterCriteriaRegistry } from '../registry';
+import { dataSourceRegistry, featureRegistry, filterCriteriaRegistry } from '../registry';
 
 interface ReviewStepProps {
   config: GeneratorConfig;
   layout: ModuleLayout | null;
+  deleteMode: DeleteMode;
 }
 
-function ReviewStep({ config, layout }: ReviewStepProps) {
+function ReviewStep({ config, layout, deleteMode }: ReviewStepProps) {
   const preview = useMemo(
-    () => configToDefinition(config, { status: 'draft', layout: layout ?? undefined }),
-    [config, layout],
+    () =>
+      configToDefinition(config, {
+        status: 'draft',
+        layout: layout ?? undefined,
+        deleteMode,
+      }),
+    [config, layout, deleteMode],
   );
   const issues = useMemo(() => validateDefinition(preview), [preview]);
   const features = (Object.keys(preview.features) as FeatureKey[]).filter(
@@ -24,6 +30,13 @@ function ReviewStep({ config, layout }: ReviewStepProps) {
     preview.layout.table.order.map((name, index) => [name, index] as const),
   );
   const tableHidden = new Set(preview.layout.table.hidden);
+  const detailOrder = new Map(
+    (preview.layout.detail?.order ?? []).map((name, index) => [name, index] as const),
+  );
+  const detailHidden = new Set(preview.layout.detail?.hidden ?? []);
+  const sectionCount = preview.layout.form.filter((item) => item.kind === 'section').length;
+  const dividerCount = preview.layout.form.filter((item) => item.kind === 'divider').length;
+  const widthCount = Object.keys(preview.layout.table.widths ?? {}).length;
 
   return (
     <div className="flex flex-col stack-gap">
@@ -53,8 +66,8 @@ function ReviewStep({ config, layout }: ReviewStepProps) {
         <dd className="font-mono text-xs text-foreground">{preview.key}</dd>
         <dt className="text-muted-foreground">Route</dt>
         <dd className="font-mono text-xs text-foreground">/{preview.routeBase}</dd>
-        <dt className="text-muted-foreground">API</dt>
-        <dd className="font-mono text-xs text-foreground">/api/v1/{preview.apiPlural}</dd>
+        <dt className="text-muted-foreground">Data</dt>
+        <dd className="font-mono text-xs text-foreground">{preview.apiPlural} (mock store)</dd>
         <dt className="text-muted-foreground">Permission</dt>
         <dd className="font-mono text-xs text-foreground">
           {['view', 'create', 'update', 'delete', 'bulk_upload', 'export']
@@ -76,12 +89,21 @@ function ReviewStep({ config, layout }: ReviewStepProps) {
         </dd>
         <dt className="text-muted-foreground">Fields</dt>
         <dd className="text-foreground">{preview.fields.length} field(s)</dd>
-        <dt className="text-muted-foreground">Layout</dt>
+        <dt className="text-muted-foreground">Layout form</dt>
         <dd className="text-foreground">
-          Form {preview.layout.form.length} field, tabel{' '}
+          {preview.layout.form.length} item ({sectionCount} section, {dividerCount} divider)
+        </dd>
+        <dt className="text-muted-foreground">Layout tabel</dt>
+        <dd className="text-foreground">
           {preview.layout.table.order.length - preview.layout.table.hidden.length} kolom tampil
           {preview.layout.table.hidden.length > 0 &&
             ` (${preview.layout.table.hidden.length} tersembunyi)`}
+          {widthCount > 0 && `, ${widthCount} lebar kustom`}
+        </dd>
+        <dt className="text-muted-foreground">Layout detail</dt>
+        <dd className="text-foreground">
+          {(preview.layout.detail?.order.length ?? 0) - detailHidden.size} field tampil
+          {detailHidden.size > 0 && ` (${detailHidden.size} tersembunyi)`}
         </dd>
       </dl>
 
@@ -93,6 +115,8 @@ function ReviewStep({ config, layout }: ReviewStepProps) {
               const formItem = formOrder.get(field.name);
               const tableIndex = tableOrder.get(field.name);
               const hidden = tableHidden.has(field.name);
+              const detailIndex = detailOrder.get(field.name);
+              const detailHide = detailHidden.has(field.name);
               return (
                 <li
                   key={field.name}
@@ -110,6 +134,16 @@ function ReviewStep({ config, layout }: ReviewStepProps) {
                     <Badge variant="info">Tabel #{tableIndex + 1}</Badge>
                   )}
                   {hidden && <Badge variant="secondary">Tabel: hidden</Badge>}
+                  {detailIndex !== undefined && !detailHide && (
+                    <Badge variant="info">Detail #{detailIndex + 1}</Badge>
+                  )}
+                  {detailHide && <Badge variant="secondary">Detail: hidden</Badge>}
+                  {field.source === 'relation' && field.relation && (
+                    <Badge variant="primary">→ {field.relation.definitionKey}</Badge>
+                  )}
+                  {field.source !== 'none' && field.source !== 'relation' && (
+                    <Badge variant="secondary">{dataSourceRegistry[field.source].label}</Badge>
+                  )}
                   {field.sortable !== false && <Badge variant="primary">Sort</Badge>}
                   {field.filterable !== false && field.filterCriteria ? (
                     <Badge variant="info">

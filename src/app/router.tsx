@@ -75,8 +75,14 @@ export const router = createBrowserRouter([
               },
               // Seluruh modul bisnis (users, orders, mater-data/*, …) dilayani
               // dari definisi published — tidak ada route statis per modul.
-              { element: <DynamicModuleRoutes /> },
-              { path: '*', element: <ErrorStatePage type="404" />, handle: { notFound: true } },
+              // Host WAJIB `path: '*'`: pathless tidak match URL dinamis
+              // (sisa pathname tak terkonsumsi → jatuh ke 404).
+              {
+                path: 'not-found',
+                element: <ErrorStatePage type="404" />,
+                handle: { notFound: true },
+              },
+              { path: '*', element: <DynamicModuleRoutes /> },
             ],
           },
         ],

@@ -8,6 +8,7 @@ import {
   TrashIcon,
 } from '../../../shared/components/icons';
 import type { GeneratorFieldConfig } from '../types';
+import type { ModuleDefinition } from '../definitions';
 import {
   dataSourceRegistry,
   fieldTypeRegistry,
@@ -19,6 +20,8 @@ import FieldDialog from './FieldDialog';
 interface FieldsStepProps {
   fields: GeneratorFieldConfig[];
   onChange: (fields: GeneratorFieldConfig[]) => void;
+  /** Definisi terdaftar untuk picker target relasi. */
+  definitions: ModuleDefinition[];
 }
 
 function move<T>(items: T[], from: number, to: number): T[] {
@@ -29,7 +32,7 @@ function move<T>(items: T[], from: number, to: number): T[] {
   return next;
 }
 
-function FieldsStep({ fields, onChange }: FieldsStepProps) {
+function FieldsStep({ fields, onChange, definitions }: FieldsStepProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<{ field: GeneratorFieldConfig; index: number } | null>(
     null,
@@ -121,6 +124,9 @@ function FieldsStep({ fields, onChange }: FieldsStepProps) {
                 <p className="mt-0.5 truncate text-xs text-muted-foreground">
                   {fieldTypeRegistry[field.type].label} · {dataSourceRegistry[field.source].label} ·{' '}
                   <span className="font-mono">{stringifyRules(field.rules) || 'no rules'}</span>
+                  {field.source === 'relation' && field.relation && (
+                    <span className="font-mono"> · → {field.relation.definitionKey}</span>
+                  )}
                 </p>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {field.sortable !== false && <Badge variant="primary">Sort</Badge>}
@@ -178,6 +184,7 @@ function FieldsStep({ fields, onChange }: FieldsStepProps) {
           open={dialogOpen}
           initial={editing}
           existingNames={fields.map((f) => f.name)}
+          definitions={definitions}
           onClose={() => setDialogOpen(false)}
           onSave={handleSave}
         />

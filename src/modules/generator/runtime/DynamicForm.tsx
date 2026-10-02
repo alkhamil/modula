@@ -97,7 +97,7 @@ function DynamicForm({
   const byName = new Map(def.fields.map((field) => [field.name, field]));
   const layout = [...def.layout.form]
     .sort((a, b) => a.order - b.order)
-    .filter((item) => byName.has(item.field));
+    .filter((item) => (item.kind ?? 'field') !== 'field' || byName.has(item.field));
 
   function renderField(field: GeneratorFieldConfig): React.ReactNode {
     const testId = `${testPrefix}-${field.name}`;
@@ -273,6 +273,23 @@ function DynamicForm({
               <FormDefaultValuesWatcher methods={methods} defaultValues={defaultValues} />
               <div className="grid grid-cols-12 field-gap">
                 {layout.map((item) => {
+                  const kind = item.kind ?? 'field';
+                  if (kind === 'section') {
+                    return (
+                      <div key={item.field} className={colSpanClass(item.colSpan)}>
+                        <p className="border-b border-border pb-1 text-sm font-semibold text-foreground">
+                          {item.label ?? 'Section'}
+                        </p>
+                      </div>
+                    );
+                  }
+                  if (kind === 'divider') {
+                    return (
+                      <div key={item.field} className={colSpanClass(item.colSpan)}>
+                        <hr className="border-border" />
+                      </div>
+                    );
+                  }
                   const field = byName.get(item.field);
                   if (!field) return null;
                   return (

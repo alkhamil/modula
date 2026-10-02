@@ -1,10 +1,10 @@
-/** Client records generik: service BE + mock seed JSON + resolver USE_MOCK. */
-import api from '../../../shared/lib/api';
-import type { ApiDetail, ApiList, ApiResponse } from '../../../shared/types';
+/** Mock records generik: seed JSON + persist localStorage (mock-only, tanpa BE). */
+import type { ApiList } from '../../../shared/types';
 import type { LoadOptionsFn } from '../../../shared/components/ui/fields/SelectField';
 import { XLSX_MIME, buildWorkbook, readWorkbookRows } from '../../../shared/utils';
 import type { GeneratorFieldConfig } from '../types';
 import type { ModuleDefinition } from '../definitions';
+import { listDefinitions } from './definitionsApi';
 import { filterDynamicRecords, paginateRecords } from './filtering';
 import {
   bulkExampleRow,
@@ -23,18 +23,7 @@ export interface MutationResult {
   data: DynamicDetail;
 }
 
-export const USE_MOCK = {
-  list: true,
-  get: true,
-  options: true,
-  create: true,
-  update: true,
-  delete: true,
-  restore: true,
-  export: true,
-  bulkTemplate: true,
-  bulkUpload: true,
-};
+const STORAGE_KEY = 'mock_records_v1';
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -51,14 +40,40 @@ interface SeedFile {
   }[];
 }
 
-// Lazy per modul agar bundle awal tidak memuat 1000 baris seed companies.
-const seedFiles = import.meta.glob<SeedFile>('../../../../backend/seeds/records/*.json', {
+// Lazy per modul agar bundle awal tidak memuat seed besar sekaligus.
+const seedFiles = import.meta.glob<SeedFile>('../seeds/records/*.json', {
   import: 'default',
 });
 
 const recordCache = new Map<string, DynamicListItem[]>();
+let persistedLoaded = false;
+
+function loadPersisted(): void {
+  if (persistedLoaded) return;
+  persistedLoaded = true;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return;
+    for (const [plural, rows] of Object.entries(parsed as Record<string, unknown>)) {
+      if (Array.isArray(rows)) recordCache.set(plural, rows as DynamicListItem[]);
+    }
+  } catch {
+    // Abaikan: mulai dari seed.
+  }
+}
+
+function persist(): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.fromEntries(recordCache)));
+  } catch {
+    // Abaikan: mode privat / kuota penuh — cache in-memory tetap jalan.
+  }
+}
 
 async function seedRows(apiPlural: string): Promise<DynamicListItem[]> {
+  loadPersisted();
   const cached = recordCache.get(apiPlural);
   if (cached) return cached;
   const entry = Object.entries(seedFiles).find(([file]) => file.endsWith(`/${apiPlural}.json`));
@@ -75,17 +90,17 @@ async function seedRows(apiPlural: string): Promise<DynamicListItem[]> {
   return rows;
 }
 
-async function serviceListRecords(
-  def: ModuleDefinition,
-  params?: DynamicListParams,
-): Promise<ApiList<DynamicListItem>> {
-  const res = await api.get<ApiResponse<ApiList<DynamicListItem>>>(`/api/v1/${def.apiPlural}`, {
-    params,
-  });
-  return res.data.response_output ?? { list: { pagination: null, content: [] } };
+/** Kosongkan mock records kembali ke seed JSON (hapus simpanan lokal). */
+export function resetMockRecords(): void {
+  recordCache.clear();
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Abaikan.
+  }
 }
 
-async function mockListRecords(
+export async function listRecords(
   def: ModuleDefinition,
   params?: DynamicListParams,
 ): Promise<ApiList<DynamicListItem>> {
@@ -95,16 +110,7 @@ async function mockListRecords(
   return { list: paginateRecords(filtered, params?.page ?? 1, params?.size ?? 10) };
 }
 
-async function serviceGetRecord(def: ModuleDefinition, id: string): Promise<DynamicDetail> {
-  const res = await api.get<ApiResponse<ApiDetail<DynamicDetail>>>(
-    `/api/v1/${def.apiPlural}/${id}`,
-  );
-  const detail = res.data.response_output?.detail;
-  if (!detail) throw new Error('Data tidak ditemukan.');
-  return detail;
-}
-
-async function mockGetRecord(def: ModuleDefinition, id: string): Promise<DynamicDetail> {
+export async function getRecord(def: ModuleDefinition, id: string): Promise<DynamicDetail> {
   await delay(150);
   const rows = await seedRows(def.apiPlural);
   const found = rows.find((row) => String(row.id) === id);
@@ -120,28 +126,7 @@ async function mockGetRecord(def: ModuleDefinition, id: string): Promise<Dynamic
   };
 }
 
-export async function serviceOptionsOf(
-  def: ModuleDefinition,
-  field: GeneratorFieldConfig,
-  search = '',
-  page = 1,
-  size = 20,
-): Promise<DynamicOption[]> {
-  if (field.source === 'api' && field.api?.endpoint) {
-    const res = await api.get<ApiResponse<ApiList<DynamicOption>>>(field.api.endpoint, {
-      params: { search, page, size },
-    });
-    return res.data.response_output?.list.content ?? [];
-  }
-  const segment = `${field.name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()}s`;
-  const res = await api.get<ApiResponse<ApiList<DynamicOption>>>(
-    `/api/v1/${def.apiPlural}/${segment}`,
-    { params: { search, page, size } },
-  );
-  return res.data.response_output?.list.content ?? [];
-}
-
-/** Loader mock: opsi config bila ada, else fallback 60 item (meniru template generate). */
+/** Loader opsi: config bila ada, else fallback 60 item (meniru template generate). */
 function mockLoadOptionsFn(field: GeneratorFieldConfig): LoadOptionsFn {
   const configured = field.options ?? [];
   const base: DynamicOption[] =
@@ -182,21 +167,7 @@ function nowStamp(): string {
   return new Date().toISOString().slice(0, 16).replace('T', ' ');
 }
 
-async function serviceCreateRecord(
-  def: ModuleDefinition,
-  data: Record<string, unknown>,
-): Promise<MutationResult> {
-  const res = await api.post<ApiResponse<{ detail: DynamicDetail }>>(
-    `/api/v1/${def.apiPlural}`,
-    data,
-  );
-  return {
-    message: res.data.response_schema.response_message,
-    data: res.data.response_output?.detail as DynamicDetail,
-  };
-}
-
-async function mockCreateRecord(
+export async function createRecord(
   def: ModuleDefinition,
   data: Record<string, unknown>,
 ): Promise<MutationResult> {
@@ -219,6 +190,7 @@ async function mockCreateRecord(
     ...pickKnown(def, data),
   };
   rows.push(record);
+  persist();
   return { message: `${def.singularLabel} created successfully.`, data: toDetail(def, record) };
 }
 
@@ -244,22 +216,7 @@ function toDetail(def: ModuleDefinition, row: DynamicListItem): DynamicDetail {
   return detail;
 }
 
-async function serviceUpdateRecord(
-  def: ModuleDefinition,
-  id: string,
-  data: Record<string, unknown>,
-): Promise<MutationResult> {
-  const res = await api.put<ApiResponse<{ detail: DynamicDetail }>>(
-    `/api/v1/${def.apiPlural}/${id}`,
-    data,
-  );
-  return {
-    message: res.data.response_schema.response_message,
-    data: res.data.response_output?.detail as DynamicDetail,
-  };
-}
-
-async function mockUpdateRecord(
+export async function updateRecord(
   def: ModuleDefinition,
   id: string,
   data: Record<string, unknown>,
@@ -280,18 +237,11 @@ async function mockUpdateRecord(
     }
   }
   Object.assign(record, pickKnown(def, data));
+  persist();
   return { message: `${def.singularLabel} updated successfully.`, data: toDetail(def, record) };
 }
 
-async function serviceDeleteRecord(
-  def: ModuleDefinition,
-  id: string,
-): Promise<{ message: string }> {
-  const res = await api.delete<ApiResponse<null>>(`/api/v1/${def.apiPlural}/${id}`);
-  return { message: res.data.response_schema.response_message };
-}
-
-async function mockDeleteRecord(
+export async function deleteRecord(
   def: ModuleDefinition,
   id: string,
 ): Promise<{ message: string }> {
@@ -304,26 +254,15 @@ async function mockDeleteRecord(
       def.apiPlural,
       rows.filter((row) => String(row.id) !== id),
     );
+    persist();
     return { message: `${def.singularLabel} deleted permanently` };
   }
   record.status = 'inactive';
+  persist();
   return { message: `${def.singularLabel} deleted successfully` };
 }
 
-async function serviceRestoreRecord(
-  def: ModuleDefinition,
-  id: string,
-): Promise<MutationResult> {
-  const res = await api.patch<ApiResponse<{ detail: DynamicDetail }>>(
-    `/api/v1/${def.apiPlural}/${id}/restore`,
-  );
-  return {
-    message: res.data.response_schema.response_message,
-    data: res.data.response_output?.detail as DynamicDetail,
-  };
-}
-
-async function mockRestoreRecord(
+export async function restoreRecord(
   def: ModuleDefinition,
   id: string,
 ): Promise<MutationResult> {
@@ -335,21 +274,11 @@ async function mockRestoreRecord(
   const record = rows.find((row) => String(row.id) === id);
   if (!record) throw new Error(`${def.singularLabel} not found`);
   record.status = 'active';
+  persist();
   return { message: `${def.singularLabel} restored successfully`, data: toDetail(def, record) };
 }
 
-async function serviceExportRecords(
-  def: ModuleDefinition,
-  params?: DynamicListParams,
-): Promise<Blob> {
-  const res = await api.get(`/api/v1/${def.apiPlural}/export`, {
-    params,
-    responseType: 'blob',
-  });
-  return res.data as Blob;
-}
-
-async function mockExportRecords(
+export async function exportRecords(
   def: ModuleDefinition,
   params?: DynamicListParams,
 ): Promise<Blob> {
@@ -367,32 +296,12 @@ async function mockExportRecords(
   return new Blob([data], { type: XLSX_MIME });
 }
 
-async function serviceDownloadTemplate(def: ModuleDefinition): Promise<Blob> {
-  const res = await api.get(`/api/v1/${def.apiPlural}/bulk-template`, { responseType: 'blob' });
-  return res.data as Blob;
-}
-
-async function mockDownloadTemplate(def: ModuleDefinition): Promise<Blob> {
+export async function downloadTemplate(def: ModuleDefinition): Promise<Blob> {
   const data = await buildWorkbook(bulkHeaders(def.fields), [bulkExampleRow(def.fields)]);
   return new Blob([data], { type: XLSX_MIME });
 }
 
-async function serviceBulkUploadRecords(
-  def: ModuleDefinition,
-  file: File,
-): Promise<BulkUploadResult> {
-  const form = new FormData();
-  form.append('file', file);
-  const res = await api.post<ApiResponse<BulkUploadResult>>(
-    `/api/v1/${def.apiPlural}/bulk-upload`,
-    form,
-  );
-  const output = res.data.response_output;
-  if (!output) throw new Error('Gagal mengunggah file.');
-  return output;
-}
-
-async function mockBulkUploadRecords(
+export async function bulkUploadRecords(
   def: ModuleDefinition,
   file: File | ArrayBuffer,
 ): Promise<BulkUploadResult> {
@@ -469,23 +378,35 @@ async function mockBulkUploadRecords(
     });
     nextId += 1;
   }
+  persist();
   return { totalRows: rows.length, successCount, failedCount: rows.length - successCount, errors };
 }
-
-export const listRecords = USE_MOCK.list ? mockListRecords : serviceListRecords;
-export const getRecord = USE_MOCK.get ? mockGetRecord : serviceGetRecord;
-export const createRecord = USE_MOCK.create ? mockCreateRecord : serviceCreateRecord;
-export const updateRecord = USE_MOCK.update ? mockUpdateRecord : serviceUpdateRecord;
-export const deleteRecord = USE_MOCK.delete ? mockDeleteRecord : serviceDeleteRecord;
-export const restoreRecord = USE_MOCK.restore ? mockRestoreRecord : serviceRestoreRecord;
-export const exportRecords = USE_MOCK.export ? mockExportRecords : serviceExportRecords;
-export const downloadTemplate = USE_MOCK.bulkTemplate ? mockDownloadTemplate : serviceDownloadTemplate;
-export const bulkUploadRecords = USE_MOCK.bulkUpload ? mockBulkUploadRecords : serviceBulkUploadRecords;
 
 export function makeOptionsLoader(
   def: ModuleDefinition,
   field: GeneratorFieldConfig,
 ): LoadOptionsFn {
-  if (USE_MOCK.options) return mockLoadOptionsFn(field);
-  return (search = '', page = 1) => serviceOptionsOf(def, field, search, page, 20);
+  void def;
+  return mockLoadOptionsFn(field);
+}
+
+/** Loader relasi: options dari records modul target (search + paging ikut). */
+export function makeRelationOptionsLoader(field: GeneratorFieldConfig): LoadOptionsFn {
+  return async (search = '', page = 1): Promise<DynamicOption[]> => {
+    await delay(150);
+    const relation = field.relation;
+    if (!relation) return [];
+    const defs = await listDefinitions('published');
+    const target = defs.find((d) => d.key === relation.definitionKey);
+    if (!target) return [];
+    const { list } = await listRecords(target, { search: search || undefined, page, size: 20 });
+    const valueField = relation.valueField?.trim() || 'id';
+    return list.content.map((row) => {
+      const record = row as unknown as Record<string, unknown>;
+      return {
+        label: String(record[relation.labelField] ?? row.id),
+        value: String(record[valueField] ?? row.id),
+      };
+    });
+  };
 }

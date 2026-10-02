@@ -89,6 +89,7 @@ function DynamicTable({
   const testPrefix = definitionTestId(def.key);
   const byName = new Map(def.fields.map((field) => [field.name, field]));
   const hidden = new Set(def.layout.table.hidden);
+  const widths = def.layout.table.widths ?? {};
   const columns: Column<DynamicListItem>[] = [
     ...def.layout.table.order
       .filter((name) => byName.has(name) && !hidden.has(name))
@@ -102,6 +103,7 @@ function DynamicTable({
         };
         const render = cellRender(type, name);
         if (render) column.render = render;
+        if (widths[name]) column.width = widths[name];
         return column;
       }),
     { key: 'created_by', header: 'Created By' },

@@ -59,10 +59,18 @@ export function validateDefinition(def: ModuleDefinition): ConfigIssue[] {
   const seenForm = new Set<string>();
   def.layout.form.forEach((item, index) => {
     const path = `layout.form[${index}]`;
-    if (!known.has(item.field)) {
+    const kind = item.kind ?? 'field';
+    if (kind !== 'field' && kind !== 'section' && kind !== 'divider') {
+      issues.push({ path: `${path}.kind`, message: 'Kind harus field, section, atau divider.' });
+    } else if (kind === 'field' && !known.has(item.field)) {
       issues.push({ path: `${path}.field`, message: `Field "${item.field}" tidak dikenal.` });
+    } else if (kind !== 'field' && known.has(item.field)) {
+      issues.push({
+        path: `${path}.field`,
+        message: `Id "${item.field}" bentrok dengan nama field.`,
+      });
     } else if (seenForm.has(item.field)) {
-      issues.push({ path: `${path}.field`, message: `Field "${item.field}" duplikat di layout.` });
+      issues.push({ path: `${path}.field`, message: `Item "${item.field}" duplikat di layout.` });
     } else {
       seenForm.add(item.field);
     }
@@ -105,6 +113,53 @@ export function validateDefinition(def: ModuleDefinition): ConfigIssue[] {
         path: 'layout.table.hidden',
         message: `Field "${name}" disembunyikan tapi tidak ada di urutan tabel.`,
       });
+    }
+  }
+  for (const [name, width] of Object.entries(def.layout.table.widths ?? {})) {
+    if (!seenOrder.has(name)) {
+      issues.push({
+        path: `layout.table.widths.${name}`,
+        message: `Field "${name}" tidak ada di urutan tabel.`,
+      });
+    } else if (!Number.isInteger(width) || width < 40 || width > 1200) {
+      issues.push({
+        path: `layout.table.widths.${name}`,
+        message: 'Lebar kolom harus 40..1200 px.',
+      });
+    }
+  }
+  if (def.layout.detail !== undefined) {
+    const seenDetail = new Set<string>();
+    def.layout.detail.order.forEach((name, index) => {
+      if (!known.has(name)) {
+        issues.push({
+          path: `layout.detail.order[${index}]`,
+          message: `Field "${name}" tidak dikenal.`,
+        });
+      } else if (seenDetail.has(name)) {
+        issues.push({
+          path: `layout.detail.order[${index}]`,
+          message: `Field "${name}" duplikat di urutan detail.`,
+        });
+      } else {
+        seenDetail.add(name);
+      }
+    });
+    for (const name of known) {
+      if (!seenDetail.has(name)) {
+        issues.push({
+          path: 'layout.detail.order',
+          message: `Field "${name}" belum ada di urutan detail.`,
+        });
+      }
+    }
+    for (const name of def.layout.detail.hidden) {
+      if (!seenDetail.has(name)) {
+        issues.push({
+          path: 'layout.detail.hidden',
+          message: `Field "${name}" disembunyikan tapi tidak ada di urutan detail.`,
+        });
+      }
     }
   }
 

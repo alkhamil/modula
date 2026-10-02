@@ -1,12 +1,30 @@
 /** Route dinamis dari definisi published + halaman preview satu definisi. */
 import { useMemo } from 'react';
-import { useParams, useRoutes, type RouteObject } from 'react-router';
+import { Navigate, useParams, useRoutes, type RouteObject } from 'react-router';
 import { ErrorStatePage, LoadingOverlay } from '../../../shared/components/ui';
 import type { ModuleDefinition } from '../definitions';
 import { definitionPermissions } from './types';
 import { useDynamicDefinition, useDynamicDefinitions } from './hooks';
+import { useAuth } from '../../auth';
 import DynamicListPage from './DynamicListPage';
 import { DynamicCreatePage, DynamicDetailPage, DynamicEditPage } from './DynamicFormPages';
+
+/**
+ * Guard permission untuk route dinamis. `PermissionGate` hanya membaca
+ * `useMatches()` outer — match dari `useRoutes` dalam tidak terlihat di
+ * sana — sehingga tiap halaman dinamis menjaga dirinya sendiri.
+ */
+function RequireDynamicPermission({
+  permission,
+  children,
+}: {
+  permission: string;
+  children: React.ReactNode;
+}) {
+  const { can } = useAuth();
+  if (!can(permission)) return <ErrorStatePage type="403" />;
+  return <>{children}</>;
+}
 
 function routesForDefinition(def: ModuleDefinition): RouteObject[] {
   const permissions = definitionPermissions(def.permissionKey);
@@ -14,41 +32,41 @@ function routesForDefinition(def: ModuleDefinition): RouteObject[] {
   if (def.features.list) {
     routes.push({
       path: def.routeBase,
-      element: <DynamicListPage def={def} />,
-      handle: {
-        breadcrumb: [{ label: def.label }],
-        requiredPermission: permissions.view,
-      },
+      element: (
+        <RequireDynamicPermission permission={permissions.view}>
+          <DynamicListPage def={def} />
+        </RequireDynamicPermission>
+      ),
     });
   }
   if (def.features.create) {
     routes.push({
       path: `${def.routeBase}/create`,
-      element: <DynamicCreatePage def={def} />,
-      handle: {
-        breadcrumb: [{ label: def.label, to: `/${def.routeBase}` }, { label: 'Create' }],
-        requiredPermission: permissions.create,
-      },
+      element: (
+        <RequireDynamicPermission permission={permissions.create}>
+          <DynamicCreatePage def={def} />
+        </RequireDynamicPermission>
+      ),
     });
   }
   if (def.features.detail) {
     routes.push({
       path: `${def.routeBase}/:recordId/view`,
-      element: <DynamicDetailPage def={def} />,
-      handle: {
-        breadcrumb: [{ label: def.label, to: `/${def.routeBase}` }, { label: 'Detail' }],
-        requiredPermission: permissions.view,
-      },
+      element: (
+        <RequireDynamicPermission permission={permissions.view}>
+          <DynamicDetailPage def={def} />
+        </RequireDynamicPermission>
+      ),
     });
   }
   if (def.features.edit) {
     routes.push({
       path: `${def.routeBase}/:recordId/edit`,
-      element: <DynamicEditPage def={def} />,
-      handle: {
-        breadcrumb: [{ label: def.label, to: `/${def.routeBase}` }, { label: 'Edit' }],
-        requiredPermission: permissions.update,
-      },
+      element: (
+        <RequireDynamicPermission permission={permissions.update}>
+          <DynamicEditPage def={def} />
+        </RequireDynamicPermission>
+      ),
     });
   }
   return routes;
@@ -71,6 +89,9 @@ function DynamicModuleRoutes() {
       />
     );
   }
+  // Tak ada definisi yang match → 404 via route statis (handle notFound
+  // mengatur judul + breadcrumb AppShell).
+  if (!element) return <Navigate to="/not-found" replace />;
   return element;
 }
 

@@ -6,7 +6,7 @@ export interface ApiErrorItem {
   value?: string;
 }
 
-export interface AxiosErrorShape {
+export interface EnvelopeErrorShape {
   response?: {
     status?: number;
     data?: {
@@ -19,7 +19,7 @@ export interface AxiosErrorShape {
 }
 
 export function isConnectionError(err: unknown): boolean {
-  return !(err as AxiosErrorShape)?.response;
+  return !(err as EnvelopeErrorShape)?.response;
 }
 
 export type ErrorPageType = '403' | '404' | '500';
@@ -29,7 +29,7 @@ export type ErrorPageType = '403' | '404' | '500';
  * 403 → Forbidden, 404 → Not Found, selain itu (termasuk 400) → General Error.
  */
 export function getErrorStateType(err: unknown): ErrorPageType {
-  const status = (err as AxiosErrorShape)?.response?.status;
+  const status = (err as EnvelopeErrorShape)?.response?.status;
   if (status === 403) return '403';
   if (status === 404) return '404';
   return '500';
@@ -38,13 +38,13 @@ export function getErrorStateType(err: unknown): ErrorPageType {
 export const NETWORK_ERROR_MESSAGE = 'Oops! Something went wrong, please try again later.';
 
 export function mapSubmitError(err: unknown, defaultToastMessage: string): SubmitResult {
-  const axiosErr = err as AxiosErrorShape;
+  const envelopeErr = err as EnvelopeErrorShape;
 
   if (isConnectionError(err)) {
     return { success: false, toastMessage: NETWORK_ERROR_MESSAGE };
   }
 
-  const data = axiosErr?.response?.data;
+  const data = envelopeErr?.response?.data;
   const { response_message } = data?.response_schema ?? {};
 
   // Kontrak: field error selalu di response_output.errors.

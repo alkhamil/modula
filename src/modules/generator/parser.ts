@@ -129,6 +129,20 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
         });
       }
     }
+    if (field.source === 'relation') {
+      if (!field.relation?.definitionKey) {
+        issues.push({
+          path: `${path}.relation.definitionKey`,
+          message: `Field "${field.name}" source relation butuh modul target.`,
+        });
+      }
+      if (!field.relation?.labelField) {
+        issues.push({
+          path: `${path}.relation.labelField`,
+          message: `Field "${field.name}" source relation butuh label field.`,
+        });
+      }
+    }
     const criteria = field.filterCriteria ?? defaultCriteria(field.type);
     const filterable = field.filterable ?? defaultFilterable(field.type);
     if (filterable && !criteriaForFieldType(field.type).includes(criteria)) {

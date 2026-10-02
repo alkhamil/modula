@@ -1,7 +1,7 @@
 /** Hooks TanStack Query + filter + form untuk runtime modul dinamis. */
 import { useMemo, useState, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { useQuery, useQueries } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   Badge,
   useToast,
@@ -25,12 +25,11 @@ import type { GeneratorFieldConfig } from '../types';
 import type { ModuleDefinition } from '../definitions';
 import { getDefinition, listDefinitions } from './definitionsApi';
 import {
-  USE_MOCK as RECORDS_USE_MOCK,
   exportRecords,
   getRecord,
   listRecords,
   makeOptionsLoader,
-  serviceOptionsOf,
+  makeRelationOptionsLoader,
 } from './recordsApi';
 import { buildFilterFields } from './filtering';
 import { formDefaultValue, formEditValue, payloadValue, type DynamicFormValues } from './validation';
@@ -171,51 +170,29 @@ export function useDynamicList(def: ModuleDefinition, params: DynamicListParams)
 const OPTION_TYPES = new Set(['selectField', 'selectMultipleField', 'radioGroupField', 'checkboxGroupField']);
 
 /**
- * Opsi per field opsi: mockStatic selalu dari definisi; api → contoh definisi
- * saat mock, query endpoint saat real; mockPaging selalu via loader.
+ * Opsi per field opsi (mock-only): mockStatic dari definisi; api memakai
+ * contoh `options` definisi; mockPaging + relation selalu via loader.
  */
 export function useDynamicOptions(def: ModuleDefinition): {
   optionsOf: (field: GeneratorFieldConfig) => DynamicOption[];
   loaderOf: (field: GeneratorFieldConfig) => ReturnType<typeof makeOptionsLoader> | undefined;
 } {
-  const apiFields = useMemo(
-    () => def.fields.filter((field) => OPTION_TYPES.has(field.type) && field.source === 'api'),
-    [def],
-  );
-  const results = useQueries({
-    queries: apiFields.map((field) => ({
-      queryKey: ['dynamic-options', def.key, field.name],
-      queryFn: () => serviceOptionsOf(def, field, '', 1, 100),
-      enabled: !RECORDS_USE_MOCK.options,
-      staleTime: Infinity,
-      gcTime: Infinity,
-    })),
-  });
-  const fetched = useMemo(() => {
-    const map = new Map<string, DynamicOption[]>();
-    apiFields.forEach((field, index) => {
-      const data = results[index]?.data;
-      if (data) map.set(field.name, data);
-    });
-    return map;
-  }, [apiFields, results]);
-
   return useMemo(
     () => ({
       optionsOf: (field: GeneratorFieldConfig): DynamicOption[] => {
-        if (field.source === 'mockStatic') return (field.options ?? []).map((o) => ({ ...o }));
-        if (field.source === 'api') {
-          return fetched.get(field.name) ?? (field.options ?? []).map((o) => ({ ...o }));
+        if (field.source === 'mockStatic' || field.source === 'api') {
+          return (field.options ?? []).map((o) => ({ ...o }));
         }
         return [];
       },
       loaderOf: (field: GeneratorFieldConfig) => {
         if (!OPTION_TYPES.has(field.type)) return undefined;
         if (field.source === 'mockPagingInfinityScroll') return makeOptionsLoader(def, field);
+        if (field.source === 'relation') return makeRelationOptionsLoader(field);
         return undefined;
       },
     }),
-    [def, fetched],
+    [def],
   );
 }
 
@@ -245,6 +222,42 @@ function detailValue(field: GeneratorFieldConfig, item: DynamicDetail): unknown 
   }
 }
 
+/**
+ * Baris DetailCard dari definisi + item. Mengikuti `layout.detail`
+ * (urutan + hidden); bila absen: urutan fields, semua tampil.
+ * Dipakai halaman detail runtime + pratinjau canvas builder.
+ */
+export function buildDetailRows(def: ModuleDefinition, item: DynamicDetail | null): DetailRow[] {
+  const byName = new Map(def.fields.map((field) => [field.name, field]));
+  const order = def.layout.detail?.order ?? def.fields.map((field) => field.name);
+  const hidden = new Set(def.layout.detail?.hidden ?? []);
+  const fields = order
+    .filter((name) => byName.has(name) && !hidden.has(name))
+    .map((name) => byName.get(name) as GeneratorFieldConfig);
+  if (!item) {
+    return [
+      { label: 'Status', value: '' },
+      ...fields.map((field) => ({ label: field.label, value: '' })),
+    ];
+  }
+  return [
+    {
+      label: 'Status',
+      value: (
+        <Badge variant={item.status === 'active' ? 'success' : 'secondary'}>
+          {capitalize(item.status)}
+        </Badge>
+      ),
+    },
+    ...fields.map((field) => ({
+      label: field.label,
+      value: detailValue(field, item) as ReactNode,
+    })),
+    { label: 'Created By', value: item.createdBy },
+    { label: 'Created Date', value: item.createdDate },
+  ];
+}
+
 /** Hook form generik — meniru `useUserForm` (detail, defaults, submit, opsi). */
 export function useDynamicForm(def: ModuleDefinition, id?: string) {
   const navigate = useNavigate();
@@ -266,30 +279,7 @@ export function useDynamicForm(def: ModuleDefinition, id?: string) {
     return values;
   }, [def, item]);
 
-  const detailRows: DetailRow[] = useMemo(() => {
-    if (!item) {
-      return [
-        { label: 'Status', value: '' },
-        ...def.fields.map((field) => ({ label: field.label, value: '' })),
-      ];
-    }
-    return [
-      {
-        label: 'Status',
-        value: (
-          <Badge variant={item.status === 'active' ? 'success' : 'secondary'}>
-            {capitalize(item.status)}
-          </Badge>
-        ),
-      },
-      ...def.fields.map((field) => ({
-        label: field.label,
-        value: detailValue(field, item) as ReactNode,
-      })),
-      { label: 'Created By', value: item.createdBy },
-      { label: 'Created Date', value: item.createdDate },
-    ];
-  }, [def, item]);
+  const detailRows: DetailRow[] = useMemo(() => buildDetailRows(def, item ?? null), [def, item]);
 
   async function onSubmit(data: DynamicFormValues): Promise<SubmitResult> {
     try {

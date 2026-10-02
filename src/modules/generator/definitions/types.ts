@@ -14,18 +14,38 @@ export type ModuleDefinitionStatus = 'draft' | 'published';
  */
 export type DeleteMode = 'hard' | 'soft';
 
-/** Posisi satu field dalam grid form 12 kolom. */
+/** Jenis item form: field data, judul seksi, atau garis pemisah. */
+export type FormLayoutItemKind = 'field' | 'section' | 'divider';
+
+/** Posisi satu item dalam grid form 12 kolom. */
 export interface FormLayoutItem {
-  /** Nama field (ref ke `fields[].name`). */
+  /**
+   * Nama field (ref ke `fields[].name`) bila `kind` field;
+   * id unik bebas (`section-1`, …) bila section/divider.
+   */
   field: string;
   /** Urutan tampil (0-based, unik). */
   order: number;
   /** Lebar kolom grid 1..12 (12 = satu baris penuh). */
   colSpan: number;
+  /** Default `field`. */
+  kind?: FormLayoutItemKind;
+  /** Judul tampil bila `kind === 'section'`. */
+  label?: string;
 }
 
 /** Layout kolom tabel list. Kolom sistem (created_by, created_date, status) selalu di akhir. */
 export interface TableLayout {
+  /** Nama field berurutan (ref ke `fields[].name`). */
+  order: string[];
+  /** Subset `order` yang disembunyikan. */
+  hidden: string[];
+  /** Lebar kolom piksel per field (opsional; tanpa entri = otomatis). */
+  widths?: Record<string, number>;
+}
+
+/** Layout halaman detail (read-only). Bila absen: urutan form, semua tampil. */
+export interface DetailLayout {
   /** Nama field berurutan (ref ke `fields[].name`). */
   order: string[];
   /** Subset `order` yang disembunyikan. */
@@ -35,12 +55,13 @@ export interface TableLayout {
 export interface ModuleLayout {
   form: FormLayoutItem[];
   table: TableLayout;
+  detail?: DetailLayout;
 }
 
 /**
  * Single source of truth satu modul dinamis (v1).
- * Disimpan di BE (`module_definitions`), di-render generik oleh FE saat runtime.
- * Node-safe: boleh dipakai wizard, runtime, maupun skrip seed.
+ * Disimpan di mock store (seed JSON + localStorage), di-render generik oleh
+ * FE saat runtime. Node-safe: boleh dipakai wizard maupun runtime.
  */
 export interface ModuleDefinition {
   version: ModuleDefinitionVersion;
@@ -56,7 +77,7 @@ export interface ModuleDefinition {
   routeBase: string;
   /** Base permission key; suffix `.view/.create/.update/.delete/.bulk_upload/.export` otomatis. */
   permissionKey: string;
-  /** Plural untuk URL API flat: `/api/v1/companies`. */
+  /** Plural namespace data di mock store (mis. `companies`). */
   apiPlural: string;
   moduleType: 'crud';
   features: Record<FeatureKey, boolean>;

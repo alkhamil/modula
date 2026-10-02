@@ -6,6 +6,7 @@ import type {
   ModuleDefinition,
   ModuleDefinitionStatus,
   ModuleLayout,
+  TableLayout,
 } from './types';
 import { MODULE_DEFINITION_VERSION } from './types';
 
@@ -19,6 +20,27 @@ export function defaultLayoutForFields(
   };
 }
 
+function normalizeOrderList(
+  order: string[] | undefined,
+  hidden: string[] | undefined,
+  fieldNames: string[],
+): { order: string[]; hidden: string[] } {
+  const known = new Set(fieldNames);
+  const seen = new Set<string>();
+  const clean: string[] = [];
+  for (const name of order ?? []) {
+    if (!known.has(name) || seen.has(name)) continue;
+    seen.add(name);
+    clean.push(name);
+  }
+  for (const name of fieldNames) {
+    if (seen.has(name)) continue;
+    seen.add(name);
+    clean.push(name);
+  }
+  return { order: clean, hidden: (hidden ?? []).filter((name) => seen.has(name)) };
+}
+
 /** Normalisasi layout: buang ref tak dikenal, lengkapi field yang hilang, rapikan order/span. */
 export function normalizeLayout(
   layout: ModuleLayout,
@@ -28,12 +50,18 @@ export function normalizeLayout(
   const seen = new Set<string>();
   const form: FormLayoutItem[] = [];
   for (const item of [...layout.form].sort((a, b) => a.order - b.order)) {
-    if (!known.has(item.field) || seen.has(item.field)) continue;
+    const kind = item.kind ?? 'field';
+    if (seen.has(item.field)) continue;
+    if (kind === 'field' && !known.has(item.field)) continue;
+    if (kind !== 'field' && known.has(item.field)) continue;
+    if (kind !== 'field' && kind !== 'section' && kind !== 'divider') continue;
     seen.add(item.field);
     form.push({
       field: item.field,
       order: form.length,
       colSpan: Math.min(12, Math.max(1, Math.floor(item.colSpan) || 12)),
+      ...(kind !== 'field' ? { kind } : {}),
+      ...(kind === 'section' && item.label ? { label: item.label } : {}),
     });
   }
   for (const name of fieldNames) {
@@ -41,13 +69,22 @@ export function normalizeLayout(
     seen.add(name);
     form.push({ field: name, order: form.length, colSpan: 12 });
   }
-  const order = [
-    ...layout.table.order.filter((name) => known.has(name)),
-    ...fieldNames.filter((name) => !layout.table.order.includes(name)),
-  ];
-  const orderSet = new Set(order);
-  const hidden = layout.table.hidden.filter((name) => orderSet.has(name));
-  return { form, table: { order, hidden } };
+  const tableOrder = normalizeOrderList(layout.table.order, layout.table.hidden, fieldNames);
+  const widths: Record<string, number> = {};
+  for (const [name, width] of Object.entries(layout.table.widths ?? {})) {
+    if (!known.has(name)) continue;
+    const px = Math.floor(width);
+    if (!Number.isFinite(px)) continue;
+    widths[name] = Math.min(1200, Math.max(40, px));
+  }
+  const table: TableLayout = { order: tableOrder.order, hidden: tableOrder.hidden };
+  if (Object.keys(widths).length > 0) table.widths = widths;
+  const detailOrder = normalizeOrderList(
+    layout.detail?.order ?? fieldNames,
+    layout.detail?.hidden,
+    fieldNames,
+  );
+  return { form, table, detail: { order: detailOrder.order, hidden: detailOrder.hidden } };
 }
 
 export interface ConfigToDefinitionOptions {

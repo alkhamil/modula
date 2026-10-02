@@ -6,34 +6,33 @@ Muse Code reads this file as project rules when it runs in this directory.
 
 - Name: generator-module-app
 - Stack: React 19 + TypeScript + Vite + Tailwind CSS 4 + TanStack Query +
-  React Hook Form + axios + react-router 7. Package manager: npm.
-- Backend in-repo: `backend/` (NestJS + TypeORM + MySQL, lihat
-  `backend/README.md`).
+  React Hook Form + react-router 7. Package manager: npm.
+- Frontend mock-only: tanpa backend, tanpa database. Semua data (definisi
+  modul, records, auth) dari mock store: seed JSON + localStorage.
 - App ini adalah **dynamic module platform**: tidak ada kode per modul di
   `src/modules/` (isinya hanya `auth/` + `generator/`). Modul bisnis
   (users, orders, mater-data/*, …) didefinisikan sebagai data
-  `ModuleDefinition v1`, disimpan di BE, dan di-render generik saat runtime.
-  Wizard `/generator` membuat definisi lewat publish (Draft/Publish),
-  bukan dengan menulis file.
+  `ModuleDefinition v1`, disimpan di mock store, dan di-render generik
+  saat runtime. Wizard `/generator` membuat definisi lewat publish
+  (Draft/Publish), bukan dengan menulis file.
 
 ## Skills (baca sebelum bekerja di area terkait)
 
 - `frontend-conventions` — token thema, spacing semantik, layout single-app,
   shared components, auth guard. Wajib untuk semua perubahan UI.
-- `module-generator` — wizard generator (info → features → fields →
-  layout canvas → review → publish), `ModuleDefinition v1`, naming,
-  runtime render (routes/nav dinamis), bulk/export `.xlsx`.
+- `module-generator` — wizard generator 6 langkah (config → form
+  canvas → test data → list canvas → detail canvas → review), `builder/`,
+  `ModuleDefinition v1`, runtime render (routes/nav dinamis), bulk/export
+  `.xlsx`, contract JSON.
 - `crud-module` — pola modul CRUD dinamis: bentuk definisi, runtime generik
-  (`Dynamic*`), kontrak API records, seeds, mock vs API real.
+  (`Dynamic*`), mock store records, seeds.
 
 ## Common Commands
 
-- Dev FE: `npm run dev` (Node 22, lihat `nvm use 22`)
-- Build FE: `npm run build` (typecheck `tsc -b` + `vite build`)
-- Lint: `npm run lint` (oxlint atas `src`, `backend/src`, `vite.config.ts`)
+- Dev: `npm run dev` (Node 22, lihat `nvm use 22`)
+- Build: `npm run build` (typecheck `tsc -b` + `vite build`)
+- Lint: `npm run lint` (oxlint atas `src`, `vite.config.ts`)
 - Preview: `npm run preview`
-- Dev BE: `cd backend && npm run start:dev` (butuh MySQL via `compose.yaml`)
-- Test BE: `cd backend && npm test` (`tsc` + `node --test`)
 
 ## Project Layout
 
@@ -42,16 +41,14 @@ Muse Code reads this file as project rules when it runs in this directory.
   `DynamicModuleRoutes` + `preview/:definitionKey`),
   `ProtectedAppShell.tsx` (shell + session user).
 - `src/pages/` — Login, Dashboard, `components/` (dokumentasi shared).
-- `src/modules/` — hanya `auth/` (login JWT ke BE + guard + `useAuth`) dan
+- `src/modules/` — hanya `auth/` (login mock + guard + `useAuth`) dan
   `generator/` (`definitions/` = `ModuleDefinition v1` murni + Node-safe,
-  `runtime/` = render generik + client API + mock, `components/` +
-  `pages/` = wizard, `parser.ts`/`naming.ts`/`registry/` = bantu wizard).
+  `runtime/` = render generik + mock store persisten, `seeds/` = seed JSON,
+  `builder/` + `components/` + `pages/` = wizard 6 langkah, `parser.ts`/
+  `naming.ts`/`registry/` = bantu wizard).
 - `src/shared/` — `theme/` (token thema), `lib/`, `hooks/`, `utils/`,
   `types/`, `components/` (`layout/`, `ui/`, `icons/`).
-- `backend/` — NestJS: `module-definitions` CRUD + API records generik
-  `/:plural` + export/bulk `.xlsx`; `seeds/` = seed JSON definisi + records
-  (juga dipakai mock FE; `npm run db:clean` mengosongkan DB).
-- `docs/backend-contract.md` — kontrak API FE↔BE.
+- `docs/BUILDER_SPEC.md` — spec visual builder (arah rombak).
 - `.agents/skills/` — project skills (hasil `muse skills validate` harus
   `valid: true` tanpa diagnostics setelah diubah).
 
@@ -72,5 +69,4 @@ Muse Code reads this file as project rules when it runs in this directory.
   dan Node-safe: dilarang dependensi Vite/browser (`import.meta.glob`,
   CSS, komponen) — hanya `definitionsApi.ts`/`recordsApi.ts` yang boleh
   memakai `import.meta.glob` untuk seed mock.
-- Setelah perubahan: `npm run lint` dan `npm run build` (+ `npm test` di
-  `backend/` bila menyentuh BE).
+- Setelah perubahan: `npm run lint` dan `npm run build`.

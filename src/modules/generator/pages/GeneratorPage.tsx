@@ -1,13 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { Alert, Button, Card, useToast } from '../../../shared/components/ui';
+import { downloadBlob } from '../../../shared/utils';
 import { StepDoneIcon, StepInProgressIcon, StepOutGoingIcon } from '../../../shared/components/icons';
 import type { FeatureKey, GeneratorConfig, GeneratorFieldConfig } from '../types';
 import { normalizeModuleName } from '../parser';
-import type { ModuleDefinition, ModuleLayout } from '../definitions';
+import type { DeleteMode, ModuleDefinition, ModuleLayout } from '../definitions';
 import {
   NEW_PARENT_VALUE,
+  buildApiContract,
   configToDefinition,
   defaultLayoutForFields,
   normalizeLayout,
@@ -15,16 +17,30 @@ import {
   validateDefinition,
 } from '../definitions';
 import { saveDefinition, useDynamicDefinitions } from '../runtime';
+import type { DynamicListItem } from '../runtime/types';
+import type { DynamicFormValues } from '../runtime/validation';
 import ModuleInfoStep, {
   resolveEffectiveParent,
   type ModuleInfoValue,
 } from '../components/ModuleInfoStep';
 import FeaturesStep from '../components/FeaturesStep';
 import FieldsStep from '../components/FieldsStep';
-import LayoutStep from '../components/LayoutStep';
 import ReviewStep from '../components/ReviewStep';
+import FormBuilderCanvas from '../builder/FormBuilderCanvas';
+import TestDataPanel from '../builder/TestDataPanel';
+import ListBuilderCanvas from '../builder/ListBuilderCanvas';
+import DetailBuilderCanvas from '../builder/DetailBuilderCanvas';
+import ContractPanel from '../builder/ContractPanel';
+import { clearDraft, loadDraft, saveDraft, valuesToSampleRow } from '../builder/draft';
 
-const STEPS = ['Module Info', 'Features', 'Fields', 'Layout', 'Review'] as const;
+const STEPS = [
+  'Config',
+  'Form Canvas',
+  'Test Data',
+  'List Canvas',
+  'Detail Canvas',
+  'Review & Generate',
+] as const;
 
 const DEFAULT_FEATURES: Record<FeatureKey, boolean> = {
   list: true,
@@ -38,7 +54,7 @@ const DEFAULT_FEATURES: Record<FeatureKey, boolean> = {
 
 function StepIndicator({ step }: { step: number }) {
   return (
-    <ol className="flex items-center gap-2">
+    <ol className="flex flex-wrap items-center gap-2">
       {STEPS.map((label, index) => {
         const state = index < step ? 'done' : index === step ? 'current' : 'todo';
         return (
@@ -80,20 +96,39 @@ function GeneratorPage() {
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
-  const [info, setInfo] = useState<ModuleInfoValue>(INITIAL_INFO);
-  const [features, setFeatures] = useState<Record<FeatureKey, boolean>>(DEFAULT_FEATURES);
-  const [fields, setFields] = useState<GeneratorFieldConfig[]>([]);
-  const [layout, setLayout] = useState<ModuleLayout | null>(null);
+  const [initialDraft] = useState(loadDraft);
+  const [step, setStep] = useState(() =>
+    Math.min(initialDraft?.step ?? 0, STEPS.length - 1),
+  );
+  const [info, setInfo] = useState<ModuleInfoValue>(initialDraft?.info ?? INITIAL_INFO);
+  const [features, setFeatures] = useState<Record<FeatureKey, boolean>>(
+    initialDraft?.features ?? DEFAULT_FEATURES,
+  );
+  const [fields, setFields] = useState<GeneratorFieldConfig[]>(initialDraft?.fields ?? []);
+  const [layout, setLayout] = useState<ModuleLayout | null>(initialDraft?.layout ?? null);
+  const [deleteMode, setDeleteMode] = useState<DeleteMode>(initialDraft?.deleteMode ?? 'soft');
+  const [sampleRows, setSampleRows] = useState<DynamicListItem[]>(
+    initialDraft?.sampleRows ?? [],
+  );
   const [stepError, setStepError] = useState<string | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishResult, setPublishResult] = useState<PublishResult | null>(null);
 
-  // '' = semua status (draft + published) untuk opsi parent.
+  // '' = semua status (draft + published) untuk opsi parent + target relasi.
   const definitionsQuery = useDynamicDefinitions('');
   const parentOptions = useMemo(
     () => parentOptionsFromDefinitions(definitionsQuery.data ?? []),
     [definitionsQuery.data],
+  );
+
+  useEffect(() => {
+    if (publishResult) return;
+    saveDraft({ info, features, fields, layout, deleteMode, sampleRows, step });
+  }, [info, features, fields, layout, deleteMode, sampleRows, step, publishResult]);
+
+  const effectiveLayout = useMemo(
+    () => normalizeLayout(layout ?? defaultLayoutForFields(fields), fields.map((f) => f.name)),
+    [layout, fields],
   );
 
   function buildConfig(): GeneratorConfig {
@@ -107,6 +142,17 @@ function GeneratorPage() {
       fields,
     };
   }
+
+  const draftDef = useMemo(
+    () =>
+      configToDefinition(buildConfig(), {
+        status: 'draft',
+        layout: effectiveLayout,
+        deleteMode,
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [info, features, fields, effectiveLayout, deleteMode],
+  );
 
   function validateStep(current: number): string | null {
     if (current === 0) {
@@ -125,16 +171,10 @@ function GeneratorPage() {
       if (!/^[a-z][a-z0-9_]*$/.test(info.permissionKey.trim().toLowerCase())) {
         return 'Permission key harus single value tanpa titik (contoh: user, audit_trail).';
       }
-      return null;
-    }
-    if (current === 1) {
       if (!Object.values(features).some(Boolean)) return 'Pilih minimal satu feature.';
       if ((features.bulkUpload || features.export) && !features.list) {
         return 'Bulk upload & export butuh feature list.';
       }
-      return null;
-    }
-    if (current === 2) {
       if (fields.length === 0) return 'Tambahkan minimal satu field.';
       return null;
     }
@@ -148,8 +188,8 @@ function GeneratorPage() {
       return;
     }
     setStepError(null);
-    if (step === 2) {
-      // Masuk langkah Layout: selaraskan layout dengan fields terkini.
+    if (step === 0) {
+      // Masuk kanvas: selaraskan layout dengan fields terkini.
       setLayout((prev) =>
         normalizeLayout(prev ?? defaultLayoutForFields(fields), fields.map((f) => f.name)),
       );
@@ -163,24 +203,30 @@ function GeneratorPage() {
   }
 
   function resetWizard(): void {
+    clearDraft();
     setStep(0);
     setInfo(INITIAL_INFO);
     setFeatures(DEFAULT_FEATURES);
     setFields([]);
     setLayout(null);
+    setDeleteMode('soft');
+    setSampleRows([]);
     setStepError(null);
     setPublishResult(null);
   }
 
+  function handleAddSampleRow(values: DynamicFormValues): void {
+    const nextId = Math.max(...sampleRows.map((row) => row.id), 0) + 1;
+    setSampleRows((prev) => [...prev, valuesToSampleRow(values, nextId)]);
+    showToast({ variant: 'success', message: `Baris contoh #${nextId} ditambahkan.` });
+  }
+
   async function handlePublish(targetStatus: 'draft' | 'published'): Promise<void> {
     const config = buildConfig();
-    const effectiveLayout = normalizeLayout(
-      layout ?? defaultLayoutForFields(fields),
-      fields.map((f) => f.name),
-    );
     const definition = configToDefinition(config, {
       status: targetStatus,
       layout: effectiveLayout,
+      deleteMode,
     });
     const issues = validateDefinition(definition);
     if (issues.length > 0) {
@@ -199,6 +245,7 @@ function GeneratorPage() {
       const saved = await saveDefinition(definition);
       await queryClient.invalidateQueries({ queryKey: ['dynamic-definitions'] });
       await queryClient.invalidateQueries({ queryKey: ['dynamic-definition', saved.definition.key] });
+      clearDraft();
       setPublishResult({ definition: saved.definition, created: saved.created });
       showToast({
         variant: 'success',
@@ -212,6 +259,11 @@ function GeneratorPage() {
     } finally {
       setIsPublishing(false);
     }
+  }
+
+  function handleDownloadContract(definition: ModuleDefinition): void {
+    const json = JSON.stringify(buildApiContract(definition), null, 2);
+    downloadBlob(new Blob([json], { type: 'application/json' }), `${definition.apiPlural}.contract.json`);
   }
 
   if (publishResult) {
@@ -233,8 +285,8 @@ function GeneratorPage() {
             <dd className="font-mono text-xs text-foreground">{definition.key}</dd>
             <dt className="text-muted-foreground">Route</dt>
             <dd className="font-mono text-xs text-foreground">/{definition.routeBase}</dd>
-            <dt className="text-muted-foreground">API</dt>
-            <dd className="font-mono text-xs text-foreground">/api/v1/{definition.apiPlural}</dd>
+            <dt className="text-muted-foreground">Data</dt>
+            <dd className="font-mono text-xs text-foreground">{definition.apiPlural} (mock store)</dd>
             <dt className="text-muted-foreground">Status</dt>
             <dd className="text-foreground">{isLive ? 'Published' : 'Draft'}</dd>
             <dt className="text-muted-foreground">Fields</dt>
@@ -246,6 +298,9 @@ function GeneratorPage() {
             </Button>
             <Button type="button" variant="secondary" onClick={resetWizard}>
               Buat modul baru
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => handleDownloadContract(definition)}>
+              Unduh kontrak
             </Button>
             <Button
               type="button"
@@ -263,40 +318,100 @@ function GeneratorPage() {
     <div className="flex flex-col stack-gap">
       <StepIndicator step={step} />
       {stepError && <Alert variant="error" message={stepError} />}
-      <Card title={step === 4 ? 'Review' : `Create New Module — ${STEPS[step]}`}>
+      {initialDraft && step === 0 && (
+        <Alert variant="info" message="Draft terakhir dimuat otomatis. Selesaikan atau mulai baru." />
+      )}
+      <Card title={step === 5 ? 'Review & Generate' : `Builder — ${STEPS[step]}`}>
         {step === 0 && (
-          <ModuleInfoStep
-            value={info}
-            onChange={(next) => {
-              setInfo(next);
-              setStepError(null);
-            }}
-            errors={{}}
-            parentOptions={parentOptions}
-          />
+          <div className="flex flex-col stack-gap">
+            <Card title="Module Info">
+              <ModuleInfoStep
+                value={info}
+                onChange={(next) => {
+                  setInfo(next);
+                  setStepError(null);
+                }}
+                errors={{}}
+                parentOptions={parentOptions}
+              />
+            </Card>
+            <Card title="Features">
+              <FeaturesStep value={features} onChange={setFeatures} />
+            </Card>
+            <Card title="Fields">
+              <FieldsStep
+                fields={fields}
+                onChange={setFields}
+                definitions={definitionsQuery.data ?? []}
+              />
+            </Card>
+          </div>
         )}
-        {step === 1 && <FeaturesStep value={features} onChange={setFeatures} />}
-        {step === 2 && <FieldsStep fields={fields} onChange={setFields} />}
-        {step === 3 && (
-          <LayoutStep
+        {step === 1 && (
+          <FormBuilderCanvas
             fields={fields}
+            onFieldsChange={setFields}
             layout={layout}
             onChange={setLayout}
             previewTitle={info.moduleName.trim() || 'Preview'}
+            definitions={definitionsQuery.data ?? []}
           />
         )}
-        {step === 4 && <ReviewStep config={buildConfig()} layout={layout} />}
+        {step === 2 && (
+          <TestDataPanel
+            def={draftDef}
+            sampleRows={sampleRows}
+            onAddRow={handleAddSampleRow}
+            onClearRows={() => setSampleRows([])}
+          />
+        )}
+        {step === 3 && (
+          <ListBuilderCanvas
+            def={draftDef}
+            fields={fields}
+            onFieldsChange={setFields}
+            layout={effectiveLayout}
+            onChange={setLayout}
+            features={features}
+            onFeaturesChange={setFeatures}
+            deleteMode={deleteMode}
+            onDeleteModeChange={setDeleteMode}
+            sampleRows={sampleRows}
+          />
+        )}
+        {step === 4 && (
+          <DetailBuilderCanvas
+            def={draftDef}
+            fields={fields}
+            layout={effectiveLayout}
+            onChange={setLayout}
+            sampleRows={sampleRows}
+          />
+        )}
+        {step === 5 && (
+          <div className="flex flex-col stack-gap">
+            <ReviewStep config={buildConfig()} layout={layout} deleteMode={deleteMode} />
+            <ContractPanel def={draftDef} />
+          </div>
+        )}
         <div className="mt-6 flex justify-between gap-2">
-          <Button type="button" variant="secondary" onClick={handleBack} disabled={step === 0}>
-            Kembali
-          </Button>
           <div className="flex gap-2">
-            {step < 4 && (
+            <Button type="button" variant="secondary" onClick={handleBack} disabled={step === 0}>
+              Kembali
+            </Button>
+            {step === 0 && (
+              <Button type="button" variant="secondary" onClick={resetWizard}>
+                Buang draft
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            {step < 5 && (
               <Button type="button" onClick={handleNext}>
                 Lanjut
               </Button>
             )}
-            {step === 4 && (
+            {step === 5 && (
               <>
                 <Button
                   type="button"

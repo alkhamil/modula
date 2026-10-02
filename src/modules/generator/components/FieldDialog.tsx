@@ -14,6 +14,7 @@ import type {
   FilterCriteria,
   GeneratorFieldConfig,
 } from '../types';
+import type { ModuleDefinition } from '../definitions';
 import {
   criteriaForFieldType,
   dataSourceRegistry,
@@ -33,11 +34,21 @@ interface RuleDraft {
   arg: string;
 }
 
+export interface FieldDialogPreset {
+  type?: FieldType;
+  source?: DataSource;
+  label?: string;
+}
+
 interface FieldDialogProps {
   open: boolean;
   /** Null = tambah baru; terisi = edit (index dipakai untuk cek duplikat). */
   initial: { field: GeneratorFieldConfig; index: number } | null;
   existingNames: string[];
+  /** Definisi terdaftar untuk picker target relasi. */
+  definitions: ModuleDefinition[];
+  /** Nilai awal saat tambah baru (mis. dari palet canvas). */
+  preset?: FieldDialogPreset;
   onClose: () => void;
   onSave: (field: GeneratorFieldConfig, index: number | null) => void;
 }
@@ -67,26 +78,44 @@ function draftToRules(draft: Record<ValidationRuleName, RuleDraft>): string[] {
   return rules;
 }
 
-function FieldDialog({ open, initial, existingNames, onClose, onSave }: FieldDialogProps) {
-  const [label, setLabel] = useState(initial?.field.label ?? '');
+function FieldDialog({ open, initial, existingNames, definitions, preset, onClose, onSave }: FieldDialogProps) {
+  const initialType = initial?.field.type ?? preset?.type ?? 'textField';
+  const [label, setLabel] = useState(initial?.field.label ?? preset?.label ?? '');
   const [name, setName] = useState(initial?.field.name ?? '');
   const [nameTouched, setNameTouched] = useState(!!initial);
-  const [type, setType] = useState<FieldType>(initial?.field.type ?? 'textField');
+  const [type, setType] = useState<FieldType>(initialType);
   const [sortable, setSortable] = useState(
-    initial?.field.sortable ?? defaultSortable(initial?.field.type ?? 'textField'),
+    initial?.field.sortable ?? defaultSortable(initialType),
   );
   const [filterable, setFilterable] = useState(
-    initial?.field.filterable ?? defaultFilterable(initial?.field.type ?? 'textField'),
+    initial?.field.filterable ?? defaultFilterable(initialType),
   );
   const [criteria, setCriteria] = useState<FilterCriteria>(
-    initial?.field.filterCriteria ??
-      defaultCriteria(initial?.field.type ?? 'textField'),
+    initial?.field.filterCriteria ?? defaultCriteria(initialType),
   );
   const [rulesDraft, setRulesDraft] = useState<Record<ValidationRuleName, RuleDraft>>(() =>
     rulesToDraft(initial?.field.rules ?? []),
   );
-  const [source, setSource] = useState<DataSource>(initial?.field.source ?? 'none');
-  const [options, setOptions] = useState<FieldOption[]>(initial?.field.options ?? []);
+  const [source, setSource] = useState<DataSource>(
+    initial?.field.source ?? preset?.source ?? 'none',
+  );
+  const [relationTarget, setRelationTarget] = useState(
+    initial?.field.relation?.definitionKey ?? '',
+  );
+  const [relationLabel, setRelationLabel] = useState(initial?.field.relation?.labelField ?? '');
+  const [relationValue, setRelationValue] = useState(
+    initial?.field.relation?.valueField ?? 'id',
+  );
+  const [options, setOptions] = useState<FieldOption[]>(() => {
+    if (initial?.field.options) return initial.field.options;
+    if ((preset?.source ?? 'none') === 'mockStatic') {
+      return [
+        { label: 'Option 1', value: 'option_1' },
+        { label: 'Option 2', value: 'option_2' },
+      ];
+    }
+    return [];
+  });
   const [endpoint, setEndpoint] = useState(initial?.field.api?.endpoint ?? '');
   const [method, setMethod] = useState(initial?.field.api?.method ?? 'GET');
   const [valueField, setValueField] = useState(initial?.field.api?.valueField ?? 'value');
@@ -150,6 +179,14 @@ function FieldDialog({ open, initial, existingNames, onClose, onSave }: FieldDia
       setError('Source api butuh endpoint.');
       return;
     }
+    if (source === 'relation' && !relationTarget) {
+      setError('Source relation butuh modul target.');
+      return;
+    }
+    if (source === 'relation' && !relationLabel) {
+      setError('Source relation butuh label field.');
+      return;
+    }
     const field: GeneratorFieldConfig = {
       name,
       label: trimmedLabel,
@@ -162,6 +199,15 @@ function FieldDialog({ open, initial, existingNames, onClose, onSave }: FieldDia
       ...(source === 'mockStatic' || source === 'api' ? { options } : {}),
       ...(source === 'api'
         ? { api: { endpoint: endpoint.trim(), method, valueField, labelField } }
+        : {}),
+      ...(source === 'relation'
+        ? {
+            relation: {
+              definitionKey: relationTarget,
+              labelField: relationLabel,
+              valueField: relationValue.trim() || 'id',
+            },
+          }
         : {}),
     };
     onSave(field, initial ? initial.index : null);
@@ -351,6 +397,59 @@ function FieldDialog({ open, initial, existingNames, onClose, onSave }: FieldDia
           </div>
         )}
 
+        {source === 'relation' && (
+          <div className="flex flex-col field-gap">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-foreground">Modul target</label>
+              <SelectField
+                value={relationTarget}
+                onChange={(value) => {
+                  setRelationTarget(value);
+                  const target = definitions.find((d) => d.key === value);
+                  if (!target?.fields.some((f) => f.name === relationLabel)) {
+                    setRelationLabel('');
+                  }
+                }}
+                options={definitions.map((d) => ({ label: `${d.label} (${d.key})`, value: d.key }))}
+                clearable={false}
+                searchable
+              />
+              {definitions.length === 0 && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Belum ada modul terdaftar — publish modul target dulu.
+                </p>
+              )}
+            </div>
+            <div className="grid grid-cols-2 field-gap">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-foreground">Label field</label>
+                <SelectField
+                  value={relationLabel}
+                  onChange={setRelationLabel}
+                  options={(
+                    definitions.find((d) => d.key === relationTarget)?.fields ?? []
+                  ).map((f) => ({ label: `${f.label} (${f.name})`, value: f.name }))}
+                  clearable={false}
+                  searchable
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-foreground">
+                  Value field
+                </label>
+                <TextField
+                  value={relationValue}
+                  onChange={(e) => setRelationValue(e.target.value)}
+                  placeholder="id"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Options diambil dari records modul target (search + paging ikut).
+            </p>
+          </div>
+        )}
+
         {source === 'api' && (
           <div className="flex flex-col field-gap">
             <div>
@@ -358,7 +457,7 @@ function FieldDialog({ open, initial, existingNames, onClose, onSave }: FieldDia
               <TextField
                 value={endpoint}
                 onChange={(e) => setEndpoint(e.target.value)}
-                placeholder="/api/v1/suppliers"
+                placeholder="https://api.example.com/suppliers"
               />
             </div>
             <div className="grid grid-cols-3 field-gap">

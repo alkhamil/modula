@@ -1,7 +1,18 @@
 export * from './types';
 export { buildFilterFields, filterDynamicRecords, paginateRecords } from './filtering';
 export { colSpanClass, COL_SPAN_CLASS } from './grid';
-export { moveFormItem, moveTableColumn, setFormSpan, toggleTableColumn } from './layoutOps';
+export {
+  addFormItem,
+  moveDetailItem,
+  moveFormItem,
+  moveTableColumn,
+  removeFormItem,
+  setFormItemLabel,
+  setFormSpan,
+  setTableWidth,
+  toggleDetailItem,
+  toggleTableColumn,
+} from './layoutOps';
 export {
   bulkExampleRow,
   bulkHeaders,
@@ -19,14 +30,13 @@ export {
 } from './validation';
 export type { DynamicFormValues } from './validation';
 export {
-  USE_MOCK as DEFINITIONS_USE_MOCK,
   listDefinitions,
   getDefinition,
   saveDefinition,
+  resetMockDefinitions,
 } from './definitionsApi';
 export type { SaveDefinitionResult } from './definitionsApi';
 export {
-  USE_MOCK as RECORDS_USE_MOCK,
   bulkUploadRecords,
   createRecord,
   deleteRecord,
@@ -35,8 +45,9 @@ export {
   getRecord,
   listRecords,
   makeOptionsLoader,
+  makeRelationOptionsLoader,
+  resetMockRecords,
   restoreRecord,
-  serviceOptionsOf,
   updateRecord,
 } from './recordsApi';
 export type { MutationResult } from './recordsApi';
@@ -47,6 +58,7 @@ export {
   useUpsertDynamicRecord,
 } from './mutations';
 export {
+  buildDetailRows,
   useDynamicDefinitions,
   useDynamicDefinition,
   useDynamicDetail,

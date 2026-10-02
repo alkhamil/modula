@@ -15,6 +15,8 @@ export interface Column<T> {
   stickyLeft?: boolean;
   /** Offset CSS `left` kolom sticky (mis. '0', '3rem') — wajib diisi untuk kolom sticky ke-2 dst. */
   stickyLeftOffset?: string;
+  /** Lebar kolom piksel (efektif bila tabel fixed layout). */
+  width?: number;
 }
 
 interface TableProps<T> {
@@ -429,7 +431,10 @@ function Table<T>({
                 {columns.map((col, idx) => (
                   <th
                     key={col.key}
-                    style={col.stickyLeft ? { left: col.stickyLeftOffset ?? '0' } : undefined}
+                    style={{
+                      ...(col.stickyLeft ? { left: col.stickyLeftOffset ?? '0' } : {}),
+                      ...(col.width ? { width: col.width } : {}),
+                    }}
                     className={bc(
                       'px-5 py-3 text-left text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-b border-border',
                       stickyHeader ? 'sticky top-0 z-20 bg-surface' : '',

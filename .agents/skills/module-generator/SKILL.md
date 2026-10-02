@@ -11,14 +11,16 @@ Repo ini tidak punya kode per modul — modul bisnis adalah data
 Pakai skill ini saat user meminta modul baru, mengubah wizard, menambah
 tipe field/fitur/validasi, atau mengubah cara definisi di-render.
 
-## Alur wizard
+## Alur wizard (6 langkah, `builder/` + `GeneratorPage.tsx`)
 
-Info modul → Features → Fields → Layout (canvas drag-and-drop) → Review →
-**Simpan sebagai Draft** atau **Publish**. Publish = upsert definisi ke
-`POST/PUT /api/v1/module-definitions` (mock: cache seed in-memory);
-modul berstatus `published` langsung live di navigasi + routes tanpa
-tulis file dan tanpa restart. Tombol **Buka pratinjau** membuka
-`/preview/:definitionKey` (bisa untuk draft).
+Config → Form Canvas → Test Data → List Canvas → Detail Canvas →
+Review & Generate. Draft autosave ke localStorage tiap langkah
+(`builder/draft.ts`); **Simpan sebagai Draft** atau **Publish**.
+Publish = upsert definisi ke mock store (seed + localStorage,
+persisten tahan refresh); modul `published` langsung live di navigasi
++ routes tanpa tulis file dan tanpa restart. Tombol **Buka pratinjau**
+membuka `/preview/:definitionKey` (bisa untuk draft). Review memuat
+**ContractPanel** (download JSON kontrak endpoint untuk BE masa depan).
 
 ## GeneratorConfig → ModuleDefinition v1
 
@@ -53,20 +55,35 @@ tulis file dan tanpa restart. Tombol **Buka pratinjau** membuka
 - `validateDefinition` (`definitions/validate.ts`) wajib 0 issues sebelum
   publish; Review + `handlePublish` sama-sama menjalankannya.
 
-## Canvas layout
+## Canvas layout (`@dnd-kit`, drag-drop hanya di dalam `PageContent`)
 
-Langkah Layout memakai `@dnd-kit` (`LayoutStep.tsx` + `runtime/grid.ts` +
-`runtime/layoutOps.ts`): susun ulang field form (drag handle + keyboard),
-atur `colSpan` 1–12, susun + show/hide kolom tabel. State = `ModuleLayout`
-apa adanya; preview live di samping kanvas. Detail reuses layout form
-secara read-only (tidak ada layout detail terpisah di v1).
+- **Form Canvas** (`builder/FormBuilderCanvas.tsx`): palet field/section/
+  divider → kanvas 12 kolom (`runtime/grid.ts`) + panel properti
+  (`colSpan`, required, label section) + preview live. Item form
+  `{kind: field|section|divider}`; id section/divider tidak boleh
+  bertabrakan dengan nama field.
+- **Test Data** (`builder/TestDataPanel.tsx`): tambah data contoh lewat
+  form asli hasil kanvas; dipakai untuk memvalidasi tampilan List/Detail.
+- **List Canvas** (`builder/ListBuilderCanvas.tsx`): susun + show/hide
+  kolom, atur lebar kolom px (`widths`, clamp 40–1200 di normalize).
+- **Detail Canvas** (`builder/DetailBuilderCanvas.tsx`): susun + show/hide
+  baris detail (read-only v1, `buildDetailRows`) — tidak mewarisi layout
+  form lagi.
+- State antar langkah = `ModuleLayout` apa adanya; mutasi via
+  `runtime/layoutOps.ts` (termasuk `setTableWidth`, `moveDetail`,
+  `toggleDetail`).
+- Jangan ubah `PageHeader`/`Sidebar`; kanvas hidup di dalam
+  `PageContent` wizard saja.
 
 ## Render runtime (routes/nav dinamis)
 
 - `runtime/DynamicRoutes.tsx` — `DynamicModuleRoutes` (`useRoutes` dari
-  definisi `published`: list/create/view/edit + breadcrumb +
-  `handle.requiredPermission`) + 4 halaman `preview/:definitionKey[/
-  create|/:recordId/view|/:recordId/edit]` (draft & published).
+  definisi `published`: list/create/view/edit; host route WAJIB `path: '*'`,
+  tanpa match → redirect `/not-found`) + 4 halaman `preview/:definitionKey[/
+  create|/:recordId/view|/:recordId/edit]` (draft & published). Guard
+  dinamis via `RequireDynamicPermission` per halaman (match `useRoutes`
+  dalam tak terlihat `PermissionGate`); breadcrumb halaman dinamis kosong
+  (judul dari menu sidebar).
 - `runtime/dynamicNav.tsx` — `buildDynamicNavItems`: root jadi item flat,
   ber-parent jadi group (`mater-data` → `Mater Data`); digabung statis di
   `ProtectedAppShell` (`[...navItems, ...dynamicNavItems]`).
@@ -85,7 +102,7 @@ secara read-only (tidak ada layout detail terpisah di v1).
   validasi per baris (termasuk cek `unique` existing + dalam file).
 - Export: tombol digate `{base}.export`, unduh `.xlsx` sesuai filter aktif;
   mock list + export memakai satu helper filter agar konsisten.
-- Batas BE: `MAX_EXPORT_ROWS=10000`, `MAX_BULK_ROWS=5000`.
+- Batas mock: 10000 baris export, 5000 baris bulk (cermin batas BE lama).
 
 ## Batasan arsitektur
 

@@ -13,8 +13,8 @@ export interface MockUserRecord extends AuthUser {
 }
 
 /**
- * Config akun demo — cermin seed BE (`backend/src/seeds/seed.ts`).
- * Dipakai mock login (bila `USE_MOCK` true) + daftar akun di halaman login.
+ * Config akun demo mock-only.
+ * Dipakai mock login + daftar akun di halaman login.
  */
 export const mockUserRecords: MockUserRecord[] = [
   {

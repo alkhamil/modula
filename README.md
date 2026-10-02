@@ -1,35 +1,26 @@
 # generator-module-app
 
-React 19 + TypeScript + Vite + Tailwind CSS 4 + TanStack Query + axios.
-Backend in-repo: `backend/` (NestJS + TypeORM + MySQL).
+React 19 + TypeScript + Vite + Tailwind CSS 4 + TanStack Query.
+Frontend mock-only — tanpa backend, tanpa database.
 
 Platform modul dinamis: tidak ada kode per modul di `src/modules/`
 (isinya hanya `auth/` + `generator/`). Modul bisnis (users, orders,
-mater-data/*, …) adalah data `ModuleDefinition v1` yang disimpan di BE
-dan di-render generik saat runtime. Modul baru dibuat lewat wizard
-`/generator` (publish Draft/Publish), bukan dengan menulis file.
+mater-data/*, …) adalah data `ModuleDefinition v1` yang disimpan di mock
+store (seed JSON + localStorage) dan di-render generik saat runtime.
+Modul baru dibuat lewat wizard `/generator` (publish Draft/Publish),
+bukan dengan menulis file.
 
 ## Mulai
 
 ```bash
 nvm use 22
 npm install
-npm run dev        # FE saja (mock aktif, tanpa butuh MySQL)
+npm run dev
 ```
 
-Dengan backend sungguhan:
-
-```bash
-cd backend
-npm install
-docker compose -f compose.yaml up -d   # MySQL
-npm run migration:run
-npm run seed                             # seed definisi + records (saat ini kosong)
-npm run start:dev                        # :3000, prefix /api/v1
-```
-
-Lalu ubah flag `USE_MOCK` terkait di
-`src/modules/generator/runtime/*Api.ts` menjadi `false`.
+Cukup itu — login `admin` / `admin123`, langsung bisa bikin modul.
+Data tahan refresh (localStorage); reset via `resetMockDefinitions()` /
+`resetMockRecords()` dari console bila perlu.
 
 ## Struktur
 
@@ -47,28 +38,20 @@ src/
 │   ├── auth/           (login/logout mock + guard + useAuth)
 │   └── generator/      (wizard /generator + ModuleDefinition v1 + runtime)
 │       ├── definitions/  (types/normalize/validate/configToDefinition/parents)
-│       ├── runtime/      (Dynamic* generik + client API + mock)
+│       ├── runtime/      (Dynamic* generik + mock store persisten)
+│       ├── seeds/        (seed JSON definisi + records)
 │       ├── components/ + pages/  (langkah wizard)
 │       └── parser.ts, naming.ts, registry/  (bantu wizard)
-├── shared/
-│   ├── theme/          (theme.ts = sumber kebenaran token thema)
-│   ├── lib/            (api.ts axios instance, queryClient.ts)
-│   ├── hooks/          (useMediaQuery, useClickOutside, dsb)
-│   ├── utils/          (format, filterNavItems, submitError, excel)
-│   ├── types/          (navigation, form, api)
-│   └── components/
-│       ├── layout/     (AppShell, Sidebar, PageHeader, AvatarUser, PageContent)
-│       ├── ui/         (Button, Table, Dialog, Form*, Toast, dsb)
-│       └── icons/      (SVG, warna via token thema / currentColor)
-backend/
-├── src/
-│   ├── module-definitions/  (CRUD definisi: GET/POST/PUT/DELETE)
-│   ├── records/             (API generik /:plural + export/bulk .xlsx)
-│   ├── health/              (GET /api/v1/health)
-│   ├── migrations/ + seeds/ (skema + seed dari backend/seeds/*.json)
-│   └── common/              (envelope response_output + exception filter)
-├── seeds/              (seed JSON definisi + records; dipakai mock FE)
-└── compose.yaml        (MySQL dev)
+└── shared/
+    ├── theme/          (theme.ts = sumber kebenaran token thema)
+    ├── lib/            (queryClient.ts)
+    ├── hooks/          (useMediaQuery, useClickOutside, dsb)
+    ├── utils/          (format, filterNavItems, submitError, excel)
+    ├── types/          (navigation, form, api)
+    └── components/
+        ├── layout/     (AppShell, Sidebar, PageHeader, AvatarUser, PageContent)
+        ├── ui/         (Button, Table, Dialog, Form*, Toast, dsb)
+        └── icons/      (SVG, warna via token thema / currentColor)
 ```
 
 ## Thema
@@ -84,13 +67,12 @@ Aturan: shared components **wajib** memakai token thema — dilarang hardcode wa
 - `AGENTS.md` — aturan project untuk coding agent (dibaca otomatis oleh Muse Code).
 - `.agents/skills/` — skills project: `frontend-conventions`,
   `module-generator`, `crud-module`.
-- `docs/backend-contract.md` — kontrak API FE↔BE.
+- `docs/BUILDER_SPEC.md` — spec visual builder (arah rombak).
 
-## Auth (BE + JWT)
+## Auth (mock)
 
-Login di `/login` memanggil `POST /api/v1/auth/login` (butuh BE + MySQL jalan
-+ `npm run seed` untuk akun admin). Response membawa JWT + permission list
-user; guard membaca permission key:
+Login di `/login` memakai akun demo dari config (`src/modules/auth/api/mockUsers.ts`).
+Response login membawa permission list user; guard membaca permission key:
 
 - `RequireAuth`: belum login → redirect `/login`.
 - `PermissionGate`: route dengan `handle.requiredPermission` → 403 bila key tidak dimiliki.
@@ -100,16 +82,14 @@ user; guard membaca permission key:
 | -------- | --------- | ------ |
 | admin    | admin123  | penuh  |
 
-Klik baris akun di halaman login untuk isi otomatis. Password seed bisa diubah
-via `ADMIN_PASSWORD` di `backend/.env`. Untuk kembali ke mock (tanpa BE), ubah
-`USE_MOCK` di `src/modules/auth/api/mock.ts` menjadi `true`.
+Klik baris akun di halaman login untuk isi otomatis.
 
 ## Generator modul
 
 Buka `/generator` untuk membuat modul CRUD lewat wizard (info modul →
 features → fields → layout canvas drag-and-drop → review → **Simpan
-sebagai Draft** / **Publish**). Publish menyimpan definisi ke BE
-(mock: cache in-memory); modul `published` langsung live di navigasi +
+sebagai Draft** / **Publish**). Publish menyimpan definisi ke mock store
+(persisten di localStorage); modul `published` langsung live di navigasi +
 routes, modul `draft` hanya bisa dibuka via `/preview/:definitionKey`.
 
 Wizard mengatur per field: tipe kontrol, rules validasi, sumber data,

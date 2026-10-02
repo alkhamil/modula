@@ -4,7 +4,9 @@ export type {
   ModuleDefinitionStatus,
   DeleteMode,
   FormLayoutItem,
+  FormLayoutItemKind,
   TableLayout,
+  DetailLayout,
   ModuleLayout,
   ModuleDefinition,
 } from './types';
@@ -16,4 +18,11 @@ export {
 } from './normalize';
 export type { ConfigToDefinitionOptions } from './normalize';
 export { validateDefinition } from './validate';
+export { buildApiContract } from './contract';
+export type {
+  ApiContract,
+  ContractEndpoint,
+  ContractFieldType,
+  ContractModelField,
+} from './contract';
 export { NEW_PARENT_VALUE, parentOptionsFromDefinitions } from './parents';

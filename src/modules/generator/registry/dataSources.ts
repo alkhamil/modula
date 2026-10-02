@@ -37,6 +37,11 @@ export const dataSourceRegistry: Record<DataSource, DataSourceDef> = {
     description: 'Options mock paginated dan searchable via loadOptions.',
     appliesTo: ['selectField', 'selectMultipleField'],
   },
+  relation: {
+    label: 'Relation',
+    description: 'Options dari records modul lain (target + label field).',
+    appliesTo: ['selectField', 'selectMultipleField'],
+  },
   api: {
     label: 'API',
     description: 'Options dari endpoint real (mock memakai contoh options).',

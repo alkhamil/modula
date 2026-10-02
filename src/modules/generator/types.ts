@@ -28,6 +28,7 @@ export type DataSource =
   | 'none'
   | 'mockStatic'
   | 'mockPagingInfinityScroll'
+  | 'relation'
   | 'api';
 
 export interface FieldOption {
@@ -40,6 +41,16 @@ export interface ApiSourceConfig {
   method?: string;
   valueField?: string;
   labelField?: string;
+}
+
+/** Konfigurasi relasi antar modul (bila `source === 'relation'`). */
+export interface RelationConfig {
+  /** Key definisi target, mis. `mater-data/company`. */
+  definitionKey: string;
+  /** Field target yang dipakai sebagai label option. */
+  labelField: string;
+  /** Field target yang dipakai sebagai value (default `id`). */
+  valueField?: string;
 }
 
 /** Kriteria filter per field — opsi valid tergantung tipe field (lihat filterCriteriaRegistry). */
@@ -71,6 +82,8 @@ export interface GeneratorFieldConfig {
   options?: FieldOption[];
   /** Konfigurasi endpoint bila `source === 'api'`. */
   api?: ApiSourceConfig;
+  /** Konfigurasi relasi bila `source === 'relation'`. */
+  relation?: RelationConfig;
   /** Kolom tabel bisa di-sort (default true). */
   sortable?: boolean;
   /** Kolom tampil sebagai filter (default tergantung tipe). */

@@ -2,11 +2,7 @@ import type { LoginPayload, LoginResult } from '../types';
 import { normalizePermissions } from '../../../shared/utils';
 import { mockUserRecords } from './mockUsers';
 
-export const USE_MOCK = {
-  login: false,
-  logout: false,
-};
-
+/** Auth mock-only (tanpa BE): kredensial dicek terhadap `mockUserRecords`. */
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
