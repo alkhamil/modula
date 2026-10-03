@@ -11,4 +11,8 @@ export { default as FileUploadField } from './FileUploadField';
 export { default as PasswordField } from './PasswordField';
 export { default as RadioGroupField } from './RadioGroupField';
 export { default as CheckboxGroupField } from './CheckboxGroupField';
+export { default as ColorField } from './ColorField';
+export { default as EditorField } from './EditorField';
+export { default as FormArrayField } from './FormArrayField';
+export type { ArrayEditorApi } from './FormArrayField';
 export type { SelectOption, LoadOptionsFn } from './SelectField';

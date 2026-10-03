@@ -15,6 +15,8 @@ interface FormGroupProps<T extends FieldValues> {
   className?: string;
   testId?: string;
   mode?: UseFormProps<T>['mode'];
+  /** Id form — untuk tombol submit di luar form (mis. footer Dialog via `form=`). */
+  id?: string;
 }
 
 function FormGroup<T extends FieldValues>({
@@ -24,12 +26,18 @@ function FormGroup<T extends FieldValues>({
   className = '',
   testId,
   mode = 'onBlur',
+  id,
 }: FormGroupProps<T>) {
   const methods: UseFormReturn<T> = useForm<T>({ defaultValues, mode });
 
   return (
     <FormProvider {...methods}>
-      <form data-testid={testId} onSubmit={methods.handleSubmit(onSubmit)} className={className}>
+      <form
+        id={id}
+        data-testid={testId}
+        onSubmit={methods.handleSubmit(onSubmit)}
+        className={className}
+      >
         {typeof children === 'function' ? children(methods) : children}
       </form>
     </FormProvider>

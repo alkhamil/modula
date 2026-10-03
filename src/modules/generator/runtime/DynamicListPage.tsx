@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Button, Card, Dialog, FilterToolbar } from '../../../shared/components/ui';
-import { ConfirmInfoIcon, ExportIcon, PlusIcon, UploadFileIcon } from '../../../shared/components/icons';
+import { ConfirmInfoIcon, ExportIcon, PlusIcon, TrashIcon, UploadFileIcon } from '../../../shared/components/icons';
 import { useAuth } from '../../auth';
 import { listEmptyState } from '../../../shared/constants';
 import type { ModuleDefinition } from '../definitions';
@@ -190,6 +190,8 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
           <Button
             data-testid={`${testPrefix}-${isHardDelete ? 'delete' : 'deactivate'}-confirm`}
             className="w-25"
+            variant="danger"
+            icon={<TrashIcon className="h-4 w-4" />}
             onClick={handleDelete}
             disabled={isDeleting}
           >

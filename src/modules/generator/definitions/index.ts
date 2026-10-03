@@ -1,4 +1,4 @@
-export { MODULE_DEFINITION_VERSION } from './types';
+export { MODULE_DEFINITION_VERSION, SYSTEM_TABLE_COLUMNS } from './types';
 export type {
   ModuleDefinitionVersion,
   ModuleDefinitionStatus,
@@ -17,6 +17,7 @@ export {
   normalizeDefinition,
 } from './normalize';
 export type { ConfigToDefinitionOptions } from './normalize';
+export type { MenuIcon } from '../types';
 export { validateDefinition } from './validate';
 export { buildApiContract } from './contract';
 export type {

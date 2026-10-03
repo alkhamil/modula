@@ -90,6 +90,14 @@ async function seedRows(apiPlural: string): Promise<DynamicListItem[]> {
   return rows;
 }
 
+/** Hapus seluruh records satu modul (plural) dari cache + persist. */
+export async function deleteModuleRecords(apiPlural: string): Promise<void> {
+  await delay(150);
+  loadPersisted();
+  recordCache.delete(apiPlural);
+  persist();
+}
+
 /** Kosongkan mock records kembali ke seed JSON (hapus simpanan lokal). */
 export function resetMockRecords(): void {
   recordCache.clear();

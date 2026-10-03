@@ -11,32 +11,32 @@ export const filterCriteriaRegistry: Record<FilterCriteria, FilterCriteriaDef> =
   contains: {
     label: 'Mengandung',
     description: 'Teks mengandung keyword (case-insensitive).',
-    appliesTo: ['textField', 'textareaField', 'passwordField', 'fileUploadField'],
+    appliesTo: ['textField', 'textareaField', 'passwordField', 'fileUploadField', 'colorField'],
   },
   exact: {
     label: 'Sama dengan',
     description: 'Teks sama persis.',
-    appliesTo: ['textField', 'textareaField', 'passwordField', 'fileUploadField'],
+    appliesTo: ['textField', 'textareaField', 'passwordField', 'fileUploadField', 'colorField'],
   },
   numberExact: {
     label: 'Sama dengan',
     description: 'Angka sama persis.',
-    appliesTo: ['numberField'],
+    appliesTo: ['numberField', 'currencyField'],
   },
   numberMin: {
     label: 'Minimal',
     description: 'Angka lebih besar atau sama dengan.',
-    appliesTo: ['numberField'],
+    appliesTo: ['numberField', 'currencyField'],
   },
   numberMax: {
     label: 'Maksimal',
     description: 'Angka lebih kecil atau sama dengan.',
-    appliesTo: ['numberField'],
+    appliesTo: ['numberField', 'currencyField'],
   },
   numberRange: {
     label: 'Rentang (min–maks)',
     description: 'Dua isian batas bawah dan atas.',
-    appliesTo: ['numberField'],
+    appliesTo: ['numberField', 'currencyField'],
   },
   dateExact: {
     label: 'Tanggal pas',
@@ -77,20 +77,26 @@ export function criteriaForFieldType(type: FieldType): FilterCriteria[] {
   return filterCriteriaNames.filter((name) => filterCriteriaRegistry[name].appliesTo.includes(type));
 }
 
-/** Default sortable per tipe (semua true — filename/teks termask pun bisa di-sort). */
-export function defaultSortable(_type: FieldType): boolean {
-  return true;
+/** Default sortable per tipe (array baris dimatikan — sortir objek tak bermakna). */
+export function defaultSortable(type: FieldType): boolean {
+  return type !== 'formArrayField';
 }
 
-/** Default filterable per tipe (password & file dimatikan agar tidak berisik). */
+/** Default filterable per tipe (password, file, editor, array dimatikan agar tidak berisik). */
 export function defaultFilterable(type: FieldType): boolean {
-  return type !== 'passwordField' && type !== 'fileUploadField';
+  return (
+    type !== 'passwordField' &&
+    type !== 'fileUploadField' &&
+    type !== 'editorField' &&
+    type !== 'formArrayField'
+  );
 }
 
 /** Default kriteria per tipe. */
 export function defaultCriteria(type: FieldType): FilterCriteria {
   switch (type) {
     case 'numberField':
+    case 'currencyField':
       return 'numberExact';
     case 'dateField':
       return 'dateExact';

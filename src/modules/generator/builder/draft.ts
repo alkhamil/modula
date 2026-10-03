@@ -1,8 +1,8 @@
 import type { ModuleInfoValue } from '../components/ModuleInfoStep';
-import type { FeatureKey, GeneratorFieldConfig } from '../types';
+import type { FeatureKey, GeneratorFieldConfig, MenuIcon } from '../types';
 import type { DeleteMode, ModuleLayout } from '../definitions';
 import type { DynamicDetail, DynamicListItem } from '../runtime/types';
-import type { DynamicFormValues } from '../runtime/validation';
+import { payloadValue, type DynamicFormValues } from '../runtime/validation';
 
 const DRAFT_KEY = 'builder_draft_v1';
 
@@ -13,9 +13,18 @@ export interface BuilderDraft {
   fields: GeneratorFieldConfig[];
   layout: ModuleLayout | null;
   deleteMode: DeleteMode;
+  menuIcon: MenuIcon | null;
   sampleRows: DynamicListItem[];
   step: number;
   updatedAt: string;
+}
+
+function toMenuIcon(raw: unknown): MenuIcon | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const { name, svg } = raw as Record<string, unknown>;
+  if (typeof name !== 'string' || typeof svg !== 'string') return null;
+  if (name.trim() === '' || !svg.includes('<svg')) return null;
+  return { name, svg };
 }
 
 export function saveDraft(draft: Omit<BuilderDraft, 'updatedAt'>): void {
@@ -42,6 +51,7 @@ export function loadDraft(): BuilderDraft | null {
       fields: parsed.fields,
       layout: parsed.layout ?? null,
       deleteMode: parsed.deleteMode === 'hard' ? 'hard' : 'soft',
+      menuIcon: toMenuIcon(parsed.menuIcon),
       sampleRows: Array.isArray(parsed.sampleRows) ? parsed.sampleRows : [],
       step: typeof parsed.step === 'number' ? parsed.step : 0,
       updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : '',
@@ -63,14 +73,28 @@ function nowStamp(): string {
   return new Date().toISOString().slice(0, 16).replace('T', ' ');
 }
 
-/** Nilai form → baris contoh untuk pratinjau list/detail. */
-export function valuesToSampleRow(values: DynamicFormValues, id: number): DynamicListItem {
+/**
+ * Nilai form → baris contoh untuk pratinjau list/detail.
+ * Samakan dengan payload record (`payloadValue`): File → nama file agar
+ * aman di-render dan aman diserialisasi ke draft localStorage.
+ */
+export function valuesToSampleRow(
+  values: DynamicFormValues,
+  id: number,
+  fields: GeneratorFieldConfig[] = [],
+): DynamicListItem {
+  const byName = new Map(fields.map((field) => [field.name, field]));
+  const data: Record<string, unknown> = {};
+  for (const [name, value] of Object.entries(values)) {
+    const field = byName.get(name);
+    data[name] = field ? payloadValue(field, value) : value instanceof File ? value.name : value;
+  }
   return {
     id,
     status: 'active',
     created_by: 'Test Data',
     created_date: nowStamp(),
-    ...values,
+    ...data,
   };
 }
 

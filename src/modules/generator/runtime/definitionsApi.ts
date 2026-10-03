@@ -71,6 +71,17 @@ export async function getDefinition(key: string): Promise<ModuleDefinition> {
   return { ...found };
 }
 
+/** Hapus definisi dari mock store + persist. Return false bila key tidak ada. */
+export async function deleteDefinition(key: string): Promise<boolean> {
+  await delay(150);
+  const cached = seedDefinitions();
+  const index = cached.findIndex((entry) => entry.key === key);
+  if (index < 0) return false;
+  cached.splice(index, 1);
+  persist(cached);
+  return true;
+}
+
 /** Upsert definisi ke mock store + persist. */
 export async function saveDefinition(def: ModuleDefinition): Promise<SaveDefinitionResult> {
   await delay(150);

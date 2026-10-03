@@ -11,6 +11,7 @@ export { default as FormArray } from './FormArray';
 export { default as FormDefaultValuesWatcher } from './FormDefaultValuesWatcher';
 export { default as FilterToolbar } from './FilterToolbar';
 export { default as Dialog } from './Dialog';
+export { default as Drawer } from './Drawer';
 export { default as LoadingOverlay } from './LoadingOverlay';
 export { default as DetailCard } from './DetailCard';
 export type { DetailRow } from './DetailCard';
@@ -37,5 +38,8 @@ export {
   PasswordField,
   RadioGroupField,
   CheckboxGroupField,
+  ColorField,
+  EditorField,
+  FormArrayField,
 } from './fields';
 export type { SelectOption, LoadOptionsFn } from './fields';

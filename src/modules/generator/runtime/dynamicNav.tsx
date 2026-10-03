@@ -1,6 +1,6 @@
-import { NavMasterDataIcon } from '../../../shared/components/icons';
+import { NavMasterDataIcon, SvgIcon } from '../../../shared/components/icons';
 import type { NavItemType } from '../../../shared/types/navigation';
-import type { ModuleDefinition } from '../definitions';
+import type { MenuIcon, ModuleDefinition } from '../definitions';
 import { definitionPermissions } from './types';
 
 /** `mater-data` → `Mater Data`; `finance/accounting` → `Finance / Accounting`. */
@@ -16,10 +16,20 @@ function prettifyParent(parentPath: string): string {
     .join(' / ');
 }
 
-/** Item nav dari definisi published (flat untuk root, group per parent). */
+function menuIconNode(icon: MenuIcon | undefined): NavItemType['icon'] {
+  if (!icon) return <NavMasterDataIcon className="h-5 w-5" />;
+  return <SvgIcon svg={icon.svg} className="h-5 w-5" name={icon.name} />;
+}
+
+/**
+ * Item nav dari definisi published (flat untuk root, group per parent).
+ * Ikon custom menempel di menu modul bila root, di grup parent bila
+ * ber-parent (ikon grup = definisi pertama urut label yang mengaturnya).
+ */
 export function buildDynamicNavItems(definitions: ModuleDefinition[]): NavItemType[] {
   const flat: NavItemType[] = [];
   const groups = new Map<string, NavItemType>();
+  const groupCustomIcon = new Set<string>();
   const sorted = [...definitions].sort((a, b) => a.label.localeCompare(b.label));
   for (const def of sorted) {
     if (!def.features.list) continue;
@@ -28,7 +38,7 @@ export function buildDynamicNavItems(definitions: ModuleDefinition[]): NavItemTy
       flat.push({
         label: def.label,
         path: `/${def.routeBase}`,
-        icon: <NavMasterDataIcon className="h-5 w-5" />,
+        icon: menuIconNode(def.menuIcon),
         permissionKey,
       });
       continue;
@@ -41,6 +51,10 @@ export function buildDynamicNavItems(definitions: ModuleDefinition[]): NavItemTy
         children: [],
       };
       groups.set(def.parent, group);
+    }
+    if (def.menuIcon && !groupCustomIcon.has(def.parent)) {
+      group.icon = menuIconNode(def.menuIcon);
+      groupCustomIcon.add(def.parent);
     }
     group.children?.push({ label: def.label, path: `/${def.routeBase}`, permissionKey });
   }

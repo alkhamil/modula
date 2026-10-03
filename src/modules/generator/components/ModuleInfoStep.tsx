@@ -1,8 +1,10 @@
-import { useMemo } from 'react';
-import { SelectField, TextField } from '../../../shared/components/ui';
-import type { ModuleType } from '../types';
+import { useMemo, useState } from 'react';
+import { Button, SelectField, TextField } from '../../../shared/components/ui';
+import { SvgIcon } from '../../../shared/components/icons';
+import type { MenuIcon, ModuleType } from '../types';
 import { moduleTypeOptions } from '../registry';
 import { NEW_PARENT_VALUE } from '../definitions/parents';
+import { toPermissionKey } from '../naming';
 
 export interface ModuleInfoValue {
   /** '' = root, nama parent yang ada, atau NEW_PARENT_VALUE. */
@@ -26,9 +28,19 @@ interface ModuleInfoStepProps {
   errors: Record<string, string>;
   /** Parent dari definisi yang sudah terdaftar (draft maupun published). */
   parentOptions: string[];
+  /** Ikon menu saat ini (null = bawaan). */
+  menuIcon: MenuIcon | null;
+  onOpenIconDialog: () => void;
 }
 
-function ModuleInfoStep({ value, onChange, errors, parentOptions }: ModuleInfoStepProps) {
+function ModuleInfoStep({
+  value,
+  onChange,
+  errors,
+  parentOptions,
+  menuIcon,
+  onOpenIconDialog,
+}: ModuleInfoStepProps) {
   const options = useMemo(
     () => [
       { label: '(root) — modul top-level', value: '' },
@@ -38,9 +50,29 @@ function ModuleInfoStep({ value, onChange, errors, parentOptions }: ModuleInfoSt
     [parentOptions],
   );
   const isNewParent = value.parentName === NEW_PARENT_VALUE;
+  // Permission mengikuti nama modul sampai user mengubahnya manual.
+  const [permissionTouched, setPermissionTouched] = useState(value.permissionKey.trim() !== '');
+
+  function handleModuleNameChange(next: string): void {
+    onChange({
+      ...value,
+      moduleName: next,
+      permissionKey: permissionTouched ? value.permissionKey : toPermissionKey(next),
+    });
+  }
 
   return (
     <div className="flex flex-col stack-gap">
+      <div>
+        <label className="mb-1 block text-sm font-medium text-foreground">Module name</label>
+        <TextField
+          value={value.moduleName}
+          onChange={(e) => handleModuleNameChange(e.target.value)}
+          placeholder="Region"
+          maxLength={50}
+          error={errors.moduleName}
+        />
+      </div>
       <div>
         <label className="mb-1 block text-sm font-medium text-foreground">Parent module</label>
         <SelectField
@@ -72,55 +104,64 @@ function ModuleInfoStep({ value, onChange, errors, parentOptions }: ModuleInfoSt
           </p>
         </div>
       )}
-      <div>
-        <label className="mb-1 block text-sm font-medium text-foreground">Module name</label>
-        <TextField
-          value={value.moduleName}
-          onChange={(e) => onChange({ ...value, moduleName: e.target.value })}
-          placeholder="Region"
-          maxLength={50}
-          error={errors.moduleName}
-        />
+      <div className="grid grid-cols-1 gap-x-4 stack-gap md:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-foreground">Module type</label>
+          <SelectField
+            value={value.type}
+            onChange={(next) => onChange({ ...value, type: next as ModuleType })}
+            options={moduleTypeOptions}
+            clearable={false}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-foreground">
+            Permission key <span className="text-danger">*</span>
+          </label>
+          <TextField
+            value={value.permissionKey}
+            onChange={(e) => {
+              setPermissionTouched(true);
+              onChange({ ...value, permissionKey: e.target.value });
+            }}
+            placeholder="region"
+            maxLength={100}
+            error={errors.permissionKey}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            {permissionTouched
+              ? 'Single value tanpa titik — suffix .view/.create/.update/.delete/.bulk_upload/.export otomatis.'
+              : 'Otomatis dari nama modul — ketik untuk mengubah manual.'}
+          </p>
+        </div>
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-foreground">Module type</label>
-        <SelectField
-          value={value.type}
-          onChange={(next) => onChange({ ...value, type: next as ModuleType })}
-          options={moduleTypeOptions}
-          clearable={false}
-        />
+        <label className="mb-1 block text-sm font-medium text-foreground">Ikon menu</label>
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted">
+            {menuIcon ? (
+              <SvgIcon svg={menuIcon.svg} className="h-5 w-5" name={menuIcon.name} />
+            ) : (
+              <span className="text-xs text-muted-foreground">—</span>
+            )}
+          </span>
+          <p className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
+            {menuIcon ? menuIcon.name : 'Ikon bawaan'}
+          </p>
+          <Button type="button" size="sm" variant="secondary" onClick={onOpenIconDialog}>
+            Atur ikon
+          </Button>
+        </div>
       </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-foreground">
-          Permission key <span className="text-danger">*</span>
-        </label>
-        <TextField
-          value={value.permissionKey}
-          onChange={(e) => onChange({ ...value, permissionKey: e.target.value })}
-          placeholder="region"
-          maxLength={100}
-          error={errors.permissionKey}
-        />
-        <p className="mt-1 text-xs text-muted-foreground">
-          Single value tanpa titik (mis.{' '}
-          <span className="font-mono">user</span>, <span className="font-mono">generator</span>,{' '}
-          <span className="font-mono">audit_trail</span>). Suffix{' '}
-          <span className="font-mono">.view</span>, <span className="font-mono">.create</span>,{' '}
-          <span className="font-mono">.update</span>, <span className="font-mono">.delete</span>,{' '}
-          <span className="font-mono">.bulk_upload</span>, <span className="font-mono">.export</span>{' '}
-          otomatis.
-        </p>
-        {value.permissionKey.trim() !== '' && (
-          <ul className="mt-2 rounded-lg border border-border bg-surface px-3 py-2 font-mono text-xs text-foreground">
-            {['view', 'create', 'update', 'delete', 'bulk_upload', 'export'].map((suffix) => (
-              <li key={suffix} className="py-0.5">
-                {value.permissionKey.trim().toLowerCase()}.{suffix}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      {value.permissionKey.trim() !== '' && (
+        <ul className="rounded-lg border border-border bg-surface px-3 py-2 font-mono text-xs text-foreground">
+          {['view', 'create', 'update', 'delete', 'bulk_upload', 'export'].map((suffix) => (
+            <li key={suffix} className="py-0.5">
+              {value.permissionKey.trim().toLowerCase()}.{suffix}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

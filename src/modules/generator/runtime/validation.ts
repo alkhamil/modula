@@ -17,7 +17,8 @@ function splitRule(rule: string): { name: string; arg?: string } {
 }
 
 function isArrayField(field: GeneratorFieldConfig): boolean {
-  return fieldTypeRegistry[field.type].formType === 'stringArray';
+  const formType = fieldTypeRegistry[field.type].formType;
+  return formType === 'stringArray' || formType === 'rowArray';
 }
 
 /** RHF RegisterOptions dari rules generator (placeholder `$label` = label tampil). */
@@ -26,7 +27,7 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig): RegisterOptions {
   if (field.rules.length === 0) return {};
   const rules: RegisterOptions = {};
   const isArray = isArrayField(field);
-  const isNumber = field.type === 'numberField';
+  const isNumber = field.type === 'numberField' || field.type === 'currencyField';
   for (const raw of field.rules) {
     const { name, arg } = splitRule(raw);
     switch (name) {
@@ -42,7 +43,10 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig): RegisterOptions {
         } else if (field.type === 'fileUploadField') {
           rules.validate = {
             ...(typeof rules.validate === 'object' ? rules.validate : {}),
-            required: (value: unknown) => value instanceof File || `${label} is required.`,
+            required: (value: unknown) =>
+              value instanceof File ||
+              (Array.isArray(value) && value.length > 0 && value[0] instanceof File) ||
+              `${label} is required.`,
           };
         } else {
           rules.required = `${label} is required.`;
@@ -135,9 +139,37 @@ export function maxLengthOf(field: GeneratorFieldConfig): number | null {
 export function formDefaultValue(field: GeneratorFieldConfig): unknown {
   const formType = fieldTypeRegistry[field.type].formType;
   if (formType === 'boolean') return false;
-  if (formType === 'stringArray') return [];
+  if (formType === 'stringArray' || formType === 'rowArray') return [];
   if (formType === 'file') return null;
   return '';
+}
+
+/** Nilai form editor baris dari baris data (number→string, file→null, default aman). */
+export function rowFormValues(
+  subs: GeneratorFieldConfig[],
+  row: Record<string, unknown> | null,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const sub of subs) {
+    const valueType = fieldTypeRegistry[sub.type].valueType;
+    const raw = row?.[sub.name];
+    if (valueType === 'number') out[sub.name] = String(raw ?? '');
+    else if (valueType === 'file') out[sub.name] = null;
+    else if (valueType === 'stringArray') out[sub.name] = Array.isArray(raw) ? [...raw] : [];
+    else if (valueType === 'boolean') out[sub.name] = (raw ?? false) as boolean;
+    else out[sub.name] = (raw ?? '') as string;
+  }
+  return out;
+}
+
+/** Baris data dari nilai form editor (number→parseCurrency, file→nama file). */
+export function rowPayloadValues(
+  subs: GeneratorFieldConfig[],
+  formRow: Record<string, unknown>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const sub of subs) out[sub.name] = payloadValue(sub, formRow[sub.name]);
+  return out;
 }
 
 /** Nilai edit dari record detail. */
@@ -152,7 +184,12 @@ export function formEditValue(field: GeneratorFieldConfig, item: Record<string, 
 export function payloadValue(field: GeneratorFieldConfig, value: unknown): unknown {
   const valueType = fieldTypeRegistry[field.type].valueType;
   if (valueType === 'number') return parseCurrency(String(value ?? ''));
-  if (valueType === 'file') return value instanceof File ? value.name : '';
+  if (valueType === 'file') {
+    if (Array.isArray(value) && value.length > 0 && value[0] instanceof File) {
+      return (value as File[]).map((file) => file.name).join(', ');
+    }
+    return value instanceof File ? value.name : '';
+  }
   return value;
 }
 

@@ -6,6 +6,8 @@ import type { ErrorPageType } from '../../utils';
 export interface DetailRow {
   label: string;
   value?: ReactNode;
+  /** Nama field sumber (diisi builder/runtime; dipakai seleksi kanvas). */
+  name?: string;
   fullWidth?: boolean;
   noDivider?: boolean;
   /** Renders the row as a section heading (label spans full width). */

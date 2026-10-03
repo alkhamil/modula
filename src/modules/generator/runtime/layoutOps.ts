@@ -2,7 +2,12 @@
  * Operasi layout murni untuk canvas editor (drag reorder, span, visibilitas).
  * Murni & Node-safe.
  */
-import type { FormLayoutItem, ModuleLayout } from '../definitions';
+import type { DetailLayout, FormLayoutItem, ModuleLayout } from '../definitions';
+import type {
+  DetailCardDisplayProps,
+  DetailRowDisplayProps,
+  TableDisplayProps,
+} from '../types';
 
 /** Pindahkan item form (drag active ke posisi over) + rapikan order. */
 export function moveFormItem(layout: ModuleLayout, activeField: string, overField: string): ModuleLayout {
@@ -11,11 +16,56 @@ export function moveFormItem(layout: ModuleLayout, activeField: string, overFiel
   const to = ordered.findIndex((item) => item.field === overField);
   if (from === -1 || to === -1 || from === to) return layout;
   const [moved] = ordered.splice(from, 1);
-  if (!moved) return layout;
+  if (moved === undefined) return layout;
   ordered.splice(to, 0, moved);
   return {
     ...layout,
     form: ordered.map((item, index) => ({ ...item, order: index })),
+  };
+}
+
+/** Rename key field di seluruh layout (form + tabel + detail). */
+export function renameFieldInLayout(
+  layout: ModuleLayout,
+  oldName: string,
+  newName: string,
+): ModuleLayout {
+  if (oldName === newName) return layout;
+  const mapName = (name: string): string => (name === oldName ? newName : name);
+  const form: FormLayoutItem[] = layout.form.map((item) =>
+    (item.kind ?? 'field') === 'field' && item.field === oldName
+      ? { ...item, field: newName }
+      : item,
+  );
+  const widths: Record<string, number> | undefined = layout.table.widths
+    ? Object.fromEntries(
+        Object.entries(layout.table.widths).map(([name, width]) => [mapName(name), width]),
+      )
+    : undefined;
+  const detailProps = layout.detail?.props
+    ? Object.fromEntries(
+        Object.entries(layout.detail.props).map(([name, props]) => [mapName(name), props]),
+      )
+    : undefined;
+  return {
+    ...layout,
+    form,
+    table: {
+      order: layout.table.order.map(mapName),
+      hidden: layout.table.hidden.map(mapName),
+      ...(widths ? { widths } : {}),
+      ...(layout.table.props ? { props: layout.table.props } : {}),
+    },
+    ...(layout.detail
+      ? {
+          detail: {
+            order: layout.detail.order.map(mapName),
+            hidden: layout.detail.hidden.map(mapName),
+            ...(detailProps && Object.keys(detailProps).length > 0 ? { props: detailProps } : {}),
+            ...(layout.detail.card ? { card: layout.detail.card } : {}),
+          },
+        }
+      : {}),
   };
 }
 
@@ -58,6 +108,21 @@ export function setTableWidth(layout: ModuleLayout, field: string, width: number
     widths[field] = Math.min(1200, Math.max(40, Math.floor(width)));
   }
   return { ...layout, table: { ...layout.table, widths } };
+}
+
+/** Patch props tampilan tabel (hanya nilai valid yang disimpan). */
+export function setTableProps(layout: ModuleLayout, patch: Partial<TableDisplayProps>): ModuleLayout {
+  const next: TableDisplayProps = { ...layout.table.props };
+  for (const [key, value] of Object.entries(patch)) {
+    if (typeof value === 'boolean') {
+      (next as Record<string, boolean>)[key] = value;
+    } else if (key === 'actionPosition' && (value === 'left' || value === 'right')) {
+      next.actionPosition = value;
+    } else {
+      delete (next as Record<string, boolean>)[key];
+    }
+  }
+  return { ...layout, table: { ...layout.table, props: next } };
 }
 
 /** Tambah item section/divider ke form (id unik otomatis). */
@@ -118,14 +183,56 @@ export function moveDetailItem(layout: ModuleLayout, activeField: string, overFi
   const [moved] = order.splice(from, 1);
   if (moved === undefined) return layout;
   order.splice(to, 0, moved);
-  return { ...layout, detail: { order, hidden: layout.detail?.hidden ?? [] } };
+  return { ...layout, detail: { ...(layout.detail ?? { order: [], hidden: [] }), order } };
 }
 
 /** Toggle visibilitas field detail. */
 export function toggleDetailItem(layout: ModuleLayout, field: string): ModuleLayout {
-  const hidden = layout.detail?.hidden ?? [];
-  const next = hidden.includes(field)
-    ? hidden.filter((name) => name !== field)
-    : [...hidden, field];
-  return { ...layout, detail: { order: layout.detail?.order ?? [], hidden: next } };
+  const base = layout.detail ?? { order: [], hidden: [] as string[] };
+  const hidden = base.hidden.includes(field)
+    ? base.hidden.filter((name) => name !== field)
+    : [...base.hidden, field];
+  return { ...layout, detail: { ...base, hidden } };
+}
+
+/** Patch props tampilan satu baris detail (hanya boolean yang disimpan). */
+export function setDetailRowProps(
+  layout: ModuleLayout,
+  field: string,
+  patch: Partial<DetailRowDisplayProps>,
+): ModuleLayout {
+  const base = layout.detail ?? { order: [], hidden: [] as string[] };
+  const props = { ...base.props };
+  const merged = { ...props[field], ...patch };
+  const next: DetailRowDisplayProps = {};
+  for (const [key, value] of Object.entries(merged)) {
+    if (typeof value === 'boolean') {
+      (next as Record<string, boolean>)[key] = value;
+    }
+  }
+  if (Object.keys(next).length > 0) props[field] = next;
+  else delete props[field];
+  const detail: DetailLayout = { order: base.order, hidden: base.hidden };
+  if (Object.keys(props).length > 0) detail.props = props;
+  if (base.card) detail.card = base.card;
+  return { ...layout, detail };
+}
+
+/** Patch props tampilan kartu detail. */
+export function setDetailCardProps(
+  layout: ModuleLayout,
+  patch: Partial<DetailCardDisplayProps>,
+): ModuleLayout {
+  const base = layout.detail ?? { order: [], hidden: [] as string[] };
+  const card: DetailCardDisplayProps = { ...base.card };
+  if (patch.title !== undefined) {
+    const title = patch.title.trim();
+    if (title !== '') card.title = title;
+    else delete card.title;
+  }
+  if (typeof patch.collapsible === 'boolean') card.collapsible = patch.collapsible;
+  const detail: DetailLayout = { order: base.order, hidden: base.hidden };
+  if (base.props) detail.props = base.props;
+  if (Object.keys(card).length > 0) detail.card = card;
+  return { ...layout, detail };
 }

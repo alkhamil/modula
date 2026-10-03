@@ -1,7 +1,7 @@
 import type { GeneratorConfig } from '../types';
 import { validateConfig, type ConfigIssue } from '../parser';
 import type { ModuleDefinition } from './types';
-import { MODULE_DEFINITION_VERSION } from './types';
+import { MODULE_DEFINITION_VERSION, SYSTEM_TABLE_COLUMNS } from './types';
 
 const KEY_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/;
 const ROUTE_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/;
@@ -52,6 +52,7 @@ export function validateDefinition(def: ModuleDefinition): ConfigIssue[] {
     permissionKey: def.permissionKey,
     features: { ...def.features },
     fields: def.fields,
+    menuIcon: def.menuIcon,
   };
   issues.push(...validateConfig(asConfig));
 
@@ -88,7 +89,7 @@ export function validateDefinition(def: ModuleDefinition): ConfigIssue[] {
   }
   const seenOrder = new Set<string>();
   def.layout.table.order.forEach((name, index) => {
-    if (!known.has(name)) {
+    if (!known.has(name) && !SYSTEM_TABLE_COLUMNS.includes(name)) {
       issues.push({
         path: `layout.table.order[${index}]`,
         message: `Field "${name}" tidak dikenal.`,

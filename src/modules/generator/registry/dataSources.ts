@@ -16,6 +16,7 @@ export const dataSourceRegistry: Record<DataSource, DataSourceDef> = {
       'textareaField',
       'passwordField',
       'numberField',
+      'currencyField',
       'dateField',
       'dateRangeField',
       'selectField',
@@ -25,6 +26,9 @@ export const dataSourceRegistry: Record<DataSource, DataSourceDef> = {
       'checkboxGroupField',
       'switchField',
       'fileUploadField',
+      'colorField',
+      'editorField',
+      'formArrayField',
     ],
   },
   mockStatic: {

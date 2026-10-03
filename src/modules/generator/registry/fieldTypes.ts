@@ -1,6 +1,6 @@
 import type { FieldType } from '../types';
 
-export type FieldValueType = 'string' | 'number' | 'boolean' | 'stringArray' | 'file';
+export type FieldValueType = 'string' | 'number' | 'boolean' | 'stringArray' | 'file' | 'rowArray';
 
 export interface FieldTypeDef {
   label: string;
@@ -41,6 +41,13 @@ export const fieldTypeRegistry: Record<FieldType, FieldTypeDef> = {
     valueType: 'number',
     formType: 'string',
     description: 'Input angka (currency); form string, payload number.',
+  },
+  currencyField: {
+    label: 'Currency Field',
+    component: 'TextField',
+    valueType: 'number',
+    formType: 'string',
+    description: 'Input mata uang (selalu format currency + simbol, default Rp).',
   },
   dateField: {
     label: 'Date Field',
@@ -103,7 +110,28 @@ export const fieldTypeRegistry: Record<FieldType, FieldTypeDef> = {
     component: 'FileUploadField',
     valueType: 'file',
     formType: 'file',
-    description: 'Upload file tunggal; form File|null, payload nama file.',
+    description: 'Upload file; form File|null (File[] bila multiple), payload nama file.',
+  },
+  colorField: {
+    label: 'Color Field',
+    component: 'ColorField',
+    valueType: 'string',
+    formType: 'string',
+    description: 'Pemilih warna; nilai hex `#rrggbb`.',
+  },
+  editorField: {
+    label: 'Editor Field',
+    component: 'EditorField',
+    valueType: 'string',
+    formType: 'string',
+    description: 'Rich text (TipTap); nilai HTML.',
+  },
+  formArrayField: {
+    label: 'Form Array Field',
+    component: 'FormArrayField',
+    valueType: 'rowArray',
+    formType: 'rowArray',
+    description: 'Tabel baris embedded; sub-field jadi kolom.',
   },
 };
 

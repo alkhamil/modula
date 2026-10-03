@@ -44,8 +44,9 @@ Muse Code reads this file as project rules when it runs in this directory.
 - `src/modules/` — hanya `auth/` (login mock + guard + `useAuth`) dan
   `generator/` (`definitions/` = `ModuleDefinition v1` murni + Node-safe,
   `runtime/` = render generik + mock store persisten, `seeds/` = seed JSON,
-  `builder/` + `components/` + `pages/` = wizard 6 langkah, `parser.ts`/
-  `naming.ts`/`registry/` = bantu wizard).
+  `builder/` + `components/` + `pages/` = wizard 6 langkah + tab Daftar
+  Modul, `engine/` + `templates/` + `api/` = generate source statis ke
+  repo (dev-only), `parser.ts`/`naming.ts`/`registry/` = bantu wizard).
 - `src/shared/` — `theme/` (token thema), `lib/`, `hooks/`, `utils/`,
   `types/`, `components/` (`layout/`, `ui/`, `icons/`).
 - `docs/BUILDER_SPEC.md` — spec visual builder (arah rombak).
@@ -64,7 +65,8 @@ Muse Code reads this file as project rules when it runs in this directory.
   `shared` tidak import dari `modules`.
 - Modul CRUD baru dibuat via wizard `/generator` (publish Draft/Publish),
   bukan dengan menulis folder modul manual — `src/modules/` tetap hanya
-  `auth/` + `generator/`.
+  `auth/` + `generator/`, kecuali modul statis hasil Generate ke repo
+  (dev-only, menutupi versi dinamis di route sama).
 - `definitions/` (types/normalize/validate/configToDefinition/parents) murni
   dan Node-safe: dilarang dependensi Vite/browser (`import.meta.glob`,
   CSS, komponen) — hanya `definitionsApi.ts`/`recordsApi.ts` yang boleh

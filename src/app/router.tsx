@@ -16,6 +16,7 @@ import {
   DynamicPreviewEditPage,
   DynamicPreviewPage,
 } from '../modules/generator/runtime/DynamicRoutes';
+// __GENERATOR_IMPORTS__
 
 export const router = createBrowserRouter([
   {
@@ -73,8 +74,10 @@ export const router = createBrowserRouter([
                 element: <DynamicPreviewEditPage />,
                 handle: { breadcrumb: [{ label: 'Preview' }, { label: 'Edit' }] },
               },
-              // Seluruh modul bisnis (users, orders, mater-data/*, …) dilayani
-              // dari definisi published — tidak ada route statis per modul.
+              // Modul hasil generate-ke-repo terdaftar statis di sini (di atas
+              // host dinamis agar menang). Modul dinamis murni tetap lewat
+              // definisi published tanpa route statis.
+              // __GENERATOR_ROUTES__
               // Host WAJIB `path: '*'`: pathless tidak match URL dinamis
               // (sisa pathname tak terkonsumsi → jatuh ke 404).
               {

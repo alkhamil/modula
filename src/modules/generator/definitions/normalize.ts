@@ -2,13 +2,16 @@ import type { GeneratorConfig } from '../types';
 import { normalizeConfig } from '../parser';
 import { resolveNames, toKebabCase } from '../naming';
 import type {
+  DetailLayout,
   FormLayoutItem,
   ModuleDefinition,
   ModuleDefinitionStatus,
   ModuleLayout,
   TableLayout,
 } from './types';
-import { MODULE_DEFINITION_VERSION } from './types';
+import type { DetailCardDisplayProps, DetailRowDisplayProps } from '../types';
+import type { TableDisplayProps } from '../types';
+import { MODULE_DEFINITION_VERSION, SYSTEM_TABLE_COLUMNS } from './types';
 
 /** Layout default: form satu kolom penuh (meniru tampilan form hasil generate), tabel semua field tampil. */
 export function defaultLayoutForFields(
@@ -70,21 +73,72 @@ export function normalizeLayout(
     form.push({ field: name, order: form.length, colSpan: 12 });
   }
   const tableOrder = normalizeOrderList(layout.table.order, layout.table.hidden, fieldNames);
+  // Kolom sistem selalu ada di urutan (di akhir bila belum diatur).
+  for (const key of SYSTEM_TABLE_COLUMNS) {
+    if (!tableOrder.order.includes(key)) tableOrder.order.push(key);
+  }
   const widths: Record<string, number> = {};
   for (const [name, width] of Object.entries(layout.table.widths ?? {})) {
-    if (!known.has(name)) continue;
+    if (!known.has(name) && !SYSTEM_TABLE_COLUMNS.includes(name)) continue;
     const px = Math.floor(width);
     if (!Number.isFinite(px)) continue;
     widths[name] = Math.min(1200, Math.max(40, px));
   }
   const table: TableLayout = { order: tableOrder.order, hidden: tableOrder.hidden };
   if (Object.keys(widths).length > 0) table.widths = widths;
+  const rawProps = layout.table.props;
+  if (rawProps && typeof rawProps === 'object') {
+    const src = rawProps as Record<string, unknown>;
+    const props: TableDisplayProps = {};
+    for (const key of [
+      'dense',
+      'hidePagination',
+      'hideTotalRecords',
+      'fixedLayout',
+      'stickyHeader',
+      'stickyAction',
+    ] as const) {
+      if (typeof src[key] === 'boolean') props[key] = src[key];
+    }
+    if (src.actionPosition === 'left' || src.actionPosition === 'right') {
+      props.actionPosition = src.actionPosition;
+    }
+    if (Object.keys(props).length > 0) table.props = props;
+  }
   const detailOrder = normalizeOrderList(
     layout.detail?.order ?? fieldNames,
     layout.detail?.hidden,
     fieldNames,
   );
-  return { form, table, detail: { order: detailOrder.order, hidden: detailOrder.hidden } };
+  const detail: DetailLayout = { order: detailOrder.order, hidden: detailOrder.hidden };
+  const rawDetail = layout.detail;
+  if (rawDetail && typeof rawDetail === 'object') {
+    const knownDetail = new Set(detail.order);
+    if (rawDetail.props && typeof rawDetail.props === 'object') {
+      const rowProps: Record<string, DetailRowDisplayProps> = {};
+      for (const [name, value] of Object.entries(rawDetail.props)) {
+        if (!knownDetail.has(name) || !value || typeof value !== 'object') continue;
+        const src = value as Record<string, unknown>;
+        const entry: DetailRowDisplayProps = {};
+        if (typeof src.fullWidth === 'boolean') entry.fullWidth = src.fullWidth;
+        if (typeof src.noDivider === 'boolean') entry.noDivider = src.noDivider;
+        if (typeof src.heading === 'boolean') entry.heading = src.heading;
+        if (Object.keys(entry).length > 0) rowProps[name] = entry;
+      }
+      if (Object.keys(rowProps).length > 0) detail.props = rowProps;
+    }
+    if (rawDetail.card && typeof rawDetail.card === 'object') {
+      const card: DetailCardDisplayProps = {};
+      if (typeof rawDetail.card.title === 'string' && rawDetail.card.title.trim() !== '') {
+        card.title = rawDetail.card.title.trim();
+      }
+      if (typeof rawDetail.card.collapsible === 'boolean') {
+        card.collapsible = rawDetail.card.collapsible;
+      }
+      if (Object.keys(card).length > 0) detail.card = card;
+    }
+  }
+  return { form, table, detail };
 }
 
 export interface ConfigToDefinitionOptions {
@@ -132,6 +186,7 @@ export function configToDefinition(
     ),
     deleteMode: opts.deleteMode ?? 'soft',
     status: opts.status ?? 'draft',
+    menuIcon: config.menuIcon,
   };
 }
 

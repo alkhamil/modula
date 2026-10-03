@@ -33,6 +33,7 @@ export {
   listDefinitions,
   getDefinition,
   saveDefinition,
+  deleteDefinition,
   resetMockDefinitions,
 } from './definitionsApi';
 export type { SaveDefinitionResult } from './definitionsApi';
@@ -40,6 +41,7 @@ export {
   bulkUploadRecords,
   createRecord,
   deleteRecord,
+  deleteModuleRecords,
   downloadTemplate,
   exportRecords,
   getRecord,

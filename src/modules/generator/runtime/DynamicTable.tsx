@@ -1,6 +1,6 @@
 /** Tabel list generik — kolom + aksi + render sel dari definisi modul. */
 import type { ReactNode } from 'react';
-import { Badge, Table } from '../../../shared/components/ui';
+import { Table } from '../../../shared/components/ui';
 import type { Column } from '../../../shared/components/ui/Table';
 import {
   PencilIcon,
@@ -8,15 +8,9 @@ import {
   TrashIcon,
   ViewIcon,
 } from '../../../shared/components/icons';
-import {
-  capitalize,
-  formatDate,
-  formatDateRange,
-  formatDateTime,
-  formatNumber,
-} from '../../../shared/utils';
 import type { ModuleDefinition } from '../definitions';
 import { definitionTestId, type DynamicListItem } from './types';
+import { columnRenderForType, systemTableColumn } from './cellRender';
 
 interface DynamicTableProps {
   testId?: string;
@@ -48,28 +42,14 @@ interface DynamicTableProps {
   onRetry?: () => void;
 }
 
-function cellRender(fieldType: string, name: string): ((row: DynamicListItem) => ReactNode) | undefined {
-  switch (fieldType) {
-    case 'numberField':
-      return (row) => formatNumber(Number(row[name] ?? 0));
-    case 'dateField':
-      return (row) => formatDate(String(row[name] ?? ''));
-    case 'dateRangeField':
-      return (row) => formatDateRange(String(row[name] ?? ''));
-    case 'checkboxField':
-    case 'switchField':
-      return (row) => (row[name] ? 'Yes' : 'No');
-    case 'selectField':
-    case 'radioGroupField':
-      return (row) => capitalize(String(row[name] ?? ''));
-    case 'selectMultipleField':
-    case 'checkboxGroupField':
-      return (row) => ((row[name] as string[] | null) ?? []).join(', ');
-    case 'passwordField':
-      return () => '••••••';
-    default:
-      return undefined;
-  }
+function cellRender(
+  fieldType: string,
+  name: string,
+): ((row: DynamicListItem) => ReactNode) | undefined {
+  const render = columnRenderForType(fieldType, name);
+  return render
+    ? (row: DynamicListItem) => render(row as Record<string, unknown>)
+    : undefined;
 }
 
 function DynamicTable({
@@ -90,50 +70,58 @@ function DynamicTable({
   const byName = new Map(def.fields.map((field) => [field.name, field]));
   const hidden = new Set(def.layout.table.hidden);
   const widths = def.layout.table.widths ?? {};
-  const columns: Column<DynamicListItem>[] = [
-    ...def.layout.table.order
-      .filter((name) => byName.has(name) && !hidden.has(name))
-      .map((name) => {
-        const field = byName.get(name);
-        const type = field?.type ?? 'textField';
-        const column: Column<DynamicListItem> = {
-          key: name,
-          header: field?.label ?? name,
-          sortable: field?.sortable !== false,
-        };
-        const render = cellRender(type, name);
-        if (render) column.render = render;
-        if (widths[name]) column.width = widths[name];
-        return column;
-      }),
-    { key: 'created_by', header: 'Created By' },
-    {
-      key: 'created_date',
-      header: 'Created Date',
-      render: (row) => formatDateTime(String(row.created_date ?? '')),
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      sortable: false,
-      className: 'w-32',
-      render: (row) => (
-        <Badge variant={row.status === 'active' ? 'success' : 'secondary'}>
-          {capitalize(row.status)}
-        </Badge>
-      ),
-    },
-  ];
+  const displayProps = def.layout.table.props;
+  // Urutancampuran field + kolom sistem; definisi lama tanpa kunci sistem
+  // mendapatkannya di akhir (fallback perilaku lama).
+  const orderedKeys = def.layout.table.order.filter(
+    (name) => byName.has(name) || systemTableColumn(name) !== null,
+  );
+  const tableKeys = orderedKeys.some((name) => systemTableColumn(name) !== null)
+    ? orderedKeys
+    : [...orderedKeys, 'created_by', 'created_date', 'status'];
+  const columns: Column<DynamicListItem>[] = tableKeys.flatMap((name) => {
+    const field = byName.get(name);
+    if (field) {
+      if (hidden.has(name)) return [];
+      const type = field.type;
+      const column: Column<DynamicListItem> = {
+        key: name,
+        header: field.label,
+        sortable: field.sortable !== false,
+      };
+      const render = cellRender(type, name);
+      if (render) column.render = render;
+      if (widths[name]) column.width = widths[name];
+      return [column];
+    }
+    const system = systemTableColumn(name);
+    if (!system) return [];
+    const column: Column<DynamicListItem> = {
+      key: system.key,
+      header: system.header,
+      sortable: system.sortable,
+    };
+    if (system.render) column.render = system.render;
+    if (system.className) column.className = system.className;
+    if (widths[name]) column.width = widths[name];
+    return [column];
+  });
   const withActions = !!onView || !!onEdit || !!onDelete || !!onRestore;
 
   return (
     <Table<DynamicListItem>
       actionWidth={withActions ? 'w-40' : undefined}
+      actionPosition={displayProps?.actionPosition}
       testId={testId}
       columns={columns}
       data={data}
       rowKey={(row) => String(row.id)}
-      fixedLayout={true}
+      fixedLayout={displayProps?.fixedLayout ?? true}
+      dense={displayProps?.dense}
+      hidePagination={displayProps?.hidePagination}
+      hideTotalRecords={displayProps?.hideTotalRecords}
+      stickyHeader={displayProps?.stickyHeader}
+      stickyAction={displayProps?.stickyAction}
       renderAction={
         withActions
           ? (row) => (
@@ -161,7 +149,7 @@ function DynamicTable({
                 {row.status === 'active' && onDelete && (
                   <button
                     data-testid={`${testPrefix}-delete-${row.id}`}
-                    className={`flex h-7 w-7 items-center justify-center rounded-md ${isDeleting ? 'cursor-not-allowed opacity-40' : 'hover:bg-muted cursor-pointer'}`}
+                    className={`flex h-7 w-7 items-center justify-center rounded-md text-danger ${isDeleting ? 'cursor-not-allowed opacity-40' : 'hover:bg-danger/10 cursor-pointer'}`}
                     title={`Delete ${row.id}`}
                     onClick={() => onDelete(row)}
                     disabled={isDeleting}

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Alert, Badge } from '../../../shared/components/ui';
+import { SvgIcon } from '../../../shared/components/icons';
 import type { FeatureKey, GeneratorConfig } from '../types';
 import type { DeleteMode, ModuleLayout } from '../definitions';
 import { configToDefinition, validateDefinition } from '../definitions';
@@ -77,6 +78,16 @@ function ReviewStep({ config, layout, deleteMode }: ReviewStepProps) {
         <dt className="text-muted-foreground">Delete mode</dt>
         <dd className="text-foreground">
           {preview.deleteMode === 'soft' ? 'Soft delete' : 'Hard delete'}
+        </dd>
+        <dt className="text-muted-foreground">Ikon menu</dt>
+        <dd className="flex flex-wrap items-center gap-3 text-foreground">
+          {!preview.menuIcon && <span className="text-muted-foreground">Bawaan</span>}
+          {preview.menuIcon && (
+            <span className="flex items-center gap-1.5 text-sm">
+              <SvgIcon svg={preview.menuIcon.svg} className="h-5 w-5" />
+              {preview.menuIcon.name} ({preview.parent ? 'parent' : 'modul'})
+            </span>
+          )}
         </dd>
         <dt className="text-muted-foreground">Features</dt>
         <dd className="flex flex-wrap gap-1.5">

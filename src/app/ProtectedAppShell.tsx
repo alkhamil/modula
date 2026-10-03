@@ -1,4 +1,4 @@
-import { navItems, useDynamicNavItems } from './navigation';
+import { mergeNavItems, navItems, useDynamicNavItems } from './navigation';
 import { AppShell } from '../shared/components/layout';
 import { RequireAuth, useAuth } from '../modules/auth';
 
@@ -9,7 +9,7 @@ function ProtectedAppShell() {
   return (
     <RequireAuth>
       <AppShell
-        navItems={[...navItems, ...dynamicNavItems]}
+        navItems={mergeNavItems(navItems, dynamicNavItems)}
         permissions={permissions}
         user={user ? { name: user.name, roleName: user.role } : null}
         onLogout={logout}

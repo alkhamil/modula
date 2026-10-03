@@ -498,6 +498,7 @@ function SelectField({
           createPortal(
             <div
               ref={dropdownRef}
+              data-select-dropdown
               onMouseDown={(e) => e.stopPropagation()}
               style={{
                 position: 'fixed',

@@ -1,6 +1,6 @@
 import { type ButtonHTMLAttributes, type ReactNode } from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'custom';
+type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'custom';
 
 interface ButtonBaseProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
   size?: 'sm' | 'md' | 'lg';
@@ -18,6 +18,8 @@ const variantStyles: Record<string, string> = {
   primary: 'bg-primary text-primary-foreground hover:bg-primary/85 active:bg-primary/75',
   secondary:
     'border border-primary text-primary bg-background hover:bg-primary/10 active:bg-primary/15',
+  danger:
+    'border border-danger text-danger bg-background hover:bg-danger/10 active:bg-danger/15',
   custom: '',
 };
 

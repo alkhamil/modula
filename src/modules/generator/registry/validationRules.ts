@@ -63,3 +63,11 @@ export const validationRegistry: Record<ValidationRuleName, ValidationRuleDef> =
 };
 
 export const validationRuleNames = Object.keys(validationRegistry) as ValidationRuleName[];
+
+/** Argumen bawaan saat rule berargumen dicentang (diambil dari placeholder registry). */
+export function defaultRuleArg(name: ValidationRuleName): string {
+  const placeholder = validationRegistry[name].placeholder ?? '';
+  const sep = placeholder.indexOf(':');
+  const arg = sep === -1 ? placeholder : placeholder.slice(sep + 1);
+  return arg.trim() || '1';
+}

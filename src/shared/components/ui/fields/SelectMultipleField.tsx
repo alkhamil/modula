@@ -95,7 +95,10 @@ function SelectMultipleField({
   placeholder = 'Select...',
   options: staticOptions,
   loadOptions,
-  value,
+  // Nilai bisa `undefined` saat form induk belum memberi default (mis.
+  // pratinjau kanvas) — normalisasi ke array agar `.length`/`.includes`
+  // tidak melempar TypeError.
+  value = [],
   onChange,
   className = '',
   clearable = true,
@@ -542,6 +545,7 @@ function SelectMultipleField({
           createPortal(
             <div
               ref={dropdownRef}
+              data-select-dropdown
               onMouseDown={(e) => e.stopPropagation()}
               style={{
                 position: 'fixed',

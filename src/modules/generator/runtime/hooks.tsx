@@ -1,5 +1,5 @@
 /** Hooks TanStack Query + filter + form untuk runtime modul dinamis. */
-import { useMemo, useState, type ReactNode } from 'react';
+import { isValidElement, useMemo, useState, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -20,6 +20,7 @@ import {
   isConnectionError,
   mapSubmitError,
   splitFieldErrors,
+  stripHtml,
 } from '../../../shared/utils';
 import type { GeneratorFieldConfig } from '../types';
 import type { ModuleDefinition } from '../definitions';
@@ -197,10 +198,11 @@ export function useDynamicOptions(def: ModuleDefinition): {
 }
 
 /** Nilai detail satu field untuk baris DetailCard (meniru `detailRowSnippet`). */
-function detailValue(field: GeneratorFieldConfig, item: DynamicDetail): unknown {
+export function detailValue(field: GeneratorFieldConfig, item: DynamicDetail): unknown {
   const value = item[field.name];
   switch (field.type) {
     case 'numberField':
+    case 'currencyField':
       return formatNumber(Number(value ?? 0));
     case 'dateField':
       return formatDate(String(value ?? ''));
@@ -217,7 +219,33 @@ function detailValue(field: GeneratorFieldConfig, item: DynamicDetail): unknown 
       return ((value as string[] | null) ?? []).join(', ');
     case 'passwordField':
       return '••••••';
+    case 'colorField':
+      return value ? (
+        <span className="inline-flex items-center gap-1.5">
+          <span
+            className="inline-block h-4 w-4 rounded border border-border"
+            style={{ backgroundColor: String(value) }}
+          />
+          <span>{String(value)}</span>
+        </span>
+      ) : (
+        '-'
+      );
+    case 'editorField':
+      return stripHtml(String(value ?? '')) || '-';
+    case 'formArrayField': {
+      const count = Array.isArray(value) ? value.length : 0;
+      return count > 0 ? `${count} baris` : '-';
+    }
     default:
+      if (value instanceof File) return value.name;
+      if (Array.isArray(value) && value.length > 0 && value[0] instanceof File) {
+        return (value as File[]).map((file) => file.name).join(', ');
+      }
+      // Objek polos (mis. sisa File di draft lama) tidak valid sebagai React child.
+      if (typeof value === 'object' && value !== null && !Array.isArray(value) && !isValidElement(value)) {
+        return '-';
+      }
       return value;
   }
 }
@@ -231,13 +259,21 @@ export function buildDetailRows(def: ModuleDefinition, item: DynamicDetail | nul
   const byName = new Map(def.fields.map((field) => [field.name, field]));
   const order = def.layout.detail?.order ?? def.fields.map((field) => field.name);
   const hidden = new Set(def.layout.detail?.hidden ?? []);
+  const rowPropsOf = (name: string): Pick<DetailRow, 'fullWidth' | 'noDivider' | 'heading'> => {
+    const src = def.layout.detail?.props?.[name];
+    return {
+      ...(src?.fullWidth === true ? { fullWidth: true as const } : {}),
+      ...(src?.noDivider === true ? { noDivider: true as const } : {}),
+      ...(src?.heading === true ? { heading: true as const } : {}),
+    };
+  };
   const fields = order
     .filter((name) => byName.has(name) && !hidden.has(name))
     .map((name) => byName.get(name) as GeneratorFieldConfig);
   if (!item) {
     return [
       { label: 'Status', value: '' },
-      ...fields.map((field) => ({ label: field.label, value: '' })),
+      ...fields.map((field) => ({ name: field.name, label: field.label, value: '', ...rowPropsOf(field.name) })),
     ];
   }
   return [
@@ -250,8 +286,10 @@ export function buildDetailRows(def: ModuleDefinition, item: DynamicDetail | nul
       ),
     },
     ...fields.map((field) => ({
+      name: field.name,
       label: field.label,
       value: detailValue(field, item) as ReactNode,
+      ...rowPropsOf(field.name),
     })),
     { label: 'Created By', value: item.createdBy },
     { label: 'Created Date', value: item.createdDate },

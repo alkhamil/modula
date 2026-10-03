@@ -73,7 +73,8 @@ export function DynamicDetailPage({ def }: { def: ModuleDefinition }) {
     <div data-testid={`${testPrefix}-view-page`} className="flex min-h-full flex-col stack-gap">
       <DetailCard
         testId={`${testPrefix}-detail-card`}
-        title={`${def.singularLabel} Details`}
+        title={def.layout.detail?.card?.title?.trim() || `${def.singularLabel} Details`}
+        collapsible={def.layout.detail?.card?.collapsible === true}
         state={{ status: queryStatus, message: queryMessage, rows: detailRows, errorType }}
       />
       {queryStatus !== 'error' && (

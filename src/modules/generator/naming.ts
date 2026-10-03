@@ -27,6 +27,19 @@ export function toCamelCase(value: string): string {
   return pascal.charAt(0).toLowerCase() + pascal.slice(1);
 }
 
+/**
+ * Turunkan permission key dari nama modul (`Doc File` → `doc_file`).
+ * Hasil selalu cocok `^[a-z][a-z0-9_]*$` (atau '' bila tak bisa diturunkan).
+ */
+export function toPermissionKey(moduleName: string): string {
+  return moduleName
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .replace(/^[^a-z]+/, '');
+}
+
 /** Plural naif untuk URL/route (`region` → `regions`). */
 export function toPluralKebab(kebab: string): string {
   if (kebab.endsWith('y') && !/[aeiou]y$/.test(kebab)) return `${kebab.slice(0, -1)}ies`;

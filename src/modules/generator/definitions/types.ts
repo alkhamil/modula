@@ -1,4 +1,11 @@
-import type { FeatureKey, GeneratorFieldConfig } from '../types';
+import type {
+  DetailCardDisplayProps,
+  DetailRowDisplayProps,
+  FeatureKey,
+  GeneratorFieldConfig,
+  MenuIcon,
+  TableDisplayProps,
+} from '../types';
 
 /** Versi skema definisi modul. Naikkan bila ada perubahan breaking. */
 export const MODULE_DEFINITION_VERSION = 1 as const;
@@ -42,6 +49,8 @@ export interface TableLayout {
   hidden: string[];
   /** Lebar kolom piksel per field (opsional; tanpa entri = otomatis). */
   widths?: Record<string, number>;
+  /** Props tampilan komponen Table (opsional; tak di-set = perilaku lama). */
+  props?: TableDisplayProps;
 }
 
 /** Layout halaman detail (read-only). Bila absen: urutan form, semua tampil. */
@@ -50,6 +59,10 @@ export interface DetailLayout {
   order: string[];
   /** Subset `order` yang disembunyikan. */
   hidden: string[];
+  /** Props tampilan per field (opsional; tak di-set = perilaku lama). */
+  props?: Record<string, DetailRowDisplayProps>;
+  /** Props tampilan kartu detail (opsional). */
+  card?: DetailCardDisplayProps;
 }
 
 export interface ModuleLayout {
@@ -57,6 +70,9 @@ export interface ModuleLayout {
   table: TableLayout;
   detail?: DetailLayout;
 }
+
+/** Kolom sistem tabel: selalu ada, bisa diatur posisinya, tak bisa disembunyikan. */
+export const SYSTEM_TABLE_COLUMNS: string[] = ['created_by', 'created_date', 'status'];
 
 /**
  * Single source of truth satu modul dinamis (v1).
@@ -85,6 +101,8 @@ export interface ModuleDefinition {
   layout: ModuleLayout;
   deleteMode: DeleteMode;
   status: ModuleDefinitionStatus;
+  /** Ikon menu sidebar (opsional; absen = ikon bawaan). Nempel di menu modul bila root, di grup parent bila ber-parent. */
+  menuIcon?: MenuIcon;
   createdAt?: string;
   updatedAt?: string;
 }

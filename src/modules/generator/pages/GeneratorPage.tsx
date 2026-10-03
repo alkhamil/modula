@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
-import { Alert, Button, Card, useToast } from '../../../shared/components/ui';
+import { Alert, Button, Card, Dialog, useToast } from '../../../shared/components/ui';
 import { downloadBlob } from '../../../shared/utils';
-import { StepDoneIcon, StepInProgressIcon, StepOutGoingIcon } from '../../../shared/components/icons';
-import type { FeatureKey, GeneratorConfig, GeneratorFieldConfig } from '../types';
+import { ChevronLeftIcon, ChevronRightIcon, StepDoneIcon, StepInProgressIcon, StepOutGoingIcon } from '../../../shared/components/icons';
+import type { FeatureKey, GeneratorConfig, GeneratorFieldConfig, MenuIcon } from '../types';
 import { normalizeModuleName } from '../parser';
 import type { DeleteMode, ModuleDefinition, ModuleLayout } from '../definitions';
 import {
@@ -16,7 +16,12 @@ import {
   parentOptionsFromDefinitions,
   validateDefinition,
 } from '../definitions';
-import { saveDefinition, useDynamicDefinitions } from '../runtime';
+import {
+  deleteDefinition,
+  deleteModuleRecords,
+  saveDefinition,
+  useDynamicDefinitions,
+} from '../runtime';
 import type { DynamicListItem } from '../runtime/types';
 import type { DynamicFormValues } from '../runtime/validation';
 import ModuleInfoStep, {
@@ -24,7 +29,8 @@ import ModuleInfoStep, {
   type ModuleInfoValue,
 } from '../components/ModuleInfoStep';
 import FeaturesStep from '../components/FeaturesStep';
-import FieldsStep from '../components/FieldsStep';
+import MenuIconDialog from '../components/MenuIconDialog';
+import ModulesTab from '../components/ModulesTab';
 import ReviewStep from '../components/ReviewStep';
 import FormBuilderCanvas from '../builder/FormBuilderCanvas';
 import TestDataPanel from '../builder/TestDataPanel';
@@ -36,7 +42,7 @@ import { clearDraft, loadDraft, saveDraft, valuesToSampleRow } from '../builder/
 const STEPS = [
   'Config',
   'Form Canvas',
-  'Test Data',
+  'Live Preview',
   'List Canvas',
   'Detail Canvas',
   'Review & Generate',
@@ -107,12 +113,19 @@ function GeneratorPage() {
   const [fields, setFields] = useState<GeneratorFieldConfig[]>(initialDraft?.fields ?? []);
   const [layout, setLayout] = useState<ModuleLayout | null>(initialDraft?.layout ?? null);
   const [deleteMode, setDeleteMode] = useState<DeleteMode>(initialDraft?.deleteMode ?? 'soft');
+  const [menuIcon, setMenuIcon] = useState<MenuIcon | null>(initialDraft?.menuIcon ?? null);
+  const [iconDialogOpen, setIconDialogOpen] = useState(false);
   const [sampleRows, setSampleRows] = useState<DynamicListItem[]>(
     initialDraft?.sampleRows ?? [],
   );
   const [stepError, setStepError] = useState<string | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishResult, setPublishResult] = useState<PublishResult | null>(null);
+  const [view, setView] = useState<'builder' | 'modules'>('builder');
+  const [infoSession, setInfoSession] = useState(0);
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [editingApiPlural, setEditingApiPlural] = useState<string | null>(null);
+  const [editTarget, setEditTarget] = useState<ModuleDefinition | null>(null);
 
   // '' = semua status (draft + published) untuk opsi parent + target relasi.
   const definitionsQuery = useDynamicDefinitions('');
@@ -123,8 +136,8 @@ function GeneratorPage() {
 
   useEffect(() => {
     if (publishResult) return;
-    saveDraft({ info, features, fields, layout, deleteMode, sampleRows, step });
-  }, [info, features, fields, layout, deleteMode, sampleRows, step, publishResult]);
+    saveDraft({ info, features, fields, layout, deleteMode, menuIcon, sampleRows, step });
+  }, [info, features, fields, layout, deleteMode, menuIcon, sampleRows, step, publishResult]);
 
   const effectiveLayout = useMemo(
     () => normalizeLayout(layout ?? defaultLayoutForFields(fields), fields.map((f) => f.name)),
@@ -140,6 +153,7 @@ function GeneratorPage() {
       permissionKey: info.permissionKey.trim().toLowerCase(),
       features,
       fields,
+      menuIcon: menuIcon ?? undefined,
     };
   }
 
@@ -151,7 +165,7 @@ function GeneratorPage() {
         deleteMode,
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [info, features, fields, effectiveLayout, deleteMode],
+    [info, features, fields, effectiveLayout, deleteMode, menuIcon],
   );
 
   function validateStep(current: number): string | null {
@@ -175,7 +189,10 @@ function GeneratorPage() {
       if ((features.bulkUpload || features.export) && !features.list) {
         return 'Bulk upload & export butuh feature list.';
       }
-      if (fields.length === 0) return 'Tambahkan minimal satu field.';
+      return null;
+    }
+    if (current === 1) {
+      if (fields.length === 0) return 'Tambahkan minimal satu field dari palet.';
       return null;
     }
     return null;
@@ -210,15 +227,58 @@ function GeneratorPage() {
     setFields([]);
     setLayout(null);
     setDeleteMode('soft');
+    setMenuIcon(null);
     setSampleRows([]);
     setStepError(null);
     setPublishResult(null);
+    setEditingKey(null);
+    setEditingApiPlural(null);
+    setInfoSession((prev) => prev + 1);
+  }
+
+  /** Muat definisi listing ke wizard untuk diedit; publish menimpa key yang sama. */
+  function loadDefinitionToWizard(def: ModuleDefinition): void {
+    setInfo({
+      parentName: def.parent ?? '',
+      newParentName: '',
+      moduleName: def.singularLabel,
+      type: def.moduleType,
+      permissionKey: def.permissionKey,
+    });
+    setFeatures({ ...def.features });
+    setFields(structuredClone(def.fields));
+    setLayout(structuredClone(def.layout));
+    setDeleteMode(def.deleteMode);
+    setMenuIcon(def.menuIcon ? { ...def.menuIcon } : null);
+    setSampleRows([]);
+    setStep(0);
+    setStepError(null);
+    setPublishResult(null);
+    setEditingKey(def.key);
+    setEditingApiPlural(def.apiPlural);
+    setInfoSession((prev) => prev + 1);
+    setView('builder');
+    showToast({ variant: 'info', message: `Memuat "${def.key}" ke Builder untuk diedit.` });
+  }
+
+  function requestEdit(def: ModuleDefinition): void {
+    const draft = loadDraft();
+    const hasWork =
+      draft !== null && (draft.fields.length > 0 || draft.info.moduleName.trim() !== '');
+    if (hasWork) {
+      setEditTarget(def);
+    } else {
+      loadDefinitionToWizard(def);
+    }
   }
 
   function handleAddSampleRow(values: DynamicFormValues): void {
     const nextId = Math.max(...sampleRows.map((row) => row.id), 0) + 1;
-    setSampleRows((prev) => [...prev, valuesToSampleRow(values, nextId)]);
+    setSampleRows((prev) => [...prev, valuesToSampleRow(values, nextId, fields)]);
     showToast({ variant: 'success', message: `Baris contoh #${nextId} ditambahkan.` });
+    // Langsung lanjut ke List Canvas setelah test data dibuat.
+    setStepError(null);
+    setStep((prev) => Math.min(prev + 1, STEPS.length - 1));
   }
 
   async function handlePublish(targetStatus: 'draft' | 'published'): Promise<void> {
@@ -245,6 +305,14 @@ function GeneratorPage() {
       const saved = await saveDefinition(definition);
       await queryClient.invalidateQueries({ queryKey: ['dynamic-definitions'] });
       await queryClient.invalidateQueries({ queryKey: ['dynamic-definition', saved.definition.key] });
+      // Edit yang mengubah key (ganti parent/nama): bersihkan definisi + records lama.
+      if (editingKey && editingKey !== saved.definition.key) {
+        await deleteDefinition(editingKey);
+        if (editingApiPlural) await deleteModuleRecords(editingApiPlural);
+        showToast({ variant: 'info', message: `Definisi lama "${editingKey}" dihapus.` });
+      }
+      setEditingKey(null);
+      setEditingApiPlural(null);
       clearDraft();
       setPublishResult({ definition: saved.definition, created: saved.created });
       showToast({
@@ -299,6 +367,16 @@ function GeneratorPage() {
             <Button type="button" variant="secondary" onClick={resetWizard}>
               Buat modul baru
             </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                resetWizard();
+                setView('modules');
+              }}
+            >
+              Lihat daftar modul
+            </Button>
             <Button type="button" variant="secondary" onClick={() => handleDownloadContract(definition)}>
               Unduh kontrak
             </Button>
@@ -316,16 +394,106 @@ function GeneratorPage() {
 
   return (
     <div className="flex flex-col stack-gap">
-      <StepIndicator step={step} />
-      {stepError && <Alert variant="error" message={stepError} />}
-      {initialDraft && step === 0 && (
-        <Alert variant="info" message="Draft terakhir dimuat otomatis. Selesaikan atau mulai baru." />
+      <div role="tablist" aria-label="Tampilan generator" className="flex items-center gap-4 border-b border-border">
+        {(
+          [
+            { id: 'builder', label: 'Builder' },
+            { id: 'modules', label: 'Daftar Modul' },
+          ] as const
+        ).map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={view === tab.id}
+            onClick={() => setView(tab.id)}
+            className={`-mb-px cursor-pointer border-b-2 px-1 pb-2 pt-1 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+              view === tab.id
+                ? 'border-primary font-semibold text-primary'
+                : 'border-transparent font-normal text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      {view === 'modules' && (
+        <Card title="Daftar Modul">
+          <ModulesTab
+            definitions={definitionsQuery.data ?? []}
+            isLoading={definitionsQuery.isLoading}
+            onEdit={requestEdit}
+          />
+        </Card>
       )}
-      <Card title={step === 5 ? 'Review & Generate' : `Builder — ${STEPS[step]}`}>
+      {view === 'builder' && (
+        <>
+          <StepIndicator step={step} />
+          {editingKey && (
+            <Alert variant="info" message={`Mengedit "${editingKey}" — publish menimpa modul ini.`} />
+          )}
+          {stepError && <Alert variant="error" message={stepError} />}
+          {initialDraft && step === 0 && (
+            <Alert
+              variant="info"
+              message="Draft terakhir dimuat otomatis. Selesaikan atau mulai baru."
+            />
+          )}
+          <Card
+            title={step === 5 ? 'Review & Generate' : `Builder — ${STEPS[step]}`}
+            actions={
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleBack}
+                  disabled={step === 0}
+                  icon={<ChevronLeftIcon className="h-4 w-4" />}
+                >
+                  Kembali
+                </Button>
+                {step === 0 && (
+                  <Button type="button" variant="secondary" onClick={resetWizard}>
+                    Buang draft
+                  </Button>
+                )}
+                {step < 5 && (
+                  <Button
+                    type="button"
+                    onClick={handleNext}
+                    iconPosition="right"
+                    icon={<ChevronRightIcon className="h-4 w-4" />}
+                  >
+                    Lanjut
+                  </Button>
+                )}
+                {step === 5 && (
+                  <>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled={isPublishing}
+                      onClick={() => void handlePublish('draft')}
+                    >
+                      {isPublishing ? 'Menyimpan…' : 'Simpan sebagai Draft'}
+                    </Button>
+                    <Button
+                      type="button"
+                      disabled={isPublishing}
+                      onClick={() => void handlePublish('published')}
+                    >
+                      {isPublishing ? 'Menerbitkan…' : 'Publish'}
+                    </Button>
+                  </>
+                )}
+              </div>
+            }
+          >
         {step === 0 && (
           <div className="flex flex-col stack-gap">
             <Card title="Module Info">
               <ModuleInfoStep
+                key={infoSession}
                 value={info}
                 onChange={(next) => {
                   setInfo(next);
@@ -333,19 +501,34 @@ function GeneratorPage() {
                 }}
                 errors={{}}
                 parentOptions={parentOptions}
+                menuIcon={menuIcon}
+                onOpenIconDialog={() => setIconDialogOpen(true)}
               />
             </Card>
             <Card title="Features">
               <FeaturesStep value={features} onChange={setFeatures} />
             </Card>
-            <Card title="Fields">
-              <FieldsStep
-                fields={fields}
-                onChange={setFields}
-                definitions={definitionsQuery.data ?? []}
-              />
-            </Card>
           </div>
+        )}
+        {iconDialogOpen && (
+          <MenuIconDialog
+            open={iconDialogOpen}
+            initial={menuIcon}
+            parentName={resolveEffectiveParent(info)}
+            moduleName={info.moduleName.trim()}
+            onClose={() => setIconDialogOpen(false)}
+            onSave={(next) => {
+              setMenuIcon(next);
+              setStepError(null);
+              showToast({
+                variant: 'success',
+                message:
+                  next === null
+                    ? 'Ikon menu dihapus — sidebar memakai ikon bawaan.'
+                    : 'Ikon menu tersimpan ke draft.',
+              });
+            }}
+          />
         )}
         {step === 1 && (
           <FormBuilderCanvas
@@ -355,14 +538,14 @@ function GeneratorPage() {
             onChange={setLayout}
             previewTitle={info.moduleName.trim() || 'Preview'}
             definitions={definitionsQuery.data ?? []}
+            sampleRows={sampleRows}
+            onSampleRowsChange={setSampleRows}
           />
         )}
         {step === 2 && (
           <TestDataPanel
             def={draftDef}
-            sampleRows={sampleRows}
             onAddRow={handleAddSampleRow}
-            onClearRows={() => setSampleRows([])}
           />
         )}
         {step === 3 && (
@@ -394,45 +577,37 @@ function GeneratorPage() {
             <ContractPanel def={draftDef} />
           </div>
         )}
-        <div className="mt-6 flex justify-between gap-2">
-          <div className="flex gap-2">
-            <Button type="button" variant="secondary" onClick={handleBack} disabled={step === 0}>
-              Kembali
+          </Card>
+        </>
+      )}
+      <Dialog
+        testId="generator-edit-dialog"
+        open={editTarget !== null}
+        onClose={() => setEditTarget(null)}
+        title="Muat modul ke Builder"
+        maxWidth="md"
+        closeOnEscape
+        closeOnBackdropClick
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setEditTarget(null)}>
+              Batal
             </Button>
-            {step === 0 && (
-              <Button type="button" variant="secondary" onClick={resetWizard}>
-                Buang draft
-              </Button>
-            )}
-          </div>
-          <div className="flex gap-2">
-            {step < 5 && (
-              <Button type="button" onClick={handleNext}>
-                Lanjut
-              </Button>
-            )}
-            {step === 5 && (
-              <>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  disabled={isPublishing}
-                  onClick={() => void handlePublish('draft')}
-                >
-                  {isPublishing ? 'Menyimpan…' : 'Simpan sebagai Draft'}
-                </Button>
-                <Button
-                  type="button"
-                  disabled={isPublishing}
-                  onClick={() => void handlePublish('published')}
-                >
-                  {isPublishing ? 'Menerbitkan…' : 'Publish'}
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-      </Card>
+            <Button
+              onClick={() => {
+                if (editTarget) loadDefinitionToWizard(editTarget);
+                setEditTarget(null);
+              }}
+            >
+              Buang draft, muat modul
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-foreground">
+          Draft berjalan akan dibuang dan diganti modul "{editTarget?.key}". Lanjutkan?
+        </p>
+      </Dialog>
     </div>
   );
 }

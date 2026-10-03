@@ -16,6 +16,7 @@ export {
   readWorkbookRows,
 } from './excel';
 export type { ExcelCell, WorkbookRows } from './excel';
+export { sanitizeSvg } from './svg';
 import type { NavItemType, SubItem } from '../types/navigation';
 
 export function formatDate(dateStr: string): string {
@@ -51,6 +52,20 @@ export function truncate(str: string, maxLength: number): string {
 export function capitalize(str: string): string {
   if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/** Buang tag HTML → teks polos (untuk sel tabel/detail nilai editor). */
+export function stripHtml(html: string): string {
+  if (!html) return '';
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 export function formatNumber(value: number): string {

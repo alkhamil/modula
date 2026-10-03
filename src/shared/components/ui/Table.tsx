@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { isValidElement, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDownIcon, ConfirmWarningIcon } from '../icons';
 import { formatNumber } from '../../utils';
 import SelectField from './fields/SelectField';
@@ -9,7 +9,7 @@ export interface Column<T> {
   key: string;
   header: ReactNode;
   sortable?: boolean;
-  render?: (item: T) => ReactNode;
+  render?: (item: T, index?: number) => ReactNode;
   className?: string;
   /** Freeze kolom di sisi kiri saat scroll horizontal. */
   stickyLeft?: boolean;
@@ -32,6 +32,8 @@ interface TableProps<T> {
   onSort?: (key: string) => void;
   renderAction?: (item: T) => ReactNode;
   actionWidth?: string;
+  /** Posisi kolom aksi: kiri (default) atau kanan. */
+  actionPosition?: 'left' | 'right';
   /** Label header kolom aksi (default "Action"). */
   actionHeader?: ReactNode;
   /** Sembunyikan seluruh kolom aksi (header + sel). */
@@ -54,7 +56,7 @@ interface TableProps<T> {
   scrollBodyClassName?: string;
   /** Selalu tampilkan scrollbar vertikal custom (butuh `scrollBodyClassName`). */
   alwaysShowVerticalScrollbar?: boolean;
-  rowKey: (item: T) => string | number;
+  rowKey: (item: T, index?: number) => string | number;
   isEmptyState?: boolean;
   isFilteredEmptyState?: boolean;
   emptyStateTitle?: string;
@@ -210,6 +212,22 @@ const STICKY_ROW_HIGHLIGHT_BG =
 /** Nilai sel kosong (null/undefined/string kosong) ditampilkan sebagai `-`. */
 function renderCellValue(value: unknown): ReactNode {
   if (value === null || value === undefined || value === '') return '-';
+  if (value instanceof File) return value.name;
+  if (Array.isArray(value) && value.length > 0 && value[0] instanceof File) {
+    return (value as File[]).map((file) => file.name).join(', ');
+  }
+  // Array objek (mis. baris embedded tanpa render kolom) tidak valid sebagai React child.
+  if (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    typeof value[0] === 'object' &&
+    value[0] !== null &&
+    !isValidElement(value[0])
+  ) {
+    return '-';
+  }
+  // Objek polos (mis. sisa File di draft lama) tidak valid sebagai React child.
+  if (typeof value === 'object' && !Array.isArray(value) && !isValidElement(value)) return '-';
   return value as ReactNode;
 }
 
@@ -256,6 +274,7 @@ function Table<T>({
   renderAction,
   actionWidth = 'w-16',
   actionHeader = 'Action',
+  actionPosition = 'left',
   hideActionColumn = false,
   fixedLayout = false,
   stickyAction = false,
@@ -286,6 +305,7 @@ function Table<T>({
 }: TableProps<T>) {
   const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
   const cellPy = dense ? 'py-1' : 'py-3';
+  const actionRight = actionPosition === 'right';
 
   const skeletonRows = Array.from({ length: pageSize }, (_, i) => i);
   const showAction = !!renderAction && !hideActionColumn;
@@ -395,7 +415,7 @@ function Table<T>({
 
       <div
         className={bc(
-          'rounded-xl border border-border bg-background overflow-hidden',
+          'border-y border-border bg-background overflow-hidden',
           alwaysShowVerticalScrollbar && scrollBodyClassName ? 'flex' : '',
         )}
       >
@@ -416,10 +436,10 @@ function Table<T>({
           >
             <thead>
               <tr className="bg-surface">
-                {showAction && (
+                {showAction && !actionRight && (
                   <th
                     className={bc(
-                      `px-4 py-3 text-left text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-r border-b border-border`,
+                      `px-4 py-3 text-left text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-b border-border`,
                       stickyHeader ? 'sticky top-0 z-20 bg-surface' : 'bg-surface',
                       stickyAction && 'sticky left-0 z-30',
                       actionWidth,
@@ -428,7 +448,7 @@ function Table<T>({
                     {actionHeader}
                   </th>
                 )}
-                {columns.map((col, idx) => (
+                {columns.map((col) => (
                   <th
                     key={col.key}
                     style={{
@@ -439,7 +459,7 @@ function Table<T>({
                       'px-5 py-3 text-left text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-b border-border',
                       stickyHeader ? 'sticky top-0 z-20 bg-surface' : '',
                       col.stickyLeft ? 'sticky z-20 bg-surface' : '',
-                      idx < columns.length - 1 ? 'border-r border-border' : '',
+                      
                       col.sortable ? 'cursor-pointer select-none hover:text-foreground' : '',
                       col.className,
                     )}
@@ -456,15 +476,27 @@ function Table<T>({
                     </span>
                   </th>
                 ))}
+                {showAction && actionRight && (
+                  <th
+                    className={bc(
+                      `px-4 py-3 text-left text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-b border-border`,
+                      stickyHeader ? 'sticky top-0 z-20 bg-surface' : 'bg-surface',
+                      stickyAction && 'sticky right-0 z-30',
+                      actionWidth,
+                    )}
+                  >
+                    {actionHeader}
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 skeletonRows.map((rowIdx) => (
                   <tr key={`skeleton-${rowIdx}`}>
-                    {showAction && (
+                    {showAction && !actionRight && (
                       <td
-                        className={`${actionWidth} border-b border-r border-border px-4 ${cellPy}`}
+                        className={`${actionWidth} border-b border-border px-4 ${cellPy}`}
                       >
                         <div className="mx-auto h-4 animate-pulse rounded bg-muted" />
                       </td>
@@ -472,11 +504,18 @@ function Table<T>({
                     {columns.map((col) => (
                       <td
                         key={col.key}
-                        className={`border-b border-r border-border px-5 ${cellPy} last:border-r-0`}
+                        className={`border-b border-border px-5 ${cellPy}`}
                       >
                         <div className="h-4 animate-pulse rounded bg-muted" />
                       </td>
                     ))}
+                    {showAction && actionRight && (
+                      <td
+                        className={`${actionWidth} border-b border-border px-4 ${cellPy}`}
+                      >
+                        <div className="mx-auto h-4 animate-pulse rounded bg-muted" />
+                      </td>
+                    )}
                   </tr>
                 ))
               ) : error ? (
@@ -536,16 +575,16 @@ function Table<T>({
                     : highlightRowCount !== undefined && rowIdx < highlightRowCount;
                   return (
                     <tr
-                      key={rowKey(item)}
+                      key={rowKey(item, rowIdx)}
                       className={highlighted ? 'group bg-primary/15' : 'group hover:bg-primary/5'}
                     >
-                      {showAction && (
+                      {showAction && !actionRight && (
                         <td
                           className={bc(
                             highlighted
                               ? STICKY_ROW_HIGHLIGHT_BG
                               : `${STICKY_ROW_BG} ${STICKY_ROW_HOVER_BG}`,
-                            `${actionWidth} px-4 ${cellPy} whitespace-nowrap border-r border-border`,
+                            `${actionWidth} px-4 ${cellPy} whitespace-nowrap border-border`,
                             stickyAction && 'sticky left-0 z-10',
                             isLast ? '' : 'border-b border-border',
                           )}
@@ -555,14 +594,14 @@ function Table<T>({
                           </div>
                         </td>
                       )}
-                      {columns.map((col, colIdx) => (
+                      {columns.map((col) => (
                         <td
                           key={col.key}
                           style={col.stickyLeft ? { left: col.stickyLeftOffset ?? '0' } : undefined}
                           className={bc(
                             `px-5 ${cellPy} text-sm font-normal text-foreground`,
                             fixedLayout ? 'truncate' : 'whitespace-nowrap',
-                            colIdx < columns.length - 1 ? 'border-r border-border' : '',
+                            
                             isLast ? '' : 'border-b border-border',
                             col.stickyLeft
                               ? highlighted
@@ -574,11 +613,27 @@ function Table<T>({
                         >
                           <TruncatedCell>
                             {col.render
-                              ? col.render(item)
+                              ? col.render(item, rowIdx)
                               : renderCellValue((item as Record<string, unknown>)[col.key])}
                           </TruncatedCell>
                         </td>
                       ))}
+                      {showAction && actionRight && (
+                        <td
+                          className={bc(
+                            highlighted
+                              ? STICKY_ROW_HIGHLIGHT_BG
+                              : `${STICKY_ROW_BG} ${STICKY_ROW_HOVER_BG}`,
+                            `${actionWidth} px-4 ${cellPy} whitespace-nowrap border-border`,
+                            stickyAction && 'sticky right-0 z-10',
+                            isLast ? '' : 'border-b border-border',
+                          )}
+                        >
+                          <div className="flex items-center justify-center gap-1">
+                            {renderAction(item)}
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   );
                 })

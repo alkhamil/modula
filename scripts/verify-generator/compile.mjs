@@ -1,0 +1,64 @@
+/* Verifikasi kode hasil generate: tulis modul kaya ke src/modules/verifygen-tmp/,
+ * typecheck proyek, lalu hapus lagi (try/finally agar tak ada residu).
+ * Dijalankan via `npm run verify:generator` setelah emission.mjs.
+ */
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createJiti } from 'jiti';
+
+const ROOT = join(fileURLToPath(new URL('../..', import.meta.url)));
+const TMP_PREFIX = 'src/modules/verifygen-tmp';
+const jiti = createJiti(import.meta.url);
+const { generateModule } = jiti(`${ROOT}/src/modules/generator/engine/moduleGenerator.ts`);
+
+const config = {
+  parentName: null,
+  moduleName: 'Verifygen Tmp',
+  type: 'crud',
+  permissionKey: 'verifygentmp',
+  features: { list: true, detail: true, create: true, edit: true, delete: true, bulkUpload: true, export: true },
+  fields: [
+    { name: 'itemName', label: 'Item Name', type: 'textField', rules: ['required'], sortable: true, filterable: true, filterCriteria: 'contains', source: 'none' },
+    { name: 'warna', label: 'Warna', type: 'colorField', rules: [], sortable: true, filterable: true, filterCriteria: 'contains', source: 'none', componentProps: { color: { size: 'lg' } } },
+    { name: 'deskripsi', label: 'Deskripsi', type: 'editorField', rules: [], sortable: true, filterable: false, filterCriteria: null, source: 'none' },
+    { name: 'dokumen', label: 'Dokumen', type: 'fileUploadField', rules: [], sortable: false, filterable: false, filterCriteria: null, source: 'none', componentProps: { upload: { multiple: true } } },
+    {
+      name: 'items', label: 'Items', type: 'formArrayField', rules: ['required', 'min:1'], sortable: false, filterable: false, filterCriteria: null, source: 'none',
+      componentProps: { array: { addLabel: 'Tambah Barang', maxRows: 10 } },
+      subFields: [
+        { name: 'namaBarang', label: 'Nama Barang', type: 'textField', rules: ['required'], source: 'none' },
+        { name: 'qty', label: 'Qty', type: 'numberField', rules: [], source: 'none' },
+        { name: 'kondisi', label: 'Kondisi', type: 'selectField', rules: [], source: 'mockStatic', options: [{ label: 'Baru', value: 'baru' }, { label: 'Bekas', value: 'bekas' }] },
+        { name: 'nota', label: 'Nota', type: 'fileUploadField', rules: [], source: 'none' },
+      ],
+    },
+  ],
+};
+
+if (existsSync(join(ROOT, TMP_PREFIX))) {
+  console.log(`COMPILE FAIL: ${TMP_PREFIX} sudah ada — hapus dulu (residu run gagal).`);
+  process.exit(1);
+}
+const files = generateModule(config);
+const outside = files.filter((f) => !f.path.startsWith(`${TMP_PREFIX}/`));
+if (outside.length > 0 || files.length === 0) {
+  console.log('COMPILE FAIL: path hasil generate di luar dir tmp.', outside.map((f) => f.path));
+  process.exit(1);
+}
+try {
+  for (const f of files) {
+    const abs = join(ROOT, f.path);
+    mkdirSync(dirname(abs), { recursive: true });
+    writeFileSync(abs, f.content);
+  }
+  execFileSync('npx', ['tsc', '-b'], { cwd: ROOT, stdio: 'pipe' });
+  console.log(`COMPILE PASS (${files.length} file)`);
+} catch (err) {
+  const out = [err.stdout?.toString(), err.stderr?.toString()].filter(Boolean).join('\n');
+  console.log('COMPILE FAIL: tsc error pada kode hasil generate.\n' + out.split('\n').slice(0, 25).join('\n'));
+  process.exitCode = 1;
+} finally {
+  rmSync(join(ROOT, TMP_PREFIX), { recursive: true, force: true });
+}

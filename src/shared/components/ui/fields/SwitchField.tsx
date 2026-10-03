@@ -24,19 +24,24 @@ const trackSizes: Record<string, string> = {
 };
 
 const thumbSizes: Record<string, string> = {
-  sm: 'h-3.5 w-3.5',
+  sm: 'h-4 w-4',
   md: 'h-5 w-5',
   lg: 'h-6 w-6',
 };
 
 const translateX: Record<string, string> = {
-  sm: 'peer-checked:translate-x-[18px]',
+  sm: 'peer-checked:translate-x-[16px]',
   md: 'peer-checked:translate-x-[20px]',
   lg: 'peer-checked:translate-x-[28px]',
 };
 
-function SwitchField({ value, onChange, size = 'md', disabled, error, className = '', checkedLabel, uncheckedLabel, switchLabel, showCheckedLabels = true, testId, 'data-testid': dataTestId }: SwitchFieldProps) {
+function SwitchField({ value = false, onChange, size = 'md', disabled, error, className = '', checkedLabel, uncheckedLabel, switchLabel, showCheckedLabels = true, testId, 'data-testid': dataTestId }: SwitchFieldProps) {
   const resolvedTestId = dataTestId ?? testId;
+  // Label selalu tampil: bila mode label dinamis aktif tapi checked/unchecked
+  // kosong, fallback ke switchLabel agar label tidak hilang.
+  const visibleLabel = showCheckedLabels
+    ? (value ? (checkedLabel || switchLabel) : (uncheckedLabel || switchLabel))
+    : switchLabel;
   return (
     <div>
       <div className={`flex items-center gap-3 ${className}`}>
@@ -72,12 +77,8 @@ function SwitchField({ value, onChange, size = 'md', disabled, error, className 
             ].join(' ')}
           />
         </label>
-        {showCheckedLabels && checkedLabel && uncheckedLabel ? (
-          <span className="text-sm font-medium text-foreground">
-            {value ? checkedLabel : uncheckedLabel}
-          </span>
-        ) : switchLabel ? (
-          <span className="text-sm font-medium text-foreground">{switchLabel}</span>
+        {visibleLabel ? (
+          <span className="text-sm font-medium text-foreground">{visibleLabel}</span>
         ) : null}
         {error && <FieldErrorIcon className="h-3.5 w-3.5" />}
       </div>

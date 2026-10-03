@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint src vite.config.ts",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verify:generator": "node scripts/verify-generator/emission.mjs && node scripts/verify-generator/compile.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -15,6 +16,8 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-query": "^5.104.0",
+    "@tiptap/react": "^3.31.4",
+    "@tiptap/starter-kit": "^3.31.4",
     "react": "^19.2.8",
     "react-datepicker": "^9.1.0",
     "react-dom": "^19.2.8",
@@ -29,6 +32,7 @@
     "@types/react-datepicker": "^6.2.0",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "jiti": "^2.7.0",
     "oxlint": "^1.81.0",
     "typescript": "~6.0.2",
     "vite": "^8.3.0"
