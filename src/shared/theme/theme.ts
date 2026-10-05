@@ -91,7 +91,7 @@ export const themes: Record<ThemeName, ThemeTokens> = {
   },
 };
 
-/** Override pengguna via ThemeCustomizer — diterapkan di atas token thema aktif. */
+/** Override pengguna via panel thema — diterapkan di atas token thema aktif. */
 export interface ThemeOverrides {
   primary?: string;
   secondary?: string;

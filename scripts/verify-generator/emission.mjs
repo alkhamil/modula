@@ -205,6 +205,19 @@ for (const lit of [
   }
 }
 // id.json = en ditimpa terjemahan step Translation (hanya key `<base>...`).
+// Tabel hasil generate memakai RowActionButton; size/warna dari canvas ikut ter-bake.
+const actionProbe = mg.generateModule({
+  ...probeConfig,
+  tableProps: { actionIconSize: 20, actionIconColor: { edit: 'danger' } },
+});
+const actionTable = actionProbe.find((f) => f.path.endsWith('Table.tsx')).content;
+expectIn(actionTable, 'RowActionButton', 'table-row-action-btn');
+expectIn(actionTable, 'iconSize={20}', 'table-action-size-baked');
+expectIn(actionTable, 'color="danger"', 'table-action-color-baked');
+const defaultProbe = mg.generateModule(probeConfig);
+const defaultTable = defaultProbe.find((f) => f.path.endsWith('Table.tsx')).content;
+expectIn(defaultTable, 'RowActionButton', 'table-row-action-default');
+expectEq(defaultTable.includes('iconSize='), false, 'table-action-size-absent');
 const translatedConfig = {
   ...probeConfig,
   i18n: { id: { 'i18nprobe.fields.nama.label': 'Nama (ID)', 'field.nama.label': 'SKIP', 'other.x': 'SKIP' } },
@@ -256,6 +269,257 @@ expectEq(mr.resolveNavIconName('x;evil()'), 'Database', 'icon-evil');
 const navSrc = "import { Database } from 'lucide-react';\nconst x = 1;\n";
 expectIn(mr.ensureLucideImport(navSrc, 'Database'), "import { Database } from 'lucide-react';", 'icon-import-kept');
 expectIn(mr.ensureLucideImport(navSrc, 'Users'), "import { Database, Users } from 'lucide-react';", 'icon-import-added');
+// Publish ulang dgn ikon beda: item flat terupdate, bukan duplikat.
+const flatBase = `${navSrc}const items = [
+  {
+    label: 'Probe',
+    path: '/probes',
+    icon: <Database className="h-5 w-5" />,
+  },
+];
+// __GENERATOR_NAV_ITEMS__
+`;
+const flatReg = { ...iconReg, navPath: '/probes', routes: iconReg.routes };
+const flatOut = mr.registerModuleNav(flatBase, flatReg);
+expectIn(flatOut.source, '<Users className="h-5 w-5" />', 'icon-resync-flat');
+expectEq(flatOut.added, false, 'icon-resync-no-dup');
+const flatSame = mr.registerModuleNav(flatOut.source, flatReg);
+expectEq(flatSame.source, flatOut.source, 'icon-resync-idempotent');
+// Item anak: ikon group parent ikut terupdate.
+const parentBase = `${navSrc}const items = [
+  // __GENERATOR_PARENT master-data__
+  {
+    label: 'Master',
+    icon: <Database className="h-5 w-5" />,
+    children: [
+      { label: 'Probe', path: '/probes', permissionKey: 'probe.view' },
+    ],
+  },
+];
+// __GENERATOR_NAV_ITEMS__
+`;
+const parentOut = mr.registerModuleNav(parentBase, { ...flatReg, parentPath: 'master-data' });
+expectIn(parentOut.source, '<Users className="h-5 w-5" />', 'icon-resync-parent');
+// Unregister: hapus routes + import + item nav, idempoten.
+const fakeReg = {
+  moduleImportPath: '../modules/probe',
+  routes: [{ path: 'probes', code: '' }],
+  navPath: '/probes',
+  parentPath: '',
+};
+const routerSrc = `import {
+  ProbeListPage,
+} from '../modules/probe';
+// __GENERATOR_IMPORTS__
+const r = [
+      {
+        path: 'probes',
+        element: <ProbeListPage />,
+        handle: {
+          breadcrumb: [{ label: 'Probes', labelKey: 'probe.breadcrumbs.list' }],
+          requiredPermission: 'probe.view',
+        },
+      },
+];`;
+const unRoutes = mr.unregisterModuleRoutes(routerSrc, fakeReg);
+expectEq(unRoutes.removed, 1, 'unreg-route-count');
+expectEq(unRoutes.source.includes("path: 'probes'"), false, 'unreg-route-gone');
+expectEq(unRoutes.source.includes('../modules/probe'), false, 'unreg-import-gone');
+expectEq(unRoutes.source.includes('// __GENERATOR_IMPORTS__'), true, 'unreg-anchor-kept');
+const unRoutesAgain = mr.unregisterModuleRoutes(unRoutes.source, fakeReg);
+expectEq(unRoutesAgain.removed, 0, 'unreg-route-idempotent');
+expectEq(unRoutesAgain.source, unRoutes.source, 'unreg-route-stable');
+const navFlatDel = `${navSrc}const items = [
+  {
+    label: 'Probe',
+    labelKey: 'probe.labelPlural',
+    path: '/probes',
+    icon: <Database className="h-5 w-5" />,
+    permissionKey: 'probe.view',
+  },
+];
+// __GENERATOR_NAV_ITEMS__
+`;
+const unNav = mr.unregisterModuleNav(navFlatDel, fakeReg);
+expectEq(unNav.removed, 1, 'unreg-nav-count');
+expectEq(unNav.source.includes("path: '/probes'"), false, 'unreg-nav-gone');
+expectEq(unNav.source.includes('// __GENERATOR_NAV_ITEMS__'), true, 'unreg-nav-anchor-kept');
+// Anak terakhir grup: grup + marker ikut terhapus; sibling tersisa dipertahankan.
+const navGroupDel = `${navSrc}const items = [
+  // __GENERATOR_PARENT master-data__
+  {
+    label: 'Master',
+    labelKey: 'childmod.parentLabel',
+    icon: <Database className="h-5 w-5" />,
+    children: [
+      { label: 'Probe', labelKey: 'probe.labelPlural', path: '/probes', permissionKey: 'probe.view' },
+    ],
+  },
+];
+// __GENERATOR_NAV_ITEMS__
+`;
+const unGroup = mr.unregisterModuleNav(navGroupDel, { ...fakeReg, parentPath: 'master-data' });
+expectEq(unGroup.removed, 1, 'unreg-group-child');
+expectEq(unGroup.source.includes('__GENERATOR_PARENT master-data__'), false, 'unreg-group-gone');
+const navSiblingDel = `${navSrc}const items = [
+  // __GENERATOR_PARENT master-data__
+  {
+    label: 'Master',
+    labelKey: 'childmod.parentLabel',
+    icon: <Database className="h-5 w-5" />,
+    children: [
+      { label: 'Probe', labelKey: 'probe.labelPlural', path: '/probes', permissionKey: 'probe.view' },
+      { label: 'Other', labelKey: 'other.labelPlural', path: '/others', permissionKey: 'other.view' },
+    ],
+  },
+];
+// __GENERATOR_NAV_ITEMS__
+`;
+const unSibling = mr.unregisterModuleNav(navSiblingDel, { ...fakeReg, parentPath: 'master-data' });
+expectEq(unSibling.removed, 1, 'unreg-sibling-child');
+expectEq(unSibling.source.includes('__GENERATOR_PARENT master-data__'), true, 'unreg-group-kept');
+expectIn(unSibling.source, "path: '/others'", 'unreg-sibling-kept');
+// Validasi target hapus: dalam src/modules boleh, escape/luar ditolak.
+const mw = jiti(`${ROOT}/vite-plugin/moduleWriter.ts`);
+expectEq(mw.resolveDeleteTarget('/a/b', 'src/modules/probe'), '/a/b/src/modules/probe', 'del-target-ok');
+for (const [bad, tag] of [['../escape', 'del-escape'], ['src/modules', 'del-root'], ['', 'del-empty']]) {
+  try {
+    mw.resolveDeleteTarget('/a/b', bad);
+    fail++;
+    console.log('MISS', tag, 'tidak melempar');
+  } catch {
+    /* diharapkan */
+  }
+}
+
+// definitionToConfig mempertahankan menuIcon Step 1 (regresi ikon menu jadi Database).
+const fd = jiti(`${ROOT}/src/modules/generator/engine/fromDefinition.ts`);
+const iconDef = {
+  key: 'region',
+  label: 'Regions',
+  singularLabel: 'Region',
+  parent: null,
+  moduleType: 'crud',
+  permissionKey: 'region',
+  features: {},
+  menuIcon: { name: 'Users' },
+  fields: [],
+  layout: { table: { order: [], hidden: [] } },
+};
+const iconCfg = fd.definitionToConfig(iconDef);
+expectEq(iconCfg.menuIcon?.name, 'Users', 'fromdef-menuicon');
+const rg = jiti(`${ROOT}/src/modules/generator/engine/registration.ts`);
+const menuReg = rg.buildRegistration(iconCfg);
+expectEq(menuReg.iconName, 'Users', 'registration-iconname');
+expectIn(menuReg.navItemCode ?? menuReg.navSnippet ?? '', '<Users', 'registration-nav-icon');
+// setTableProps: patch size/warna ikon aksi kanvas tersimpan (regresi dropdown kartu Ikon aksi).
+const ops = jiti(`${ROOT}/src/modules/generator/runtime/layoutOps.ts`);
+const baseLayout = { form: [], table: { order: [], hidden: [], props: { dense: true } } };
+const sized = ops.setTableProps(baseLayout, { actionIconSize: 20 });
+expectEq(sized.table.props.actionIconSize, 20, 'props-icon-size');
+expectEq(sized.table.props.dense, true, 'props-icon-size-merge');
+const colored = ops.setTableProps(sized, { actionIconColor: { edit: 'danger', view: 'bogus' } });
+expectEq(JSON.stringify(colored.table.props.actionIconColor), JSON.stringify({ edit: 'danger' }), 'props-icon-color');
+expectEq(colored.table.props.actionIconSize, 20, 'props-icon-color-keep-size');
+const badSize = ops.setTableProps(colored, { actionIconSize: 99 });
+expectEq('actionIconSize' in badSize.table.props, false, 'props-icon-size-invalid');
+const badColor = ops.setTableProps(colored, { actionIconColor: { edit: 'bogus' } });
+expectEq('actionIconColor' in badColor.table.props, false, 'props-icon-color-invalid');
+const boolPatch = ops.setTableProps(baseLayout, { dense: false });
+expectEq(boolPatch.table.props.dense, false, 'props-bool-still-works');
+// Draft milik modul terhapus dikenali dari info-nya (cermin configToDefinition).
+const dt = jiti(`${ROOT}/src/modules/generator/builder/draft.ts`);
+const rootInfo = { parentName: '', newParentName: '', moduleName: 'Region', type: 'crud', permissionKey: 'region' };
+expectEq(dt.draftDefinitionKey(rootInfo), 'region', 'draft-key-root');
+const childInfo = { ...rootInfo, parentName: 'master-data', moduleName: 'Company' };
+expectEq(dt.draftDefinitionKey(childInfo), 'master-data/company', 'draft-key-child');
+const newParentInfo = { ...rootInfo, parentName: '__new__', newParentName: 'Master Data', moduleName: 'Company' };
+expectEq(dt.draftDefinitionKey(newParentInfo), 'master-data/company', 'draft-key-new-parent');
+const stub = (info) => ({ info, features: {}, fields: [], layout: null, deleteMode: 'soft', menuIcon: null, sampleRows: [], step: 0, updatedAt: '' });
+expectEq(dt.isDraftOfModule(stub(childInfo), { key: 'master-data/company' }), true, 'draft-match');
+expectEq(dt.isDraftOfModule(stub(childInfo), { key: 'master-data/other' }), false, 'draft-mismatch');
+expectEq(dt.isDraftOfModule(stub({ ...childInfo, moduleName: '' }), { key: 'master-data/company' }), false, 'draft-empty-name');
+expectEq(dt.isDraftOfModule(null, { key: 'region' }), false, 'draft-null');
+// Aturan validasi: arg kosong/angka-tak-valid/regex-rusak ditolak publish; runtime tak crash.
+const ruleField = (rules) => ({
+  name: 'nama',
+  label: 'Nama',
+  type: 'textField',
+  source: 'none',
+  rules,
+});
+const ruleBase = {
+  moduleName: 'Probe',
+  parentName: null,
+  type: 'crud',
+  permissionKey: 'probe',
+  features: {
+    list: true,
+    detail: false,
+    create: false,
+    edit: false,
+    delete: false,
+    bulkUpload: false,
+    export: false,
+  },
+  fields: [],
+};
+function ruleIssues(rules) {
+  return parser
+    .validateConfig({ ...ruleBase, fields: [ruleField(rules)] })
+    .filter((i) => i.path === 'fields[0].rules');
+}
+expectEq(ruleIssues(['min:']).length, 1, 'rule-arg-required');
+expectEq(ruleIssues(['max:abc']).length, 1, 'rule-numeric');
+expectEq(ruleIssues(['regex:(']).length, 1, 'rule-regex');
+expectEq(ruleIssues(['min:3', 'max:10', 'regex:^\\d+$', 'required']).length, 0, 'rule-valid');
+let rxThrew = false;
+let rxRules = {};
+try {
+  rxRules = vr.fieldRulesToRHF({ name: 'kode', label: 'Kode', type: 'textField', rules: ['regex:('] });
+} catch {
+  rxThrew = true;
+}
+expectEq(rxThrew, false, 'runtime-regex-no-throw');
+expectEq('pattern' in rxRules, false, 'runtime-regex-skipped');
+const emptyMin = vr.fieldRulesToRHF({ name: 'nama', label: 'Nama', type: 'textField', rules: ['min:'] });
+expectEq('minLength' in emptyMin, false, 'runtime-min-empty-skipped');
+const okMin = vr.fieldRulesToRHF({ name: 'nama', label: 'Nama', type: 'textField', rules: ['min:3'] });
+expectEq(okMin.minLength?.value, 3, 'runtime-min-kept');
+// Kolom sistem: bisa dipindah (drag) + diatur lebar via canvas.
+const sysLayout = { form: [], table: { order: ['nama', 'status'], hidden: [], props: {} } };
+const movedSys = ops.moveTableColumn(sysLayout, 'status', 'nama');
+expectEq(JSON.stringify(movedSys.table.order), JSON.stringify(['status', 'nama']), 'props-system-move');
+const sysWidth = ops.setTableWidth(sysLayout, 'created_date', 200);
+expectEq(sysWidth.table.widths.created_date, 200, 'props-system-width');
+// Normalize mempertahankan posisi kolom sistem hasil drag (regresi seret kolom sistem).
+const nl = jiti(`${ROOT}/src/modules/generator/definitions/normalize.ts`);
+const normedSys = nl.normalizeLayout(
+  { form: [], table: { order: ['status', 'nama'], hidden: [], props: {} } },
+  ['nama'],
+);
+expectEq(JSON.stringify(normedSys.table.order), JSON.stringify(['status', 'nama', 'created_by', 'created_date']), 'normalize-keeps-system-order');
+const normedMissing = nl.normalizeLayout(
+  { form: [], table: { order: ['nama'], hidden: [], props: {} } },
+  ['nama'],
+);
+expectEq(
+  JSON.stringify(normedMissing.table.order),
+  JSON.stringify(['nama', 'created_by', 'created_date', 'status']),
+  'normalize-appends-system',
+);
+// Detail: posisi baris sistem hasil drag dipertahankan + bisa dipindah.
+const normedDetail = nl.normalizeLayout(
+  { form: [], table: { order: ['nama'], hidden: [] }, detail: { order: ['created_date', 'nama'], hidden: [] } },
+  ['nama'],
+);
+expectEq(JSON.stringify(normedDetail.detail.order), JSON.stringify(['created_date', 'nama']), 'normalize-keeps-system-detail');
+const movedDetail = ops.moveDetailItem(
+  { form: [], table: { order: [], hidden: [] }, detail: { order: ['status', 'nama'], hidden: [] } },
+  'nama',
+  'status',
+);
+expectEq(JSON.stringify(movedDetail.detail.order), JSON.stringify(['nama', 'status']), 'props-system-detail-move');
 
 console.log(fail === 0 ? 'EMISSION PASS' : `EMISSION FAIL (${fail})`);
 process.exit(fail === 0 ? 0 : 1);

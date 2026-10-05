@@ -81,7 +81,6 @@ export interface SubFieldDraft {
   accept: string;
   /** Props komponen + FormItem (layout vertical, dsb.) — diedit via modal. */
   props: FieldComponentProps;
-  nameTouched: boolean;
 }
 
 /** Draft kosong untuk tambah kolom baru via modal. */
@@ -100,7 +99,6 @@ function blankSubDraft(): SubFieldDraft {
     rows: '',
     accept: '',
     props: {},
-    nameTouched: false,
   };
 }
 
@@ -143,7 +141,6 @@ function formValueToSub(form: FieldFormValue): SubFieldDraft {
     rows: form.rows,
     accept: form.accept,
     props: form.props ? structuredClone(form.props) : {},
-    nameTouched: true,
   };
 }
 
@@ -171,7 +168,6 @@ function configToSubDraft(sub: GeneratorFieldConfig): SubFieldDraft {
     rows: sub.rows ? String(sub.rows) : '',
     accept: sub.accept ?? '',
     props: sub.componentProps ? structuredClone(sub.componentProps) : {},
-    nameTouched: true,
   };
 }
 
@@ -249,6 +245,7 @@ function draftToRules(draft: Record<ValidationRuleName, RuleDraft>): string[] {
     const entry = draft[name];
     if (!entry.enabled) continue;
     const needsArg = validationRegistry[name].needsArg;
+    // Nilai dihapus → rule ikut gugur (kondisi lama: checkbox kembali disabled).
     if (needsArg && entry.arg.trim() === '') continue;
     rules.push(needsArg ? `${name}:${entry.arg.trim()}` : name);
   }
@@ -495,17 +492,20 @@ function ValidationEditor({
   const { t } = useTranslation();
   // Argumen terakhir per rule agar enable ulang memakai nilai sebelumnya.
   const lastArgsRef = useRef<Partial<Record<ValidationRuleName, string>>>({});
-  const draft = rulesToDraft(rules);
-  function setDraft(next: Record<ValidationRuleName, RuleDraft>): void {
-    onChange(draftToRules(next));
+  // Draft lokal mengikuti rules prop; tiap edit langsung commit ke parent —
+  // nilai yang dikosongkan menggugurkan rule (checkbox disabled).
+  const [draft, setDraftLocal] = useState<Record<ValidationRuleName, RuleDraft>>(() =>
+    rulesToDraft(rules),
+  );
+  // Sinkron saat field/sub berbeda dimuat (parent tak selalu remount).
+  const rulesKey = rules.join('|');
+  const [lastRulesKey, setLastRulesKey] = useState(rulesKey);
+  if (rulesKey !== lastRulesKey) {
+    setLastRulesKey(rulesKey);
+    setDraftLocal(rulesToDraft(rules));
   }
 
-  /**
-   * Centang/hapus rule. Rule berargumen yang dicentang tanpa argumen langsung
-   * diisi nilai bawaan (argumen terakhir / placeholder registry) — tanpa ini
-   * `draftToRules` membuang rule ber-argumen kosong sehingga checkbox
-   * tampak tidak bisa dicentang.
-   */
+  /** Centang/hapus rule (langsung commit). Enable mengisi nilai bawaan bila kosong. */
   function setEnabled(ruleName: ValidationRuleName, enabled: boolean): void {
     const current = draft[ruleName];
     const needsArg = validationRegistry[ruleName].needsArg;
@@ -513,7 +513,22 @@ function ValidationEditor({
       ? current.arg.trim() || lastArgsRef.current[ruleName] || defaultRuleArg(ruleName)
       : '';
     if (needsArg && arg.trim()) lastArgsRef.current[ruleName] = arg.trim();
-    setDraft({ ...draft, [ruleName]: { enabled, arg } });
+    const next = { ...draft, [ruleName]: { enabled, arg } };
+    setDraftLocal(next);
+    onChange(draftToRules(next));
+  }
+
+  /** Isi nilai rule (langsung commit). Nilai dihapus → centang ikut mati. */
+  function setArg(ruleName: ValidationRuleName, arg: string): void {
+    if (arg.trim()) lastArgsRef.current[ruleName] = arg.trim();
+    const needsArg = validationRegistry[ruleName].needsArg;
+    const cleared = needsArg && arg.trim() === '';
+    const next = {
+      ...draft,
+      [ruleName]: { ...draft[ruleName], arg, ...(cleared ? { enabled: false } : {}) },
+    };
+    setDraftLocal(next);
+    onChange(draftToRules(next));
   }
 
   return (
@@ -546,20 +561,15 @@ function ValidationEditor({
               <div className="w-24 shrink-0">
                 <TextField size="sm"
                   value={entry.arg}
-                  onChange={(e) => {
-                    const arg = e.target.value;
-                    if (arg.trim()) lastArgsRef.current[ruleName] = arg.trim();
-                    setDraft({ ...draft, [ruleName]: { ...entry, arg } });
-                  }}
+                  onChange={(e) => setArg(ruleName, e.target.value)}
                   placeholder={def.placeholder ?? 'value'}
-                  disabled={!entry.enabled}
                 />
               </div>
             )}
           </div>
         );
       })}
-      <p className="font-mono text-xs text-muted-foreground">{rules.join('|') || '(no rules)'}</p>
+      <p className="font-mono text-xs break-all text-muted-foreground">{draftToRules(draft).join('|') || '(no rules)'}</p>
     </div>
   );
 }
@@ -860,17 +870,25 @@ function SubFieldModal({
  * properti kanvas. Induk remount via key tiap ganti field.
  */
 function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter = false }: FieldFormProps) {
-  const [nameTouched, setNameTouched] = useState(value.name !== '');
   const [subModal, setSubModal] = useState<{ mode: 'create' } | { mode: 'edit'; index: number } | null>(null);
   const { t } = useTranslation();
   const form = value;
   const patch = (part: Partial<FieldFormValue>): void => onChange({ ...form, ...part });
 
+  // Label terakhir yang terlihat: nama mengikuti Label selama belum diubah
+  // manual — berlaku juga untuk field palet (mis. Text/text → Region Name
+  // menjadi regionName). Field berbeda yang dimuat (modal sub) mulai ulang.
+  const namingRef = useRef({ label: value.label, name: value.name });
+  if (value.label !== namingRef.current.label && value.name !== namingRef.current.name) {
+    namingRef.current = { label: value.label, name: value.name };
+  }
+
   function handleLabelChange(next: string): void {
-    patch({
-      label: next,
-      ...(nameTouched ? {} : { name: deriveFieldNaming(next).name }),
-    });
+    const prevDerived = deriveFieldNaming(namingRef.current.label).name;
+    const follow = form.name === '' || form.name === prevDerived;
+    const name = follow ? deriveFieldNaming(next).name : form.name;
+    namingRef.current = { label: next, name };
+    patch({ label: next, name });
   }
 
   function handleTypeChange(next: FieldType): void {
@@ -1289,8 +1307,9 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               <TextField size="sm"
                 value={form.name}
                 onChange={(e) => {
-                  patch({ name: e.target.value.replace(/[^a-zA-Z0-9]/g, '') });
-                  setNameTouched(true);
+                  const next = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+                  namingRef.current = { label: namingRef.current.label, name: next };
+                  patch({ name: next });
                 }}
                 onBlur={() => onNameBlur?.()}
                 placeholder="regionName"

@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { UseFormReturn } from 'react-hook-form';
 import {
   Card,
@@ -13,11 +14,11 @@ import {
 } from '../../../../shared/components/ui';
 import { getRoleOptions } from '../api';
 import {
-  emailRules,
-  nameRules,
-  passwordRules,
-  roleIdRules,
-  usernameRules,
+  getEmailRules,
+  getNameRules,
+  getPasswordRules,
+  getRoleIdRules,
+  getUsernameRules,
 } from '../validation/userValidation';
 import type { FormValues } from '../hooks';
 import type { SubmitResult } from '../../../../shared/types';
@@ -37,6 +38,7 @@ interface UserFormProps {
 }
 
 function UserForm({ defaultValues, user, onSubmit, onCancel, isEdit = false }: UserFormProps) {
+  const { t } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
@@ -75,7 +77,14 @@ function UserForm({ defaultValues, user, onSubmit, onCancel, isEdit = false }: U
   );
 
   return (
-    <Card testId="user-form-card" title={isEdit ? 'Edit User' : 'Create User'}>
+    <Card
+      testId="user-form-card"
+      title={
+        isEdit
+          ? t('runtime.editTitle', { singular: t('user.label') })
+          : t('runtime.createTitle', { singular: t('user.label') })
+      }
+    >
       <FormGroup<FormValues>
         testId="user-form"
         defaultValues={defaultValues}
@@ -90,23 +99,23 @@ function UserForm({ defaultValues, user, onSubmit, onCancel, isEdit = false }: U
               <div className="space-y-8">
                 <FormItem
                   testId="user-name"
-                  label="Name"
+                  label={t('user.fields.name.label')}
                   name="name"
                   component={TextField}
-                  rules={nameRules}
+                  rules={getNameRules(t)}
                   layout="horizontal"
-                  placeholder="Enter name"
+                  placeholder={t('user.fields.name.placeholder')}
                   maxLength={100}
                 />
 
                 <FormItem
                   testId="user-role"
-                  label="Role"
+                  label={t('user.fields.role.label')}
                   name="role_id"
                   component={SelectField}
-                  rules={roleIdRules}
+                  rules={getRoleIdRules(t)}
                   layout="horizontal"
-                  placeholder="Select role"
+                  placeholder={t('user.fields.role.placeholder')}
                   clearable={false}
                   loadOptions={getRoleOptions}
                   searchable
@@ -117,45 +126,45 @@ function UserForm({ defaultValues, user, onSubmit, onCancel, isEdit = false }: U
 
                 <FormItem
                   testId="user-username"
-                  label="Username"
+                  label={t('user.fields.username.label')}
                   name="username"
                   component={TextField}
-                  rules={usernameRules}
+                  rules={getUsernameRules(t)}
                   layout="horizontal"
-                  placeholder="Enter username"
+                  placeholder={t('user.fields.username.placeholder')}
                   maxLength={50}
                 />
 
                 <FormItem
                   testId="user-email"
-                  label="Email"
+                  label={t('user.fields.email.label')}
                   name="email"
                   component={TextField}
-                  rules={emailRules}
+                  rules={getEmailRules(t)}
                   layout="horizontal"
-                  placeholder="Enter email"
+                  placeholder={t('user.fields.email.placeholder')}
                 />
 
                 {!isEdit && (
                   <FormItem
                     testId="user-password"
-                    label="Password"
+                    label={t('user.fields.password.label')}
                     name="password"
                     component={PasswordField}
-                    rules={passwordRules}
+                    rules={getPasswordRules(t)}
                     layout="horizontal"
-                    placeholder="Enter password"
+                    placeholder={t('user.fields.password.placeholder')}
                   />
                 )}
 
                 <FormItem
                   testId="user-status"
-                  label="Status"
+                  label={t('user.fields.status.label')}
                   name="status"
                   component={SwitchField}
                   layout="horizontal"
                   showCheckedLabels={false}
-                  switchLabel="Active"
+                  switchLabel={t('common.active')}
                 />
               </div>
 
@@ -167,7 +176,7 @@ function UserForm({ defaultValues, user, onSubmit, onCancel, isEdit = false }: U
                   className="w-30"
                   onClick={onCancel}
                 >
-                  Back
+                  {t('common.back')}
                 </Button>
                 <Button
                   data-testid="user-submit-button"
@@ -175,7 +184,7 @@ function UserForm({ defaultValues, user, onSubmit, onCancel, isEdit = false }: U
                   className="w-30"
                   disabled={isSubmitting || submitting}
                 >
-                  {isEdit ? 'Save' : 'Create'}
+                  {isEdit ? t('common.save') : t('common.create')}
                 </Button>
               </div>
 

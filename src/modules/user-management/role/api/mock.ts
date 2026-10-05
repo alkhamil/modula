@@ -5,6 +5,8 @@ import type {
   CreateRolePayload,
   GetRolesParams,
 } from '../types';
+import { t } from 'i18next';
+import '../../../../shared/i18n';
 import type { ApiList } from '../../../../shared/types';
 import type { BulkUploadResult, BulkRowError } from '../types';
 import { XLSX_MIME, buildWorkbook, readWorkbookRows } from '../../../../shared/utils';
@@ -13,6 +15,8 @@ import {
   BULK_ROLE_HEADERS,
   validateBulkRoleRow,
 } from '../validation/roleBulkValidation';
+import { listDefinitions } from '../../../generator/runtime/definitionsApi';
+import type { ModuleDefinition } from '../../../generator/definitions';
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -45,6 +49,7 @@ const mockPermissionCatalog: string[] = [
   'role.delete',
   'role.bulk_upload',
   'role.export',
+  'settings.view',
   'dashboard.view',
 ];
 
@@ -53,6 +58,8 @@ interface MockRoleRecord {
   name: string;
   permissions: string[];
   status: 'active' | 'inactive';
+  created_by: string | null;
+  created_date: string;
 }
 
 const mockRoleRecords: MockRoleRecord[] = [
@@ -61,11 +68,15 @@ const mockRoleRecords: MockRoleRecord[] = [
     name: 'Admin',
     permissions: [...mockPermissionCatalog],
     status: 'active',
+    created_by: 'System',
+    created_date: '2024-01-10 09:00',
   },
   {
     id: '2',
     name: 'Supervisor',
     permissions: ['user.view', 'user.create', 'user.update', 'role.view'],
+    created_by: 'System',
+    created_date: '2024-02-10 09:00',
     status: 'active',
   },
   {
@@ -73,12 +84,16 @@ const mockRoleRecords: MockRoleRecord[] = [
     name: 'Finance',
     permissions: ['user.view'],
     status: 'active',
+    created_by: 'System',
+    created_date: '2024-03-10 09:00',
   },
   {
     id: '4',
     name: 'Viewer',
     permissions: ['dashboard.view'],
     status: 'inactive',
+    created_by: 'System',
+    created_date: '2024-04-10 09:00',
   },
 ];
 
@@ -88,6 +103,8 @@ function toListItem(record: MockRoleRecord): RoleListItem {
     name: record.name,
     permissions: [...record.permissions],
     status: record.status,
+    created_date: record.created_date,
+    created_by: record.created_by,
   };
 }
 
@@ -97,6 +114,8 @@ function toDetail(record: MockRoleRecord): Role {
     name: record.name,
     permissions: [...record.permissions],
     status: record.status,
+    createdBy: record.created_by ?? '',
+    createdDate: record.created_date,
   };
 }
 
@@ -137,7 +156,7 @@ export async function mockGetRoles(params?: GetRolesParams): Promise<ApiList<Rol
 export async function mockGetRoleById(id: string): Promise<Role> {
   await delay(300);
   const record = mockRoleRecords.find((r) => r.id === id);
-  if (!record) throw new Error('Role not found');
+  if (!record) throw new Error(t('role.toast.notFound'));
   return toDetail(record);
 }
 
@@ -150,7 +169,12 @@ function mockRoleNameError() {
           response_message: 'Parameter tidak valid',
         },
         response_output: {
-          errors: [{ field: 'name', message: 'Role name already exists, please create another' }],
+          errors: [
+            {
+              field: 'name',
+              message: t('validation.unique', { label: t('role.fields.name.label') }),
+            },
+          ],
         },
       },
     },
@@ -167,9 +191,11 @@ export async function mockCreateRole(data: CreateRolePayload): Promise<RoleMutat
     name: data.name,
     permissions: [...data.permissions],
     status: data.status ?? 'active',
+    created_by: 'System',
+    created_date: new Date().toISOString().slice(0, 16).replace('T', ' '),
   };
   mockRoleRecords.push(record);
-  return { message: 'Role created successfully.', data: toDetail(record) };
+  return { message: t('role.toast.created'), data: toDetail(record) };
 }
 
 export async function mockUpdateRole(
@@ -178,34 +204,58 @@ export async function mockUpdateRole(
 ): Promise<RoleMutationResult> {
   await delay(300);
   const record = mockRoleRecords.find((r) => r.id === id);
-  if (!record) throw new Error('Role not found');
+  if (!record) throw new Error(t('role.toast.notFound'));
   if (mockRoleRecords.some((r) => r.id !== id && r.name.toLowerCase() === data.name.toLowerCase())) {
     throw mockRoleNameError();
   }
   record.name = data.name;
   record.permissions = [...data.permissions];
-  return { message: 'Role updated successfully.', data: toDetail(record) };
+  return { message: t('role.toast.updated'), data: toDetail(record) };
 }
 
 export async function mockDeleteRole(id: string): Promise<{ message: string }> {
   await delay(300);
   const record = mockRoleRecords.find((r) => r.id === id);
-  if (!record) throw new Error('Role not found');
+  if (!record) throw new Error(t('role.toast.notFound'));
   record.status = 'inactive';
-  return { message: 'Role deleted successfully' };
+  return { message: t('role.toast.deleted') };
 }
 
 export async function mockRestoreRole(id: string): Promise<RoleMutationResult> {
   await delay(300);
   const record = mockRoleRecords.find((r) => r.id === id);
-  if (!record) throw new Error('Role not found');
+  if (!record) throw new Error(t('role.toast.notFound'));
   record.status = 'active';
-  return { message: 'Role restored successfully', data: toDetail(record) };
+  return { message: t('role.toast.restored'), data: toDetail(record) };
+}
+
+/** Permission keys dari definisi published (format `{permissionKey}.{aksi}`). */
+export function definitionPermissions(def: ModuleDefinition): string[] {
+  const base = def.permissionKey;
+  const out: string[] = [];
+  if (def.features.list) out.push(`${base}.view`);
+  if (def.features.create) out.push(`${base}.create`);
+  if (def.features.edit) out.push(`${base}.update`);
+  if (def.features.delete) out.push(`${base}.delete`);
+  if (def.features.bulkUpload) out.push(`${base}.bulk_upload`);
+  if (def.features.export) out.push(`${base}.export`);
+  return out;
 }
 
 export async function mockGetPermissions(): Promise<string[]> {
   await delay(200);
-  return [...mockPermissionCatalog];
+  const catalog = [...mockPermissionCatalog];
+  try {
+    const published = await listDefinitions('published');
+    for (const def of published) {
+      for (const permission of definitionPermissions(def)) {
+        if (!catalog.includes(permission)) catalog.push(permission);
+      }
+    }
+  } catch {
+    // Abaikan: katalog statis tetap dikembalikan bila store tak terbaca.
+  }
+  return catalog;
 }
 
 export async function mockExportRoles(params?: GetRolesParams): Promise<Blob> {
@@ -218,8 +268,8 @@ export async function mockExportRoles(params?: GetRolesParams): Promise<Blob> {
   if (params?.status) items = items.filter((r) => r.status === params.status);
   items = sortRoles(items, params?.order, params?.sort);
   const data = await buildWorkbook(
-    ['Name', 'Permissions', 'Status'],
-    items.map((r) => [r.name, r.permissions.join(', '), r.status]),
+    ['Name', 'Permissions', 'Status', 'Created Date'],
+    items.map((r) => [r.name, r.permissions.join(', '), r.status, r.created_date]),
   );
   return new Blob([data], { type: XLSX_MIME });
 }
@@ -244,7 +294,7 @@ export async function mockBulkUploadRoles(file: File | ArrayBuffer): Promise<Bul
       errors: missing.map((field) => ({
         row: 1,
         field,
-        message: `Column "${field}" was not found in the file.`,
+        message: t('bulk.missingColumn', { field }),
       })),
     };
   }
@@ -253,7 +303,7 @@ export async function mockBulkUploadRoles(file: File | ArrayBuffer): Promise<Bul
       totalRows: 0,
       successCount: 0,
       failedCount: 0,
-      errors: [{ row: 1, message: 'The file contains no data.' }],
+      errors: [{ row: 1, message: t('bulk.emptyFile') }],
     };
   }
   const seenName = new Set(mockRoleRecords.map((r) => r.name.toLowerCase()));
@@ -282,6 +332,8 @@ export async function mockBulkUploadRoles(file: File | ArrayBuffer): Promise<Bul
       name: payload.name,
       permissions: [...payload.permissions],
       status: payload.status ?? 'active',
+      created_by: 'System',
+      created_date: new Date().toISOString().slice(0, 16).replace('T', ' '),
     });
     successCount += 1;
   });

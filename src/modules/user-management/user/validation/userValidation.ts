@@ -1,31 +1,60 @@
 import type { RegisterOptions } from 'react-hook-form';
+import type { TFunction } from 'i18next';
 import type { FormValues } from '../hooks';
 
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export const nameRules: RegisterOptions<FormValues, 'name'> = {
-  required: 'Name is required.',
-  minLength: { value: 3, message: 'Name must be at least 3 characters.' },
-  maxLength: { value: 100, message: 'Name cannot be greater than 100 characters.' },
-};
+export function getNameRules(t: TFunction): RegisterOptions<FormValues, 'name'> {
+  return {
+    required: t('validation.required', { label: t('user.fields.name.label') }),
+    minLength: {
+      value: 3,
+      message: t('validation.minLength', { label: t('user.fields.name.label'), count: 3 }),
+    },
+    maxLength: {
+      value: 100,
+      message: t('validation.maxLength', { label: t('user.fields.name.label'), count: 100 }),
+    },
+  };
+}
 
-export const roleIdRules: RegisterOptions<FormValues, 'role_id'> = {
-  required: 'Role is required.',
-};
+export function getRoleIdRules(t: TFunction): RegisterOptions<FormValues, 'role_id'> {
+  return {
+    required: t('validation.required', { label: t('user.fields.role.label') }),
+  };
+}
 
-export const usernameRules: RegisterOptions<FormValues, 'username'> = {
-  required: 'Username is required.',
-  minLength: { value: 3, message: 'Username must be at least 3 characters.' },
-  maxLength: { value: 50, message: 'Username must be at most 50 characters.' },
-};
+export function getUsernameRules(t: TFunction): RegisterOptions<FormValues, 'username'> {
+  return {
+    required: t('validation.required', { label: t('user.fields.username.label') }),
+    minLength: {
+      value: 3,
+      message: t('validation.minLength', { label: t('user.fields.username.label'), count: 3 }),
+    },
+    maxLength: {
+      value: 50,
+      message: t('validation.maxLength', { label: t('user.fields.username.label'), count: 50 }),
+    },
+  };
+}
 
-export const emailRules: RegisterOptions<FormValues, 'email'> = {
-  required: 'Email is required.',
-  maxLength: { value: 100, message: 'Email must be at most 100 characters.' },
-  pattern: { value: EMAIL_PATTERN, message: 'Please enter a valid email address.' },
-};
+export function getEmailRules(t: TFunction): RegisterOptions<FormValues, 'email'> {
+  return {
+    required: t('validation.required', { label: t('user.fields.email.label') }),
+    maxLength: {
+      value: 100,
+      message: t('validation.maxLength', { label: t('user.fields.email.label'), count: 100 }),
+    },
+    pattern: { value: EMAIL_PATTERN, message: t('validation.email') },
+  };
+}
 
-export const passwordRules: RegisterOptions<FormValues, 'password'> = {
-  required: 'Password is required.',
-  minLength: { value: 6, message: 'Password must be at least 6 characters.' },
-};
+export function getPasswordRules(t: TFunction): RegisterOptions<FormValues, 'password'> {
+  return {
+    required: t('validation.required', { label: t('user.fields.password.label') }),
+    minLength: {
+      value: 6,
+      message: t('validation.minLength', { label: t('user.fields.password.label'), count: 6 }),
+    },
+  };
+}

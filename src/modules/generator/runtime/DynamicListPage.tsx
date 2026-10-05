@@ -166,7 +166,7 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
         closeOnBackdropClick
       >
         <div className="flex items-start gap-4">
-          <Info className="h-12 w-12 shrink-0" />
+          <Info className="h-12 w-12 shrink-0 text-warning" />
           <div>
             <p className="text-base font-medium text-foreground">
               {t('runtime.deleteTitle')}
@@ -211,7 +211,7 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
           closeOnBackdropClick
         >
           <div className="flex items-start gap-4">
-            <Info className="h-12 w-12 shrink-0" />
+            <Info className="h-12 w-12 shrink-0 text-success" />
             <div>
               <p className="text-base font-medium text-foreground">
                 {t('runtime.restoreTitle')}

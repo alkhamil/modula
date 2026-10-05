@@ -7,6 +7,8 @@ export interface User {
   email: string;
   password: string;
   status: 'active' | 'inactive';
+  createdBy: string;
+  createdDate: string;
 }
 
 export interface UserListItem {
@@ -17,6 +19,8 @@ export interface UserListItem {
   username: string;
   email: string;
   status: 'active' | 'inactive';
+  created_date: string;
+  created_by: string | null;
 }
 
 export interface CreateUserPayload {

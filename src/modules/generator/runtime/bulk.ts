@@ -25,6 +25,15 @@ export interface BulkUploadResult {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Uji pola regex secara aman (pola rusak dari definisi lama: lolos, tak crash). */
+function safePatternTest(pattern: string, value: string): boolean {
+  try {
+    return new RegExp(pattern).test(value);
+  } catch {
+    return true;
+  }
+}
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const EMOTICON_RE = /\p{Extended_Pictographic}/u;
 
@@ -202,7 +211,7 @@ export function validateBulkRow(
         fail(label, t('validation.email'));
       }
       const regexArg = argOf('regex');
-      if (regexArg !== undefined && raw !== '' && !new RegExp(regexArg).test(raw)) {
+      if (regexArg !== undefined && raw !== '' && !safePatternTest(regexArg, raw)) {
         fail(label, t('validation.pattern', { label }));
       }
       if (has('unique') && !Number.isNaN(value) && isTaken(field.name, String(value))) {
@@ -337,7 +346,7 @@ function applyStringRules(
     fail(label, t('validation.email'));
   }
   const regexArg = argOf('regex');
-  if (opts.regex && regexArg !== undefined && value !== '' && !new RegExp(regexArg).test(value)) {
+  if (opts.regex && regexArg !== undefined && value !== '' && !safePatternTest(regexArg, value)) {
     fail(label, t('validation.pattern', { label }));
   }
   if (opts.emoticon && has('withoutemoticon') && value !== '' && EMOTICON_RE.test(value)) {

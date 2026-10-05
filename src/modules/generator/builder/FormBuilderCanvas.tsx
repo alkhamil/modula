@@ -367,7 +367,7 @@ function WidthRow({ colSpan, onSpanChange }: { colSpan: number; onSpanChange: (s
 
 /**
  * Isi drawer properti field: editor penuh + layout. Diremount per field via
- * key. Name di-commit saat blur (validasi duplikat + reserved).
+ * key. Name di-commit saat blur/tutup drawer (validasi duplikat + reserved).
  */
 function FieldDrawerContent({
   field,
@@ -377,6 +377,8 @@ function FieldDrawerContent({
   onApply,
   onRename,
   onSpanChange,
+  onClose,
+  closeRequestRef,
 }: {
   field: GeneratorFieldConfig;
   colSpan: number;
@@ -385,38 +387,62 @@ function FieldDrawerContent({
   onApply: (config: GeneratorFieldConfig) => void;
   onRename: (oldName: string, next: GeneratorFieldConfig) => void;
   onSpanChange: (span: number) => void;
+  onClose: () => void;
+  closeRequestRef: { current: (() => void) | null };
 }) {
   const { t } = useTranslation();
   const [form, setForm] = useState<FieldFormValue>(() => initialFormValue(field, undefined));
   const [nameError, setNameError] = useState<string | null>(null);
 
+  // Bersihkan pendaftar tutup saat konten diganti/unmount agar drawer tanpa
+  // field (kartu layout) tidak memicu commit basi.
+  useEffect(() => () => {
+    closeRequestRef.current = null;
+  }, [closeRequestRef]);
+
   function handleFormChange(next: FieldFormValue): void {
     setForm(next);
     setNameError(null);
-    // Name pending: tahan hingga blur, sisanya live.
+    // Name pending: tahan hingga blur/tutup, sisanya live.
     onApply({ ...buildFieldConfig({ ...next, name: field.name }), name: field.name });
   }
 
-  function handleNameBlur(): void {
+  /**
+   * Commit nama pending (validasi duplikat + reserved). Dipakai blur input
+   * Name maupun penutupan drawer (auto-fill dari Label ikut tersimpan).
+   * Gagal saat tutup → drawer tetap terbuka agar error terlihat.
+   */
+  function commitPendingName(revertOnError: boolean): boolean {
     const pending = form.name.trim();
-    if (pending === field.name) return;
+    if (pending === field.name) return true;
     if (!pending) {
       setNameError(t('builder.form.nameRequired'));
-      setForm({ ...form, name: field.name });
-      return;
+      if (revertOnError) setForm({ ...form, name: field.name });
+      return false;
     }
     if (isReservedFieldName(pending)) {
       setNameError(t('builder.form.nameReserved', { name: pending }));
-      setForm({ ...form, name: field.name });
-      return;
+      if (revertOnError) setForm({ ...form, name: field.name });
+      return false;
     }
     if (existingNames.includes(pending)) {
       setNameError(t('builder.form.nameDup', { name: pending }));
-      setForm({ ...form, name: field.name });
-      return;
+      if (revertOnError) setForm({ ...form, name: field.name });
+      return false;
     }
     onRename(field.name, { ...buildFieldConfig(form), name: pending });
+    return true;
   }
+
+  function handleNameBlur(): void {
+    commitPendingName(true);
+  }
+
+  // Daftarkan commit saat drawer ditutup (X/backdrop) agar rename pending
+  // dari auto-fill Label tidak hilang.
+  closeRequestRef.current = () => {
+    if (commitPendingName(false)) onClose();
+  };
 
   return (
     <div className="flex flex-col stack-gap">
@@ -445,6 +471,8 @@ function FormBuilderCanvas({
   onSampleRowsChange,
 }: FormBuilderCanvasProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  /** Commit rename pending milik konten drawer; null = tidak ada konten field. */
+  const closeRequestRef = useRef<(() => void) | null>(null);
   /** Dialog konfirmasi reset seluruh kanvas. */
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   /** Kind palet yang sedang diseret (ghost overlay); null = drag kanvas/batal. */
@@ -823,15 +851,19 @@ function FormBuilderCanvas({
 
       <Drawer
         open={drawerOpen}
-        onClose={() => setSelectedId(null)}
+        onClose={() => {
+          const commit = closeRequestRef.current;
+          if (commit) commit();
+          else setSelectedId(null);
+        }}
         title={t('builder.form.properties')}
         width="md"
         modal={false}
         testId="property-drawer"
         footer={
           <Button
-            size="sm"
             variant="danger"
+            className="w-full"
             onClick={handleDeleteSelected}
             icon={<Trash2 className="h-4 w-4" />}
           >
@@ -849,6 +881,8 @@ function FormBuilderCanvas({
             onApply={handlePanelApply}
             onRename={handleRename}
             onSpanChange={(span) => onChange(setFormSpan(effective, selectedItem.field, span))}
+            onClose={() => setSelectedId(null)}
+            closeRequestRef={closeRequestRef}
           />
         )}
         {selectedItem && !selectedField && (

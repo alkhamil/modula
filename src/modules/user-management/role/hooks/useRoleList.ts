@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../shared/components/ui';
 import type { RoleListItem, GetRolesParams } from '../types';
 import { useRoleListQuery, useDeleteRole, useRestoreRole } from '../api';
 import { mapSubmitError } from '../../../../shared/utils';
 
 export function useRoleList(params: GetRolesParams) {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const [deleteTarget, setDeleteTarget] = useState<RoleListItem | null>(null);
   const [restoreTarget, setRestoreTarget] = useState<RoleListItem | null>(null);
@@ -28,7 +30,7 @@ export function useRoleList(params: GetRolesParams) {
       setDeleteTarget(null);
       showToast({ message: res.message, variant: 'success' });
     } catch (err: unknown) {
-      const fallback = 'Failed to delete role';
+      const fallback = t('runtime.deleteFailed', { singular: t('role.label') });
       const result = mapSubmitError(err, fallback);
       showToast({ message: result.toastMessage ?? fallback, variant: 'error' });
     }
@@ -49,7 +51,7 @@ export function useRoleList(params: GetRolesParams) {
       setRestoreTarget(null);
       showToast({ message: res.message, variant: 'success' });
     } catch (err: unknown) {
-      const fallback = 'Failed to restore role';
+      const fallback = t('runtime.restoreFailed', { singular: t('role.label') });
       const result = mapSubmitError(err, fallback);
       showToast({ message: result.toastMessage ?? fallback, variant: 'error' });
     }

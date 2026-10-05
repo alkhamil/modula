@@ -8,20 +8,17 @@ import PageContent from './PageContent';
 import { type NavItemType } from '../../types/navigation';
 import { filterNavItems, resolveNavLabel } from '../../utils';
 import { useMediaQuery, useSessionStorage } from '../../hooks';
-import { ThemeCustomizer } from '../../theme';
 
 interface AppShellProps {
   navItems: NavItemType[];
   permissions?: string[];
   user: AvatarUserData | null;
   onLogout?: () => void;
-  profilePath?: string;
+  settingsPath?: string;
   logo?: ReactNode;
   appName?: string;
   /** Judul header; default diselesaikan otomatis dari navigasi & pathname. */
   title?: string;
-  /** Tampilkan floating button pengatur thema (default: false). */
-  showThemeCustomizer?: boolean;
   /** Konten tambahan di header (mis. pemilih bahasa), sebelum avatar user. */
   headerExtra?: ReactNode;
 }
@@ -31,11 +28,10 @@ function AppShell({
   permissions = [],
   user,
   onLogout,
-  profilePath,
+  settingsPath,
   logo,
   appName,
   title: titleOverride,
-  showThemeCustomizer = false,
   headerExtra,
 }: AppShellProps) {
   const { t } = useTranslation();
@@ -118,14 +114,13 @@ function AppShell({
         >
           <div className="flex items-center gap-2">
             {headerExtra}
-            <AvatarUser user={user} onLogout={onLogout} profilePath={profilePath} />
+            <AvatarUser user={user} onLogout={onLogout} settingsPath={settingsPath} />
           </div>
         </PageHeader>
         <PageContent>
           <Outlet />
         </PageContent>
       </div>
-      {showThemeCustomizer && <ThemeCustomizer />}
     </div>
   );
 }

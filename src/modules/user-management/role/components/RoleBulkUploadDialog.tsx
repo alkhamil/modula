@@ -68,7 +68,7 @@ function RoleBulkUploadDialog({ open, onClose }: RoleBulkUploadDialogProps) {
       testId="role-bulk-upload-dialog"
       open={open}
       onClose={handleClose}
-      title={t('bulk.title', { singular: 'Role' })}
+      title={t('bulk.title', { singular: t('role.label') })}
       maxWidth="lg"
       closeOnEscape
       closeOnBackdropClick

@@ -298,7 +298,20 @@ export interface TableDisplayProps {
   stickyAction?: boolean;
   /** Posisi kolom aksi: kiri (default) atau kanan. */
   actionPosition?: 'left' | 'right';
+  /** Ukuran ikon tombol aksi baris, px (12–24; default 16). */
+  actionIconSize?: number;
+  /**
+   * Override warna ikon tombol aksi per aksi (`default` = warna bawaan:
+   * view info, edit warning, delete danger, restore success).
+   */
+  actionIconColor?: Partial<Record<RowActionKind, RowActionColor>>;
 }
+
+/** Aksi baris tabel yang ikonnya bisa diatur (lihat/ubah/hapus/restore). */
+export type RowActionKind = 'view' | 'edit' | 'delete' | 'restore';
+
+/** Warna ikon aksi: token thema (`default` = warna bawaan aksi). */
+export type RowActionColor = 'default' | 'info' | 'warning' | 'danger' | 'success' | 'muted';
 
 /** Props tampilan satu baris kartu detail. */
 export interface DetailRowDisplayProps {

@@ -3,7 +3,12 @@ import path from 'node:path';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Plugin } from 'vite';
 import type { ModuleRegistration } from '../src/modules/generator/types.ts';
-import { registerModuleNav, registerModuleRoutes } from './moduleRegistration.ts';
+import {
+  registerModuleNav,
+  registerModuleRoutes,
+  unregisterModuleNav,
+  unregisterModuleRoutes,
+} from './moduleRegistration.ts';
 
 export interface FileToWrite {
   path: string;
@@ -85,6 +90,19 @@ function sendJson(res: ServerResponse, status: number, data: unknown): void {
   res.end(JSON.stringify(data));
 }
 
+/** Validasi target hapus: direktori di dalam `<projectRoot>/src/modules/`. */
+export function resolveDeleteTarget(projectRoot: string, moduleDir: string): string {
+  if (typeof moduleDir !== 'string' || moduleDir.trim() === '') {
+    throw new Error('moduleDir wajib string non-kosong.');
+  }
+  const modulesRoot = path.resolve(projectRoot, 'src', 'modules');
+  const abs = path.resolve(projectRoot, moduleDir);
+  if (abs === modulesRoot || !abs.startsWith(modulesRoot + path.sep)) {
+    throw new Error(`Path di luar src/modules: ${moduleDir}`);
+  }
+  return abs;
+}
+
 /**
  * Dev-only: endpoint `POST /__api/write-module` agar hasil generate langsung
  * ditulis ke `src/modules/`. Tidak ada di production build / preview.
@@ -154,6 +172,54 @@ export function moduleWriterPlugin(): Plugin {
               );
             }
             sendJson(res, 200, { written: outcome.written, registered });
+          })
+          .catch((err: unknown) => {
+            sendJson(res, 400, {
+              error: err instanceof Error ? err.message : 'Request tidak valid.',
+            });
+          });
+      });
+      // Hapus modul hasil generate dari repo: direktori modul + routes + nav.
+      server.middlewares.use('/__api/delete-module', (req, res) => {
+        if (req.method !== 'POST') {
+          sendJson(res, 405, { error: 'Method not allowed.' });
+          return;
+        }
+        readJsonBody(req)
+          .then((body) => {
+            const { moduleDir, registration } = body as {
+              moduleDir?: string;
+              registration?: ModuleRegistration;
+            };
+            if (!registration || typeof registration !== 'object') {
+              sendJson(res, 400, { error: 'registration wajib objek.' });
+              return;
+            }
+            const routerFile = path.resolve(server.config.root, 'src', 'app', 'router.tsx');
+            const navFile = path.resolve(server.config.root, 'src', 'app', 'navigation.tsx');
+            const routeOutcome = unregisterModuleRoutes(
+              fs.readFileSync(routerFile, 'utf8'),
+              registration,
+            );
+            const navOutcome = unregisterModuleNav(
+              fs.readFileSync(navFile, 'utf8'),
+              registration,
+            );
+            fs.writeFileSync(routerFile, routeOutcome.source, 'utf8');
+            fs.writeFileSync(navFile, navOutcome.source, 'utf8');
+            let deleted: string[] = [];
+            if (typeof moduleDir === 'string' && moduleDir.trim() !== '') {
+              const abs = resolveDeleteTarget(server.config.root, moduleDir);
+              if (fs.existsSync(abs)) {
+                fs.rmSync(abs, { recursive: true, force: true });
+                deleted = [moduleDir];
+              }
+            }
+            sendJson(res, 200, {
+              deleted,
+              removedRoutes: routeOutcome.removed,
+              removedNav: navOutcome.removed > 0,
+            });
           })
           .catch((err: unknown) => {
             sendJson(res, 400, {

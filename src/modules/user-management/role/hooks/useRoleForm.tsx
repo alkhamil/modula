@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useToast, Badge } from '../../../../shared/components/ui';
 import type { DetailRow } from '../../../../shared/components/ui';
 import type { SubmitResult } from '../../../../shared/types';
 import {
-  capitalize,
   isConnectionError,
   mapSubmitError,
   splitFieldErrors,
@@ -30,6 +30,7 @@ function buildDefaultValues(role?: Role): FormValues {
 }
 
 export function useRoleForm(id?: string) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const isEdit = !!id;
@@ -54,7 +55,9 @@ export function useRoleForm(id?: string) {
       setTimeout(() => navigate('/user-management/role'), 500);
       return { success: true };
     } catch (err: unknown) {
-      const fallback = `Failed to ${isEdit ? 'update' : 'create'} role`;
+      const fallback = isEdit
+        ? t('runtime.saveFailedUpdate', { singular: t('role.label') })
+        : t('runtime.saveFailedCreate', { singular: t('role.label') });
       const result = mapSubmitError(err, fallback);
       if (result.fieldErrors) {
         const { fieldErrors, unknownMessage } = splitFieldErrors(
@@ -82,24 +85,26 @@ export function useRoleForm(id?: string) {
   const detailRows = useMemo<DetailRow[]>(() => {
     if (!role) {
       return [
-        { label: 'Status', value: '' },
-        { label: 'Role Name', value: '' },
-        { label: 'Permissions', value: '' },
+        { label: t('table.status'), value: '' },
+        { label: t('role.fields.name.label'), value: '' },
+        { label: t('role.fields.permissions.label'), value: '' },
       ];
     }
 
     return [
       {
-        label: 'Status',
+        label: t('table.status'),
         value: (
           <Badge variant={role.status === 'active' ? 'success' : 'secondary'}>
-            {capitalize(role.status)}
+            {role.status === 'active' ? t('common.active') : t('common.inactive')}
           </Badge>
         ),
       },
-      { label: 'Role Name', value: role.name },
+      { label: t('role.fields.name.label'), value: role.name },
+      { label: t('table.createdBy'), value: role.createdBy },
+      { label: t('table.createdDate'), value: role.createdDate },
       {
-        label: 'Permissions',
+        label: t('role.fields.permissions.label'),
         value: (
           <PermissionTable
             catalog={catalog}

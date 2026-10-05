@@ -257,10 +257,40 @@ export function detailValue(field: GeneratorFieldConfig, item: DynamicDetail): u
  * (urutan + hidden); bila absen: urutan fields, semua tampil.
  * Dipakai halaman detail runtime + pratinjau canvas builder.
  */
+const DETAIL_SYSTEM_ORDER: readonly string[] = ['status', 'created_by', 'created_date'];
+
+/** Label + nilai baris sistem detail (status/created_* selalu tampil). */
+function detailSystemRow(
+  name: string,
+  item: DynamicDetail | null,
+): Pick<DetailRow, 'label' | 'value'> {
+  if (name === 'created_by') return { label: 'Created By', value: item?.createdBy ?? '' };
+  if (name === 'created_date') return { label: 'Created Date', value: item?.createdDate ?? '' };
+  return {
+    label: 'Status',
+    value: item ? (
+      <Badge variant={item.status === 'active' ? 'success' : 'secondary'}>
+        {capitalize(item.status)}
+      </Badge>
+    ) : (
+      ''
+    ),
+  };
+}
+
 export function buildDetailRows(def: ModuleDefinition, item: DynamicDetail | null): DetailRow[] {
   const byName = new Map(def.fields.map((field) => [field.name, field]));
-  const order = def.layout.detail?.order ?? def.fields.map((field) => field.name);
+  const configured = def.layout.detail?.order ?? def.fields.map((field) => field.name);
   const hidden = new Set(def.layout.detail?.hidden ?? []);
+  // Kunci sistem mengikuti posisi di order; yang belum diatur memakai
+  // fallback lama (status di depan, created_* di belakang).
+  const keys = configured.filter(
+    (name) => byName.has(name) || DETAIL_SYSTEM_ORDER.includes(name),
+  );
+  if (!keys.includes('status')) keys.unshift('status');
+  for (const name of ['created_by', 'created_date']) {
+    if (!keys.includes(name)) keys.push(name);
+  }
   const rowPropsOf = (name: string): Pick<DetailRow, 'fullWidth' | 'noDivider' | 'heading'> => {
     const src = def.layout.detail?.props?.[name];
     return {
@@ -269,33 +299,21 @@ export function buildDetailRows(def: ModuleDefinition, item: DynamicDetail | nul
       ...(src?.heading === true ? { heading: true as const } : {}),
     };
   };
-  const fields = order
-    .filter((name) => byName.has(name) && !hidden.has(name))
-    .map((name) => byName.get(name) as GeneratorFieldConfig);
-  if (!item) {
-    return [
-      { label: 'Status', value: '' },
-      ...fields.map((field) => ({ name: field.name, label: moduleFieldLabel(def, field), value: '', ...rowPropsOf(field.name) })),
-    ];
-  }
-  return [
-    {
-      label: 'Status',
-      value: (
-        <Badge variant={item.status === 'active' ? 'success' : 'secondary'}>
-          {capitalize(item.status)}
-        </Badge>
-      ),
-    },
-    ...fields.map((field) => ({
-      name: field.name,
-      label: moduleFieldLabel(def, field),
-      value: detailValue(field, item) as ReactNode,
-      ...rowPropsOf(field.name),
-    })),
-    { label: 'Created By', value: item.createdBy },
-    { label: 'Created Date', value: item.createdDate },
-  ];
+  return keys.flatMap((name): DetailRow[] => {
+    const field = byName.get(name);
+    if (field) {
+      if (hidden.has(name)) return [];
+      return [
+        {
+          name: field.name,
+          label: moduleFieldLabel(def, field),
+          value: item ? (detailValue(field, item) as ReactNode) : '',
+          ...rowPropsOf(field.name),
+        },
+      ];
+    }
+    return [{ name, ...detailSystemRow(name, item), ...rowPropsOf(name) }];
+  });
 }
 
 /** Hook form generik — meniru `useUserForm` (detail, defaults, submit, opsi). */

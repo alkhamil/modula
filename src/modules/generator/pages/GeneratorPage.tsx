@@ -40,6 +40,7 @@ import ListBuilderCanvas from '../builder/ListBuilderCanvas';
 import DetailBuilderCanvas from '../builder/DetailBuilderCanvas';
 import ContractPanel from '../builder/ContractPanel';
 import { clearDraft, loadDraft, saveDraft, valuesToSampleRow } from '../builder/draft';
+import { publishModuleToRepo } from '../api/publishToRepo';
 
 const STEPS = [
   'config',
@@ -72,11 +73,11 @@ function StepIndicator({ step }: { step: number }) {
           <li key={key} className="flex items-center gap-2">
             {index > 0 && <span className="h-px w-6 bg-border" />}
             {state === 'done' ? (
-              <Check className="h-5 w-5" />
+              <Check className="h-7 w-7 text-success" />
             ) : state === 'current' ? (
-              <CircleDot className="h-5 w-5" />
+              <CircleDot className="h-7 w-7 text-primary" />
             ) : (
-              <Circle className="h-5 w-5" />
+              <Circle className="h-7 w-7 text-muted-foreground" />
             )}
             <span
               className={`text-sm ${state === 'current' ? 'font-semibold text-foreground' : state === 'done' ? 'text-foreground' : 'text-muted-foreground'}`}
@@ -270,6 +271,12 @@ function GeneratorPage() {
     showToast({ variant: 'info', message: t('wizard.loadToWizard', { key: def.key }) });
   }
 
+  /** Modul dihapus dari daftar: reset wizard bila sedang mengeditnya. */
+  function handleModuleDeleted(def: ModuleDefinition): void {
+    setEditTarget((prev) => (prev !== null && prev.key === def.key ? null : prev));
+    if (editingKey === def.key) resetWizard();
+  }
+
   function requestEdit(def: ModuleDefinition): void {
     const draft = loadDraft();
     const hasWork =
@@ -316,6 +323,10 @@ function GeneratorPage() {
       const saved = await saveDefinition(definition);
       await queryClient.invalidateQueries({ queryKey: ['dynamic-definitions'] });
       await queryClient.invalidateQueries({ queryKey: ['dynamic-definition', saved.definition.key] });
+      // Modul published menambah baris di checklist permission role.
+      if (targetStatus === 'published') {
+        await queryClient.invalidateQueries({ queryKey: ['role-permissions'] });
+      }
       // Edit yang mengubah key (ganti parent/nama): bersihkan definisi + records lama.
       if (editingKey && editingKey !== saved.definition.key) {
         await deleteDefinition(editingKey);
@@ -333,6 +344,21 @@ function GeneratorPage() {
             ? t('wizard.publishedLive', { key: saved.definition.key })
             : t('wizard.draftSaved', { key: saved.definition.key }),
       });
+      // Publish langsung tulis source statis ke repo (dev-server).
+      if (targetStatus === 'published') {
+        const repo = await publishModuleToRepo(saved.definition);
+        showToast(
+          repo.state === 'written'
+            ? {
+                variant: 'success',
+                message: t('wizard.writtenToRepo', {
+                  key: saved.definition.key,
+                  count: repo.count,
+                }),
+              }
+            : { variant: 'warning', message: t('wizard.repoWriteSkipped', { message: repo.message }) },
+        );
+      }
     } catch (err) {
       setStepError(err instanceof Error ? err.message : t('wizard.saveFailed'));
     } finally {
@@ -428,6 +454,7 @@ function GeneratorPage() {
             definitions={definitionsQuery.data ?? []}
             isLoading={definitionsQuery.isLoading}
             onEdit={requestEdit}
+            onDeleted={handleModuleDeleted}
           />
         </Card>
       )}
@@ -535,6 +562,7 @@ function GeneratorPage() {
         )}
         {step === 1 && (
           <FormBuilderCanvas
+            key={infoSession}
             fields={fields}
             onFieldsChange={setFields}
             layout={layout}

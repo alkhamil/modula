@@ -32,13 +32,26 @@ export function validateBulkRoleRow(
   const errors: BulkFieldError[] = [];
 
   const nameValue = String(row['Name'] ?? '').trim();
-  if (!nameValue) errors.push({ field: 'Name', message: t('validation.required', { label: 'Name' }) });
+  if (!nameValue)
+    errors.push({
+      field: 'Name',
+      message: t('validation.required', { label: t('role.bulk.nameLabel') }),
+    });
   if (nameValue !== '' && nameValue.length < 3)
-    errors.push({ field: 'Name', message: t('validation.minLength', { label: 'Name', count: 3 }) });
+    errors.push({
+      field: 'Name',
+      message: t('validation.minLength', { label: t('role.bulk.nameLabel'), count: 3 }),
+    });
   if (nameValue !== '' && nameValue.length > 100)
-    errors.push({ field: 'Name', message: t('validation.maxLength', { label: 'Name', count: 100 }) });
+    errors.push({
+      field: 'Name',
+      message: t('validation.maxLength', { label: t('role.bulk.nameLabel'), count: 100 }),
+    });
   if (nameValue !== '' && isTaken(nameValue))
-    errors.push({ field: 'Name', message: t('validation.unique', { label: 'Name' }) });
+    errors.push({
+      field: 'Name',
+      message: t('validation.unique', { label: t('role.bulk.nameLabel') }),
+    });
 
   const rawPermissions = String(row['Permissions'] ?? '')
     .split(',')
@@ -48,12 +61,15 @@ export function validateBulkRoleRow(
   if (rawPermissions.length === 0)
     errors.push({
       field: 'Permissions',
-      message: t('validation.minItems', { label: 'Permissions', count: 1 }),
+      message: t('validation.minItems', { label: t('role.fields.permissions.label'), count: 1 }),
     });
   for (const permission of unknown) {
     errors.push({
       field: 'Permissions',
-      message: t('validation.unknownOption', { label: 'Permissions', value: permission }),
+      message: t('validation.unknownOption', {
+        label: t('role.fields.permissions.label'),
+        value: permission,
+      }),
     });
   }
 

@@ -26,19 +26,22 @@ import {
   Card,
   Drawer,
   FilterToolbar,
+  RowActionButton,
   SelectField,
   SwitchField,
   TextField,
   useToast,
 } from '../../../shared/components/ui';
 import Table, { type Column } from '../../../shared/components/ui/Table';
-import { Download, Settings, Pencil, Plus, RotateCcw, Trash2, Upload, Eye } from 'lucide-react';
+import { Download, Settings, Plus, Upload } from 'lucide-react';
 import type { DeleteMode, ModuleDefinition, ModuleLayout } from '../definitions';
 import { SYSTEM_TABLE_COLUMNS } from '../definitions';
 import type {
   FeatureKey,
   FilterCriteria,
   GeneratorFieldConfig,
+  RowActionColor,
+  RowActionKind,
   TableDisplayProps,
 } from '../types';
 import {
@@ -94,11 +97,13 @@ function SwitchRow({
   desc,
   value,
   onChange,
+  disabled = false,
 }: {
   label: string;
   desc: string;
   value: boolean;
   onChange: (value: boolean) => void;
+  disabled?: boolean;
 }) {
   return (
     <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2">
@@ -106,7 +111,7 @@ function SwitchRow({
         <p className="text-xs font-medium text-foreground">{label}</p>
         <p className="text-xs text-muted-foreground">{desc}</p>
       </div>
-      <SwitchField value={value} onChange={onChange} size="sm" />
+      <SwitchField value={value} onChange={onChange} size="sm" disabled={disabled} />
     </div>
   );
 }
@@ -145,8 +150,8 @@ function ColumnResizer({ name, onWidth }: { name: string; onWidth: (px: number) 
 
 /**
  * Header kolom kanvas: seret dari seluruh area sel + klik memilih (kolom
- * field) + resize via garis tepi. Dipakai sebagai `header` kolom tabel
- * (sort dimatikan agar klik selalu memilih).
+ * field + kolom sistem) + resize via garis tepi. Dipakai sebagai `header`
+ * kolom tabel (sort dimatikan agar klik selalu memilih).
  *
  * `th` dibuat relative via className kolom; overlay + resizer absolut
  * berjangkar ke sel sehingga menutupi seluruh sel header.
@@ -156,7 +161,6 @@ function SortableColumnHeader({
   label,
   hidden,
   selected,
-  selectable,
   onSelect,
   onWidth,
 }: {
@@ -164,8 +168,6 @@ function SortableColumnHeader({
   label: string;
   hidden: boolean;
   selected: boolean;
-  /** Kolom sistem: bisa diseret tapi tak punya drawer properti. */
-  selectable: boolean;
   onSelect: () => void;
   onWidth: (px: number) => void;
 }) {
@@ -188,8 +190,8 @@ function SortableColumnHeader({
       <div
         ref={setNodeRef}
         style={{ transform: CSS.Translate.toString(transform), transition }}
-        role={selectable ? 'button' : undefined}
-        tabIndex={selectable ? 0 : -1}
+        role="button"
+        tabIndex={0}
         data-testid={`list-col-${name}`}
         {...listeners}
         onPointerDown={(e) => {
@@ -198,7 +200,6 @@ function SortableColumnHeader({
           listeners?.onPointerDown?.(e);
         }}
         onClick={(e) => {
-          if (!selectable) return;
           // Abaikan klik yang mengakhiri drag (drop sudah memindahkan).
           const down = downAt.current;
           downAt.current = null;
@@ -208,11 +209,9 @@ function SortableColumnHeader({
           onSelect();
         }}
         onKeyDown={(e) => {
-          if (selectable && (e.key === 'Enter' || e.key === ' ')) onSelect();
+          if (e.key === 'Enter' || e.key === ' ') onSelect();
         }}
-        title={
-          selectable ? t('list.dragHint') : t('builder.form.dragHint')
-        }
+        title={t('list.dragHint')}
         className={`absolute inset-0 cursor-grab active:cursor-grabbing ${
           selected
             ? 'bg-primary/5 ring-1 ring-inset ring-primary'
@@ -316,6 +315,115 @@ function ColumnDrawerContent({
 }
 
 /** Isi drawer aksi baris: lihat/edit/hapus + mode hapus + posisi kolom. */
+/** Isi drawer properti kolom sistem: info + lebar (selalu tampil, sort/filter bawaan sistem). */
+function SystemColumnDrawerContent({
+  name,
+  label,
+  width,
+  onWidth,
+}: {
+  name: string;
+  label: string;
+  width: number | undefined;
+  onWidth: (px: number) => void;
+}) {
+  const { t } = useTranslation();
+  const systemSortable = systemTableColumn(name)?.sortable ?? false;
+  const noop = (): void => {};
+  return (
+    <div className="flex flex-col stack-gap">
+      <Card size="sm" title={t('list.columnCard')}>
+        <div className="flex flex-col field-gap">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-muted-foreground">{t('field.label')}</span>
+            <span className="text-xs font-medium text-foreground">{label}</span>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-muted-foreground">{t('field.name')}</span>
+            <span className="font-mono text-xs text-muted-foreground">{name}</span>
+          </div>
+          <p className="text-xs text-muted-foreground">{t('list.systemColumnNote')}</p>
+        </div>
+      </Card>
+      <Card size="sm" title={t('list.interactCard')} collapsible>
+        <div className="flex flex-col field-gap">
+          <SwitchRow
+            label={t('list.showColumn')}
+            desc={t('list.showColumnSystemDesc')}
+            value
+            onChange={noop}
+            disabled
+          />
+          <SwitchRow
+            label={t('field.sortable')}
+            desc={t('field.sortableDesc')}
+            value={systemSortable}
+            onChange={noop}
+            disabled
+          />
+          <SwitchRow
+            label={t('field.filterable')}
+            desc={t('field.filterableDesc')}
+            value={false}
+            onChange={noop}
+            disabled
+          />
+        </div>
+      </Card>
+      <Card size="sm" title={t('list.widthCard')} collapsible>
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-foreground">{t('list.widthLabel')}</p>
+            <p className="text-xs text-muted-foreground">{t('list.widthDesc')}</p>
+          </div>
+          <WidthInput key={`${name}-${width ?? 'auto'}`} value={width} onCommit={onWidth} />
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+const ACTION_COLOR_OPTIONS: { value: RowActionColor; labelKey: string }[] = [
+  { value: 'default', labelKey: 'list.colorDefault' },
+  { value: 'info', labelKey: 'list.colorInfo' },
+  { value: 'warning', labelKey: 'list.colorWarning' },
+  { value: 'danger', labelKey: 'list.colorDanger' },
+  { value: 'success', labelKey: 'list.colorSuccess' },
+  { value: 'muted', labelKey: 'list.colorMuted' },
+];
+
+function onPatchKindColor(
+  displayProps: TableDisplayProps | undefined,
+  onPatchProps: (patch: Partial<TableDisplayProps>) => void,
+  kind: RowActionKind,
+  color: RowActionColor,
+): void {
+  onPatchProps({ actionIconColor: { ...displayProps?.actionIconColor, [kind]: color } });
+}
+
+function ActionColorRow({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: RowActionColor;
+  onChange: (color: RowActionColor) => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <div>
+      <label className="mb-1 block text-sm font-medium text-foreground">{label}</label>
+      <SelectField size="sm"
+        value={value}
+        onChange={(next) => onChange(next as RowActionColor)}
+        options={ACTION_COLOR_OPTIONS.map((opt) => ({ label: t(opt.labelKey), value: opt.value }))}
+        clearable={false}
+      />
+    </div>
+  );
+}
+
 function ActionDrawerContent({
   features,
   onToggleFeature,
@@ -367,6 +475,39 @@ function ActionDrawerContent({
               clearable={false}
             />
           </div>
+        </div>
+      </Card>
+      <Card size="sm" title={t('list.actionIconCard')}>
+        <div className="flex flex-col field-gap">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-foreground">{t('list.actionIconSize')}</label>
+            <SelectField size="sm"
+              value={String(displayProps?.actionIconSize ?? 16)}
+              onChange={(value) => onPatchProps({ actionIconSize: Number(value) })}
+              options={['14', '16', '18', '20', '24'].map((px) => ({ label: `${px} px`, value: px }))}
+              clearable={false}
+            />
+          </div>
+          <ActionColorRow
+            label={t('list.actionColorView')}
+            value={displayProps?.actionIconColor?.view ?? 'default'}
+            onChange={(color) => onPatchKindColor(displayProps, onPatchProps, 'view', color)}
+          />
+          <ActionColorRow
+            label={t('list.actionColorEdit')}
+            value={displayProps?.actionIconColor?.edit ?? 'default'}
+            onChange={(color) => onPatchKindColor(displayProps, onPatchProps, 'edit', color)}
+          />
+          <ActionColorRow
+            label={t('list.actionColorDelete')}
+            value={displayProps?.actionIconColor?.delete ?? 'default'}
+            onChange={(color) => onPatchKindColor(displayProps, onPatchProps, 'delete', color)}
+          />
+          <ActionColorRow
+            label={t('list.actionColorRestore')}
+            value={displayProps?.actionIconColor?.restore ?? 'default'}
+            onChange={(color) => onPatchKindColor(displayProps, onPatchProps, 'restore', color)}
+          />
         </div>
       </Card>
       <Card size="sm" title={t('list.actionColCard')}>
@@ -510,7 +651,17 @@ function ListBuilderCanvas({
     return merged.filter((name) => byName.has(name) || SYSTEM_TABLE_COLUMNS.includes(name));
   }, [layout.table.order, byName]);
   const selectedField = selectedName ? byName.get(selectedName) : undefined;
-  const drawerOpen = selectedField !== undefined || actionOpen || tableOpen;
+  const selectedSystem =
+    selectedName && !selectedField && SYSTEM_TABLE_COLUMNS.includes(selectedName)
+      ? selectedName
+      : null;
+  const selectedSystemLabel = (() => {
+    if (selectedSystem === null) return null;
+    const system = systemTableColumn(selectedSystem);
+    return typeof system?.header === 'string' ? system.header : selectedSystem;
+  })();
+  const drawerOpen =
+    selectedField !== undefined || selectedSystem !== null || actionOpen || tableOpen;
   const previewDef = useMemo(() => ({ ...def, layout }), [def, layout]);
 
   function closeDrawers(): void {
@@ -612,7 +763,6 @@ function ListBuilderCanvas({
           label={label}
           hidden={hidden}
           selected={selected}
-          selectable={field !== undefined}
           onSelect={() => selectColumn(name)}
           onWidth={(px) => onChange(setTableWidth(layout, name, px))}
         />
@@ -789,48 +939,44 @@ function ListBuilderCanvas({
                   ? (row) => (
                       <div className="flex justify-evenly w-full gap-1">
                         {features.detail && (
-                          <button
-                            type="button"
-                            data-testid={`list-canvas-view-${row.id}`}
-                            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
+                          <RowActionButton
+                            action="view"
+                            testId={`list-canvas-view-${row.id}`}
                             title={t('list.rowView', { id: row.id })}
                             onClick={() => previewAction(t('list.actView'))}
-                          >
-                            <Eye />
-                          </button>
+                            iconSize={displayProps?.actionIconSize}
+                            color={displayProps?.actionIconColor?.view}
+                          />
                         )}
                         {features.edit && (
-                          <button
-                            type="button"
-                            data-testid={`list-canvas-edit-${row.id}`}
-                            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
+                          <RowActionButton
+                            action="edit"
+                            testId={`list-canvas-edit-${row.id}`}
                             title={t('list.rowEdit', { id: row.id })}
                             onClick={() => previewAction(t('list.actEdit'))}
-                          >
-                            <Pencil />
-                          </button>
+                            iconSize={displayProps?.actionIconSize}
+                            color={displayProps?.actionIconColor?.edit}
+                          />
                         )}
                         {features.delete && row.status === 'active' && (
-                          <button
-                            type="button"
-                            data-testid={`list-canvas-delete-${row.id}`}
-                            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-danger hover:bg-danger/10"
+                          <RowActionButton
+                            action="delete"
+                            testId={`list-canvas-delete-${row.id}`}
                             title={t('list.rowDelete', { id: row.id })}
                             onClick={() => previewAction(t('list.actDelete'))}
-                          >
-                            <Trash2 />
-                          </button>
+                            iconSize={displayProps?.actionIconSize}
+                            color={displayProps?.actionIconColor?.delete}
+                          />
                         )}
                         {features.delete && deleteMode === 'soft' && row.status === 'inactive' && (
-                          <button
-                            type="button"
-                            data-testid={`list-canvas-restore-${row.id}`}
-                            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
+                          <RowActionButton
+                            action="restore"
+                            testId={`list-canvas-restore-${row.id}`}
                             title={t('list.rowRestore', { id: row.id })}
                             onClick={() => previewAction(t('list.actRestore'))}
-                          >
-                            <RotateCcw />
-                          </button>
+                            iconSize={displayProps?.actionIconSize}
+                            color={displayProps?.actionIconColor?.restore}
+                          />
                         )}
                       </div>
                     )
@@ -859,9 +1005,11 @@ function ListBuilderCanvas({
         title={
           selectedField
             ? t('list.columnTitle', { label: selectedField.label })
-            : actionOpen
-              ? t('list.actionTitle')
-              : t('list.tableSettings')
+            : selectedSystemLabel !== null
+              ? t('list.columnTitle', { label: selectedSystemLabel })
+              : actionOpen
+                ? t('list.actionTitle')
+                : t('list.tableSettings')
         }
         width="md"
         modal={false}
@@ -883,6 +1031,14 @@ function ListBuilderCanvas({
               })
             }
             onCriteria={(value) => patchField(selectedField.name, { filterCriteria: value })}
+          />
+        ) : selectedSystem !== null && selectedSystemLabel !== null ? (
+          <SystemColumnDrawerContent
+            key={selectedSystem}
+            name={selectedSystem}
+            label={selectedSystemLabel}
+            width={widths[selectedSystem]}
+            onWidth={(px) => onChange(setTableWidth(layout, selectedSystem, px))}
           />
         ) : actionOpen ? (
           <ActionDrawerContent

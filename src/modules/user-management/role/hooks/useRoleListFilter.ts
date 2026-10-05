@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { t } from 'i18next';
+import '../../../../shared/i18n';
 import type { FilterField } from '../../../../shared/components/ui';
 import type { GetRolesParams } from '../types';
 import { useDebounce, useUrlPagination } from '../../../../shared/hooks';
@@ -7,11 +9,12 @@ import { useDebounce, useUrlPagination } from '../../../../shared/hooks';
 const filterFields: FilterField[] = [
   {
     name: 'status',
-    label: 'Status',
+    label: t('table.status'),
     type: 'select',
+    placeholder: t('role.fields.status.placeholder'),
     options: [
-      { label: 'Active', value: 'Active' },
-      { label: 'Inactive', value: 'Inactive' },
+      { label: t('common.active'), value: 'active' },
+      { label: t('common.inactive'), value: 'inactive' },
     ],
   },
 ];

@@ -2,6 +2,8 @@ export { default as Card } from './Card';
 export { default as Button } from './Button';
 export { default as Table } from './Table';
 export type { Column } from './Table';
+export { default as RowActionButton } from './RowActionButton';
+export type { RowActionKind, RowActionColor, RowActionButtonProps } from './RowActionButton';
 export { default as ErrorStatePage } from './ErrorStatePage';
 export type { ErrorStateType } from './ErrorStatePage';
 export { default as Badge } from './Badge';

@@ -149,7 +149,7 @@ export function validateDefinition(def: ModuleDefinition): ConfigIssue[] {
   if (def.layout.detail !== undefined) {
     const seenDetail = new Set<string>();
     def.layout.detail.order.forEach((name, index) => {
-      if (!known.has(name)) {
+      if (!known.has(name) && !SYSTEM_TABLE_COLUMNS.includes(name)) {
         issues.push({
           path: `layout.detail.order[${index}]`,
           message: t('configValidate.layoutUnknownField', { name }),

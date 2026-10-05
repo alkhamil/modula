@@ -11,7 +11,7 @@ import type {
   TableLayout,
 } from './types';
 import type { DetailCardDisplayProps, DetailRowDisplayProps } from '../types';
-import type { TableDisplayProps } from '../types';
+import type { RowActionColor, RowActionKind, TableDisplayProps } from '../types';
 import { MODULE_DEFINITION_VERSION, SYSTEM_TABLE_COLUMNS } from './types';
 
 const MODULE_LANGUAGES: readonly ModuleLanguage[] = ['en', 'id'];
@@ -52,7 +52,8 @@ function normalizeOrderList(
   hidden: string[] | undefined,
   fieldNames: string[],
 ): { order: string[]; hidden: string[] } {
-  const known = new Set(fieldNames);
+  // Kunci sistem dipertahankan pada posisinya (drag), bukan dibuang.
+  const known = new Set([...fieldNames, ...SYSTEM_TABLE_COLUMNS]);
   const seen = new Set<string>();
   const clean: string[] = [];
   for (const name of order ?? []) {
@@ -126,6 +127,31 @@ export function normalizeLayout(
     }
     if (src.actionPosition === 'left' || src.actionPosition === 'right') {
       props.actionPosition = src.actionPosition;
+    }
+    if (
+      typeof src.actionIconSize === 'number' &&
+      Number.isInteger(src.actionIconSize) &&
+      src.actionIconSize >= 12 &&
+      src.actionIconSize <= 24
+    ) {
+      props.actionIconSize = src.actionIconSize;
+    }
+    if (src.actionIconColor && typeof src.actionIconColor === 'object') {
+      const colors: Partial<Record<RowActionKind, RowActionColor>> = {};
+      for (const kind of ['view', 'edit', 'delete', 'restore'] as const) {
+        const value = (src.actionIconColor as Record<string, unknown>)[kind];
+        if (
+          value === 'default' ||
+          value === 'info' ||
+          value === 'warning' ||
+          value === 'danger' ||
+          value === 'success' ||
+          value === 'muted'
+        ) {
+          colors[kind] = value;
+        }
+      }
+      if (Object.keys(colors).length > 0) props.actionIconColor = colors;
     }
     if (Object.keys(props).length > 0) table.props = props;
   }

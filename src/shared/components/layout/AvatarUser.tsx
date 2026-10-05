@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router';
+import { LogOut, Settings } from 'lucide-react';
 import { useClickOutside } from '../../hooks';
+import LanguageSwitch from '../../i18n/LanguageSwitch';
 
 export interface AvatarUserData {
   name: string;
@@ -11,8 +13,8 @@ export interface AvatarUserData {
 interface AvatarUserProps {
   user: AvatarUserData | null;
   onLogout?: () => void;
-  profilePath?: string;
-  profileLabel?: string;
+  settingsPath?: string;
+  settingsLabel?: string;
   logoutLabel?: string;
   testId?: string;
 }
@@ -20,13 +22,13 @@ interface AvatarUserProps {
 function AvatarUser({
   user,
   onLogout,
-  profilePath = '/profile',
-  profileLabel,
+  settingsPath = '/settings',
+  settingsLabel,
   logoutLabel,
   testId,
 }: AvatarUserProps) {
   const { t } = useTranslation();
-  const resolvedProfileLabel = profileLabel ?? t('auth.profile');
+  const resolvedSettingsLabel = settingsLabel ?? t('settings.title');
   const resolvedLogoutLabel = logoutLabel ?? t('auth.logout');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownAbove, setDropdownAbove] = useState(false);
@@ -63,30 +65,49 @@ function AvatarUser({
       {dropdownOpen && (
         <div
           className={[
-            'absolute right-0 z-50 min-w-44 rounded-lg border border-border bg-background py-1 shadow-xl',
+            'absolute right-0 z-50 w-60 rounded-lg border border-border bg-background py-1 shadow-xl',
             dropdownAbove ? 'bottom-full mb-2' : 'top-full mt-2',
           ].join(' ')}
         >
+          <div className="flex items-center gap-3 px-4 py-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-base font-bold text-primary">
+              {initial}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-foreground">{user?.name ?? 'User'}</p>
+              <p className="truncate text-xs text-muted-foreground">
+                {user?.roleName ?? 'User'}
+              </p>
+            </div>
+          </div>
+          <div className="my-1 border-t border-border" />
+          <div className="flex items-center justify-between gap-2 px-4 py-2">
+            <span className="whitespace-nowrap text-sm text-muted-foreground">{t('auth.language')}</span>
+            <LanguageSwitch testId={testId ? `${testId}-language` : undefined} />
+          </div>
+          <div className="my-1 border-t border-border" />
           <NavLink
-            to={profilePath}
+            to={settingsPath}
             end
             onClick={() => setDropdownOpen(false)}
             className={({ isActive }) =>
               [
-                'block px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted',
+                'flex items-center gap-2 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted',
                 isActive ? 'bg-muted font-medium' : '',
               ].join(' ')
             }
           >
-            {resolvedProfileLabel}
+            <Settings className="h-4 w-4 text-muted-foreground" />
+            {resolvedSettingsLabel}
           </NavLink>
           {onLogout && (
             <>
               <div className="my-1 border-t border-border" />
               <button
                 onClick={onLogout}
-                className="block w-full px-4 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
+                className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
               >
+                <LogOut className="h-4 w-4 text-muted-foreground" />
                 {resolvedLogoutLabel}
               </button>
             </>

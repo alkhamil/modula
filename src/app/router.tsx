@@ -14,23 +14,18 @@ import {
   DynamicPreviewPage,
 } from '../modules/generator/runtime/DynamicRoutes';
 import {
-  CompanyListPage,
-  CompanyCreatePage,
-  CompanyViewPage,
-  CompanyEditPage,
-} from '../modules/master-data/company';
-import {
-  UserList as UserListPage,
-  UserCreate as UserCreatePage,
-  UserView as UserViewPage,
-  UserEdit as UserEditPage,
+  UserListPage,
+  UserCreatePage,
+  UserViewPage,
+  UserEditPage,
 } from '../modules/user-management/user';
 import {
-  RoleList as RoleListPage,
-  RoleCreate as RoleCreatePage,
-  RoleView as RoleViewPage,
-  RoleEdit as RoleEditPage,
+  RoleListPage,
+  RoleCreatePage,
+  RoleViewPage,
+  RoleEditPage,
 } from '../modules/user-management/role';
+import { SettingsPage } from '../modules/settings';
 // __GENERATOR_IMPORTS__
 
 export const router = createBrowserRouter([
@@ -88,42 +83,10 @@ export const router = createBrowserRouter([
               // host dinamis agar menang). Modul dinamis murni tetap lewat
               // definisi published tanpa route statis.
               {
-                path: 'master-data/companies',
-                element: <CompanyListPage />,
-                handle: {
-                  breadcrumb: [{ label: 'Companies' }],
-                  requiredPermission: 'company.view',
-                },
-              },
-              {
-                path: 'master-data/companies/create',
-                element: <CompanyCreatePage />,
-                handle: {
-                  breadcrumb: [{ label: 'Companies', path: '/master-data/companies' }, { label: 'Create' }],
-                  requiredPermission: 'company.create',
-                },
-              },
-              {
-                path: 'master-data/companies/:companyId/view',
-                element: <CompanyViewPage />,
-                handle: {
-                  breadcrumb: [{ label: 'Companies', path: '/master-data/companies' }, { label: 'Detail' }],
-                  requiredPermission: 'company.view',
-                },
-              },
-              {
-                path: 'master-data/companies/:companyId/edit',
-                element: <CompanyEditPage />,
-                handle: {
-                  breadcrumb: [{ label: 'Companies', path: '/master-data/companies' }, { label: 'Edit' }],
-                  requiredPermission: 'company.update',
-                },
-              },
-              {
                 path: 'user-management/user',
                 element: <UserListPage />,
                 handle: {
-                  breadcrumb: [{ label: 'User' }],
+                  breadcrumb: [{ label: 'Users', labelKey: 'user.labelPlural' }],
                   requiredPermission: 'master-user.view',
                 },
               },
@@ -131,7 +94,10 @@ export const router = createBrowserRouter([
                 path: 'user-management/user/create',
                 element: <UserCreatePage />,
                 handle: {
-                  breadcrumb: [{ label: 'User', path: '/user-management/user' }, { label: 'Create' }],
+                  breadcrumb: [
+                    { label: 'Users', labelKey: 'user.labelPlural', path: '/user-management/user' },
+                    { label: 'Create', labelKey: 'user.breadcrumbs.create' },
+                  ],
                   requiredPermission: 'master-user.create',
                 },
               },
@@ -139,7 +105,10 @@ export const router = createBrowserRouter([
                 path: 'user-management/user/:userId/view',
                 element: <UserViewPage />,
                 handle: {
-                  breadcrumb: [{ label: 'User', path: '/user-management/user' }, { label: 'Detail' }],
+                  breadcrumb: [
+                    { label: 'Users', labelKey: 'user.labelPlural', path: '/user-management/user' },
+                    { label: 'Detail', labelKey: 'user.breadcrumbs.detail' },
+                  ],
                   requiredPermission: 'master-user.view',
                 },
               },
@@ -147,7 +116,10 @@ export const router = createBrowserRouter([
                 path: 'user-management/user/:userId/edit',
                 element: <UserEditPage />,
                 handle: {
-                  breadcrumb: [{ label: 'User', path: '/user-management/user' }, { label: 'Edit' }],
+                  breadcrumb: [
+                    { label: 'Users', labelKey: 'user.labelPlural', path: '/user-management/user' },
+                    { label: 'Edit', labelKey: 'user.breadcrumbs.edit' },
+                  ],
                   requiredPermission: 'master-user.update',
                 },
               },
@@ -155,7 +127,7 @@ export const router = createBrowserRouter([
                 path: 'user-management/role',
                 element: <RoleListPage />,
                 handle: {
-                  breadcrumb: [{ label: 'Role' }],
+                  breadcrumb: [{ label: 'Roles', labelKey: 'role.labelPlural' }],
                   requiredPermission: 'master-role.view',
                 },
               },
@@ -163,7 +135,10 @@ export const router = createBrowserRouter([
                 path: 'user-management/role/create',
                 element: <RoleCreatePage />,
                 handle: {
-                  breadcrumb: [{ label: 'Role', path: '/user-management/role' }, { label: 'Create' }],
+                  breadcrumb: [
+                    { label: 'Roles', labelKey: 'role.labelPlural', path: '/user-management/role' },
+                    { label: 'Create', labelKey: 'role.breadcrumbs.create' },
+                  ],
                   requiredPermission: 'master-role.create',
                 },
               },
@@ -171,7 +146,10 @@ export const router = createBrowserRouter([
                 path: 'user-management/role/:roleId/view',
                 element: <RoleViewPage />,
                 handle: {
-                  breadcrumb: [{ label: 'Role', path: '/user-management/role' }, { label: 'Detail' }],
+                  breadcrumb: [
+                    { label: 'Roles', labelKey: 'role.labelPlural', path: '/user-management/role' },
+                    { label: 'Detail', labelKey: 'role.breadcrumbs.detail' },
+                  ],
                   requiredPermission: 'master-role.view',
                 },
               },
@@ -179,11 +157,22 @@ export const router = createBrowserRouter([
                 path: 'user-management/role/:roleId/edit',
                 element: <RoleEditPage />,
                 handle: {
-                  breadcrumb: [{ label: 'Role', path: '/user-management/role' }, { label: 'Edit' }],
+                  breadcrumb: [
+                    { label: 'Roles', labelKey: 'role.labelPlural', path: '/user-management/role' },
+                    { label: 'Edit', labelKey: 'role.breadcrumbs.edit' },
+                  ],
                   requiredPermission: 'master-role.update',
                 },
               },
-              // __GENERATOR_ROUTES__
+                                                                                                                                                                                                                                                                                                      {
+                path: 'settings',
+                element: <SettingsPage />,
+                handle: {
+                  breadcrumb: [{ label: 'Settings', labelKey: 'settings.breadcrumb' }],
+                  requiredPermission: 'settings.view',
+                },
+              },
+                                                                      // __GENERATOR_ROUTES__
               // Host WAJIB `path: '*'`: pathless tidak match URL dinamis
               // (sisa pathname tak terkonsumsi → jatuh ke 404).
               {

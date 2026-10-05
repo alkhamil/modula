@@ -11,14 +11,9 @@ import enLogin from '../modules/auth/login/i18n/en.json';
 import idLogin from '../modules/auth/login/i18n/id.json';
 import enDashboard from '../modules/dashboard/i18n/en.json';
 import idDashboard from '../modules/dashboard/i18n/id.json';
-import enUser from '../modules/user-management/user/i18n/en.json';
-import idUser from '../modules/user-management/user/i18n/id.json';
-import enRole from '../modules/user-management/role/i18n/en.json';
-import idRole from '../modules/user-management/role/i18n/id.json';
-import enCompany from '../modules/master-data/company/i18n/en.json';
-import idCompany from '../modules/master-data/company/i18n/id.json';
+// user/role mendaftarkan locale-nya mandiri dari index modul masing-masing.
 
 addModuleLocales({
-  en: [enGenerator, enLogin, enDashboard, enUser, enRole, enCompany],
-  id: [idGenerator, idLogin, idDashboard, idUser, idRole, idCompany],
+  en: [enGenerator, enLogin, enDashboard],
+  id: [idGenerator, idLogin, idDashboard],
 });

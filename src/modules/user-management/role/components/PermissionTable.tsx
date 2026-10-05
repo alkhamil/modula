@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { t } from 'i18next';
+import '../../../../shared/i18n';
 import { CheckboxField } from '../../../../shared/components/ui';
 import { capitalize } from '../../../../shared/utils';
 
@@ -20,15 +22,20 @@ function splitPermission(permission: string): [string, string] {
 }
 
 const ACTION_LABELS: Record<string, string> = {
-  bulk_upload: 'Bulk Upload',
-  export: 'Export',
+  view: 'role.permissionsTable.view',
+  create: 'role.permissionsTable.create',
+  update: 'role.permissionsTable.update',
+  delete: 'role.permissionsTable.delete',
+  bulk_upload: 'role.permissionsTable.bulkUpload',
+  export: 'role.permissionsTable.export',
 };
 
 /** Urutan kolom aksi: View, Create, Update, Delete, Bulk Upload, Export. */
 const ACTION_ORDER = ['view', 'create', 'update', 'delete', 'bulk_upload', 'export'];
 
 function actionLabel(action: string): string {
-  return ACTION_LABELS[action] ?? capitalize(action);
+  const key = ACTION_LABELS[action];
+  return key ? t(key) : capitalize(action);
 }
 
 function sortActions(actions: string[]): string[] {
@@ -77,7 +84,7 @@ function PermissionTable({
           <thead>
             <tr className="bg-muted">
               <th className="border-b border-border px-3 py-2 text-left font-medium text-foreground">
-                Permission
+                {t('role.permissionsTable.title')}
               </th>
               {actions.map((action) => (
                 <th

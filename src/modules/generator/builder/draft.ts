@@ -1,6 +1,9 @@
 import type { ModuleInfoValue } from '../components/ModuleInfoStep';
 import type { FeatureKey, GeneratorFieldConfig, MenuIcon } from '../types';
 import type { DeleteMode, ModuleLayout } from '../definitions';
+import { NEW_PARENT_VALUE } from '../definitions/parents';
+import type { ModuleDefinition } from '../definitions/types';
+import { resolveNames, toKebabCase } from '../naming';
 import type { ModuleI18nDict } from '../types';
 import type { DynamicDetail, DynamicListItem } from '../runtime/types';
 import { payloadValue, type DynamicFormValues } from '../runtime/validation';
@@ -68,6 +71,41 @@ export function clearDraft(): void {
     localStorage.removeItem(DRAFT_KEY);
   } catch {
     // Abaikan.
+  }
+}
+
+/**
+ * Kunci definisi yang akan dihasilkan dari info draft (cermin
+ * `configToDefinition`: parent di-kebab per segmen + nama modul).
+ */
+export function draftDefinitionKey(info: ModuleInfoValue): string {
+  const rawParent =
+    info.parentName === NEW_PARENT_VALUE ? info.newParentName.trim() : info.parentName;
+  const parentName = rawParent.trim() !== '' ? rawParent.trim() : null;
+  const names = resolveNames(parentName, info.moduleName.trim());
+  const parent = parentName
+    ? parentName
+        .split('/')
+        .map((part) => toKebabCase(part))
+        .filter(Boolean)
+        .join('/')
+    : null;
+  return parent ? `${parent}/${names.kebab}` : names.kebab;
+}
+
+/**
+ * True bila draft tersimpan milik modul ber-key ini — dipakai membersihkan
+ * draft saat modulnya dihapus dari daftar (draft modul lain dibiarkan).
+ */
+export function isDraftOfModule(
+  draft: BuilderDraft | null,
+  def: Pick<ModuleDefinition, 'key'>,
+): boolean {
+  if (!draft || draft.info.moduleName.trim() === '') return false;
+  try {
+    return draftDefinitionKey(draft.info) === def.key;
+  } catch {
+    return false;
   }
 }
 

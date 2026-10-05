@@ -1,0 +1,23 @@
+import type { RegisterOptions } from 'react-hook-form';
+import type { TFunction } from 'i18next';
+import type { FormValues } from '../hooks';
+import { hasEmoticon } from '../../../shared/utils';
+
+export function getNameRules(t: TFunction): RegisterOptions<FormValues, 'name'> {
+  return {
+  required: t('validation.required', { label: t('region.fields.name.label') }),
+  minLength: { value: 3, message: t('validation.minLength', { label: t('region.fields.name.label'), count: 3 }) },
+  maxLength: { value: 100, message: t('validation.maxLength', { label: t('region.fields.name.label'), count: 100 }) },
+  validate: (value: string) => !hasEmoticon(value || '') || t('validation.noEmoticon'),
+};
+}
+
+export function getCodeRules(t: TFunction): RegisterOptions<FormValues, 'code'> {
+  return {
+  required: t('validation.required', { label: t('region.fields.code.label') }),
+  minLength: { value: 5, message: t('validation.minLength', { label: t('region.fields.code.label'), count: 5 }) },
+  maxLength: { value: 5, message: t('validation.maxLength', { label: t('region.fields.code.label'), count: 5 }) },
+  validate: (value: string) => !hasEmoticon(value || '') || t('validation.noEmoticon'),
+  pattern: { value: /[A-Z]+/, message: t('validation.pattern', { label: t('region.fields.code.label') }) },
+};
+}

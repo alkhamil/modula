@@ -36,7 +36,8 @@
   },
   "auth": {
     "profile": "Profil",
-    "logout": "Keluar"
+    "logout": "Keluar",
+    "language": "Bahasa"
   },
   "theme": {
     "resetToDefault": "Kembalikan ke default",
@@ -59,6 +60,7 @@
     "uploading": "Mengunggah {{target}}…",
     "fileCount": "{{count}} file",
     "removeFile": "Hapus {{name}}",
+    "viewFile": "Lihat {{name}}",
     "addMore": "Klik atau drop untuk menambah file"
   },
   "guard": {
@@ -211,7 +213,7 @@
     }
   },
   "runtime": {
-    "listTitle": "{{singular}} List",
+    "listTitle": "Daftar {{singular}}",
     "exporting": "Mengekspor…",
     "createTitle": "Buat {{singular}}",
     "deleteTitle": "Yakin ingin menghapus item ini?",
@@ -225,7 +227,7 @@
     "restoreFailed": "Gagal memulihkan {{singular}}.",
     "exportDone": "Export berhasil diunduh.",
     "exportFailed": "Gagal mengekspor data.",
-    "emptyList": "{{singular}} List Kosong",
+    "emptyList": "Daftar {{singular}} Kosong",
     "emptyDesc": "Belum ada record untuk ditampilkan saat ini.",
     "editTitle": "Ubah {{singular}}",
     "detailTitle": "Detail {{singular}}"

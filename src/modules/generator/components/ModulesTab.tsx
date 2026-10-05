@@ -1,22 +1,25 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Dialog, Table, useToast } from '../../../shared/components/ui';
 import { Trash2 } from 'lucide-react';
 import type { ModuleDefinition } from '../definitions';
 import { deleteDefinition, deleteModuleRecords } from '../runtime';
+import { deleteModuleFromRepo } from '../api/deleteFromRepo';
+import { WriteEndpointUnavailableError } from '../api/writeToRepo';
+import { clearDraft, isDraftOfModule, loadDraft } from '../builder/draft';
 import GenerateDialog from './GenerateDialog';
 
 interface ModulesTabProps {
   definitions: ModuleDefinition[];
   isLoading: boolean;
   onEdit: (def: ModuleDefinition) => void;
+  /** Dipanggil setelah definisi + records terhapus (mis. reset wizard yang sedang mengeditnya). */
+  onDeleted?: (def: ModuleDefinition) => void;
 }
 
-function ModulesTab({ definitions, isLoading, onEdit }: ModulesTabProps) {
+function ModulesTab({ definitions, isLoading, onEdit, onDeleted }: ModulesTabProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const [deleteTarget, setDeleteTarget] = useState<ModuleDefinition | null>(null);
@@ -34,6 +37,29 @@ function ModulesTab({ definitions, isLoading, onEdit }: ModulesTabProps) {
       await queryClient.invalidateQueries({ queryKey: ['dynamic-records'] });
       await queryClient.invalidateQueries({ queryKey: ['dynamic-record'] });
       showToast({ variant: 'success', message: t('modules.deleted', { key: deleteTarget.key }) });
+      // Best-effort: hapus juga file repo hasil generate (hanya ada di dev-server).
+      try {
+        const repo = await deleteModuleFromRepo(deleteTarget);
+        const count = repo.deleted.length + repo.removedRoutes + (repo.removedNav ? 1 : 0);
+        if (count > 0) {
+          showToast({
+            variant: 'success',
+            message: t('modules.repoDeleted', { key: deleteTarget.key, count }),
+          });
+        }
+      } catch (err) {
+        if (!(err instanceof WriteEndpointUnavailableError)) {
+          showToast({
+            variant: 'warning',
+            message: t('modules.repoDeleteFailed', {
+              message: err instanceof Error ? err.message : t('modules.deleteFailed'),
+            }),
+          });
+        }
+      }
+      // Draft milik modul yang dihapus ikut dibersihkan agar tak termuat lagi.
+      if (isDraftOfModule(loadDraft(), deleteTarget)) clearDraft();
+      onDeleted?.(deleteTarget);
       setDeleteTarget(null);
     } catch (err) {
       showToast({
@@ -105,13 +131,6 @@ function ModulesTab({ definitions, isLoading, onEdit }: ModulesTabProps) {
         emptyStateDescription={t('modules.emptyDesc')}
         renderAction={(def) => (
           <div className="flex flex-wrap justify-end gap-1">
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => navigate(`/preview/${encodeURIComponent(def.key)}`)}
-            >
-              {t('modules.preview')}
-            </Button>
             <Button size="sm" variant="secondary" onClick={() => onEdit(def)}>
               {t('common.edit')}
             </Button>

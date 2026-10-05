@@ -1,8 +1,7 @@
 /** Tabel list generik — kolom + aksi + render sel dari definisi modul. */
 import type { ReactNode } from 'react';
-import { Table } from '../../../shared/components/ui';
+import { RowActionButton, Table } from '../../../shared/components/ui';
 import type { Column } from '../../../shared/components/ui/Table';
-import { Pencil, RotateCcw, Trash2, Eye } from 'lucide-react';
 import type { ModuleDefinition } from '../definitions';
 import { definitionTestId, type DynamicListItem } from './types';
 import { columnRenderForType, systemTableColumn } from './cellRender';
@@ -123,46 +122,46 @@ function DynamicTable({
           ? (row) => (
               <div className="flex justify-evenly w-full gap-1">
                 {onView && (
-                  <button
-                    data-testid={`${testPrefix}-view-${row.id}`}
-                    className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
+                  <RowActionButton
+                    action="view"
+                    testId={`${testPrefix}-view-${row.id}`}
                     title={`View ${row.id}`}
                     onClick={() => onView(row)}
-                  >
-                    <Eye />
-                  </button>
+                    iconSize={displayProps?.actionIconSize}
+                    color={displayProps?.actionIconColor?.view}
+                  />
                 )}
                 {onEdit && (
-                  <button
-                    data-testid={`${testPrefix}-edit-${row.id}`}
-                    className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
+                  <RowActionButton
+                    action="edit"
+                    testId={`${testPrefix}-edit-${row.id}`}
                     title={`Edit ${row.id}`}
                     onClick={() => onEdit(row)}
-                  >
-                    <Pencil />
-                  </button>
+                    iconSize={displayProps?.actionIconSize}
+                    color={displayProps?.actionIconColor?.edit}
+                  />
                 )}
                 {row.status === 'active' && onDelete && (
-                  <button
-                    data-testid={`${testPrefix}-delete-${row.id}`}
-                    className={`flex h-7 w-7 items-center justify-center rounded-md text-danger ${isDeleting ? 'cursor-not-allowed opacity-40' : 'hover:bg-danger/10 cursor-pointer'}`}
+                  <RowActionButton
+                    action="delete"
+                    testId={`${testPrefix}-delete-${row.id}`}
                     title={`Delete ${row.id}`}
                     onClick={() => onDelete(row)}
                     disabled={isDeleting}
-                  >
-                    <Trash2 />
-                  </button>
+                    iconSize={displayProps?.actionIconSize}
+                    color={displayProps?.actionIconColor?.delete}
+                  />
                 )}
                 {row.status === 'inactive' && onRestore && (
-                  <button
-                    data-testid={`${testPrefix}-restore-${row.id}`}
-                    className={`flex h-7 w-7 items-center justify-center rounded-md ${isRestoring ? 'cursor-not-allowed opacity-40' : 'hover:bg-muted cursor-pointer'}`}
+                  <RowActionButton
+                    action="restore"
+                    testId={`${testPrefix}-restore-${row.id}`}
                     title={`Restore ${row.id}`}
                     onClick={() => onRestore(row)}
                     disabled={isRestoring}
-                  >
-                    <RotateCcw />
-                  </button>
+                    iconSize={displayProps?.actionIconSize}
+                    color={displayProps?.actionIconColor?.restore}
+                  />
                 )}
               </div>
             )

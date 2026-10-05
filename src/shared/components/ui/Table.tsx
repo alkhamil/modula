@@ -1,6 +1,6 @@
 import { isValidElement, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, TriangleAlert } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TriangleAlert } from 'lucide-react';
 import { formatNumber } from '../../utils';
 import SelectField from './fields/SelectField';
 import Button from './Button';
@@ -151,7 +151,7 @@ function Pagination({
           disabled={page <= 1}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-primary transition-colors hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed border border-transparent hover:border-primary"
         >
-          <ChevronDown className="h-4 w-4 rotate-180" />
+          <ChevronLeft className="h-4 w-4" />
         </button>
 
         {pages.map((p, i) =>
@@ -187,7 +187,7 @@ function Pagination({
           disabled={page >= totalPages}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-primary transition-colors hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed border border-transparent hover:border-primary"
         >
-          <ChevronDown className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4" />
         </button>
       </div>
     </div>
@@ -540,7 +540,7 @@ function Table<T>({
                 <tr>
                   <td colSpan={totalColumns} className="px-5 py-12">
                     <div className="sticky left-1/2 w-max -translate-x-1/2 flex flex-col gap-2 items-center justify-center text-center">
-                      <TriangleAlert className="h-12 w-12 shrink-0" />
+                      <TriangleAlert className="h-12 w-12 shrink-0 text-danger" />
                       <p className="text-lg font-semibold text-foreground">{errorTitle}</p>
                       {errorDescription && (
                         <p className="text-sm text-muted-foreground">{errorDescription}</p>

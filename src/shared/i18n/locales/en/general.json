@@ -36,7 +36,8 @@
   },
   "auth": {
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "language": "Language"
   },
   "theme": {
     "resetToDefault": "Reset to default",
@@ -59,6 +60,7 @@
     "uploading": "Uploading {{target}}…",
     "fileCount": "{{count}} files",
     "removeFile": "Remove {{name}}",
+    "viewFile": "View {{name}}",
     "addMore": "Click or drop to add more files"
   },
   "guard": {

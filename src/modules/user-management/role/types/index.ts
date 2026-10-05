@@ -3,6 +3,8 @@ export interface Role {
   name: string;
   permissions: string[];
   status: 'active' | 'inactive';
+  createdBy: string;
+  createdDate: string;
 }
 
 export interface RoleListItem {
@@ -10,6 +12,8 @@ export interface RoleListItem {
   name: string;
   permissions: string[];
   status: 'active' | 'inactive';
+  created_date: string;
+  created_by: string | null;
 }
 
 export interface CreateRolePayload {

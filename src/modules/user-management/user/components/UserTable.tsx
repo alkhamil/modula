@@ -1,7 +1,9 @@
+import { t } from 'i18next';
+import '../../../../shared/i18n';
 import type { UserListItem } from '../types';
 import { Table, Badge } from '../../../../shared/components/ui';
 
-import { capitalize } from '../../../../shared/utils';
+import { formatDateTime } from '../../../../shared/utils';
 import { Eye, Pencil, Trash2, RotateCcw } from 'lucide-react';
 
 interface Props {
@@ -49,21 +51,28 @@ function UserTable({
   const columns = [
     {
       key: 'name',
-      header: 'Name',
+      header: t('user.fields.name.label'),
       sortable: true,
-      className: 'w-56',
+      className: 'w-55',
     },
-    { key: 'username', header: 'Username', sortable: true },
-    { key: 'email', header: 'Email' },
-    { key: 'role_name', header: 'Role' },
+    { key: 'username', header: t('user.fields.username.label'), sortable: true, className: 'w-55' },
+    { key: 'email', header: t('user.fields.email.label'), className: 'w-55' },
+    { key: 'role_name', header: t('user.fields.role.label'), className: 'w-40' },
+    { key: 'created_by', header: t('table.createdBy'), className: 'w-40' },
+    {
+      key: 'created_date',
+      header: t('table.createdDate'),
+      render: (user: UserListItem) => formatDateTime(user.created_date),
+      className: 'w-40',
+    },
     {
       key: 'status',
-      header: 'Status',
+      header: t('table.status'),
       sortable: false,
-      className: 'w-32',
+      className: 'w-40',
       render: (user: UserListItem) => (
         <Badge variant={user.status === 'active' ? 'success' : 'secondary'}>
-          {capitalize(user.status)}
+          {user.status === 'active' ? t('common.active') : t('common.inactive')}
         </Badge>
       ),
     },

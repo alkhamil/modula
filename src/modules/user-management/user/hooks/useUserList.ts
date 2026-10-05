@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../shared/components/ui';
 import { mapSubmitError } from '../../../../shared/utils';
 import type { UserListItem, GetUsersParams } from '../types';
 import { useUserListQuery, useDeleteUser, useRestoreUser } from '../api';
 
 export function useUserList(params: GetUsersParams) {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const [deleteTarget, setDeleteTarget] = useState<UserListItem | null>(null);
   const [restoreTarget, setRestoreTarget] = useState<UserListItem | null>(null);
@@ -28,7 +30,7 @@ export function useUserList(params: GetUsersParams) {
       setDeleteTarget(null);
       showToast({ message: res.message, variant: 'success' });
     } catch (err: unknown) {
-      const fallback = 'Failed to delete user';
+      const fallback = t('runtime.deleteFailed', { singular: t('user.label') });
       const result = mapSubmitError(err, fallback);
       showToast({ message: result.toastMessage ?? fallback, variant: 'error' });
     }
@@ -49,7 +51,7 @@ export function useUserList(params: GetUsersParams) {
       setRestoreTarget(null);
       showToast({ message: res.message, variant: 'success' });
     } catch (err: unknown) {
-      const fallback = 'Failed to restore user';
+      const fallback = t('runtime.restoreFailed', { singular: t('user.label') });
       const result = mapSubmitError(err, fallback);
       showToast({ message: result.toastMessage ?? fallback, variant: 'error' });
     }

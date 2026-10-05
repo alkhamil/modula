@@ -29,6 +29,7 @@ import {
 import { Settings } from 'lucide-react';
 import { capitalize } from '../../../shared/utils';
 import type { ModuleDefinition, ModuleLayout } from '../definitions';
+import { SYSTEM_TABLE_COLUMNS } from '../definitions';
 import type {
   DetailCardDisplayProps,
   DetailRowDisplayProps,
@@ -59,11 +60,13 @@ function SwitchRow({
   desc,
   value,
   onChange,
+  disabled = false,
 }: {
   label: string;
   desc: string;
   value: boolean;
   onChange: (value: boolean) => void;
+  disabled?: boolean;
 }) {
   return (
     <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2">
@@ -71,7 +74,7 @@ function SwitchRow({
         <p className="text-xs font-medium text-foreground">{label}</p>
         <p className="text-xs text-muted-foreground">{desc}</p>
       </div>
-      <SwitchField value={value} onChange={onChange} size="sm" />
+      <SwitchField value={value} onChange={onChange} size="sm" disabled={disabled} />
     </div>
   );
 }
@@ -219,6 +222,69 @@ function RowDrawerContent({
   );
 }
 
+/** Isi drawer properti baris sistem: info + gaya (selalu tampil). */
+function SystemRowDrawerContent({
+  name,
+  label,
+  rowProps,
+  onPatchProps,
+}: {
+  name: string;
+  label: string;
+  rowProps: DetailRowDisplayProps | undefined;
+  onPatchProps: (patch: Partial<DetailRowDisplayProps>) => void;
+}) {
+  const { t } = useTranslation();
+  const props = rowProps ?? {};
+  const noop = (): void => {};
+  return (
+    <div className="flex flex-col stack-gap">
+      <Card size="sm" title={t('detail.rowCard')}>
+        <div className="flex flex-col field-gap">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-muted-foreground">{t('field.label')}</span>
+            <span className="text-xs font-medium text-foreground">{label}</span>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-muted-foreground">{t('field.name')}</span>
+            <span className="font-mono text-xs text-muted-foreground">{name}</span>
+          </div>
+          <p className="text-xs text-muted-foreground">{t('detail.systemRowNote')}</p>
+        </div>
+      </Card>
+      <Card size="sm" title={t('detail.styleCard')} collapsible>
+        <div className="flex flex-col field-gap">
+          <SwitchRow
+            label={t('detail.showRow')}
+            desc={t('detail.showRowSystemDesc')}
+            value
+            onChange={noop}
+            disabled
+          />
+          <SwitchRow
+            label={t('detail.headingMode')}
+            desc={t('detail.headingModeDesc')}
+            value={props.heading === true}
+            onChange={(heading) => onPatchProps({ heading })}
+          />
+          <SwitchRow
+            label={t('detail.fullWidth')}
+            desc={t('detail.fullWidthDesc')}
+            value={props.fullWidth === true}
+            onChange={(fullWidth) => onPatchProps({ fullWidth })}
+          />
+          <SwitchRow
+            label={t('detail.noDivider')}
+            desc={t('detail.noDividerDesc')}
+            value={props.noDivider === true}
+            onChange={(noDivider) => onPatchProps({ noDivider })}
+          />
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 /** Isi drawer pengaturan kartu detail. */
 function DetailCardDrawerContent({
   singularLabel,
@@ -274,7 +340,23 @@ function DetailBuilderCanvas({
   const detail = layout.detail ?? { order: fields.map((f) => f.name), hidden: [] };
   const cardProps = layout.detail?.card;
   const selectedField = selectedName ? byName.get(selectedName) : undefined;
-  const drawerOpen = selectedField !== undefined || cardOpen;
+  const selectedSystem =
+    selectedName && !selectedField && SYSTEM_TABLE_COLUMNS.includes(selectedName)
+      ? selectedName
+      : null;
+  const drawerOpen = selectedField !== undefined || selectedSystem !== null || cardOpen;
+  // Urutan tampil: kunci sistem mengikuti posisi di order; yang belum ada
+  // memakai fallback lama (status di depan, created_* di belakang).
+  const displayOrder = useMemo(() => {
+    const merged = detail.order.filter(
+      (name) => byName.has(name) || SYSTEM_TABLE_COLUMNS.includes(name),
+    );
+    if (!merged.includes('status')) merged.unshift('status');
+    for (const key of ['created_by', 'created_date']) {
+      if (!merged.includes(key)) merged.push(key);
+    }
+    return merged;
+  }, [detail.order, byName]);
   const item: DynamicDetail | null = useMemo(
     () => (sampleRows.length > 0 ? sampleToDetail(sampleRows[0]) : null),
     [sampleRows],
@@ -288,7 +370,30 @@ function DetailBuilderCanvas({
   function handleDragEnd(event: DragEndEvent): void {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    onChange(moveDetailItem(layout, String(active.id), String(over.id)));
+    // Pastikan kunci sistem ikut tersimpan saat ikut diseret.
+    const base = layout.detail ?? { order: [], hidden: [] as string[] };
+    const full = displayOrder.every((key) => base.order.includes(key))
+      ? layout
+      : { ...layout, detail: { ...base, order: displayOrder } };
+    onChange(moveDetailItem(full, String(active.id), String(over.id)));
+  }
+
+  function systemRowValue(name: string): React.ReactNode {
+    if (name === 'created_by') return item?.createdBy ?? '';
+    if (name === 'created_date') return item?.createdDate ?? '';
+    return item ? (
+      <Badge variant={item.status === 'active' ? 'success' : 'secondary'}>
+        {capitalize(item.status)}
+      </Badge>
+    ) : (
+      ''
+    );
+  }
+
+  function systemRowLabel(name: string): string {
+    if (name === 'created_by') return 'Created By';
+    if (name === 'created_date') return 'Created Date';
+    return 'Status';
   }
 
   function rowValue(field: GeneratorFieldConfig): React.ReactNode {
@@ -326,7 +431,7 @@ function DetailBuilderCanvas({
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext
-          items={detail.order.filter((name) => byName.has(name))}
+          items={displayOrder}
           strategy={verticalListSortingStrategy}
         >
           <Card
@@ -334,34 +439,21 @@ function DetailBuilderCanvas({
             title={cardProps?.title?.trim() || t('detail.cardTitleDefault', { singular: def.singularLabel })}
             collapsible={cardProps?.collapsible === true}
           >
-            <div
-              className={`grid grid-cols-[300px_1fr] gap-4 py-4 px-0 ${prevWasHeading ? '' : ''}`}
-            >
-              <span className="text-sm text-muted-foreground">Status</span>
-              <div className="text-sm break-all text-foreground">
-                {item ? (
-                  <Badge variant={item.status === 'active' ? 'success' : 'secondary'}>
-                    {capitalize(item.status)}
-                  </Badge>
-                ) : (
-                  ''
-                )}
-              </div>
-            </div>
-            {detail.order.map((name) => {
+            {displayOrder.map((name, index) => {
               const field = byName.get(name);
-              if (!field) return null;
-              const hidden = detail.hidden.includes(name);
+              const isSystem = !field && SYSTEM_TABLE_COLUMNS.includes(name);
+              if (!field && !isSystem) return null;
+              const hidden = field ? detail.hidden.includes(name) : false;
               const rowProps = layout.detail?.props?.[name];
-              const showBorder = !rowProps?.noDivider && !prevWasHeading;
+              const showBorder = index > 0 && !rowProps?.noDivider && !prevWasHeading;
               const isHeading = rowProps?.heading === true;
               prevWasHeading = isHeading;
               return (
                 <SortableDetailRow
                   key={name}
                   name={name}
-                  label={field.label}
-                  value={rowValue(field)}
+                  label={field ? field.label : systemRowLabel(name)}
+                  value={field ? rowValue(field) : systemRowValue(name)}
                   rowProps={rowProps}
                   showBorder={showBorder}
                   hidden={hidden}
@@ -373,20 +465,6 @@ function DetailBuilderCanvas({
                 />
               );
             })}
-            {item && (
-              <>
-                <div
-                  className={`grid grid-cols-[300px_1fr] gap-4 py-4 px-0 ${prevWasHeading ? '' : 'border-t border-border'}`}
-                >
-                  <span className="text-sm text-muted-foreground">Created By</span>
-                  <div className="text-sm break-all text-foreground">{item.createdBy}</div>
-                </div>
-                <div className="grid grid-cols-[300px_1fr] gap-4 py-4 px-0 border-t border-border">
-                  <span className="text-sm text-muted-foreground">Created Date</span>
-                  <div className="text-sm break-all text-foreground">{item.createdDate}</div>
-                </div>
-              </>
-            )}
           </Card>
         </SortableContext>
       </DndContext>
@@ -394,7 +472,13 @@ function DetailBuilderCanvas({
       <Drawer
         open={drawerOpen}
         onClose={closeDrawers}
-        title={selectedField ? t('detail.rowTitle', { label: selectedField.label }) : t('detail.cardSettings')}
+        title={
+          selectedField
+            ? t('detail.rowTitle', { label: selectedField.label })
+            : selectedSystem !== null
+              ? t('detail.rowTitle', { label: systemRowLabel(selectedSystem) })
+              : t('detail.cardSettings')
+        }
         width="md"
         modal={false}
         testId="detail-property-drawer"
@@ -407,6 +491,14 @@ function DetailBuilderCanvas({
             rowProps={layout.detail?.props?.[selectedField.name]}
             onToggleHidden={() => onChange(toggleDetailItem(layout, selectedField.name))}
             onPatchProps={(patch) => onChange(setDetailRowProps(layout, selectedField.name, patch))}
+          />
+        ) : selectedSystem !== null ? (
+          <SystemRowDrawerContent
+            key={selectedSystem}
+            name={selectedSystem}
+            label={systemRowLabel(selectedSystem)}
+            rowProps={layout.detail?.props?.[selectedSystem]}
+            onPatchProps={(patch) => onChange(setDetailRowProps(layout, selectedSystem, patch))}
           />
         ) : (
           <DetailCardDrawerContent

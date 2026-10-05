@@ -7,6 +7,8 @@ import type {
   BulkRowError,
   BulkUploadResult,
 } from '../types';
+import { t } from 'i18next';
+import '../../../../shared/i18n';
 import type { ApiList, ApiPagination } from '../../../../shared/types';
 import { XLSX_MIME, buildWorkbook, readWorkbookRows } from '../../../../shared/utils';
 import {
@@ -97,6 +99,8 @@ interface MockUserRecord {
   email: string;
   password: string;
   status: 'active' | 'inactive';
+  created_by: string | null;
+  created_date: string;
 }
 
 function buildUsers(): MockUserRecord[] {
@@ -113,6 +117,8 @@ function buildUsers(): MockUserRecord[] {
       email: `${toSlug(name)}@company.com`,
       password: `${toSlug(name)}123`,
       status: isInactive ? 'inactive' : 'active',
+      created_by: 'System',
+      created_date: `2024-0${(i % 9) + 1}-${10 + (i % 9)} 09:00`,
     });
   }
   return list;
@@ -129,6 +135,8 @@ function toListItem(record: MockUserRecord): UserListItem {
     username: record.username,
     email: record.email,
     status: record.status,
+    created_date: record.created_date,
+    created_by: record.created_by,
   };
 }
 
@@ -142,6 +150,8 @@ function toDetail(record: MockUserRecord): User {
     email: record.email,
     password: record.password,
     status: record.status,
+    createdBy: record.created_by ?? '',
+    createdDate: record.created_date,
   };
 }
 
@@ -200,7 +210,7 @@ export async function mockGetUsers(params?: GetUsersParams): Promise<ApiList<Use
 export async function mockGetUserById(userId: string): Promise<User> {
   await delay(300);
   const user = mockUsers.find((u) => u.id === userId);
-  if (!user) throw new Error('User not found');
+  if (!user) throw new Error(t('user.toast.notFound'));
   return toDetail(user);
 }
 
@@ -208,10 +218,16 @@ export async function mockCreateUser(data: CreateUserPayload): Promise<UserMutat
   await delay(300);
   const errors: { field: string; message: string }[] = [];
   if (mockUsers.some((u) => u.username.toLowerCase() === data.username.toLowerCase())) {
-    errors.push({ field: 'username', message: 'Username is already taken' });
+    errors.push({
+      field: 'username',
+      message: t('validation.unique', { label: t('user.fields.username.label') }),
+    });
   }
   if (mockUsers.some((u) => u.email.toLowerCase() === data.email.toLowerCase())) {
-    errors.push({ field: 'email', message: 'Email is already registered' });
+    errors.push({
+      field: 'email',
+      message: t('validation.unique', { label: t('user.fields.email.label') }),
+    });
   }
   if (errors.length) {
     throw {
@@ -236,9 +252,11 @@ export async function mockCreateUser(data: CreateUserPayload): Promise<UserMutat
     email: data.email,
     password: data.password,
     status: data.status,
+    created_by: 'System',
+    created_date: new Date().toISOString().slice(0, 16).replace('T', ' '),
   };
   mockUsers.push(user);
-  return { message: 'User created successfully.', data: toDetail(user) };
+  return { message: t('user.toast.created'), data: toDetail(user) };
 }
 
 export async function mockUpdateUser(
@@ -247,30 +265,30 @@ export async function mockUpdateUser(
 ): Promise<UserMutationResult> {
   await delay(300);
   const user = mockUsers.find((u) => u.id === userId);
-  if (!user) throw new Error('User not found');
+  if (!user) throw new Error(t('user.toast.notFound'));
   user.name = data.name;
   user.role_id = data.role_id;
   user.username = data.username;
   user.email = data.email;
   if (data.password) user.password = data.password;
   user.status = data.status;
-  return { message: 'User edited successfully.', data: toDetail(user) };
+  return { message: t('user.toast.updated'), data: toDetail(user) };
 }
 
 export async function mockDeleteUser(userId: string): Promise<{ message: string }> {
   await delay(300);
   const user = mockUsers.find((u) => u.id === userId);
-  if (!user) throw new Error('User not found');
+  if (!user) throw new Error(t('user.toast.notFound'));
   user.status = 'inactive';
-  return { message: 'User deleted successfully.' };
+  return { message: t('user.toast.deleted') };
 }
 
 export async function mockRestoreUser(userId: string): Promise<UserMutationResult> {
   await delay(300);
   const user = mockUsers.find((u) => u.id === userId);
-  if (!user) throw new Error('User not found');
+  if (!user) throw new Error(t('user.toast.notFound'));
   user.status = 'active';
-  return { message: 'User restored successfully.', data: toDetail(user) };
+  return { message: t('user.toast.restored'), data: toDetail(user) };
 }
 
 export async function mockGetRoleOptions(search?: string): Promise<RoleOption[]> {
@@ -284,8 +302,8 @@ export async function mockExportUsers(params?: GetUsersParams): Promise<Blob> {
   await delay(300);
   const items = filterUserRecords({ ...params, page: undefined, size: undefined });
   const data = await buildWorkbook(
-    ['Name', 'Username', 'Email', 'Role', 'Status'],
-    items.map((r) => [r.name, r.username, r.email, r.role_name, r.status]),
+    ['Name', 'Username', 'Email', 'Role', 'Status', 'Created Date'],
+    items.map((r) => [r.name, r.username, r.email, r.role_name, r.status, r.created_date]),
   );
   return new Blob([data], { type: XLSX_MIME });
 }
@@ -310,7 +328,7 @@ export async function mockBulkUploadUsers(file: File | ArrayBuffer): Promise<Bul
       errors: missing.map((field) => ({
         row: 1,
         field,
-        message: `Column "${field}" was not found in the file.`,
+        message: t('bulk.missingColumn', { field }),
       })),
     };
   }
@@ -319,7 +337,7 @@ export async function mockBulkUploadUsers(file: File | ArrayBuffer): Promise<Bul
       totalRows: 0,
       successCount: 0,
       failedCount: 0,
-      errors: [{ row: 1, message: 'The file contains no data.' }],
+      errors: [{ row: 1, message: t('bulk.emptyFile') }],
     };
   }
   const seenUsername = new Set(mockUsers.map((u) => u.username.toLowerCase()));
@@ -357,6 +375,8 @@ export async function mockBulkUploadUsers(file: File | ArrayBuffer): Promise<Bul
       email: payload.email,
       password: payload.password,
       status: payload.status,
+      created_by: 'System',
+      created_date: new Date().toISOString().slice(0, 16).replace('T', ' '),
     });
     successCount += 1;
   });

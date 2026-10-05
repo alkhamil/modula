@@ -10,6 +10,7 @@ import {
   defaultCriteria,
   defaultFilterable,
   defaultSortable,
+  validationRegistry,
 } from './registry';
 
 /**
@@ -25,6 +26,48 @@ export const RESERVED_FIELD_NAMES: readonly string[] = [
 
 export function isReservedFieldName(name: string): boolean {
   return RESERVED_FIELD_NAMES.includes(name.toLowerCase());
+}
+
+/** Rule berargumen numerik (`min`/`max`/`minLength`/`maxLength`). */
+const NUMERIC_RULES: readonly string[] = ['min', 'max', 'minLength', 'maxLength'];
+
+/**
+ * Validasi argumen rules satu field/sub (`min:` kosong, angka tak valid,
+ * pola regex rusak). Dipakai field parent maupun sub-field array.
+ */
+function checkFieldRules(
+  rules: string[],
+  basePath: string,
+  ownerName: string,
+  issues: ConfigIssue[],
+): void {
+  for (const rawRule of rules) {
+    const { name: ruleName, arg: ruleArg } = splitRule(rawRule.trim());
+    const ruleDef = validationRegistry[ruleName as keyof typeof validationRegistry];
+    if (!ruleDef?.needsArg) continue;
+    const rulePath = `${basePath}.rules`;
+    const value = (ruleArg ?? '').trim();
+    if (value === '') {
+      issues.push({
+        path: rulePath,
+        message: t('configValidate.fieldRuleArg', { name: ownerName, rule: ruleName }),
+      });
+    } else if (NUMERIC_RULES.includes(ruleName) && !Number.isFinite(Number(value))) {
+      issues.push({
+        path: rulePath,
+        message: t('configValidate.fieldRuleNumeric', { name: ownerName, rule: ruleName }),
+      });
+    } else if (ruleName === 'regex') {
+      try {
+        new RegExp(value);
+      } catch {
+        issues.push({
+          path: rulePath,
+          message: t('configValidate.fieldRuleRegex', { name: ownerName }),
+        });
+      }
+    }
+  }
 }
 
 /** `required|min:3|max:100` → `["required", "min:3", "max:100"]`. */
@@ -139,6 +182,7 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
     if (!field.label) {
       issues.push({ path: `${path}.label`, message: t('configValidate.fieldLabelRequired') });
     }
+    checkFieldRules(field.rules, path, field.name, issues);
     const allowedSources = (
       Object.keys(dataSourceRegistry) as (keyof typeof dataSourceRegistry)[]
     ).filter((source) => dataSourceRegistry[source].appliesTo.includes(field.type));
@@ -215,6 +259,7 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
         if (!sub.label?.trim()) {
           issues.push({ path: `${subPath}.label`, message: t('configValidate.subLabelRequired') });
         }
+        checkFieldRules(sub.rules, subPath, sub.name, issues);
         if (sub.type === 'formArrayField') {
           issues.push({
             path: `${subPath}.type`,

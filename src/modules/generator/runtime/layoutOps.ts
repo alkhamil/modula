@@ -6,8 +6,44 @@ import type { DetailLayout, FormLayoutItem, ModuleLayout } from '../definitions'
 import type {
   DetailCardDisplayProps,
   DetailRowDisplayProps,
+  RowActionColor,
+  RowActionKind,
   TableDisplayProps,
 } from '../types';
+
+const ROW_ACTION_KINDS: readonly RowActionKind[] = ['view', 'edit', 'delete', 'restore'];
+
+const ROW_ACTION_COLORS: readonly RowActionColor[] = [
+  'default',
+  'info',
+  'warning',
+  'danger',
+  'success',
+  'muted',
+];
+
+/** Sanitasi ukuran ikon aksi kanvas (integer 12–24 px, cermin normalize). */
+function sanitizeActionIconSize(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 12 && value <= 24
+    ? value
+    : undefined;
+}
+
+/** Sanitasi warna ikon per aksi kanvas (cermin normalize). */
+function sanitizeActionIconColor(
+  value: unknown,
+): Partial<Record<RowActionKind, RowActionColor>> | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const src = value as Record<string, unknown>;
+  const colors: Partial<Record<RowActionKind, RowActionColor>> = {};
+  for (const kind of ROW_ACTION_KINDS) {
+    const color = src[kind];
+    if (typeof color === 'string' && (ROW_ACTION_COLORS as readonly string[]).includes(color)) {
+      colors[kind] = color as RowActionColor;
+    }
+  }
+  return Object.keys(colors).length > 0 ? colors : undefined;
+}
 
 /** Pindahkan item form (drag active ke posisi over) + rapikan order. */
 export function moveFormItem(layout: ModuleLayout, activeField: string, overField: string): ModuleLayout {
@@ -118,6 +154,14 @@ export function setTableProps(layout: ModuleLayout, patch: Partial<TableDisplayP
       (next as Record<string, boolean>)[key] = value;
     } else if (key === 'actionPosition' && (value === 'left' || value === 'right')) {
       next.actionPosition = value;
+    } else if (key === 'actionIconSize') {
+      const size = sanitizeActionIconSize(value);
+      if (size === undefined) delete next.actionIconSize;
+      else next.actionIconSize = size;
+    } else if (key === 'actionIconColor') {
+      const colors = sanitizeActionIconColor(value);
+      if (colors === undefined) delete next.actionIconColor;
+      else next.actionIconColor = colors;
     } else {
       delete (next as Record<string, boolean>)[key];
     }

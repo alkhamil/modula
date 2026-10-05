@@ -68,7 +68,7 @@ function UserBulkUploadDialog({ open, onClose }: UserBulkUploadDialogProps) {
       testId="user-bulk-upload-dialog"
       open={open}
       onClose={handleClose}
-      title={t('bulk.title', { singular: 'User' })}
+      title={t('bulk.title', { singular: t('user.label') })}
       maxWidth="lg"
       closeOnEscape
       closeOnBackdropClick

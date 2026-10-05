@@ -1,7 +1,9 @@
+import { t } from 'i18next';
+import '../../../../shared/i18n';
 import type { RoleListItem } from '../types';
 import { Table, Badge } from '../../../../shared/components/ui';
 
-import { capitalize } from '../../../../shared/utils';
+import { formatDateTime } from '../../../../shared/utils';
 import { Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 
 interface Props {
@@ -49,23 +51,29 @@ function RoleTable({
   const columns = [
     {
       key: 'name',
-      header: 'Role Name',
+      header: t('role.fields.name.label'),
       sortable: true,
       className: 'w-64',
     },
     {
       key: 'permissions',
-      header: 'Permissions',
+      header: t('role.fields.permissions.label'),
       render: (role: RoleListItem) => role.permissions.join(', ') || '-',
+    },
+    { key: 'created_by', header: t('table.createdBy') },
+    {
+      key: 'created_date',
+      header: t('table.createdDate'),
+      render: (role: RoleListItem) => formatDateTime(role.created_date),
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('table.status'),
       sortable: false,
       className: 'w-32',
       render: (role: RoleListItem) => (
         <Badge variant={role.status === 'active' ? 'success' : 'secondary'}>
-          {capitalize(role.status)}
+          {role.status === 'active' ? t('common.active') : t('common.inactive')}
         </Badge>
       ),
     },

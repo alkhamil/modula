@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { t } from 'i18next';
+import '../../../../shared/i18n';
 import type { FilterField } from '../../../../shared/components/ui';
 import type { GetUsersParams } from '../types';
 import { getRoleOptions } from '../api';
@@ -24,19 +26,19 @@ export function useUserListFilter() {
   const filterFields: FilterField[] = [
     {
       name: 'status',
-      label: 'Status',
+      label: t('table.status'),
       type: 'select',
-      placeholder: 'Select status',
+      placeholder: t('user.fields.status.placeholder'),
       options: [
-        { label: 'Active', value: 'active' },
-        { label: 'Inactive', value: 'inactive' },
+        { label: t('common.active'), value: 'active' },
+        { label: t('common.inactive'), value: 'inactive' },
       ],
     },
     {
       name: 'role',
-      label: 'Role',
+      label: t('user.fields.role.label'),
       type: 'select',
-      placeholder: 'Select role',
+      placeholder: t('user.fields.role.placeholder'),
       loadOptions: getRoleOptions,
     },
   ];
@@ -45,6 +47,8 @@ export function useUserListFilter() {
     search: debouncedSearchQuery || undefined,
     status: filterValues.status || undefined,
     role: filterValues.role || undefined,
+    order: sortKey,
+    sort: sortDir,
     page,
     size: pageSize,
   };

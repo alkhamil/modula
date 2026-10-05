@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type DragEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CircleAlert } from 'lucide-react';
+import { CircleAlert, FileText } from 'lucide-react';
+import RowActionButton from '../RowActionButton';
 
 interface FileUploadFieldProps {
   size?: 'sm' | 'md' | 'lg';
@@ -46,39 +47,65 @@ function FileUploadField({
   // Progress simulasi client-side (mock-only: tanpa upload nyata).
   const [progress, setProgress] = useState<number | null>(null);
   const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Counter sinkron (updater setState berjalan saat render, jadi tak bisa dipakai deteksi selesai).
+  const progressValue = useRef<number>(0);
+  // Object URL untuk view file (direvoke saat unmount / kedaluwarsa).
+  const objectUrls = useRef<string[]>([]);
+  // Label file yang sedang diunggah (kartu baru ditempel setelah progress beres).
+  const [pendingLabel, setPendingLabel] = useState<string | null>(null);
+  // Ref nilai terkini agar commit setelah upload tak menghidupkan file yang sempat dihapus.
+  const valueRef = useRef(value);
 
   useEffect(() => {
+    const urls = objectUrls.current;
     return () => {
       if (progressTimer.current) clearInterval(progressTimer.current);
+      urls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, []);
 
-  function startProgress() {
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
+  function startProgress(onDone: () => void) {
     if (progressTimer.current) clearInterval(progressTimer.current);
+    progressValue.current = 0;
     setProgress(0);
     progressTimer.current = setInterval(() => {
-      setProgress((current) => {
-        if (current === null) return null;
-        const next = current + 25;
-        if (next >= 100) {
-          if (progressTimer.current) clearInterval(progressTimer.current);
-          progressTimer.current = null;
-          return null;
-        }
-        return next;
-      });
+      const next = progressValue.current + 25;
+      if (next >= 100) {
+        if (progressTimer.current) clearInterval(progressTimer.current);
+        progressTimer.current = null;
+        progressValue.current = 0;
+        setProgress(null);
+        setPendingLabel(null);
+        onDone();
+        return;
+      }
+      progressValue.current = next;
+      setProgress(next);
     }, 150);
   }
 
   function handleFiles(fileList: FileList | null) {
-    if (!fileList || fileList.length === 0) return;
-    if (multiple) {
-      const existing = Array.isArray(value) ? value : [];
-      onChange([...existing, ...Array.from(fileList)]);
-    } else {
-      onChange(fileList[0]);
-    }
-    startProgress();
+    // Abaikan file baru selama upload sebelumnya belum beres.
+    if (!fileList || fileList.length === 0 || disabled || progressTimer.current) return;
+    const incoming = Array.from(fileList);
+    setPendingLabel(
+      incoming.length > 1
+        ? t('upload.fileCount', { count: incoming.length })
+        : (incoming[0]?.name ?? ''),
+    );
+    startProgress(() => {
+      if (multiple) {
+        const existing = Array.isArray(valueRef.current) ? valueRef.current : [];
+        onChange([...existing, ...incoming]);
+      } else {
+        const first = incoming[0];
+        if (first) onChange(first);
+      }
+    });
   }
 
   function handleDrop(e: DragEvent) {
@@ -97,8 +124,7 @@ function FileUploadField({
     setDragging(false);
   }
 
-  function handleRemove(e: React.MouseEvent, index?: number) {
-    e.stopPropagation();
+  function handleRemove(index?: number) {
     if (multiple && Array.isArray(value) && index !== undefined) {
       const rest = value.filter((_, i) => i !== index);
       onChange(rest.length > 0 ? rest : null);
@@ -107,13 +133,23 @@ function FileUploadField({
     onChange(null);
   }
 
+  function handleView(file: File) {
+    const url = URL.createObjectURL(file);
+    objectUrls.current.push(url);
+    window.open(url, '_blank', 'noopener');
+    // Revoke tertunda agar tab baru sempat memuat; unmount merevoke sisanya.
+    window.setTimeout(() => {
+      URL.revokeObjectURL(url);
+      objectUrls.current = objectUrls.current.filter((u) => u !== url);
+    }, 60000);
+  }
+
   const files: File[] = multiple
     ? ((value as File[] | null) ?? [])
     : value
       ? [value as File]
       : [];
-  const hasFile = files.length > 0;
-  const uploading = progress !== null && hasFile;
+  const uploading = progress !== null;
 
   return (
     <div data-testid={resolvedTestId} className={className}>
@@ -141,12 +177,7 @@ function FileUploadField({
         {uploading ? (
           <div className="flex w-full flex-col items-center gap-2">
             <span className="text-foreground">
-              {t('upload.uploading', {
-                target:
-                  files.length > 1
-                    ? t('upload.fileCount', { count: files.length })
-                    : (files[0]?.name ?? ''),
-              })}
+              {t('upload.uploading', { target: pendingLabel ?? '' })}
             </span>
             <div
               data-testid={resolvedTestId ? `${resolvedTestId}-progress` : undefined}
@@ -162,37 +193,6 @@ function FileUploadField({
               />
             </div>
             <span className="text-xs text-muted-foreground">{progress}%</span>
-          </div>
-        ) : hasFile ? (
-          <div className="flex w-full flex-col items-center gap-2">
-            {files.map((file, i) => (
-              <div
-                key={`${file.name}-${i}`}
-                className="flex w-full max-w-xs items-center justify-between gap-2 rounded-md border border-border bg-surface px-3 py-1.5"
-              >
-                <span className="min-w-0 truncate text-foreground" title={file.name}>
-                  {file.name}
-                </span>
-                <span className="shrink-0 text-xs text-muted-foreground">
-                  {formatBytes(file.size)}
-                </span>
-                {!disabled && (
-                  <button
-                    type="button"
-                    onClick={(e) => handleRemove(e, multiple ? i : undefined)}
-                    className="shrink-0 text-xs font-medium text-danger hover:text-danger/80"
-                    aria-label={t('upload.removeFile', { name: file.name })}
-                  >
-                    {t('common.delete')}
-                  </button>
-                )}
-              </div>
-            ))}
-            {multiple && !disabled && (
-              <span className="text-xs text-muted-foreground">
-                {t('upload.addMore')}
-              </span>
-            )}
           </div>
         ) : (
           <div className="flex flex-col items-center gap-1 text-muted-foreground">
@@ -221,9 +221,45 @@ function FileUploadField({
         accept={accept}
         multiple={multiple}
         disabled={disabled}
-        onChange={(e) => handleFiles(e.target.files)}
+        onChange={(e) => {
+          handleFiles(e.target.files);
+          e.target.value = '';
+        }}
         className="hidden"
       />
+      {files.length > 0 && (
+        <div className="mt-2 flex flex-col gap-2">
+          {files.map((file, i) => (
+            <div
+              key={`${file.name}-${i}`}
+              data-testid={resolvedTestId ? `${resolvedTestId}-file-${i}` : undefined}
+              className="flex items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3"
+            >
+              <FileText className="h-8 w-8 shrink-0 text-muted-foreground" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-foreground" title={file.name}>
+                  {file.name}
+                </p>
+                <p className="text-xs text-muted-foreground">{formatBytes(file.size)}</p>
+              </div>
+              <RowActionButton
+                action="view"
+                testId={resolvedTestId ? `${resolvedTestId}-view-${i}` : undefined}
+                title={t('upload.viewFile', { name: file.name })}
+                onClick={() => handleView(file)}
+              />
+              {!disabled && (
+                <RowActionButton
+                  action="delete"
+                  testId={resolvedTestId ? `${resolvedTestId}-delete-${i}` : undefined}
+                  title={t('upload.removeFile', { name: file.name })}
+                  onClick={() => handleRemove(multiple ? i : undefined)}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
       {error && (
         <p
           data-testid={resolvedTestId ? `${resolvedTestId}-error` : undefined}

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useToast, Badge } from '../../../../shared/components/ui';
 import type { DetailRow } from '../../../../shared/components/ui';
 import type { SubmitResult } from '../../../../shared/types';
@@ -42,6 +43,7 @@ function buildDefaultValues(user?: User): FormValues {
 }
 
 export function useUserForm(userId?: string) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const isEdit = !!userId;
@@ -72,7 +74,9 @@ export function useUserForm(userId?: string) {
       setTimeout(() => navigate('/user-management/user'), 500);
       return { success: true };
     } catch (err: unknown) {
-      const fallback = `Failed to ${isEdit ? 'update' : 'create'} user`;
+      const fallback = isEdit
+        ? t('runtime.saveFailedUpdate', { singular: t('user.label') })
+        : t('runtime.saveFailedCreate', { singular: t('user.label') });
       const result = mapSubmitError(err, fallback);
       if (result.fieldErrors) {
         const { fieldErrors, unknownMessage } = splitFieldErrors(
@@ -99,15 +103,17 @@ export function useUserForm(userId?: string) {
     if (!user) return [];
 
     return [
-      { label: 'Name', value: user.name },
-      { label: 'Username', value: user.username },
-      { label: 'Email', value: user.email },
-      { label: 'Role', value: user.role_name },
+      { label: t('user.fields.name.label'), value: user.name },
+      { label: t('user.fields.username.label'), value: user.username },
+      { label: t('user.fields.email.label'), value: user.email },
+      { label: t('user.fields.role.label'), value: user.role_name },
+      { label: t('table.createdBy'), value: user.createdBy },
+      { label: t('table.createdDate'), value: user.createdDate },
       {
-        label: 'Status',
+        label: t('table.status'),
         value: (
           <Badge variant={user.status === 'active' ? 'success' : 'secondary'}>
-            {user.status === 'active' ? 'Active' : 'Inactive'}
+            {user.status === 'active' ? t('common.active') : t('common.inactive')}
           </Badge>
         ),
       },

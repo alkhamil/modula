@@ -3,14 +3,15 @@ import type {
   User,
   CreateUserPayload,
   GetUsersParams,
+  UserListItem,
   UserMutationResult,
   BulkUploadResult,
 } from '../types';
 import type { SelectOption } from '../../../../shared/components/ui';
 import type { ApiDetail, ApiList, ApiResponse } from '../../../../shared/types';
 
-export async function getUsers(params?: GetUsersParams): Promise<ApiList<User>> {
-  const res = await api.get<ApiResponse<ApiList<User>>>('/api/v1/users', {
+export async function getUsers(params?: GetUsersParams): Promise<ApiList<UserListItem>> {
+  const res = await api.get<ApiResponse<ApiList<UserListItem>>>('/api/v1/users', {
     params: { ...params, page: (params?.page ?? 1) - 1 },
   });
   return res.data.response_output ?? { list: { pagination: null, content: [] } };

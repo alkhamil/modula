@@ -55,6 +55,8 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig, label: string = fie
         break;
       case 'min':
       case 'max': {
+        // Batasan rusak (kosong/non-angka) dilewati, bukan diterapkan sebagai 0/NaN.
+        if ((arg ?? '').trim() === '' || !Number.isFinite(Number(arg))) break;
         const limit = Number(arg);
         if (isArray) {
           const message =
@@ -90,7 +92,7 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig, label: string = fie
       }
       case 'minLength':
       case 'maxLength':
-        if (!isArray) {
+        if (!isArray && (arg ?? '').trim() !== '' && Number.isFinite(Number(arg))) {
           rules[name] = {
             value: Number(arg),
             message:
@@ -106,12 +108,23 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig, label: string = fie
           message: t('validation.email'),
         };
         break;
-      case 'regex':
-        rules.pattern = {
-          value: new RegExp(arg ?? ''),
-          message: t('validation.pattern', { label }),
-        };
+      case 'regex': {
+        // Pola rusak (mis. backslash gantung saat mengetik) dilewati agar
+        // render form tak crash; ditolak saat publish (validateConfig).
+        let pattern: RegExp | null = null;
+        try {
+          pattern = new RegExp(arg ?? '');
+        } catch {
+          pattern = null;
+        }
+        if (pattern) {
+          rules.pattern = {
+            value: pattern,
+            message: t('validation.pattern', { label }),
+          };
+        }
         break;
+      }
       case 'withoutemoticon':
         if (!isArray) {
           rules.validate = {

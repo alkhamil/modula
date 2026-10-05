@@ -52,13 +52,14 @@ export function tableTemplate(ctx: TemplateContext): string {
     ...(needFormatDateRange ? ['formatDateRange'] : []),
     ...(needStripHtml ? ['stripHtml'] : []),
   ];
-  const iconImports = [
-    ...(withView ? ['Eye'] : []),
-    ...(withEdit ? ['Pencil'] : []),
-    ...(withDelete ? ['Trash2', 'RotateCcw'] : []),
-  ];
 
   const tableWidths = ctx.config.tableWidths ?? {};
+  const actionIconSize =
+    typeof tableProps?.actionIconSize === 'number' ? ` iconSize={${tableProps.actionIconSize}}` : '';
+  const actionIconColor = (kind: string): string => {
+    const color = tableProps?.actionIconColor?.[kind as 'view' | 'edit' | 'delete' | 'restore'];
+    return color && color !== 'default' ? ` color="${color}"` : '';
+  };
   const widthOf = (name: string): string =>
     tableWidths[name] !== undefined ? `, width: ${tableWidths[name]}` : '';
   const widthLine = (name: string): string =>
@@ -73,8 +74,8 @@ export function tableTemplate(ctx: TemplateContext): string {
   return `import { t } from 'i18next';
 import '${names.sharedPrefix}shared/i18n';
 import type { ${names.listItem} } from '../types';
-import { Table, Badge } from '${names.sharedPrefix}shared/components/ui';
-${iconImports.length > 0 ? `import {\n  ${iconImports.join(',\n  ')},\n} from 'lucide-react';\n` : ''}import { ${utilImports.join(', ')} } from '${names.sharedPrefix}shared/utils';
+import { Table, Badge, RowActionButton } from '${names.sharedPrefix}shared/components/ui';
+import { ${utilImports.join(', ')} } from '${names.sharedPrefix}shared/utils';
 
 interface Props {
   testId?: string;
@@ -137,46 +138,38 @@ ${tableDisplayProps}
 ${withActions ? `      renderAction={(row) => (
         <div className="flex justify-evenly w-full gap-1">
 ${withView ? `          {onView && (
-            <button
-              data-testid={\`${names.testId}-view-\${row.id}\`}
-              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
+            <RowActionButton
+              action="view"
+              testId={\`${names.testId}-view-\${row.id}\`}
               title={\`View \${row.id}\`}
-              onClick={() => onView(row)}
-            >
-              <Eye className="h-4 w-4 text-info" />
-            </button>
+              onClick={() => onView(row)}${actionIconSize}${actionIconColor('view')}
+            />
           )}
 ` : ''}${withEdit ? `          {onEdit && (
-            <button
-              data-testid={\`${names.testId}-edit-\${row.id}\`}
-              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
+            <RowActionButton
+              action="edit"
+              testId={\`${names.testId}-edit-\${row.id}\`}
               title={\`Edit \${row.id}\`}
-              onClick={() => onEdit(row)}
-            >
-              <Pencil className="h-4 w-4 text-warning" />
-            </button>
+              onClick={() => onEdit(row)}${actionIconSize}${actionIconColor('edit')}
+            />
           )}
 ` : ''}${withDelete ? `          {row.status === 'active' && onDelete && (
-            <button
-              data-testid={\`${names.testId}-delete-\${row.id}\`}
-              className={\`flex h-7 w-7 items-center justify-center rounded-md \${isDeleting ? 'cursor-not-allowed opacity-40' : 'hover:bg-muted cursor-pointer'}\`}
+            <RowActionButton
+              action="delete"
+              testId={\`${names.testId}-delete-\${row.id}\`}
               title={\`Delete \${row.id}\`}
               onClick={() => onDelete(row)}
-              disabled={isDeleting}
-            >
-              <Trash2 className="h-4 w-4 text-danger" />
-            </button>
+              disabled={isDeleting}${actionIconSize}${actionIconColor('delete')}
+            />
           )}
           {row.status === 'inactive' && onRestore && (
-            <button
-              data-testid={\`${names.testId}-restore-\${row.id}\`}
-              className={\`flex h-7 w-7 items-center justify-center rounded-md \${isRestoring ? 'cursor-not-allowed opacity-40' : 'hover:bg-muted cursor-pointer'}\`}
+            <RowActionButton
+              action="restore"
+              testId={\`${names.testId}-restore-\${row.id}\`}
               title={\`Restore \${row.id}\`}
               onClick={() => onRestore(row)}
-              disabled={isRestoring}
-            >
-              <RotateCcw className="h-4 w-4 text-success" />
-            </button>
+              disabled={isRestoring}${actionIconSize}${actionIconColor('restore')}
+            />
           )}
 ` : ''}        </div>
       )}

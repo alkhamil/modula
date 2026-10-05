@@ -1,5 +1,5 @@
 export { ThemeProvider, useTheme } from './ThemeContext';
-export { default as ThemeCustomizer } from './ThemeCustomizer';
+export { ThemeSettingsPanel } from './ThemeCustomizer';
 export {
   applyTheme,
   clearStoredOverrides,

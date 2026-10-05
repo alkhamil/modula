@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { NavLink, useLocation } from 'react-router';
 import { type NavItemType, type SubItem } from '../../types/navigation';
 import { filterNavItems, resolveNavLabel } from '../../utils';
-import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronsLeft, ChevronsRight, ChevronDown } from 'lucide-react';
 
 interface SidebarProps {
   items: NavItemType[];
@@ -119,9 +119,9 @@ function Sidebar({
             ].join(' ')}
           >
             {collapsed ? (
-              <ChevronRight className="h-3.5 w-3.5" />
+              <ChevronsRight className="h-3.5 w-3.5" />
             ) : (
-              <ChevronLeft className="h-3.5 w-3.5" />
+              <ChevronsLeft className="h-3.5 w-3.5" />
             )}
           </button>
         </div>

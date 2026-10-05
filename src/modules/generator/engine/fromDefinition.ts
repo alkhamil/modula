@@ -26,6 +26,7 @@ export function definitionToConfig(def: ModuleDefinition): GeneratorConfig {
     type: def.moduleType,
     permissionKey: def.permissionKey,
     features: { ...def.features },
+    menuIcon: def.menuIcon ? { ...def.menuIcon } : undefined,
     i18n: def.i18n ? structuredClone(def.i18n) : undefined,
     tableProps: def.layout.table.props ? { ...def.layout.table.props } : undefined,
     tableWidths: sanitizeWidths(def.layout.table.widths),

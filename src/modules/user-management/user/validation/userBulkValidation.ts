@@ -44,40 +44,52 @@ export function validateBulkUserRow(
     return value;
   };
 
-  const nameValue = required('Name', 'Name');
+  const nameValue = required('Name', t('user.fields.name.label'));
   if (nameValue !== '' && nameValue.length < 3)
-    errors.push({ field: 'Name', message: t('validation.minLength', { label: 'Name', count: 3 }) });
+    errors.push({
+      field: 'Name',
+      message: t('validation.minLength', { label: t('user.fields.name.label'), count: 3 }),
+    });
   if (nameValue !== '' && nameValue.length > 100)
-    errors.push({ field: 'Name', message: t('validation.maxLength', { label: 'Name', count: 100 }) });
+    errors.push({
+      field: 'Name',
+      message: t('validation.maxLength', { label: t('user.fields.name.label'), count: 100 }),
+    });
 
-  const usernameValue = required('Username', 'Username');
+  const usernameValue = required('Username', t('user.fields.username.label'));
   if (usernameValue !== '' && usernameValue.length < 3)
     errors.push({
       field: 'Username',
-      message: t('validation.minLength', { label: 'Username', count: 3 }),
+      message: t('validation.minLength', { label: t('user.fields.username.label'), count: 3 }),
     });
   if (usernameValue !== '' && isTaken('username', usernameValue))
-    errors.push({ field: 'Username', message: t('validation.unique', { label: 'Username' }) });
+    errors.push({
+      field: 'Username',
+      message: t('validation.unique', { label: t('user.fields.username.label') }),
+    });
 
-  const emailValue = required('Email', 'Email');
+  const emailValue = required('Email', t('user.fields.email.label'));
   if (emailValue !== '' && !EMAIL_PATTERN.test(emailValue))
     errors.push({ field: 'Email', message: t('validation.email') });
   if (emailValue !== '' && isTaken('email', emailValue))
-    errors.push({ field: 'Email', message: t('validation.unique', { label: 'Email' }) });
+    errors.push({
+      field: 'Email',
+      message: t('validation.unique', { label: t('user.fields.email.label') }),
+    });
 
-  const passwordValue = required('Password', 'Password');
+  const passwordValue = required('Password', t('user.fields.password.label'));
   if (passwordValue !== '' && passwordValue.length < 6)
     errors.push({
       field: 'Password',
-      message: t('validation.minLength', { label: 'Password', count: 6 }),
+      message: t('validation.minLength', { label: t('user.fields.password.label'), count: 6 }),
     });
 
-  const roleValue = required('Role', 'Role');
+  const roleValue = required('Role', t('user.fields.role.label'));
   const roleId = roleValue !== '' ? resolveRoleId(roleValue) : undefined;
   if (roleValue !== '' && !roleId)
     errors.push({
       field: 'Role',
-      message: t('validation.unknownOption', { label: 'Role', value: roleValue }),
+      message: t('validation.unknownOption', { label: t('user.fields.role.label'), value: roleValue }),
     });
 
   const statusRaw = String(row['Status'] ?? '').trim().toLowerCase();

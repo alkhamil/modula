@@ -1,4 +1,5 @@
 import { useCallback, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Card,
   Button,
@@ -9,7 +10,7 @@ import {
 } from '../../../../shared/components/ui';
 import type { FormValues } from '../hooks';
 import type { SubmitResult } from '../../../../shared/types';
-import { nameRules, permissionsRules } from '../validation/roleValidation';
+import { getNameRules, getPermissionsRules } from '../validation/roleValidation';
 import { type UseFormReturn } from 'react-hook-form';
 import PermissionTable from './PermissionTable';
 
@@ -30,6 +31,7 @@ function RoleForm({
   isSubmitting = false,
   catalog,
 }: RoleFormProps) {
+  const { t } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
@@ -68,7 +70,14 @@ function RoleForm({
   );
 
   return (
-    <Card testId="role-form-card" title={isEdit ? 'Edit Role' : 'Create Role'}>
+    <Card
+      testId="role-form-card"
+      title={
+        isEdit
+          ? t('runtime.editTitle', { singular: t('role.label') })
+          : t('runtime.createTitle', { singular: t('role.label') })
+      }
+    >
       <FormGroup<FormValues>
         testId="role-form"
         defaultValues={defaultValues}
@@ -83,21 +92,21 @@ function RoleForm({
               <div className="space-y-6">
                 <FormItem
                   testId="role-name"
-                  label="Role Name"
+                  label={t('role.fields.name.label')}
                   name="name"
                   component={TextField}
-                  rules={nameRules}
+                  rules={getNameRules(t)}
                   maxLength={100}
                   layout="horizontal"
-                  placeholder="Enter role name"
+                  placeholder={t('role.fields.name.placeholder')}
                 />
 
                 <FormItem
                   testId="role-permissions"
-                  label="Permissions"
+                  label={t('role.fields.permissions.label')}
                   name="permissions"
                   component={PermissionTable}
-                  rules={permissionsRules}
+                  rules={getPermissionsRules(t)}
                   layout="horizontal"
                   align="start"
                   catalog={catalog}
@@ -112,7 +121,7 @@ function RoleForm({
                   className="w-30"
                   onClick={onCancel}
                 >
-                  Back
+                  {t('common.back')}
                 </Button>
                 <Button
                   data-testid="role-submit-button"
@@ -120,7 +129,7 @@ function RoleForm({
                   className="w-30"
                   disabled={isSubmitting || submitting}
                 >
-                  {isEdit ? 'Update' : 'Create'}
+                  {isEdit ? t('common.update') : t('common.create')}
                 </Button>
               </div>
 
