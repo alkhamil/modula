@@ -1,4 +1,6 @@
 /** Render sel tabel per tipe field — dipakai list runtime + kolom FormArrayField. */
+import { t } from 'i18next';
+import '../../../shared/i18n';
 import type { ReactNode } from 'react';
 import Badge from '../../../shared/components/ui/Badge';
 import type { Column } from '../../../shared/components/ui/Table';
@@ -54,7 +56,7 @@ export function columnRenderForType(
       return (row) => {
         const rows = row[name];
         const count = Array.isArray(rows) ? rows.length : 0;
-        return count > 0 ? `${count} baris` : '-';
+        return count > 0 ? t('system.rowCount', { count }) : '-';
       };
     default:
       return undefined;

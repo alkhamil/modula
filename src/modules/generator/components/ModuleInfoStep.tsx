@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, SelectField, TextField } from '../../../shared/components/ui';
-import { SvgIcon } from '../../../shared/components/icons';
+import ModuleMenuIcon from './ModuleMenuIcon';
 import type { MenuIcon, ModuleType } from '../types';
 import { moduleTypeOptions } from '../registry';
 import { NEW_PARENT_VALUE } from '../definitions/parents';
@@ -41,13 +42,14 @@ function ModuleInfoStep({
   menuIcon,
   onOpenIconDialog,
 }: ModuleInfoStepProps) {
+  const { t } = useTranslation();
   const options = useMemo(
     () => [
-      { label: '(root) — modul top-level', value: '' },
+      { label: t('config.rootOption'), value: '' },
       ...parentOptions.map((parent) => ({ label: parent, value: parent })),
-      { label: '+ Parent baru…', value: NEW_PARENT_VALUE },
+      { label: t('config.newParent'), value: NEW_PARENT_VALUE },
     ],
-    [parentOptions],
+    [parentOptions, t],
   );
   const isNewParent = value.parentName === NEW_PARENT_VALUE;
   // Permission mengikuti nama modul sampai user mengubahnya manual.
@@ -84,13 +86,13 @@ function ModuleInfoStep({
           error={errors.parentName}
         />
         <p className="mt-1 text-xs text-muted-foreground">
-          Opsi dari parent modul yang sudah terdaftar. Pilih (root) untuk modul top-level.
+          {t('config.parentHint')}
         </p>
       </div>
       {isNewParent && (
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground">
-            Nama parent baru
+            {t('config.newParentName')}
           </label>
           <TextField
             value={value.newParentName}
@@ -100,7 +102,7 @@ function ModuleInfoStep({
             error={errors.newParentName}
           />
           <p className="mt-1 text-xs text-muted-foreground">
-            Mendukung nested dengan slash, mis. finance/accounting.
+            {t('config.newParentHint')}
           </p>
         </div>
       )}
@@ -130,26 +132,26 @@ function ModuleInfoStep({
           />
           <p className="mt-1 text-xs text-muted-foreground">
             {permissionTouched
-              ? 'Single value tanpa titik — suffix .view/.create/.update/.delete/.bulk_upload/.export otomatis.'
-              : 'Otomatis dari nama modul — ketik untuk mengubah manual.'}
+              ? t('config.permissionTouched')
+              : t('config.permissionAuto')}
           </p>
         </div>
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-foreground">Ikon menu</label>
+        <label className="mb-1 block text-sm font-medium text-foreground">{t('config.menuIcon')}</label>
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted">
             {menuIcon ? (
-              <SvgIcon svg={menuIcon.svg} className="h-5 w-5" name={menuIcon.name} />
+              <ModuleMenuIcon name={menuIcon.name} className="h-5 w-5" />
             ) : (
               <span className="text-xs text-muted-foreground">—</span>
             )}
           </span>
           <p className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
-            {menuIcon ? menuIcon.name : 'Ikon bawaan'}
+            {menuIcon ? menuIcon.name : t('config.defaultIcon')}
           </p>
           <Button type="button" size="sm" variant="secondary" onClick={onOpenIconDialog}>
-            Atur ikon
+            {t('config.setIcon')}
           </Button>
         </div>
       </div>

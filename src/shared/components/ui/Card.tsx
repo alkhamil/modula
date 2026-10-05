@@ -1,5 +1,5 @@
 import { type ReactNode, useState } from 'react';
-import { ChevronDownIcon } from '../icons';
+import { ChevronDown } from 'lucide-react';
 
 interface CardProps {
   children: ReactNode;
@@ -59,7 +59,7 @@ function Card({
               <h3 className={`${compact ? 'text-sm' : 'text-lg'} font-semibold text-foreground`}>{title}</h3>
               <div>
                 {toggleIcon ?? (
-                  <ChevronDownIcon
+                  <ChevronDown
                     className={`h-4 w-4 text-muted-foreground transition-transform ${open ? 'rotate-270' : 'rotate-90'}`}
                   />
                 )}

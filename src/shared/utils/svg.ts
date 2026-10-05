@@ -55,12 +55,12 @@ function stripDangerousAttributes(element: Element): void {
  */
 export function sanitizeSvg(code: string): string {
   const trimmed = code.trim();
-  if (!trimmed) throw new Error('Kode SVG wajib diisi.');
-  if (trimmed.length > MAX_SVG_BYTES) throw new Error('Kode SVG maksimal 32 KB.');
+  if (!trimmed) throw new Error('SVG code is required.');
+  if (trimmed.length > MAX_SVG_BYTES) throw new Error('SVG code cannot exceed 32 KB.');
   const doc = new DOMParser().parseFromString(trimmed, 'image/svg+xml');
   const root = doc.documentElement;
   if (root.nodeName === 'parsererror' || root.tagName.toLowerCase() !== 'svg') {
-    throw new Error('Kode SVG tidak valid: harus satu elemen <svg>.');
+    throw new Error('Invalid SVG code: must be a single <svg> element.');
   }
   // querySelectorAll statis: aman hapus elemen saat iterasi.
   for (const element of root.querySelectorAll('*')) {

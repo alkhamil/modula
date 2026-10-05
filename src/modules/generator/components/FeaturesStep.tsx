@@ -1,22 +1,23 @@
+import { useTranslation } from 'react-i18next';
 import type { FeatureKey } from '../types';
-import { featureRegistry } from '../registry';
 
 interface FeaturesStepProps {
   value: Record<FeatureKey, boolean>;
   onChange: (value: Record<FeatureKey, boolean>) => void;
 }
 
-const GROUPS: { title: string; keys: FeatureKey[] }[] = [
-  { title: 'Halaman', keys: ['list', 'detail', 'create', 'edit', 'delete'] },
-  { title: 'Data', keys: ['bulkUpload', 'export'] },
+const GROUPS: { titleKey: string; keys: FeatureKey[] }[] = [
+  { titleKey: 'registry.features.groupPages', keys: ['list', 'detail', 'create', 'edit', 'delete'] },
+  { titleKey: 'registry.features.groupData', keys: ['bulkUpload', 'export'] },
 ];
 
 function FeaturesStep({ value, onChange }: FeaturesStepProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col stack-gap">
       {GROUPS.map((group) => (
-        <div key={group.title}>
-          <p className="mb-2 text-sm font-medium text-foreground">{group.title}</p>
+        <div key={group.titleKey}>
+          <p className="mb-2 text-sm font-medium text-foreground">{t(group.titleKey)}</p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {group.keys.map((key) => {
               const active = value[key];
@@ -25,7 +26,7 @@ function FeaturesStep({ value, onChange }: FeaturesStepProps) {
                   key={key}
                   role="checkbox"
                   aria-checked={active}
-                  aria-label={featureRegistry[key].label}
+                  aria-label={t(`registry.features.${key}`)}
                   tabIndex={0}
                   data-testid={`feature-tile-${key}`}
                   onClick={() => onChange({ ...value, [key]: !active })}
@@ -52,10 +53,10 @@ function FeaturesStep({ value, onChange }: FeaturesStepProps) {
                   </span>
                   <span className="min-w-0">
                     <span className="block text-sm font-medium text-foreground">
-                      {featureRegistry[key].label}
+                      {t(`registry.features.${key}`)}
                     </span>
                     <span className="block text-xs text-muted-foreground">
-                      {featureRegistry[key].description}
+                      {t(`registry.features.${key}Desc`)}
                     </span>
                   </span>
                 </div>

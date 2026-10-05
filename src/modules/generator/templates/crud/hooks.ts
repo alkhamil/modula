@@ -12,15 +12,18 @@ import {
 
 export function listHookTemplate(ctx: TemplateContext): string {
   const { names, features } = ctx;
+  const base = ctx.config.permissionKey;
   const withDelete = features.delete;
   const apiImports = [`use${names.entity}ListQuery`];
   if (withDelete) apiImports.push(`useDelete${names.entity}`, `useRestore${names.entity}`);
 
-  return `${withDelete ? `import { useState } from 'react';\n` : ''}${withDelete ? `import { useToast } from '${names.sharedPrefix}shared/components/ui';\n` : ''}import type { ${withDelete ? `${names.listItem}, ` : ''}${names.params} } from '../types';
+  return `${withDelete ? `import { useState } from 'react';\n` : ''}${withDelete ? `import { useTranslation } from 'react-i18next';\nimport { useToast } from '${names.sharedPrefix}shared/components/ui';\n` : ''}import type { ${withDelete ? `${names.listItem}, ` : ''}${names.params} } from '../types';
 import { ${apiImports.join(', ')} } from '../api';
 ${withDelete ? `import { mapSubmitError } from '${names.sharedPrefix}shared/utils';\n` : ''}
 export function use${names.entity}List(params: ${names.params}) {
-${withDelete ? '  const { showToast } = useToast();\n' : ''}${withDelete ? `  const [deleteTarget, setDeleteTarget] = useState<${names.listItem} | null>(null);
+${withDelete ? `  const { t } = useTranslation();
+  const { showToast } = useToast();
+` : ''}${withDelete ? `  const [deleteTarget, setDeleteTarget] = useState<${names.listItem} | null>(null);
   const [restoreTarget, setRestoreTarget] = useState<${names.listItem} | null>(null);
 ` : ''}
   const query = use${names.entity}ListQuery(params);
@@ -42,7 +45,7 @@ ${withDelete ? `  const deleteMutation = useDelete${names.entity}();
       setDeleteTarget(null);
       showToast({ message: res.message, variant: 'success' });
     } catch (err: unknown) {
-      const fallback = 'Failed to delete ${names.camel}';
+      const fallback = t('runtime.deleteFailed', { singular: t('${base}.label') });
       const result = mapSubmitError(err, fallback);
       showToast({ message: result.toastMessage ?? fallback, variant: 'error' });
     }
@@ -63,7 +66,7 @@ ${withDelete ? `  const deleteMutation = useDelete${names.entity}();
       setRestoreTarget(null);
       showToast({ message: res.message, variant: 'success' });
     } catch (err: unknown) {
-      const fallback = 'Failed to restore ${names.camel}';
+      const fallback = t('runtime.restoreFailed', { singular: t('${base}.label') });
       const result = mapSubmitError(err, fallback);
       showToast({ message: result.toastMessage ?? fallback, variant: 'error' });
     }
@@ -92,21 +95,26 @@ ${withDelete ? `  const deleteMutation = useDelete${names.entity}();
 
 export function listFilterHookTemplate(ctx: TemplateContext): string {
   const { names } = ctx;
+  const base = ctx.config.permissionKey;
   const filterableFields = ctx.fields.filter((f) => f.filterable && f.filterCriteria);
   const loadFields = filterableFields.filter((f) => f.isLoadOptions);
   const paramKeys = filterableFields.flatMap((f) => filterParamKeys(f));
   const statusFilter = `{
     name: 'status',
-    label: 'Status',
+    label: t('table.status'),
     type: 'select',
     options: [
-      { label: 'Active', value: 'active' },
-      { label: 'Inactive', value: 'inactive' },
+      { label: t('common.active'), value: 'active' },
+      { label: t('common.inactive'), value: 'inactive' },
     ],
   },`;
-  const fieldFilters = filterableFields.map((f) => filterFieldSnippet(f)).join('\n');
+  const fieldFilters = filterableFields
+    .map((f) => filterFieldSnippet(f, `${base}.fields.${f.name}.label`))
+    .join('\n');
+  // Filter status selalu memakai t() (label + opsi Active/Inactive).
+  const needFilterI18n = true;
 
-  return `import { useState } from 'react';
+  return `${needFilterI18n ? `import { t } from 'i18next';\nimport '${names.sharedPrefix}shared/i18n';\n` : ''}import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import type { FilterField } from '${names.sharedPrefix}shared/components/ui';
 import type { ${names.params} } from '../types';
@@ -197,11 +205,16 @@ ${paramKeys.length > 0 ? '' : ''}    order: sortKey,
 
 export function formHookTemplate(ctx: TemplateContext): string {
   const { names, fields } = ctx;
+  const base = ctx.config.permissionKey;
+  const fieldLabelKey = (name: string): string => `${base}.fields.${name}.label`;
   const optionsFields = fields.filter((f) => f.isOptionsQuery);
   const rowTypes = fields
     .filter((f) => f.config.type === 'formArrayField')
     .map((f) => rowTypeName(f));
-  const needCapitalize = true;
+  // capitalize hanya untuk baris detail select/radio.
+  const needCapitalize = fields.some(
+    (f) => f.config.type === 'selectField' || f.config.type === 'radioGroupField',
+  );
   const needParseCurrency = ctx.hasNumberFields;
   const needFormatNumber = ctx.hasNumberFields;
   const needFormatDate = fields.some((f) => f.config.type === 'dateField');
@@ -222,12 +235,13 @@ export function formHookTemplate(ctx: TemplateContext): string {
   ];
 
   const detailRows = fields
-    .map((f) => detailRowSnippet(f).replace(/item\./g, `${names.camel}.`))
+    .map((f) => detailRowSnippet(f, fieldLabelKey(f.name)).replace(/item\./g, `${names.camel}.`))
     .map((line) => `      ${line}`)
     .join('\n');
 
   return `import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useToast, Badge } from '${names.sharedPrefix}shared/components/ui';
 import type { DetailRow } from '${names.sharedPrefix}shared/components/ui';
 import type { SubmitResult } from '${names.sharedPrefix}shared/types';
@@ -252,6 +266,7 @@ ${fields.map((f) => `        ${f.name}: ${formDefaultValue(f)},`).join('\n')}
 }
 
 export function use${names.entity}Form(id?: string) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const isEdit = !!id;
@@ -275,7 +290,9 @@ ${fields.map((f) => `          ${f.name}: ${payloadMapping(f)},`).join('\n')}
       setTimeout(() => navigate('/${names.routeBase}'), 500);
       return { success: true };
     } catch (err: unknown) {
-      const fallback = \`Failed to \${isEdit ? 'update' : 'create'} ${names.camel}\`;
+      const fallback = isEdit
+        ? t('runtime.saveFailedUpdate', { singular: t('${base}.label') })
+        : t('runtime.saveFailedCreate', { singular: t('${base}.label') });
       const result = mapSubmitError(err, fallback);
       if (result.fieldErrors) {
         const { fieldErrors, unknownMessage } = splitFieldErrors(
@@ -301,22 +318,22 @@ ${fields.map((f) => `          ${f.name}: ${payloadMapping(f)},`).join('\n')}
   const detailRows = useMemo<DetailRow[]>(() => {
     if (!${names.camel}) {
       return [
-        { label: 'Status', value: '' },
-${fields.map((f) => `        { label: '${f.label}', value: '' },`).join('\n')}
+        { label: t('table.status'), value: '' },
+${fields.map((f) => `        { label: t('${base}.fields.${f.name}.label'), value: '' },`).join('\n')}
       ];
     }
     return [
       {
-        label: 'Status',
+        label: t('table.status'),
         value: (
           <Badge variant={${names.camel}.status === 'active' ? 'success' : 'secondary'}>
-            {capitalize(${names.camel}.status)}
+            {${names.camel}.status === 'active' ? t('common.active') : t('common.inactive')}
           </Badge>
         ),
       },
 ${detailRows}
-      { label: 'Created By', value: ${names.camel}.createdBy },
-      { label: 'Created Date', value: ${names.camel}.createdDate },
+      { label: t('table.createdBy'), value: ${names.camel}.createdBy },
+      { label: t('table.createdDate'), value: ${names.camel}.createdDate },
     ];
   }, [${names.camel}]);
 
@@ -350,12 +367,14 @@ ${optionsFields.length > 0 ? '' : ''}  };
 export function exportHookTemplate(ctx: TemplateContext): string {
   const { names } = ctx;
   return `import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '${names.sharedPrefix}shared/components/ui';
 import { downloadBlob, mapSubmitError } from '${names.sharedPrefix}shared/utils';
 import type { ${names.params} } from '../types';
 import { export${names.entityPlural} } from '../api';
 
 export function use${names.entity}Export() {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const [isExporting, setExporting] = useState(false);
 
@@ -365,9 +384,9 @@ export function use${names.entity}Export() {
       const blob = await export${names.entityPlural}(params);
       const stamp = new Date().toISOString().slice(0, 10);
       downloadBlob(blob, \`${names.kebab}-\${stamp}.xlsx\`);
-      showToast({ variant: 'success', message: 'Export berhasil diunduh.' });
+      showToast({ variant: 'success', message: t('runtime.exportDone') });
     } catch (err: unknown) {
-      const fallback = 'Gagal mengekspor data.';
+      const fallback = t('runtime.exportFailed');
       const result = mapSubmitError(err, fallback);
       showToast({ message: result.toastMessage ?? fallback, variant: 'error' });
     } finally {

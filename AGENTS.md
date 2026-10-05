@@ -9,12 +9,12 @@ Muse Code reads this file as project rules when it runs in this directory.
   React Hook Form + react-router 7. Package manager: npm.
 - Frontend mock-only: tanpa backend, tanpa database. Semua data (definisi
   modul, records, auth) dari mock store: seed JSON + localStorage.
-- App ini adalah **dynamic module platform**: tidak ada kode per modul di
-  `src/modules/` (isinya hanya `auth/` + `generator/`). Modul bisnis
+- App ini adalah **dynamic module platform**: modul bisnis
   (users, orders, mater-data/*, …) didefinisikan sebagai data
-  `ModuleDefinition v1`, disimpan di mock store, dan di-render generik
-  saat runtime. Wizard `/generator` membuat definisi lewat publish
-  (Draft/Publish), bukan dengan menulis file.
+  `ModuleDefinition v1` (bukan folder kode di `src/modules/`), disimpan
+  di mock store, dan di-render generik saat runtime. Wizard `/generator`
+  membuat definisi lewat publish (Draft/Publish), bukan dengan menulis
+  file.
 
 ## Skills (baca sebelum bekerja di area terkait)
 
@@ -40,8 +40,11 @@ Muse Code reads this file as project rules when it runs in this directory.
   + `useDynamicNavItems` dari definisi), `router.tsx` (routes statis +
   `DynamicModuleRoutes` + `preview/:definitionKey`),
   `ProtectedAppShell.tsx` (shell + session user).
-- `src/pages/` — Login, Dashboard, `components/` (dokumentasi shared).
-- `src/modules/` — hanya `auth/` (login mock + guard + `useAuth`) dan
+- `src/app/providers/` — session auth (`AuthProvider` + `useAuth`) + guard
+  (`RequireAuth`, `PermissionGate`), mirror `boilerplate-fe`.
+- `src/modules/` — `auth/` (hanya modul `login/`: `api/` service/mock/
+  resolver + `pages/` + `components/` + `hooks/` + `types/`), `dashboard/`
+  (halaman Dashboard), `showcase/` (dokumentasi shared components), dan
   `generator/` (`definitions/` = `ModuleDefinition v1` murni + Node-safe,
   `runtime/` = render generik + mock store persisten, `seeds/` = seed JSON,
   `builder/` + `components/` + `pages/` = wizard 6 langkah + tab Daftar
@@ -64,9 +67,10 @@ Muse Code reads this file as project rules when it runs in this directory.
 - File JSX berekstensi `.tsx`; komponen shared mendukung `testId`;
   `shared` tidak import dari `modules`.
 - Modul CRUD baru dibuat via wizard `/generator` (publish Draft/Publish),
-  bukan dengan menulis folder modul manual — `src/modules/` tetap hanya
-  `auth/` + `generator/`, kecuali modul statis hasil Generate ke repo
-  (dev-only, menutupi versi dinamis di route sama).
+  bukan dengan menulis folder modul manual — modul statis di
+  `src/modules/` hanya yang non-CRUD/shell (`auth/`, `dashboard/`,
+  `showcase/`, `generator/`) + hasil Generate ke repo (dev-only,
+  menutupi versi dinamis di route sama).
 - `definitions/` (types/normalize/validate/configToDefinition/parents) murni
   dan Node-safe: dilarang dependensi Vite/browser (`import.meta.glob`,
   CSS, komponen) — hanya `definitionsApi.ts`/`recordsApi.ts` yang boleh

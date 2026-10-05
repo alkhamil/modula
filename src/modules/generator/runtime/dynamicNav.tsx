@@ -1,7 +1,9 @@
-import { NavMasterDataIcon, SvgIcon } from '../../../shared/components/icons';
+import { Database } from 'lucide-react';
+import ModuleMenuIcon from '../components/ModuleMenuIcon';
 import type { NavItemType } from '../../../shared/types/navigation';
 import type { MenuIcon, ModuleDefinition } from '../definitions';
 import { definitionPermissions } from './types';
+import { moduleText, navLabelKey } from './moduleI18n';
 
 /** `mater-data` → `Mater Data`; `finance/accounting` → `Finance / Accounting`. */
 function prettifyParent(parentPath: string): string {
@@ -17,8 +19,8 @@ function prettifyParent(parentPath: string): string {
 }
 
 function menuIconNode(icon: MenuIcon | undefined): NavItemType['icon'] {
-  if (!icon) return <NavMasterDataIcon className="h-5 w-5" />;
-  return <SvgIcon svg={icon.svg} className="h-5 w-5" name={icon.name} />;
+  if (!icon) return <Database className="h-5 w-5" />;
+  return <ModuleMenuIcon name={icon.name} className="h-5 w-5" />;
 }
 
 /**
@@ -36,7 +38,7 @@ export function buildDynamicNavItems(definitions: ModuleDefinition[]): NavItemTy
     const permissionKey = definitionPermissions(def.permissionKey).view;
     if (!def.parent) {
       flat.push({
-        label: def.label,
+        label: moduleText(def, navLabelKey(), def.label),
         path: `/${def.routeBase}`,
         icon: menuIconNode(def.menuIcon),
         permissionKey,
@@ -47,7 +49,7 @@ export function buildDynamicNavItems(definitions: ModuleDefinition[]): NavItemTy
     if (!group) {
       group = {
         label: prettifyParent(def.parent),
-        icon: <NavMasterDataIcon className="h-5 w-5" />,
+        icon: <Database className="h-5 w-5" />,
         children: [],
       };
       groups.set(def.parent, group);
@@ -56,7 +58,11 @@ export function buildDynamicNavItems(definitions: ModuleDefinition[]): NavItemTy
       group.icon = menuIconNode(def.menuIcon);
       groupCustomIcon.add(def.parent);
     }
-    group.children?.push({ label: def.label, path: `/${def.routeBase}`, permissionKey });
+    group.children?.push({
+      label: moduleText(def, navLabelKey(), def.label),
+      path: `/${def.routeBase}`,
+      permissionKey,
+    });
   }
   return [...groups.values(), ...flat];
 }

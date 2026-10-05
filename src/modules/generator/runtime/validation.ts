@@ -4,6 +4,8 @@
  * Murni & Node-safe.
  */
 import type { RegisterOptions } from 'react-hook-form';
+import { t } from 'i18next';
+import '../../../shared/i18n';
 import { hasEmoticon, parseCurrency } from '../../../shared/utils';
 import type { GeneratorFieldConfig } from '../types';
 import { fieldTypeRegistry } from '../registry';
@@ -21,9 +23,8 @@ function isArrayField(field: GeneratorFieldConfig): boolean {
   return formType === 'stringArray' || formType === 'rowArray';
 }
 
-/** RHF RegisterOptions dari rules generator (placeholder `$label` = label tampil). */
-export function fieldRulesToRHF(field: GeneratorFieldConfig): RegisterOptions {
-  const { label } = field;
+/** RHF RegisterOptions dari rules generator (`label` = label tampil, bisa override terjemahan). */
+export function fieldRulesToRHF(field: GeneratorFieldConfig, label: string = field.label): RegisterOptions {
   if (field.rules.length === 0) return {};
   const rules: RegisterOptions = {};
   const isArray = isArrayField(field);
@@ -38,7 +39,7 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig): RegisterOptions {
           rules.validate = {
             ...(typeof rules.validate === 'object' ? rules.validate : {}),
             required: (value: unknown) =>
-              (Array.isArray(value) && value.length > 0) || `${label} is required.`,
+              (Array.isArray(value) && value.length > 0) || t('validation.required', { label }),
           };
         } else if (field.type === 'fileUploadField') {
           rules.validate = {
@@ -46,10 +47,10 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig): RegisterOptions {
             required: (value: unknown) =>
               value instanceof File ||
               (Array.isArray(value) && value.length > 0 && value[0] instanceof File) ||
-              `${label} is required.`,
+              t('validation.required', { label }),
           };
         } else {
-          rules.required = `${label} is required.`;
+          rules.required = t('validation.required', { label });
         }
         break;
       case 'min':
@@ -58,8 +59,8 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig): RegisterOptions {
         if (isArray) {
           const message =
             name === 'min'
-              ? `${label} must have at least ${arg} items.`
-              : `${label} cannot have more than ${arg} items.`;
+              ? t('validation.minItems', { label, count: arg })
+              : t('validation.maxItems', { label, count: arg });
           rules.validate = {
             ...(typeof rules.validate === 'object' ? rules.validate : {}),
             [name]: (value: unknown) =>
@@ -71,7 +72,9 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig): RegisterOptions {
           rules[name] = {
             value: limit,
             message:
-              name === 'min' ? `${label} must be at least ${arg}.` : `${label} cannot be greater than ${arg}.`,
+              name === 'min'
+                ? t('validation.minValue', { label, count: arg })
+                : t('validation.maxValue', { label, count: arg }),
           };
         } else {
           const key = name === 'min' ? 'minLength' : 'maxLength';
@@ -79,8 +82,8 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig): RegisterOptions {
             value: limit,
             message:
               name === 'min'
-                ? `${label} must be at least ${arg} characters.`
-                : `${label} cannot be greater than ${arg} characters.`,
+                ? t('validation.minLength', { label, count: arg })
+                : t('validation.maxLength', { label, count: arg }),
           };
         }
         break;
@@ -92,21 +95,21 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig): RegisterOptions {
             value: Number(arg),
             message:
               name === 'minLength'
-                ? `${label} must be at least ${arg} characters.`
-                : `${label} cannot be greater than ${arg} characters.`,
+                ? t('validation.minLength', { label, count: arg })
+                : t('validation.maxLength', { label, count: arg }),
           };
         }
         break;
       case 'email':
         rules.pattern = {
           value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-          message: 'Email format is invalid.',
+          message: t('validation.email'),
         };
         break;
       case 'regex':
         rules.pattern = {
           value: new RegExp(arg ?? ''),
-          message: `${label} format is invalid.`,
+          message: t('validation.pattern', { label }),
         };
         break;
       case 'withoutemoticon':
@@ -114,7 +117,7 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig): RegisterOptions {
           rules.validate = {
             ...(typeof rules.validate === 'object' ? rules.validate : {}),
             withoutemoticon: (value: unknown) =>
-              !hasEmoticon(String(value ?? '')) || 'Emoticon is not allowed.',
+              !hasEmoticon(String(value ?? '')) || t('validation.noEmoticon'),
           };
         }
         break;

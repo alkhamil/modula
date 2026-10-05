@@ -1,6 +1,7 @@
 import { useCallback, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useClickOutside } from '../hooks';
-import { NavSettingsIcon } from '../components/icons';
+import { Settings } from 'lucide-react';
 import { useTheme } from './ThemeContext';
 
 const PRIMARY_PRESETS = ['#2563eb', '#0f766e', '#15803d', '#b45309', '#dc2626'];
@@ -28,6 +29,7 @@ interface ThemeCustomizerProps {
  * di localStorage.
  */
 function ThemeCustomizer({ testId }: ThemeCustomizerProps) {
+  const { t } = useTranslation();
   const { theme, tokens, setTheme, updateOverrides, resetOverrides } = useTheme();
   const [open, setOpen] = useState(false);
   const rootRef = useClickOutside<HTMLDivElement>(useCallback(() => setOpen(false), []));
@@ -120,18 +122,18 @@ function ThemeCustomizer({ testId }: ThemeCustomizerProps) {
             onClick={resetOverrides}
             className="w-full rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
           >
-            Reset ke default
+            {t('theme.resetToDefault')}
           </button>
         </div>
       )}
 
       <button
         type="button"
-        aria-label="Pengaturan thema"
+        aria-label={t('theme.settings')}
         onClick={() => setOpen((v) => !v)}
         className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-colors hover:bg-primary/85"
       >
-        <NavSettingsIcon className="h-6 w-6" />
+        <Settings className="h-6 w-6" />
       </button>
     </div>
   );

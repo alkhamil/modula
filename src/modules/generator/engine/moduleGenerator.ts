@@ -4,6 +4,7 @@ import { buildContext } from './context';
 import { typesTemplate } from '../templates/crud/types';
 import {
   mockTemplate,
+  serviceTemplate,
   resolverTemplate,
   queriesTemplate,
   mutationsTemplate,
@@ -32,6 +33,7 @@ import {
 import { bulkValidationTemplate, validationTemplate } from '../templates/crud/validation';
 import { permissionsTemplate } from '../templates/crud/permissions';
 import { moduleIndexTemplate, integrationTemplate } from '../templates/crud/moduleIndex';
+import { buildModuleLocales, mergeLocales, unflattenLocale } from './i18nGenerator';
 
 export class GeneratorConfigError extends Error {
   issues: ConfigIssue[];
@@ -59,8 +61,8 @@ export function generateModule(raw: GeneratorConfig): GeneratedFile[] {
   const needMutations = needForm || features.delete || features.bulkUpload;
 
   push('types/index.ts', typesTemplate(ctx));
-  // Mock-only: service.ts (axios) tidak di-generate; resolver re-export mock langsung.
   push('api/mock.ts', mockTemplate(ctx));
+  push('api/service.ts', serviceTemplate(ctx));
   push('api/resolver.ts', resolverTemplate(ctx));
   if (needsQueriesFile(ctx)) push('api/queries.ts', queriesTemplate(ctx));
   if (needMutations) push('api/mutations.ts', mutationsTemplate(ctx));
@@ -93,6 +95,19 @@ export function generateModule(raw: GeneratorConfig): GeneratedFile[] {
   push('permissions.ts', permissionsTemplate(ctx));
   push('index.ts', moduleIndexTemplate(ctx));
   push('INTEGRATION.md', integrationTemplate(ctx));
+
+  // Locale modul: `en.json` sumber kebenaran; `id.json` = en yang ditimpa
+  // terjemahan dari step Translation (`config.i18n.id`, key dot `"<base>..."`).
+  // Tanpa terjemahan, id = salinan en (placeholder).
+  const locales = buildModuleLocales(config);
+  const translatedId: Record<string, string> = {};
+  for (const [key, value] of Object.entries(config.i18n?.id ?? {})) {
+    if (key === locales.base || key.startsWith(`${locales.base}.`)) translatedId[key] = value;
+  }
+  const idLocales = mergeLocales(locales.en, unflattenLocale(translatedId));
+  // Tanpa newline akhir — samakan gaya locale JSON repo ini.
+  push('i18n/en.json', JSON.stringify(locales.en, null, 2));
+  push('i18n/id.json', JSON.stringify(idLocales, null, 2));
 
   return files.sort((a, b) => a.path.localeCompare(b.path));
 }

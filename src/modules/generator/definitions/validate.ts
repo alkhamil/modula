@@ -1,3 +1,5 @@
+import { t } from 'i18next';
+import '../../../shared/i18n';
 import type { GeneratorConfig } from '../types';
 import { validateConfig, type ConfigIssue } from '../parser';
 import type { ModuleDefinition } from './types';
@@ -17,32 +19,47 @@ export function validateDefinition(def: ModuleDefinition): ConfigIssue[] {
   if (def.version !== MODULE_DEFINITION_VERSION) {
     issues.push({
       path: 'version',
-      message: `Version harus ${MODULE_DEFINITION_VERSION}.`,
+      message: t('configValidate.defVersion', { version: MODULE_DEFINITION_VERSION }),
     });
   }
   if (!def.key || !KEY_PATTERN.test(def.key)) {
     issues.push({
       path: 'key',
-      message: 'Key wajib kebab path unik (contoh: region, mater-data/company).',
+      message: t('configValidate.defKey'),
     });
   }
   if (!def.label || !def.label.trim()) {
-    issues.push({ path: 'label', message: 'Label wajib diisi.' });
+    issues.push({ path: 'label', message: t('configValidate.defLabel') });
   }
   if (!def.singularLabel || !def.singularLabel.trim()) {
-    issues.push({ path: 'singularLabel', message: 'Singular label wajib diisi.' });
+    issues.push({ path: 'singularLabel', message: t('configValidate.defSingular') });
   }
   if (!def.routeBase || !ROUTE_PATTERN.test(def.routeBase.replace(/^\/+|\/+$/g, ''))) {
-    issues.push({ path: 'routeBase', message: 'Route base tidak valid.' });
+    issues.push({ path: 'routeBase', message: t('configValidate.defRoute') });
   }
   if (!def.apiPlural || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(def.apiPlural)) {
-    issues.push({ path: 'apiPlural', message: 'API plural wajib kebab-case.' });
+    issues.push({ path: 'apiPlural', message: t('configValidate.defApiPlural') });
   }
   if (def.deleteMode !== 'hard' && def.deleteMode !== 'soft') {
-    issues.push({ path: 'deleteMode', message: 'Delete mode harus hard atau soft.' });
+    issues.push({ path: 'deleteMode', message: t('configValidate.defDeleteMode') });
   }
   if (def.status !== 'draft' && def.status !== 'published') {
-    issues.push({ path: 'status', message: 'Status harus draft atau published.' });
+    issues.push({ path: 'status', message: t('configValidate.defStatus') });
+  }
+  if (def.i18n !== undefined) {
+    const langs = Object.entries(def.i18n);
+    const bad =
+      !Array.isArray(langs) ||
+      langs.some(
+        ([lng, dict]) =>
+          (lng !== 'en' && lng !== 'id') ||
+          !dict ||
+          typeof dict !== 'object' ||
+          Object.entries(dict).some(
+            ([key, value]) => typeof key !== 'string' || typeof value !== 'string',
+          ),
+      );
+    if (bad) issues.push({ path: 'i18n', message: t('configValidate.defI18n') });
   }
 
   const asConfig: GeneratorConfig = {
@@ -62,29 +79,29 @@ export function validateDefinition(def: ModuleDefinition): ConfigIssue[] {
     const path = `layout.form[${index}]`;
     const kind = item.kind ?? 'field';
     if (kind !== 'field' && kind !== 'section' && kind !== 'divider') {
-      issues.push({ path: `${path}.kind`, message: 'Kind harus field, section, atau divider.' });
+      issues.push({ path: `${path}.kind`, message: t('configValidate.layoutKind') });
     } else if (kind === 'field' && !known.has(item.field)) {
-      issues.push({ path: `${path}.field`, message: `Field "${item.field}" tidak dikenal.` });
+      issues.push({ path: `${path}.field`, message: t('configValidate.layoutUnknownField', { name: item.field }) });
     } else if (kind !== 'field' && known.has(item.field)) {
       issues.push({
         path: `${path}.field`,
-        message: `Id "${item.field}" bentrok dengan nama field.`,
+        message: t('configValidate.layoutIdConflict', { name: item.field }),
       });
     } else if (seenForm.has(item.field)) {
-      issues.push({ path: `${path}.field`, message: `Item "${item.field}" duplikat di layout.` });
+      issues.push({ path: `${path}.field`, message: t('configValidate.layoutDup', { name: item.field }) });
     } else {
       seenForm.add(item.field);
     }
     if (!Number.isInteger(item.order) || item.order < 0) {
-      issues.push({ path: `${path}.order`, message: 'Order harus bilangan bulat ≥ 0.' });
+      issues.push({ path: `${path}.order`, message: t('configValidate.layoutOrder') });
     }
     if (!Number.isInteger(item.colSpan) || item.colSpan < 1 || item.colSpan > 12) {
-      issues.push({ path: `${path}.colSpan`, message: 'colSpan harus 1..12.' });
+      issues.push({ path: `${path}.colSpan`, message: t('configValidate.layoutColSpan') });
     }
   });
   for (const name of known) {
     if (!seenForm.has(name)) {
-      issues.push({ path: 'layout.form', message: `Field "${name}" belum ada di layout form.` });
+      issues.push({ path: 'layout.form', message: t('configValidate.layoutMissingForm', { name }) });
     }
   }
   const seenOrder = new Set<string>();
@@ -92,12 +109,12 @@ export function validateDefinition(def: ModuleDefinition): ConfigIssue[] {
     if (!known.has(name) && !SYSTEM_TABLE_COLUMNS.includes(name)) {
       issues.push({
         path: `layout.table.order[${index}]`,
-        message: `Field "${name}" tidak dikenal.`,
+        message: t('configValidate.layoutUnknownField', { name }),
       });
     } else if (seenOrder.has(name)) {
       issues.push({
         path: `layout.table.order[${index}]`,
-        message: `Field "${name}" duplikat di urutan tabel.`,
+        message: t('configValidate.layoutDupTable', { name }),
       });
     } else {
       seenOrder.add(name);
@@ -105,14 +122,14 @@ export function validateDefinition(def: ModuleDefinition): ConfigIssue[] {
   });
   for (const name of known) {
     if (!seenOrder.has(name)) {
-      issues.push({ path: 'layout.table.order', message: `Field "${name}" belum ada di urutan tabel.` });
+      issues.push({ path: 'layout.table.order', message: t('configValidate.layoutMissingTable', { name }) });
     }
   }
   for (const name of def.layout.table.hidden) {
     if (!seenOrder.has(name)) {
       issues.push({
         path: 'layout.table.hidden',
-        message: `Field "${name}" disembunyikan tapi tidak ada di urutan tabel.`,
+        message: t('configValidate.layoutHiddenInOrder', { name }),
       });
     }
   }
@@ -120,12 +137,12 @@ export function validateDefinition(def: ModuleDefinition): ConfigIssue[] {
     if (!seenOrder.has(name)) {
       issues.push({
         path: `layout.table.widths.${name}`,
-        message: `Field "${name}" tidak ada di urutan tabel.`,
+        message: t('configValidate.layoutMissingTable', { name }),
       });
     } else if (!Number.isInteger(width) || width < 40 || width > 1200) {
       issues.push({
         path: `layout.table.widths.${name}`,
-        message: 'Lebar kolom harus 40..1200 px.',
+        message: t('configValidate.layoutWidthRange'),
       });
     }
   }
@@ -135,12 +152,12 @@ export function validateDefinition(def: ModuleDefinition): ConfigIssue[] {
       if (!known.has(name)) {
         issues.push({
           path: `layout.detail.order[${index}]`,
-          message: `Field "${name}" tidak dikenal.`,
+          message: t('configValidate.layoutUnknownField', { name }),
         });
       } else if (seenDetail.has(name)) {
         issues.push({
           path: `layout.detail.order[${index}]`,
-          message: `Field "${name}" duplikat di urutan detail.`,
+          message: t('configValidate.layoutDupDetail', { name }),
         });
       } else {
         seenDetail.add(name);
@@ -150,7 +167,7 @@ export function validateDefinition(def: ModuleDefinition): ConfigIssue[] {
       if (!seenDetail.has(name)) {
         issues.push({
           path: 'layout.detail.order',
-          message: `Field "${name}" belum ada di urutan detail.`,
+          message: t('configValidate.layoutMissingDetail', { name }),
         });
       }
     }
@@ -158,7 +175,7 @@ export function validateDefinition(def: ModuleDefinition): ConfigIssue[] {
       if (!seenDetail.has(name)) {
         issues.push({
           path: 'layout.detail.hidden',
-          message: `Field "${name}" disembunyikan tapi tidak ada di urutan detail.`,
+          message: t('configValidate.layoutHiddenInOrder', { name }),
         });
       }
     }

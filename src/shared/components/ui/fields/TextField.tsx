@@ -1,5 +1,5 @@
 import { type ChangeEvent, type InputHTMLAttributes, type ReactNode, forwardRef } from 'react';
-import { FieldErrorIcon, CloseIcon } from '../../icons';
+import { CircleAlert, X } from 'lucide-react';
 import { stripNonAscii } from '../../../utils';
 
 type PrependProps =
@@ -168,13 +168,13 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
                 className="flex cursor-pointer items-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none"
                 tabIndex={-1}
               >
-                <CloseIcon className="h-4 w-4" />
+                <X className="h-4 w-4" />
               </button>
             </span>
           )}
           {(error || isInvalid) && (
             <span className="flex items-center pr-3">
-              <FieldErrorIcon className="h-3.5 w-3.5" />
+              <CircleAlert className="h-3.5 w-3.5" />
             </span>
           )}
           {appendGroup && (

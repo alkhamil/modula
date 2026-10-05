@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Dialog, Table, useToast } from '../../../shared/components/ui';
-import { TrashIcon } from '../../../shared/components/icons';
+import { Trash2 } from 'lucide-react';
 import type { ModuleDefinition } from '../definitions';
 import { deleteDefinition, deleteModuleRecords } from '../runtime';
 import GenerateDialog from './GenerateDialog';
@@ -14,6 +15,7 @@ interface ModulesTabProps {
 }
 
 function ModulesTab({ definitions, isLoading, onEdit }: ModulesTabProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -31,12 +33,12 @@ function ModulesTab({ definitions, isLoading, onEdit }: ModulesTabProps) {
       await queryClient.invalidateQueries({ queryKey: ['dynamic-definition'] });
       await queryClient.invalidateQueries({ queryKey: ['dynamic-records'] });
       await queryClient.invalidateQueries({ queryKey: ['dynamic-record'] });
-      showToast({ variant: 'success', message: `Modul "${deleteTarget.key}" dihapus.` });
+      showToast({ variant: 'success', message: t('modules.deleted', { key: deleteTarget.key }) });
       setDeleteTarget(null);
     } catch (err) {
       showToast({
         variant: 'error',
-        message: err instanceof Error ? err.message : 'Gagal menghapus modul.',
+        message: err instanceof Error ? err.message : t('modules.deleteFailed'),
       });
     } finally {
       setIsDeleting(false);
@@ -48,8 +50,7 @@ function ModulesTab({ definitions, isLoading, onEdit }: ModulesTabProps) {
   return (
     <div className="flex flex-col stack-gap">
       <p className="text-sm text-muted-foreground">
-        {definitions.length} modul pernah dibuat. Edit memuat definisi ke Builder; Generate ke
-        repo menulis source statis (hanya di `npm run dev`).
+        {t('modules.intro', { count: definitions.length })}
       </p>
       <Table<ModuleDefinition>
         testId="modules-table"
@@ -57,7 +58,7 @@ function ModulesTab({ definitions, isLoading, onEdit }: ModulesTabProps) {
         columns={[
           {
             key: 'label',
-            header: 'Modul',
+            header: t('modules.colModule'),
             render: (def) => (
               <span>
                 <span className="font-medium text-foreground">{def.label}</span>{' '}
@@ -67,14 +68,14 @@ function ModulesTab({ definitions, isLoading, onEdit }: ModulesTabProps) {
           },
           {
             key: 'parent',
-            header: 'Parent',
+            header: t('modules.colParent'),
             render: (def) => (
               <span className="font-mono text-xs text-foreground">{def.parent ?? '(root)'}</span>
             ),
           },
           {
             key: 'status',
-            header: 'Status',
+            header: t('modules.colStatus'),
             sortable: false,
             render: (def) => (
               <Badge variant={def.status === 'published' ? 'success' : 'secondary'}>
@@ -84,10 +85,10 @@ function ModulesTab({ definitions, isLoading, onEdit }: ModulesTabProps) {
           },
           {
             key: 'fields',
-            header: 'Fields',
+            header: t('modules.colFields'),
             sortable: false,
             render: (def) => (
-              <span className="text-foreground">{def.fields.length} field(s)</span>
+              <span className="text-foreground">{t('modules.fieldsCount', { count: def.fields.length })}</span>
             ),
           },
         ]}
@@ -100,8 +101,8 @@ function ModulesTab({ definitions, isLoading, onEdit }: ModulesTabProps) {
         hidePagination
         loading={isLoading}
         isEmptyState={!isLoading && sorted.length === 0}
-        emptyStateTitle="Belum ada modul"
-        emptyStateDescription="Buat modul pertama lewat Builder, lalu publish."
+        emptyStateTitle={t('modules.emptyTitle')}
+        emptyStateDescription={t('modules.emptyDesc')}
         renderAction={(def) => (
           <div className="flex flex-wrap justify-end gap-1">
             <Button
@@ -109,16 +110,16 @@ function ModulesTab({ definitions, isLoading, onEdit }: ModulesTabProps) {
               variant="secondary"
               onClick={() => navigate(`/preview/${encodeURIComponent(def.key)}`)}
             >
-              Pratinjau
+              {t('modules.preview')}
             </Button>
             <Button size="sm" variant="secondary" onClick={() => onEdit(def)}>
-              Edit
+              {t('common.edit')}
             </Button>
             <Button size="sm" variant="secondary" onClick={() => setGenerateTarget(def)}>
-              Generate ke repo
+              {t('modules.generate')}
             </Button>
-            <Button size="sm" variant="danger" onClick={() => setDeleteTarget(def)} icon={<TrashIcon className="h-4 w-4" />}>
-              Hapus
+            <Button size="sm" variant="danger" onClick={() => setDeleteTarget(def)} icon={<Trash2 className="h-4 w-4" />}>
+              {t('common.delete')}
             </Button>
           </div>
         )}
@@ -127,24 +128,23 @@ function ModulesTab({ definitions, isLoading, onEdit }: ModulesTabProps) {
         testId="modules-delete-dialog"
         open={deleteTarget !== null}
         onClose={() => setDeleteTarget(null)}
-        title="Hapus modul"
+        title={t('modules.deleteTitle')}
         maxWidth="md"
         closeOnEscape
         closeOnBackdropClick
         footer={
           <>
             <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
-              Batal
+              {t('common.cancel')}
             </Button>
-            <Button variant="danger" disabled={isDeleting} onClick={() => void handleDelete()} icon={<TrashIcon className="h-4 w-4" />}>
-              {isDeleting ? 'Menghapus…' : 'Hapus modul'}
+            <Button variant="danger" disabled={isDeleting} onClick={() => void handleDelete()} icon={<Trash2 className="h-4 w-4" />}>
+              {isDeleting ? t('modules.deleting') : t('modules.deleteModule')}
             </Button>
           </>
         }
       >
         <p className="text-sm text-foreground">
-          Hapus modul "{deleteTarget?.label}" ({deleteTarget?.key})? Definisi + seluruh record
-          mock-nya ikut terhapus dan tidak bisa dikembalikan.
+          {t('modules.deleteConfirm', { label: deleteTarget?.label ?? '', key: deleteTarget?.key ?? '' })}
         </p>
       </Dialog>
       {generateTarget && (

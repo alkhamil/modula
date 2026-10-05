@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, useToast } from '../../../shared/components/ui';
 import type { GeneratedFile, GeneratorConfig } from '../types';
 
@@ -21,6 +22,7 @@ function downloadTextFile(filename: string, content: string): void {
 }
 
 function OutputPanel({ files, config, onBack }: OutputPanelProps) {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const [selectedPath, setSelectedPath] = useState(files[0]?.path ?? '');
   const selected = files.find((file) => file.path === selectedPath) ?? files[0];
@@ -29,9 +31,9 @@ function OutputPanel({ files, config, onBack }: OutputPanelProps) {
     if (!selected) return;
     try {
       await navigator.clipboard.writeText(selected.content);
-      showToast({ variant: 'success', message: 'Kode tersalin.' });
+      showToast({ variant: 'success', message: t('generate.copied') });
     } catch {
-      showToast({ variant: 'error', message: 'Gagal menyalin kode.' });
+      showToast({ variant: 'error', message: t('generate.copyFailed') });
     }
   }
 
@@ -52,10 +54,10 @@ function OutputPanel({ files, config, onBack }: OutputPanelProps) {
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <Button variant="secondary" onClick={onBack}>
-          Kembali
+          {t('common.back')}
         </Button>
         <span className="text-sm text-muted-foreground">
-          {files.length} file(s) berhasil di-generate.
+          {t('generate.filesReady', { count: files.length })}
         </span>
         <span className="flex-1" />
         <Button variant="secondary" onClick={handleExportConfig}>

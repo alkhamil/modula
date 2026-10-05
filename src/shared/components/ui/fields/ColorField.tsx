@@ -1,4 +1,5 @@
 import { forwardRef, type ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ColorFieldProps {
   value: string;
@@ -42,6 +43,7 @@ function ColorField(
   }: ColorFieldProps,
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
+  const { t } = useTranslation();
   const resolvedTestId = dataTestId ?? testId;
   const cleaned = cleanHex(value.startsWith('#') ? value.slice(1) : value);
   const swatchValue = cleaned.length === 6 ? `#${cleaned}` : '#000000';
@@ -74,7 +76,7 @@ function ColorField(
           value={swatchValue}
           disabled={disabled}
           onChange={handleSwatchChange}
-          aria-label="Pilih warna"
+          aria-label={t('fields.pickColor')}
           className={[
             'shrink-0 cursor-pointer appearance-none rounded-md border border-border bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded-md [&::-webkit-color-swatch]:border-none [&::-moz-color-swatch]:rounded-md [&::-moz-color-swatch]:border-none',
             swatchSizes[size],

@@ -16,6 +16,8 @@ import { fieldTypeRegistry } from '../../registry';
 
 export function tableTemplate(ctx: TemplateContext): string {
   const { names, fields, features } = ctx;
+  const base = ctx.config.permissionKey;
+  const fieldLabelKey = (name: string): string => `${base}.fields.${name}.label`;
   const withView = features.detail;
   const withEdit = features.edit;
   const withDelete = features.delete;
@@ -34,8 +36,10 @@ export function tableTemplate(ctx: TemplateContext): string {
     .map((line) => `      ${line}`)
     .join('\n');
 
-  // Kolom status selalu memakai capitalize (tanpa peduli tipe field).
-  const needCapitalize = true;
+  // capitalize hanya untuk kolom select/radio.
+  const needCapitalize = fields.some(
+    (f) => f.config.type === 'selectField' || f.config.type === 'radioGroupField',
+  );
   const needFormatNumber = ctx.hasNumberFields;
   const needFormatDate = fields.some((f) => f.config.type === 'dateField');
   const needFormatDateRange = fields.some((f) => f.config.type === 'dateRangeField');
@@ -49,18 +53,28 @@ export function tableTemplate(ctx: TemplateContext): string {
     ...(needStripHtml ? ['stripHtml'] : []),
   ];
   const iconImports = [
-    ...(withView ? ['ViewIcon'] : []),
-    ...(withEdit ? ['PencilIcon'] : []),
-    ...(withDelete ? ['TrashIcon', 'RestoreIcon'] : []),
+    ...(withView ? ['Eye'] : []),
+    ...(withEdit ? ['Pencil'] : []),
+    ...(withDelete ? ['Trash2', 'RotateCcw'] : []),
   ];
 
+  const tableWidths = ctx.config.tableWidths ?? {};
+  const widthOf = (name: string): string =>
+    tableWidths[name] !== undefined ? `, width: ${tableWidths[name]}` : '';
+  const widthLine = (name: string): string =>
+    tableWidths[name] !== undefined ? `\n      width: ${tableWidths[name]},` : '';
   const columns = fields
-    .map((f) => `    ${tableColumnSnippet(f).replace(/ROWTYPE/g, names.listItem)}`)
+    .map(
+      (f) =>
+        `    ${tableColumnSnippet(f, tableWidths[f.name], fieldLabelKey(f.name)).replace(/ROWTYPE/g, names.listItem)}`,
+    )
     .join('\n');
 
-  return `import type { ${names.listItem} } from '../types';
+  return `import { t } from 'i18next';
+import '${names.sharedPrefix}shared/i18n';
+import type { ${names.listItem} } from '../types';
 import { Table, Badge } from '${names.sharedPrefix}shared/components/ui';
-${iconImports.length > 0 ? `import {\n  ${iconImports.join(',\n  ')},\n} from '${names.sharedPrefix}shared/components/icons';\n` : ''}import { ${utilImports.join(', ')} } from '${names.sharedPrefix}shared/utils';
+${iconImports.length > 0 ? `import {\n  ${iconImports.join(',\n  ')},\n} from 'lucide-react';\n` : ''}import { ${utilImports.join(', ')} } from '${names.sharedPrefix}shared/utils';
 
 interface Props {
   testId?: string;
@@ -94,20 +108,20 @@ ${withView ? '  onView,\n' : ''}${withEdit ? '  onEdit,\n' : ''}${withDelete ? '
 }: Props) {
   const columns = [
 ${columns}
-    { key: 'created_by', header: 'Created By' },
+    { key: 'created_by', header: t('table.createdBy')${widthOf('created_by')} },
     {
       key: 'created_date',
-      header: 'Created Date',
+      header: t('table.createdDate'),${widthLine('created_date')}
       render: (row: ${names.listItem}) => formatDateTime(row.created_date),
     },
     {
       key: 'status',
-      header: 'Status',
-      sortable: false,
+      header: t('table.status'),
+      sortable: false,${widthLine('status')}
       className: 'w-32',
       render: (row: ${names.listItem}) => (
         <Badge variant={row.status === 'active' ? 'success' : 'secondary'}>
-          {capitalize(row.status)}
+          {row.status === 'active' ? t('common.active') : t('common.inactive')}
         </Badge>
       ),
     },
@@ -129,7 +143,7 @@ ${withView ? `          {onView && (
               title={\`View \${row.id}\`}
               onClick={() => onView(row)}
             >
-              <ViewIcon />
+              <Eye className="h-4 w-4 text-info" />
             </button>
           )}
 ` : ''}${withEdit ? `          {onEdit && (
@@ -139,7 +153,7 @@ ${withView ? `          {onView && (
               title={\`Edit \${row.id}\`}
               onClick={() => onEdit(row)}
             >
-              <PencilIcon />
+              <Pencil className="h-4 w-4 text-warning" />
             </button>
           )}
 ` : ''}${withDelete ? `          {row.status === 'active' && onDelete && (
@@ -150,7 +164,7 @@ ${withView ? `          {onView && (
               onClick={() => onDelete(row)}
               disabled={isDeleting}
             >
-              <TrashIcon />
+              <Trash2 className="h-4 w-4 text-danger" />
             </button>
           )}
           {row.status === 'inactive' && onRestore && (
@@ -161,7 +175,7 @@ ${withView ? `          {onView && (
               onClick={() => onRestore(row)}
               disabled={isRestoring}
             >
-              <RestoreIcon />
+              <RotateCcw className="h-4 w-4 text-success" />
             </button>
           )}
 ` : ''}        </div>
@@ -179,6 +193,7 @@ export default ${names.entity}Table;
 
 export function formTemplate(ctx: TemplateContext): string {
   const { names, fields } = ctx;
+  const base = ctx.config.permissionKey;
   const arrayFields = fields.filter((f) => f.config.type === 'formArrayField');
   const usedComponents = [
     ...new Set([
@@ -196,14 +211,25 @@ export function formTemplate(ctx: TemplateContext): string {
   const arrayUtils = [...new Set(arrayFields.flatMap((f) => arrayColumnUtils(f)))];
   if (arrayFields.some((f) => arrayNeedsParseCurrency(f))) arrayUtils.push('parseCurrency');
 
-  const formItems = fields.map((f) => `                ${formItemSnippet(ctx, f)}`).join('\n\n');
-  const rulesImports = fields.map((f) => f.rulesVar).join(', ');
+  const fieldLabelKey = (name: string): string => `${base}.fields.${name}.label`;
+  const fieldPlaceholderKey = (name: string): string => `${base}.fields.${name}.placeholder`;
+  const formItems = fields
+    .map(
+      (f) =>
+        `                ${formItemSnippet(ctx, f, {
+          labelKey: fieldLabelKey(f.name),
+          placeholderKey: fieldPlaceholderKey(f.name),
+          rulesExpr: `get${f.pascal}Rules(t)`,
+        })}`,
+    )
+    .join('\n\n');
+  const rulesImports = fields.map((f) => `get${f.pascal}Rules`).join(', ');
   const arrayBlocks = arrayFields
     .map((f) =>
       [
         subOptionsSnippet(f),
         rowMappersSnippet(f),
-        arrayColumnsSnippet(f),
+        arrayColumnsSnippet(f, `${base}.fields.${f.name}`),
         arrayInputSnippet(ctx, f),
       ]
         .filter(Boolean)
@@ -211,7 +237,8 @@ export function formTemplate(ctx: TemplateContext): string {
     )
     .join('\n\n');
 
-  return `import { useCallback, useState, useRef } from 'react';
+  return `${arrayFields.length > 0 ? `import { t } from 'i18next';\nimport '${names.sharedPrefix}shared/i18n';\n` : ''}import { useCallback, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Card,
   Button,
@@ -243,6 +270,7 @@ function ${names.entity}Form({
   isSubmitting = false,
 ${optionsFields.map((f) => `  ${f.name}Options,`).join('\n')}
 ${optionsFields.length > 0 ? '' : ''}}: ${names.entity}FormProps) {
+  const { t } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
@@ -281,7 +309,7 @@ ${optionsFields.length > 0 ? '' : ''}}: ${names.entity}FormProps) {
   );
 
   return (
-    <Card testId="${names.testId}-form-card" title={isEdit ? 'Edit ${names.entity}' : 'Create ${names.entity}'}>
+    <Card testId="${names.testId}-form-card" title={isEdit ? t('runtime.editTitle', { singular: t('${base}.label') }) : t('runtime.createTitle', { singular: t('${base}.label') })}>
       <FormGroup<FormValues>
         testId="${names.testId}-form"
         defaultValues={defaultValues}
@@ -307,7 +335,7 @@ ${formItems}
                   className="w-30"
                   onClick={onCancel}
                 >
-                  Back
+                  {t('common.back')}
                 </Button>
                 <Button
                   data-testid="${names.testId}-submit-button"
@@ -315,7 +343,7 @@ ${formItems}
                   className="w-30"
                   disabled={isSubmitting || submitting}
                 >
-                  {isEdit ? 'Update' : 'Create'}
+                  {isEdit ? t('common.update') : t('common.create')}
                 </Button>
               </div>
 
@@ -334,6 +362,7 @@ export default ${names.entity}Form;
 
 export function bulkDialogTemplate(ctx: TemplateContext): string {
   const { names, fields } = ctx;
+  const base = ctx.config.permissionKey;
   const columns = fields
     .filter((f) => f.config.type !== 'fileUploadField' && f.config.type !== 'formArrayField')
     .flatMap((f) =>
@@ -341,6 +370,7 @@ export function bulkDialogTemplate(ctx: TemplateContext): string {
     )
     .join(', ');
   return `import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Button,
@@ -357,6 +387,7 @@ interface ${names.entity}BulkUploadDialogProps {
 }
 
 function ${names.entity}BulkUploadDialog({ open, onClose }: ${names.entity}BulkUploadDialogProps) {
+  const { t } = useTranslation();
   const [file, setFile] = useState<File | File[] | null>(null);
   const [loadingTemplate, setLoadingTemplate] = useState(false);
   const [result, setResult] = useState<BulkUploadResult | null>(null);
@@ -380,8 +411,8 @@ function ${names.entity}BulkUploadDialog({ open, onClose }: ${names.entity}BulkU
       const blob = await download${names.entity}Template();
       downloadBlob(blob, '${names.kebab}-template.xlsx');
     } catch (err: unknown) {
-      const mapped = mapSubmitError(err, 'Gagal mengunduh template.');
-      setError(mapped.toastMessage ?? 'Gagal mengunduh template.');
+      const mapped = mapSubmitError(err, t('bulk.downloadFailed'));
+      setError(mapped.toastMessage ?? t('bulk.downloadFailed'));
     } finally {
       setLoadingTemplate(false);
     }
@@ -390,7 +421,7 @@ function ${names.entity}BulkUploadDialog({ open, onClose }: ${names.entity}BulkU
   async function handleUpload(): Promise<void> {
     const single = Array.isArray(file) ? file[0] : file;
     if (!single) {
-      setError('Pilih file .xlsx terlebih dahulu.');
+      setError(t('bulk.pickFile'));
       return;
     }
     setError(null);
@@ -398,8 +429,8 @@ function ${names.entity}BulkUploadDialog({ open, onClose }: ${names.entity}BulkU
       const uploadResult = await bulkMutation.mutateAsync(single);
       setResult(uploadResult);
     } catch (err: unknown) {
-      const mapped = mapSubmitError(err, 'Gagal mengunggah file.');
-      setError(mapped.toastMessage ?? 'Gagal mengunggah file.');
+      const mapped = mapSubmitError(err, t('bulk.uploadFailed'));
+      setError(mapped.toastMessage ?? t('bulk.uploadFailed'));
     }
   }
 
@@ -408,7 +439,7 @@ function ${names.entity}BulkUploadDialog({ open, onClose }: ${names.entity}BulkU
       testId="${names.testId}-bulk-upload-dialog"
       open={open}
       onClose={handleClose}
-      title="Bulk Upload ${names.entity}"
+      title={t('bulk.title', { singular: t('${base}.label') })}
       maxWidth="lg"
       closeOnEscape
       closeOnBackdropClick
@@ -422,14 +453,14 @@ function ${names.entity}BulkUploadDialog({ open, onClose }: ${names.entity}BulkU
             onClick={handleDownloadTemplate}
             disabled={loadingTemplate}
           >
-            {loadingTemplate ? 'Mengunduh…' : 'Unduh template'}
+            {loadingTemplate ? t('bulk.downloading') : t('bulk.downloadTemplate')}
           </Button>
           <span className="text-xs text-muted-foreground">
-            Format .xlsx dengan kolom ${columns}.
+            {t('bulk.templateHint', { columns: '${columns}' })}
           </span>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-foreground">File upload</label>
+          <label className="mb-1 block text-sm font-medium text-foreground">{t('bulk.fileUpload')}</label>
           <FileUploadField
             value={file}
             onChange={(next) => {
@@ -444,13 +475,13 @@ function ${names.entity}BulkUploadDialog({ open, onClose }: ${names.entity}BulkU
           <div className="flex flex-col field-gap">
             <Alert
               variant={result.failedCount === 0 ? 'success' : 'warning'}
-              message={\`\${result.successCount} berhasil, \${result.failedCount} gagal dari \${result.totalRows} baris.\`}
+              message={t('bulk.result', { success: result.successCount, failed: result.failedCount, total: result.totalRows })}
             />
             {result.errors.length > 0 && (
               <ul className="max-h-48 overflow-y-auto rounded-lg border border-border bg-surface px-3 py-2 text-xs text-foreground">
                 {result.errors.map((item, index) => (
                   <li key={\`\${item.row}-\${item.field ?? ''}-\${index}\`} className="py-0.5">
-                    <span className="font-mono">Baris {item.row}</span>
+                    <span className="font-mono">{t('bulk.row', { row: item.row })}</span>
                     {item.field ? <span className="font-mono"> [{item.field}]</span> : null}:{' '}
                     {item.message}
                   </li>
@@ -461,14 +492,14 @@ function ${names.entity}BulkUploadDialog({ open, onClose }: ${names.entity}BulkU
         )}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={handleClose}>
-            Tutup
+            {t('common.close')}
           </Button>
           <Button
             type="button"
             onClick={handleUpload}
             disabled={bulkMutation.isPending || !file}
           >
-            {bulkMutation.isPending ? 'Mengunggah…' : 'Upload'}
+            {bulkMutation.isPending ? t('bulk.uploading') : t('bulk.upload')}
           </Button>
         </div>
       </div>

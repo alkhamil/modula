@@ -10,37 +10,37 @@ export interface FeatureDef {
 export const featureRegistry: Record<FeatureKey, FeatureDef> = {
   list: {
     label: 'List',
-    description: 'Halaman daftar + tabel + filter + pagination.',
+    description: 'List page + table + filter + pagination.',
     outputs: ['pages/XListPage', 'components/XTable', 'hooks/useXList+Filter'],
   },
   detail: {
     label: 'Detail',
-    description: 'Halaman detail read-only.',
+    description: 'Read-only detail page.',
     outputs: ['pages/XViewPage'],
   },
   create: {
     label: 'Create',
-    description: 'Halaman tambah data.',
+    description: 'Data creation page.',
     outputs: ['pages/XCreatePage', 'components/XForm'],
   },
   edit: {
     label: 'Edit',
-    description: 'Halaman ubah data.',
+    description: 'Data edit page.',
     outputs: ['pages/XEditPage', 'components/XForm'],
   },
   delete: {
     label: 'Delete',
-    description: 'Soft delete (nonaktif) + restore dari halaman list.',
+    description: 'Soft delete (deactivate) + restore from the list page.',
     outputs: ['mutations', 'dialogs'],
   },
   bulkUpload: {
     label: 'Bulk Upload',
-    description: 'Dialog upload Excel (.xlsx) + unduh template + laporan hasil per baris.',
+    description: 'Excel (.xlsx) upload dialog + template download + per-row report.',
     outputs: ['components/XBulkUploadDialog', 'validation/xBulkValidation', 'mutations'],
   },
   export: {
     label: 'Export',
-    description: 'Tombol unduh Excel (.xlsx) sesuai filter, sort, dan search aktif.',
+    description: 'Excel (.xlsx) download button honoring active filter, sort, and search.',
     outputs: ['hooks/useXExport'],
   },
 };

@@ -43,6 +43,7 @@ export function serviceTemplate(ctx: TemplateContext): string {
     names.listItem,
     ...optionsSelects(ctx).map((f) => f.optionType),
     ...loadSelects(ctx).map((f) => f.optionType),
+    ...arraySubLoadModels(ctx.fields).map((m) => m.optionType),
   ];
 
   const optionsFns = optionsSelects(ctx)
@@ -59,7 +60,7 @@ export function serviceTemplate(ctx: TemplateContext): string {
     })
     .join('\n\n');
 
-  const loadFns = loadSelects(ctx)
+  const loadFns = [...loadSelects(ctx), ...arraySubLoadModels(ctx.fields)]
     .map((f) => {
       const mapping = optionMapping(f);
       const shape = mapping ? 'Record<string, unknown>' : f.optionType;
@@ -103,7 +104,10 @@ export async function create${names.entity}(data: ${names.payload}): Promise<${n
   };
 }
 
-export async function update${names.entity}(id: string, data: ${names.payload}): Promise<${names.mutationResult}> {
+export async function update${names.entity}(
+  id: string,
+  data: ${names.payload},
+): Promise<${names.mutationResult}> {
   const res = await api.put<ApiResponse<ApiDetail<${names.entity}>>>(\`${base}/\${id}\`, data);
   return {
     message: res.data.response_schema.response_message,
@@ -124,17 +128,17 @@ export async function restore${names.entity}(id: string): Promise<${names.mutati
   };
 }
 ${optionsFns ? `\n${optionsFns}\n` : ''}${loadFns ? `\n${loadFns}\n` : ''}${
-  features.export
-    ? `
+    features.export
+      ? `
 export async function export${names.entityPlural}(params?: ${names.params}): Promise<Blob> {
   const res = await api.get('${base}/export', { params, responseType: 'blob' });
   return res.data as Blob;
 }
 `
-    : ''
-}${
-  features.bulkUpload
-    ? `
+      : ''
+  }${
+    features.bulkUpload
+      ? `
 export async function bulkUpload${names.entityPlural}(file: File): Promise<BulkUploadResult> {
   const form = new FormData();
   form.append('file', file);
@@ -147,12 +151,13 @@ export async function download${names.entity}Template(): Promise<Blob> {
   return res.data as Blob;
 }
 `
-    : ''
-}`;
+      : ''
+  }`;
 }
 
 export function mockTemplate(ctx: TemplateContext): string {
   const { names, fields, features, uniqueField } = ctx;
+  const base = ctx.config.permissionKey;
   const entityLower = names.entity.toLowerCase();
 
   const typeImports = [
@@ -177,6 +182,7 @@ export function mockTemplate(ctx: TemplateContext): string {
     '  restore: true,',
     ...optionsSelects(ctx).map((f) => `  ${f.name}Options: true,`),
     ...loadSelects(ctx).map((f) => `  ${f.name}LoadOptions: true,`),
+    ...arraySubLoadModels(ctx.fields).map((f) => `  ${f.name}LoadOptions: true,`),
     ...(features.export ? ['  export: true,'] : []),
     ...(features.bulkUpload ? ['  bulkUpload: true,', '  bulkTemplate: true,'] : []),
   ].join('\n');
@@ -225,7 +231,10 @@ export function mockTemplate(ctx: TemplateContext): string {
     uniqueField
       ? `
   if (mock${names.entity}Records.some((r) => ${exclude}r.${uniqueField.name} === data.${uniqueField.name})) {
-    throw mockConflictError('${uniqueField.name}', '${uniqueField.label} already exists, please use another');
+    throw mockConflictError(
+      '${uniqueField.name}',
+      t('validation.unique', { label: t('${base}.fields.${uniqueField.name}.label') }),
+    );
   }`
       : '';
 
@@ -237,7 +246,9 @@ export function mockTemplate(ctx: TemplateContext): string {
       ? `import { XLSX_MIME, buildWorkbook${features.bulkUpload ? ', readWorkbookRows' : ''} } from '${names.sharedPrefix}shared/utils';\n`
       : '';
 
-  return `import type {
+  return `import { t } from 'i18next';
+import '${names.sharedPrefix}shared/i18n';
+import type {
   ${typeImports.join(',\n  ')},
 } from '../types';
 import type { ApiList } from '${names.sharedPrefix}shared/types';
@@ -367,7 +378,7 @@ export async function mockBulkUpload${names.entityPlural}(file: File | ArrayBuff
       errors: missing.map((field) => ({
         row: 1,
         field,
-        message: \`Kolom "\${field}" tidak ditemukan di file.\`,
+        message: t('bulk.missingColumn', { field }),
       })),
     };
   }
@@ -376,7 +387,7 @@ export async function mockBulkUpload${names.entityPlural}(file: File | ArrayBuff
       totalRows: 0,
       successCount: 0,
       failedCount: 0,
-      errors: [{ row: 1, message: 'File tidak berisi data.' }],
+      errors: [{ row: 1, message: t('bulk.emptyFile') }],
     };
   }
 ${uniqueFields
@@ -427,7 +438,7 @@ ${fields.map((f) => `      ${f.name}: payload.${f.name},`).join('\n')}
 export async function mockGet${names.entity}ById(id: string): Promise<${names.entity}> {
   await delay(300);
   const record = mock${names.entity}Records.find((r) => String(r.id) === id);
-  if (!record) throw new Error('${names.entity} not found');
+  if (!record) throw new Error(t('${base}.toast.notFound'));
   return toDetail(record);
 }
 ${uniqueField ? `
@@ -437,7 +448,7 @@ function mockConflictError(field: string, message: string) {
       data: {
         response_schema: {
           response_code: 'MOCK-${entityLower.toUpperCase()}-400',
-          response_message: 'Parameter tidak valid',
+          response_message: 'Invalid parameters',
         },
         response_output: {
           errors: [{ field, message }],
@@ -457,7 +468,7 @@ ${fields.map((f) => `    ${f.name}: data.${f.name},`).join('\n')}
     created_date: new Date().toISOString().slice(0, 16).replace('T', ' '),
   };
   mock${names.entity}Records.push(record);
-  return { message: '${names.entity} created successfully.', data: toDetail(record) };
+  return { message: t('${base}.toast.created'), data: toDetail(record) };
 }
 
 export async function mockUpdate${names.entity}(
@@ -466,25 +477,25 @@ export async function mockUpdate${names.entity}(
 ): Promise<${names.mutationResult}> {
   await delay(300);
   const record = mock${names.entity}Records.find((r) => String(r.id) === id);
-  if (!record) throw new Error('${names.entity} not found');${conflictCheck('String(r.id) !== id && ')}
+  if (!record) throw new Error(t('${base}.toast.notFound'));${conflictCheck('String(r.id) !== id && ')}
 ${fields.map((f) => `  record.${f.name} = data.${f.name};`).join('\n')}
-  return { message: '${names.entity} updated successfully.', data: toDetail(record) };
+  return { message: t('${base}.toast.updated'), data: toDetail(record) };
 }
 
 export async function mockDelete${names.entity}(id: string): Promise<{ message: string }> {
   await delay(300);
   const record = mock${names.entity}Records.find((r) => String(r.id) === id);
-  if (!record) throw new Error('${names.entity} not found');
+  if (!record) throw new Error(t('${base}.toast.notFound'));
   record.status = 'inactive';
-  return { message: '${names.entity} deleted successfully' };
+  return { message: t('${base}.toast.deleted') };
 }
 
 export async function mockRestore${names.entity}(id: string): Promise<${names.mutationResult}> {
   await delay(300);
   const record = mock${names.entity}Records.find((r) => String(r.id) === id);
-  if (!record) throw new Error('${names.entity} not found');
+  if (!record) throw new Error(t('${base}.toast.notFound'));
   record.status = 'active';
-  return { message: '${names.entity} restored successfully', data: toDetail(record) };
+  return { message: t('${base}.toast.restored'), data: toDetail(record) };
 }
 ${optionsSelects(ctx)
   .map(
@@ -498,38 +509,51 @@ export async function mockGet${f.pascal}Options(): Promise<${f.optionType}[]> {
   .join('')}`;
 }
 
-/** Mock-only: resolver re-export fungsi mock langsung (tanpa service axios). Nama export sama seperti versi switch. */
+/**
+ * API resolver — saklar sumber data modul ini per operasi.
+ * `USE_MOCK` (di `mock.ts`, default semua `true` = mock lokal tanpa backend):
+ * ubah flag yang relevan menjadi `false` untuk memakai Real API via `service.ts`.
+ * Nama export sama untuk kedua sumber, jadi `queries.ts`/`mutations.ts`
+ * tidak perlu berubah.
+ */
 export function resolverTemplate(ctx: TemplateContext): string {
   const { names, features } = ctx;
-  const lines = [
-    `export { mockGet${names.entityPlural} as get${names.entityPlural} } from './mock';`,
-    `export { mockGet${names.entity}ById as get${names.entity}ById } from './mock';`,
-    `export { mockCreate${names.entity} as create${names.entity} } from './mock';`,
-    `export { mockUpdate${names.entity} as update${names.entity} } from './mock';`,
-    `export { mockDelete${names.entity} as delete${names.entity} } from './mock';`,
-    `export { mockRestore${names.entity} as restore${names.entity} } from './mock';`,
+  const ops: [string, string, string][] = [
+    ['list', `get${names.entityPlural}`, `mockGet${names.entityPlural}`],
+    ['detail', `get${names.entity}ById`, `mockGet${names.entity}ById`],
+    ['create', `create${names.entity}`, `mockCreate${names.entity}`],
+    ['update', `update${names.entity}`, `mockUpdate${names.entity}`],
+    ['delete', `delete${names.entity}`, `mockDelete${names.entity}`],
+    ['restore', `restore${names.entity}`, `mockRestore${names.entity}`],
   ];
   if (features.export) {
-    lines.push(`export { mockExport${names.entityPlural} as export${names.entityPlural} } from './mock';`);
+    ops.push(['export', `export${names.entityPlural}`, `mockExport${names.entityPlural}`]);
   }
   if (features.bulkUpload) {
-    lines.push(
-      `export { mockBulkUpload${names.entityPlural} as bulkUpload${names.entityPlural} } from './mock';`,
-    );
-    lines.push(
-      `export { mockDownload${names.entity}Template as download${names.entity}Template } from './mock';`,
-    );
+    ops.push(['bulkUpload', `bulkUpload${names.entityPlural}`, `mockBulkUpload${names.entityPlural}`]);
+    ops.push(['bulkTemplate', `download${names.entity}Template`, `mockDownload${names.entity}Template`]);
   }
   for (const f of optionsSelects(ctx)) {
-    lines.push(`export { mockGet${f.pascal}Options as get${f.pascal}Options } from './mock';`);
+    ops.push([`${f.name}Options`, `get${f.pascal}Options`, `mockGet${f.pascal}Options`]);
   }
   for (const f of loadSelects(ctx)) {
-    lines.push(`export { ${f.loadOptionsFn} } from './mock';`);
+    ops.push([`${f.name}LoadOptions`, f.loadOptionsFn, f.loadOptionsFn]);
   }
   for (const f of arraySubLoadModels(ctx.fields)) {
-    lines.push(`export { ${f.loadOptionsFn} } from './mock';`);
+    ops.push([`${f.name}LoadOptions`, f.loadOptionsFn, f.loadOptionsFn]);
   }
-  return `${lines.join('\n')}\n`;
+  const lines = ops.map(
+    ([flag, name, mockName]) => `export const ${name} = USE_MOCK.${flag} ? ${mockName} : service.${name};`,
+  );
+  const mockImports = ops.map(([, , mockName]) => mockName).join(',\n  ');
+  return `import {
+  USE_MOCK,
+  ${mockImports},
+} from './mock';
+import * as service from './service';
+
+${lines.join('\n')}
+`;
 }
 
 export function queriesTemplate(ctx: TemplateContext): string {

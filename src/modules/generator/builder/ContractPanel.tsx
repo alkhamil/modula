@@ -1,11 +1,13 @@
 /** Pratinjau + unduh `api.contract.json` dari definisi draft. */
 import { useMemo } from 'react';
 import { Button } from '../../../shared/components/ui';
+import { useTranslation } from 'react-i18next';
 import { downloadBlob } from '../../../shared/utils';
 import type { ModuleDefinition } from '../definitions';
 import { buildApiContract } from '../definitions';
 
 function ContractPanel({ def }: { def: ModuleDefinition }) {
+  const { t } = useTranslation();
   const json = useMemo(() => JSON.stringify(buildApiContract(def), null, 2), [def]);
 
   function handleDownload(): void {
@@ -24,14 +26,14 @@ function ContractPanel({ def }: { def: ModuleDefinition }) {
     <div>
       <div className="mb-2 flex items-center justify-between gap-2">
         <p className="text-sm font-medium text-foreground">
-          Kontrak API untuk backend masa depan ({def.apiPlural}.contract.json)
+          {t('generate.contractTitle', { file: `${def.apiPlural}.contract.json` })}
         </p>
         <div className="flex gap-2">
           <Button size="sm" variant="secondary" onClick={() => void handleCopy()}>
-            Salin
+            {t('generate.copy')}
           </Button>
           <Button size="sm" variant="secondary" onClick={handleDownload}>
-            Unduh
+            {t('generate.download')}
           </Button>
         </div>
       </div>

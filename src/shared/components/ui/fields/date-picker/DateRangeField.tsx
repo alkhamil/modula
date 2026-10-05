@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './DatePickerField.css';
-import { CalendarIcon, FieldErrorIcon } from '../../../icons';
+import { Calendar, CircleAlert } from 'lucide-react';
 import { useSelectDropdown } from '../../../../hooks';
 import Button from '../../Button';
 import DatePickerHeader, { YEAR_ITEM_COUNT, type PickerView } from './DatePickerHeader';
@@ -96,6 +97,8 @@ function DateRangeField({
   'data-testid': dataTestId,
 }: DateRangeFieldProps) {
   const resolvedTestId = dataTestId ?? testId;
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('fields.selectDateRange');
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<PickerView>('date');
@@ -236,11 +239,11 @@ function DateRangeField({
             </button>
           )}
           <span className="pointer-events-none flex items-center mr-1">
-            <CalendarIcon />
+            <Calendar />
           </span>
           {error && (
             <span className="pointer-events-none flex items-center">
-              <FieldErrorIcon className="h-3.5 w-3.5" />
+              <CircleAlert className="h-3.5 w-3.5" />
             </span>
           )}
         </div>
@@ -249,7 +252,7 @@ function DateRangeField({
           type="text"
           readOnly
           value={formatDisplay(value)}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           disabled={disabled}
           onClick={() => (open ? setOpen(false) : openPanel())}
           data-testid={resolvedTestId}
@@ -321,7 +324,7 @@ function DateRangeField({
                   data-testid={resolvedTestId ? `${resolvedTestId}-cancel` : undefined}
                   onClick={handleCancel}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   type="button"
@@ -331,7 +334,7 @@ function DateRangeField({
                   disabled={!draftStart || disabled}
                   onClick={handleApply}
                 >
-                  Apply
+                  {t('common.apply')}
                 </Button>
               </div>
             </div>,

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router';
 import { useDebounce } from '../../hooks';
@@ -14,7 +15,7 @@ import SwitchField from './fields/SwitchField';
 import RadioGroupField from './fields/RadioGroupField';
 import type { LoadOptionsFn } from './fields/SelectField';
 import Button from './Button';
-import { SearchIcon, FilterIcon, CloseIcon } from '../icons';
+import { Search, Funnel, X } from 'lucide-react';
 
 export interface FilterField {
   name: string;
@@ -77,7 +78,7 @@ function validateRangeErrors(
 function FilterToolbar({
   searchValue,
   onSearchChange,
-  searchPlaceholder = 'Search',
+  searchPlaceholder,
   filterFields,
   filterValues = {},
   defaultValues = {},
@@ -86,10 +87,13 @@ function FilterToolbar({
   className = '',
   searchParamName,
   debounceMs = 300,
-  filterTitle = 'Filter',
+  filterTitle,
   testId,
   withFilterButton = true,
 }: FilterToolbarProps) {
+  const { t } = useTranslation();
+  const resolvedSearchPlaceholder = searchPlaceholder ?? t('filter.search');
+  const resolvedFilterTitle = filterTitle ?? t('filter.title');
   const [isOpen, setIsOpen] = useState(false);
   const [visible, setVisible] = useState(false);
   const [localValues, setLocalValues] = useState<Record<string, string>>({
@@ -227,10 +231,10 @@ function FilterToolbar({
       <div className="w-80">
         <TextField
           size="md"
-          placeholder={searchPlaceholder}
+          placeholder={resolvedSearchPlaceholder}
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
-          prepend={<SearchIcon />}
+          prepend={<Search className="text-muted-foreground" />}
           clearable
           maxLength={100}
           sanitize={(value) => value.replace(/[^A-Za-z0-9 ._@-]/g, '').trimStart()}
@@ -240,7 +244,7 @@ function FilterToolbar({
         <Button
           variant="custom"
           size="md"
-          icon={<FilterIcon />}
+          icon={<Funnel />}
           className={
             hasActive
               ? 'border border-primary text-primary bg-primary/15 hover:bg-primary/20'
@@ -248,7 +252,7 @@ function FilterToolbar({
           }
           onClick={open}
         >
-          Filter
+          {resolvedFilterTitle}
         </Button>
 
         {isOpen &&
@@ -264,7 +268,7 @@ function FilterToolbar({
               />
               <aside
                 role="dialog"
-                aria-label={filterTitle}
+                aria-label={resolvedFilterTitle}
                 data-testid={testId ? `${testId}-drawer` : undefined}
                 className={[
                   'absolute inset-y-0 right-0 flex w-96 max-w-[90vw] flex-col bg-background shadow-xl transition-transform duration-200',
@@ -272,15 +276,15 @@ function FilterToolbar({
                 ].join(' ')}
               >
                 <div className="flex items-center justify-between border-b border-border px-5 py-4">
-                  <h3 className="text-base font-semibold text-foreground">{filterTitle}</h3>
+                  <h3 className="text-base font-semibold text-foreground">{resolvedFilterTitle}</h3>
                   <button
                     data-testid={testId ? `${testId}-close` : undefined}
                     type="button"
                     onClick={close}
-                    aria-label="Tutup filter"
+                    aria-label={t('common.close')}
                     className="flex cursor-pointer items-center rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                   >
-                    <CloseIcon className="h-5 w-5" />
+                    <X className="h-5 w-5" />
                   </button>
                 </div>
 
@@ -294,7 +298,7 @@ function FilterToolbar({
                         {field.type === 'multi-select' ? (
                           <SelectMultipleField
                             size="md"
-                            placeholder={field.placeholder ?? 'All'}
+                            placeholder={field.placeholder ?? t('filter.all')}
                             searchable
                             value={
                               localValues[field.name]
@@ -310,7 +314,7 @@ function FilterToolbar({
                         ) : field.type === 'select' ? (
                           <SelectField
                             size="md"
-                            placeholder={field.placeholder ?? 'All'}
+                            placeholder={field.placeholder ?? t('filter.all')}
                             searchable
                             clearable={field.clearable}
                             value={localValues[field.name] ?? ''}
@@ -344,7 +348,7 @@ function FilterToolbar({
                             <DatePickerField
                               size="md"
                               panelWidthClassName="w-72"
-                              placeholder={field.placeholder ?? 'All'}
+                              placeholder={field.placeholder ?? t('filter.all')}
                               maxDate={field.maxDate}
                               value={localValues[field.name] ?? ''}
                               onChange={(val) =>
@@ -355,7 +359,7 @@ function FilterToolbar({
                         ) : field.type === 'textarea' ? (
                           <TextAreaField
                             size="md"
-                            placeholder={field.placeholder || 'All'}
+                            placeholder={field.placeholder || t('filter.all')}
                             value={localValues[field.name] ?? ''}
                             onChange={(e) =>
                               setLocalValues((prev) => ({ ...prev, [field.name]: e.target.value }))
@@ -411,7 +415,7 @@ function FilterToolbar({
                         ) : (
                           <TextField
                             size="md"
-                            placeholder={field.placeholder || 'All'}
+                            placeholder={field.placeholder || t('filter.all')}
                             value={localValues[field.name] ?? ''}
                             clearable={field.clearable}
                             onChange={(e) =>
@@ -431,14 +435,14 @@ function FilterToolbar({
                     variant="secondary"
                     onClick={handleReset}
                   >
-                    Reset
+                    {t('common.reset')}
                   </Button>
                   <Button
                     testId={testId ? `${testId}-apply` : undefined}
                     className="flex-1"
                     onClick={handleApply}
                   >
-                    Apply
+                    {t('common.apply')}
                   </Button>
                 </div>
               </aside>

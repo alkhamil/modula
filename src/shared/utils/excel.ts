@@ -60,7 +60,7 @@ export async function buildWorkbook(headers: string[], rows: ExcelCell[][]): Pro
 /** Unduh Blob sebagai file (browser only). */
 export function downloadBlob(blob: Blob, filename: string): void {
   if (typeof document === 'undefined') {
-    throw new Error('downloadBlob hanya tersedia di browser.');
+    throw new Error('downloadBlob is only available in the browser.');
   }
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');

@@ -18,47 +18,47 @@ export interface ValidationRuleDef {
 }
 
 export const validationRegistry: Record<ValidationRuleName, ValidationRuleDef> = {
-  required: { label: 'Required', needsArg: false, description: 'Wajib diisi.' },
+  required: { label: 'Required', needsArg: false, description: 'Required field.' },
   min: {
     label: 'Min',
     needsArg: true,
-    description: 'Nilai minimum (number) / panjang minimum (string).',
+    description: 'Minimum value (number) / minimum length (string).',
     placeholder: 'min:3',
   },
   max: {
     label: 'Max',
     needsArg: true,
-    description: 'Nilai maksimum (number) / panjang maksimum (string).',
+    description: 'Maximum value (number) / maximum length (string).',
     placeholder: 'max:100',
   },
   minLength: {
     label: 'Min Length',
     needsArg: true,
-    description: 'Panjang string minimum.',
+    description: 'Minimum string length.',
     placeholder: 'minLength:3',
   },
   maxLength: {
     label: 'Max Length',
     needsArg: true,
-    description: 'Panjang string maksimum.',
+    description: 'Maximum string length.',
     placeholder: 'maxLength:100',
   },
   withoutemoticon: {
     label: 'Without Emoticon',
     needsArg: false,
-    description: 'Tidak boleh mengandung emoticon/emoji.',
+    description: 'Must not contain emoticons/emoji.',
   },
-  email: { label: 'Email', needsArg: false, description: 'Format email valid.' },
+  email: { label: 'Email', needsArg: false, description: 'Valid email format.' },
   regex: {
     label: 'Regex',
     needsArg: true,
-    description: 'Pattern custom, mis. regex:^\\d+$',
+    description: 'Custom pattern, e.g. regex:^\\d+$',
     placeholder: 'regex:^\\d+$',
   },
   unique: {
     label: 'Unique',
     needsArg: false,
-    description: 'Dicek ke server saat submit (tidak ada validasi client).',
+    description: 'Checked server-side on submit (no client validation).',
   },
 };
 

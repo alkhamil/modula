@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Card,
@@ -9,7 +10,7 @@ import {
   TextAreaField,
   TextField,
 } from '../../../shared/components/ui';
-import { TrashIcon } from '../../../shared/components/icons';
+import { Trash2 } from 'lucide-react';
 import type {
   ApiSourceConfig,
   DataSource,
@@ -31,7 +32,7 @@ import {
   defaultSortable,
   defaultRuleArg,
   fieldTypeOptions,
-  filterCriteriaRegistry,
+  fieldTypeRegistry,
   validationRegistry,
   validationRuleNames,
 } from '../registry';
@@ -350,32 +351,25 @@ const PLACEHOLDER_TYPES: FieldType[] = [
   'selectField',
   'selectMultipleField',
 ];
+/** Label komponen untuk judul Props — 3 tipe berprosa diterjemahkan, sisanya nama komponen. */
+function componentLabel(t: (key: string) => string, type: FieldType): string {
+  switch (type) {
+    case 'numberField':
+      return t('field.compNumber');
+    case 'currencyField':
+      return t('field.compCurrency');
+    default:
+      return fieldTypeRegistry[type].component;
+  }
+}
 
-const COMPONENT_LABEL: Record<FieldType, string> = {
-  textField: 'TextField',
-  numberField: 'TextField (currency)',
-  currencyField: 'TextField (currency + simbol)',
-  textareaField: 'TextAreaField',
-  passwordField: 'PasswordField',
-  dateField: 'DatePickerField',
-  dateRangeField: 'DateRangeField',
-  selectField: 'SelectField',
-  selectMultipleField: 'SelectMultipleField',
-  radioGroupField: 'RadioGroupField',
-  checkboxField: 'CheckboxField',
-  checkboxGroupField: 'CheckboxGroupField',
-  switchField: 'SwitchField',
-  fileUploadField: 'FileUploadField',
-  colorField: 'ColorField',
-  editorField: 'EditorField (TipTap)',
-  formArrayField: 'FormArrayField',
-};
-
-const TRI_STATE_OPTIONS = [
-  { label: 'Default', value: '' },
-  { label: 'Ya', value: 'true' },
-  { label: 'Tidak', value: 'false' },
-];
+function triStateOptions(t: (key: string) => string): { label: string; value: string }[] {
+  return [
+    { label: t('field.default'), value: '' },
+    { label: t('field.yes'), value: 'true' },
+    { label: t('field.no'), value: 'false' },
+  ];
+}
 
 /** Pilihan boolean 3-status: Default (tak di-set) / Ya / Tidak. */
 function TriState({
@@ -389,13 +383,14 @@ function TriState({
   onChange: (next: boolean | undefined) => void;
   hint?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <div>
       <label className="mb-1 block font-mono text-xs text-muted-foreground">{label}</label>
       <SelectField size="sm"
         value={value === undefined ? '' : value ? 'true' : 'false'}
         onChange={(next) => onChange(next === '' ? undefined : next === 'true')}
-        options={TRI_STATE_OPTIONS}
+        options={triStateOptions(t)}
         clearable={false}
       />
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
@@ -410,6 +405,7 @@ function SizeSelect({
   value: FieldSize | undefined;
   onChange: (next: FieldSize | undefined) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div>
       <label className="mb-1 block font-mono text-xs text-muted-foreground">size</label>
@@ -417,7 +413,7 @@ function SizeSelect({
         value={value ?? ''}
         onChange={(next) => onChange(next === '' ? undefined : (next as FieldSize))}
         options={[
-          { label: 'Default (md)', value: '' },
+          { label: t('field.sizeDefault'), value: '' },
           { label: 'sm', value: 'sm' },
           { label: 'md', value: 'md' },
           { label: 'lg', value: 'lg' },
@@ -496,6 +492,7 @@ function ValidationEditor({
   rules: string[];
   onChange: (rules: string[]) => void;
 }) {
+  const { t } = useTranslation();
   // Argumen terakhir per rule agar enable ulang memakai nilai sebelumnya.
   const lastArgsRef = useRef<Partial<Record<ValidationRuleName, string>>>({});
   const draft = rulesToDraft(rules);
@@ -522,7 +519,7 @@ function ValidationEditor({
   return (
     <div className="flex flex-col field-gap">
       <p className="text-xs text-muted-foreground">
-        Centang rule untuk mengaktifkan. Rule berargumen terisi otomatis dan bisa diubah.
+        {t('field.validationHint')}
       </p>
       {validationRuleNames.map((ruleName) => {
         const def = validationRegistry[ruleName];
@@ -540,9 +537,9 @@ function ValidationEditor({
               onChange={(checked) => setEnabled(ruleName, checked)}
             />
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium text-foreground">{def.label}</p>
-              <p className="truncate text-xs text-muted-foreground" title={def.description}>
-                {def.description}
+              <p className="text-xs font-medium text-foreground">{t(`registry.validationRules.${ruleName}`)}</p>
+              <p className="truncate text-xs text-muted-foreground" title={t(`registry.validationRules.${ruleName}Desc`)}>
+                {t(`registry.validationRules.${ruleName}Desc`)}
               </p>
             </div>
             {def.needsArg && (
@@ -598,6 +595,7 @@ function SourceEditor({
   onPatch: (part: SourcePatch) => void;
   iconOnlyRemove?: boolean;
 }) {
+  const { t } = useTranslation();
   const allowedSources = (Object.keys(dataSourceRegistry) as DataSource[]).filter((key) =>
     dataSourceRegistry[key].appliesTo.includes(type),
   );
@@ -610,12 +608,12 @@ function SourceEditor({
   return (
     <div className="flex flex-col stack-gap">
       <div>
-        <label className="mb-1 block text-xs font-medium text-foreground">Source</label>
+        <label className="mb-1 block text-xs font-medium text-foreground">{t('field.source')}</label>
         <SelectField size="sm"
           value={source}
           onChange={(next) => onPatch({ source: next as DataSource })}
           options={allowedSources.map((item) => ({
-            label: dataSourceRegistry[item].label,
+            label: t(`registry.dataSources.${item}`),
             value: item,
           }))}
           clearable={false}
@@ -624,7 +622,7 @@ function SourceEditor({
 
       {source === 'mockStatic' && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-foreground">Options</label>
+          <label className="mb-1 block text-xs font-medium text-foreground">{t('field.options')}</label>
           <div className="flex flex-col field-gap">
             {options.map((opt, i) => (
               <div key={i} className="flex items-center gap-2">
@@ -632,24 +630,24 @@ function SourceEditor({
                   <TextField size="sm"
                     value={opt.label}
                     onChange={(e) => updateOption(i, { label: e.target.value })}
-                    placeholder="Label"
+                    placeholder={t('field.label')}
                   />
                 </div>
                 <div className="flex-1">
                   <TextField size="sm"
                     value={opt.value}
                     onChange={(e) => updateOption(i, { value: e.target.value })}
-                    placeholder="value"
+                    placeholder={t('field.name')}
                   />
                 </div>
                 <Button
                   variant="danger"
                   size="sm"
                   onClick={() => onPatch({ options: options.filter((_, j) => j !== i) })}
-                  icon={<TrashIcon className="h-4 w-4" />}
-                  title="Hapus"
+                  icon={<Trash2 className="h-4 w-4" />}
+                  title={t('common.delete')}
                 >
-                  {iconOnlyRemove ? null : 'Hapus'}
+                  {iconOnlyRemove ? null : t('common.delete')}
                 </Button>
               </div>
             ))}
@@ -659,7 +657,7 @@ function SourceEditor({
                 size="sm"
                 onClick={() => onPatch({ options: [...options, { label: '', value: '' }] })}
               >
-                Tambah option
+                {t('field.addOption')}
               </Button>
             </div>
           </div>
@@ -669,7 +667,7 @@ function SourceEditor({
       {source === 'relation' && (
         <div className="flex flex-col field-gap">
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">Modul target</label>
+            <label className="mb-1 block text-xs font-medium text-foreground">{t('field.relationTarget')}</label>
             <SelectField size="sm"
               value={relation.definitionKey}
               onChange={(next) => {
@@ -690,13 +688,13 @@ function SourceEditor({
             />
             {definitions.length === 0 && (
               <p className="mt-1 text-xs text-muted-foreground">
-                Belum ada modul terdaftar — publish modul target dulu.
+                {t('field.noModules')}
               </p>
             )}
           </div>
           <div className="grid grid-cols-2 field-gap">
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">Label field</label>
+              <label className="mb-1 block text-xs font-medium text-foreground">{t('field.relationLabelField')}</label>
               <SelectField size="sm"
                 value={relation.labelField}
                 onChange={(next) => onPatch({ relation: { ...relation, labelField: next } })}
@@ -709,7 +707,7 @@ function SourceEditor({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">Value field</label>
+              <label className="mb-1 block text-xs font-medium text-foreground">{t('field.relationValueField')}</label>
               <TextField size="sm"
                 value={relation.valueField}
                 onChange={(e) => onPatch({ relation: { ...relation, valueField: e.target.value } })}
@@ -718,7 +716,7 @@ function SourceEditor({
             </div>
           </div>
           <p className="text-xs text-muted-foreground">
-            Options diambil dari records modul target (search + paging ikut).
+            {t('field.relationHint')}
           </p>
         </div>
       )}
@@ -726,7 +724,7 @@ function SourceEditor({
       {source === 'api' && (
         <div className="flex flex-col field-gap">
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">Endpoint</label>
+            <label className="mb-1 block text-xs font-medium text-foreground">{t('field.endpoint')}</label>
             <TextField size="sm"
               value={api.endpoint}
               onChange={(e) => onPatch({ api: { ...api, endpoint: e.target.value } })}
@@ -735,21 +733,21 @@ function SourceEditor({
           </div>
           <div className="grid grid-cols-3 field-gap">
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">Method</label>
+              <label className="mb-1 block text-xs font-medium text-foreground">{t('field.method')}</label>
               <TextField size="sm"
                 value={api.method}
                 onChange={(e) => onPatch({ api: { ...api, method: e.target.value } })}
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">Value field</label>
+              <label className="mb-1 block text-xs font-medium text-foreground">{t('field.relationValueField')}</label>
               <TextField size="sm"
                 value={api.valueField}
                 onChange={(e) => onPatch({ api: { ...api, valueField: e.target.value } })}
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">Label field</label>
+              <label className="mb-1 block text-xs font-medium text-foreground">{t('field.relationLabelField')}</label>
               <TextField size="sm"
                 value={api.labelField}
                 onChange={(e) => onPatch({ api: { ...api, labelField: e.target.value } })}
@@ -758,7 +756,7 @@ function SourceEditor({
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-foreground">
-              Contoh options (untuk mock)
+              {t('field.apiExample')}
             </label>
             <TextAreaField size="sm"
               value={options.map((o) => `${o.label}=${o.value}`).join('\n')}
@@ -804,21 +802,22 @@ function SubFieldModal({
   onClose: () => void;
   onSave: (next: SubFieldDraft) => void;
 }) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState<FieldFormValue>(() => subToFormValue(initial));
   const [error, setError] = useState<string | null>(null);
 
   function handleSave(): void {
     const name = draft.name.trim();
     if (!name) {
-      setError('Name wajib diisi.');
+      setError(t('configValidate.subNameRequired'));
       return;
     }
     if (isReservedFieldName(name)) {
-      setError(`"${name}" reserved untuk kolom sistem.`);
+      setError(t('configValidate.subNameReserved', { name }));
       return;
     }
     if (siblingNames.includes(name)) {
-      setError(`Field name "${name}" sudah dipakai.`);
+      setError(t('configValidate.subNameDup', { name }));
       return;
     }
     onSave({ ...formValueToSub(draft), name });
@@ -834,10 +833,10 @@ function SubFieldModal({
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
-            Batal
+            {t('common.cancel')}
           </Button>
           <Button onClick={handleSave} testId="subfield-modal-save">
-            Simpan
+            {t('common.save')}
           </Button>
         </>
       }
@@ -863,6 +862,7 @@ function SubFieldModal({
 function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter = false }: FieldFormProps) {
   const [nameTouched, setNameTouched] = useState(value.name !== '');
   const [subModal, setSubModal] = useState<{ mode: 'create' } | { mode: 'edit'; index: number } | null>(null);
+  const { t } = useTranslation();
   const form = value;
   const patch = (part: Partial<FieldFormValue>): void => onChange({ ...form, ...part });
 
@@ -919,19 +919,19 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="clearable"
               value={p.clearable}
               onChange={(clearable) => patchTypedProps('text', { clearable })}
-              hint="Tombol X untuk mengosongkan input."
+              hint={t('field.clearableHint')}
             />
             <PropText
               label="prefix"
               value={p.prefix ?? ''}
               onChange={(prefix) => patchTypedProps('text', { prefix })}
-              placeholder={isCurrency ? 'Rp (default)' : 'Rp'}
+              placeholder={isCurrency ? t('field.prefixRpDefault') : 'Rp'}
             />
             <PropText
               label="suffix"
               value={p.suffix ?? ''}
               onChange={(suffix) => patchTypedProps('text', { suffix })}
-              placeholder="kg"
+              placeholder="Kg"
             />
             {isCurrency && (
               <p className="text-xs text-muted-foreground">
@@ -962,7 +962,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="defaultVisible"
               value={p.defaultVisible}
               onChange={(defaultVisible) => patchTypedProps('password', { defaultVisible })}
-              hint="Password terlihat sejak awal."
+              hint={t('field.passwordVisible')}
             />
           </>
         );
@@ -976,13 +976,13 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="showTime"
               value={p.showTime}
               onChange={(showTime) => patchTypedProps('date', { showTime })}
-              hint="Pilih jam + menit."
+              hint={t('field.dateTime')}
             />
             <TriState
               label="clearable"
               value={p.clearable}
               onChange={(clearable) => patchTypedProps('date', { clearable })}
-              hint="Default: tombol X tampil."
+              hint={t('field.dateClearable')}
             />
             <PropText
               label="minDate"
@@ -1017,7 +1017,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="maxRangeDays"
               value={p.maxRangeDays}
               onChange={(maxRangeDays) => patchTypedProps('dateRange', { maxRangeDays })}
-              placeholder="Batas hari"
+              placeholder={t('field.maxDaysPh')}
             />
           </>
         );
@@ -1031,19 +1031,19 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="clearable"
               value={p.clearable}
               onChange={(clearable) => patchTypedProps('select', { clearable })}
-              hint="Default: mati (statis) / nyala (loader)."
+              hint={t('field.selectClearable')}
             />
             <TriState
               label="searchable"
               value={p.searchable}
               onChange={(searchable) => patchTypedProps('select', { searchable })}
-              hint="Default: bisa cari."
+              hint={t('field.selectSearchable')}
             />
             <TriState
               label="paginateOnScroll"
               value={p.paginateOnScroll}
               onChange={(paginateOnScroll) => patchTypedProps('select', { paginateOnScroll })}
-              hint="Default: aktif untuk loader."
+              hint={t('field.selectPaginate')}
             />
             <PropNumber
               label="pageSize"
@@ -1055,7 +1055,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="emptyOptionsText"
               value={p.emptyOptionsText ?? ''}
               onChange={(emptyOptionsText) => patchTypedProps('select', { emptyOptionsText })}
-              placeholder="No options"
+              placeholder={t('fields.noOptions')}
             />
             <TriState
               label="showSelectedOptions"
@@ -1068,7 +1068,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="showValueOnly"
               value={p.showValueOnly}
               onChange={(showValueOnly) => patchTypedProps('select', { showValueOnly })}
-              hint="Trigger tampilkan value mentah."
+              hint={t('field.selectValueOnly')}
             />
           </>
         );
@@ -1090,13 +1090,13 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="searchable"
               value={p.searchable}
               onChange={(searchable) => patchTypedProps('selectMultiple', { searchable })}
-              hint="Default: bisa cari."
+              hint={t('field.selectSearchable')}
             />
             <TriState
               label="paginateOnScroll"
               value={p.paginateOnScroll}
               onChange={(paginateOnScroll) => patchTypedProps('selectMultiple', { paginateOnScroll })}
-              hint="Default: aktif untuk loader."
+              hint={t('field.selectPaginate')}
             />
             <PropNumber
               label="pageSize"
@@ -1110,7 +1110,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               onChange={(emptyOptionsText) =>
                 patchTypedProps('selectMultiple', { emptyOptionsText })
               }
-              placeholder="No options"
+              placeholder={t('fields.noOptions')}
             />
             <TriState
               label="showSelectedOptions"
@@ -1123,19 +1123,19 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="chipsSummary"
               value={p.chipsSummary}
               onChange={(chipsSummary) => patchTypedProps('selectMultiple', { chipsSummary })}
-              hint="Ringkas jadi “[n] items selected”."
+              hint={t('field.multiChips')}
             />
             <TriState
               label="closeOnSelect"
               value={p.closeOnSelect}
               onChange={(closeOnSelect) => patchTypedProps('selectMultiple', { closeOnSelect })}
-              hint="Tutup dropdown tiap pilih."
+              hint={t('field.multiCloseOnSelect')}
             />
             <TriState
               label="hideCheckBox"
               value={p.hideCheckBox}
               onChange={(hideCheckBox) => patchTypedProps('selectMultiple', { hideCheckBox })}
-              hint="Sembunyikan checkbox opsi."
+              hint={t('field.multiHideCheck')}
             />
           </>
         );
@@ -1158,7 +1158,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="indeterminate"
               value={p.indeterminate}
               onChange={(indeterminate) => patchTypedProps('checkbox', { indeterminate })}
-              hint="Status setengah tercentang."
+              hint={t('field.checkboxIndeterminate')}
             />
           </>
         );
@@ -1181,19 +1181,19 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="showCheckedLabels"
               value={p.showCheckedLabels}
               onChange={(showCheckedLabels) => patchTypedProps('switch', { showCheckedLabels })}
-              hint="Default: label statis."
+              hint={t('field.switchStatic')}
             />
             <PropText
               label="checkedLabel"
               value={p.checkedLabel ?? ''}
               onChange={(checkedLabel) => patchTypedProps('switch', { checkedLabel })}
-              placeholder="Ya"
+              placeholder={t('field.yes')}
             />
             <PropText
               label="uncheckedLabel"
               value={p.uncheckedLabel ?? ''}
               onChange={(uncheckedLabel) => patchTypedProps('switch', { uncheckedLabel })}
-              placeholder="Tidak"
+              placeholder={t('field.no')}
             />
           </>
         );
@@ -1207,7 +1207,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="multiple"
               value={p.multiple}
               onChange={(multiple) => patchTypedProps('upload', { multiple })}
-              hint="Aktif = pilih banyak file, nilai File[]."
+              hint={t('field.uploadMultiple')}
             />
           </>
         );
@@ -1233,37 +1233,37 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="addLabel"
               value={p.addLabel ?? ''}
               onChange={(addLabel) => patchTypedProps('array', { addLabel })}
-              placeholder="Tambah"
+              placeholder={t('field.arrayAddLabelPh')}
             />
             <PropText
               label="editorTitle"
               value={p.editorTitle ?? ''}
               onChange={(editorTitle) => patchTypedProps('array', { editorTitle })}
-              placeholder="Otomatis dari label"
+              placeholder={t('field.placeholderAuto')}
             />
             <PropText
               label="emptyTitle"
               value={p.emptyTitle ?? ''}
               onChange={(emptyTitle) => patchTypedProps('array', { emptyTitle })}
-              placeholder="Belum ada data"
+              placeholder={t('field.arrayEmptyTitlePh')}
             />
             <PropText
               label="emptyDescription"
               value={p.emptyDescription ?? ''}
               onChange={(emptyDescription) => patchTypedProps('array', { emptyDescription })}
-              placeholder="Klik tombol di bawah untuk menambah baris."
+              placeholder={t('field.arrayEmptyDescPh')}
             />
             <PropNumber
               label="maxRows"
               value={p.maxRows}
               onChange={(maxRows) => patchTypedProps('array', { maxRows })}
-              placeholder="Tanpa batas"
+              placeholder={t('field.arrayNoLimit')}
             />
             <TriState
               label="lockFirstRow"
               value={p.lockFirstRow}
               onChange={(lockFirstRow) => patchTypedProps('array', { lockFirstRow })}
-              hint="Baris pertama selalu ada dan tidak bisa dihapus."
+              hint={t('field.lockFirstRowHint')}
             />
           </>
         );
@@ -1273,11 +1273,11 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
 
   return (
     <div className="flex flex-col stack-gap">
-      <Card size="sm" title="General" collapsible>
+      <Card size="sm" title={t('field.general')} collapsible>
         <div className="flex flex-col stack-gap">
           <div className="grid grid-cols-2 stack-gap">
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">Label</label>
+              <label className="mb-1 block text-xs font-medium text-foreground">{t('field.label')}</label>
               <TextField size="sm"
                 value={form.label}
                 onChange={(e) => handleLabelChange(e.target.value)}
@@ -1285,7 +1285,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">Name</label>
+              <label className="mb-1 block text-xs font-medium text-foreground">{t('field.name')}</label>
               <TextField size="sm"
                 value={form.name}
                 onChange={(e) => {
@@ -1299,7 +1299,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">Type</label>
+            <label className="mb-1 block text-xs font-medium text-foreground">{t('field.type')}</label>
             <SelectField size="sm"
               value={form.type}
               onChange={(next) => handleTypeChange(next as FieldType)}
@@ -1311,11 +1311,11 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
       </Card>
 
       {form.type === 'formArrayField' && (
-        <Card size="sm" title="Sub-fields & Kolom" collapsible>
+        <Card size="sm" title={t('field.subfields')} collapsible>
           <div className="flex flex-col stack-gap">
             {form.subFields.length === 0 && (
               <p className="text-sm text-muted-foreground">
-                Belum ada kolom. Tambahkan minimal satu sub-field.
+                {t('field.subEmpty')}
               </p>
             )}
             {form.subFields.map((sub, i) => {
@@ -1327,7 +1327,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                   data-testid={`subfield-${i}`}
                   role="button"
                   tabIndex={0}
-                  title="Klik untuk ubah"
+                  title={t('field.clickToEdit')}
                   onClick={() => setSubModal({ mode: 'edit', index: i })}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') setSubModal({ mode: 'edit', index: i });
@@ -1336,30 +1336,30 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-xs font-medium text-foreground">
-                      Kolom {i + 1} — {sub.label.trim() || '(tanpa label)'}
+                      {t('field.columnTitle', { index: i + 1, label: sub.label.trim() || t('field.noLabel') })}
                     </p>
                     <p className="truncate font-mono text-xs text-muted-foreground">
-                      {sub.name || '(tanpa name)'} · {typeLabel} ·{' '}
-                      {dataSourceRegistry[sub.source]?.label ?? sub.source}
+                      {sub.name || t('field.noName')} · {typeLabel} ·{' '}
+                      {t(`registry.dataSources.${sub.source}`)}
                       {sub.rules.length > 0 ? ` · ${sub.rules.join('|')}` : ''}
                     </p>
                   </div>
                   <Button
                     variant="danger"
                     size="sm"
-                    title="Hapus kolom"
+                    title={t('field.deleteColumn')}
                     onClick={(e) => {
                       e.stopPropagation();
                       patch({ subFields: form.subFields.filter((_, j) => j !== i) });
                     }}
-                    icon={<TrashIcon className="h-4 w-4" />}
+                    icon={<Trash2 className="h-4 w-4" />}
                   />
                 </div>
               );
             })}
             <div>
               <Button variant="secondary" size="sm" onClick={() => setSubModal({ mode: 'create' })}>
-                Tambah sub-field
+                {t('field.addSub')}
               </Button>
             </div>
             {subModal && (
@@ -1367,8 +1367,8 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                 key={subModal.mode === 'edit' ? `edit-${subModal.index}` : 'create'}
                 title={
                   subModal.mode === 'edit'
-                    ? `Ubah kolom — ${form.subFields[subModal.index]?.label || `Kolom ${subModal.index + 1}`}`
-                    : 'Tambah kolom'
+                    ? t('field.editColumn', { label: form.subFields[subModal.index]?.label || t('field.columnTitle', { index: subModal.index + 1, label: t('field.noLabel') }) })
+                    : t('field.addColumn')
                 }
                 initial={
                   subModal.mode === 'edit'
@@ -1394,18 +1394,18 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
         </Card>
       )}
 
-      <Card size="sm" title="Appearance" collapsible>
+      <Card size="sm" title={t('field.appearance')} collapsible>
         <div className="flex flex-col stack-gap">
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">Tampilan input</label>
+            <label className="mb-1 block text-xs font-medium text-foreground">{t('field.inputLook')}</label>
             <div className="flex flex-col field-gap rounded-lg border border-border px-3 py-2">
               {PLACEHOLDER_TYPES.includes(form.type) && (
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-foreground">Placeholder</label>
+                  <label className="mb-1 block text-xs font-medium text-foreground">{t('field.placeholder')}</label>
                   <TextField size="sm"
                     value={form.placeholder}
                     onChange={(e) => patch({ placeholder: e.target.value })}
-                    placeholder="Otomatis dari label"
+                    placeholder={t('field.placeholderAuto')}
                     maxLength={100}
                   />
                 </div>
@@ -1413,12 +1413,12 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               {form.type === 'textareaField' && (
                 <div>
                   <label className="mb-1 block text-xs font-medium text-foreground">
-                    Tinggi (baris)
+                    {t('field.rowsHeight')}
                   </label>
                   <TextField size="sm"
                     value={form.rows}
                     onChange={(e) => patch({ rows: e.target.value.replace(/[^0-9]/g, '') })}
-                    placeholder="Default"
+                    placeholder={t('field.rowsDefault')}
                     maxLength={2}
                   />
                 </div>
@@ -1426,7 +1426,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               {form.type === 'fileUploadField' && (
                 <div>
                   <label className="mb-1 block text-xs font-medium text-foreground">
-                    Accept (filter file)
+                    {t('field.acceptLabel')}
                   </label>
                   <TextField size="sm"
                     value={form.accept}
@@ -1438,8 +1438,8 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               )}
               <div className="flex items-center justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-xs font-medium text-foreground">Disabled</p>
-                  <p className="text-xs text-muted-foreground">Input nonaktif di form.</p>
+                  <p className="text-xs font-medium text-foreground">{t('field.disabled')}</p>
+                  <p className="text-xs text-muted-foreground">{t('field.disabledDesc')}</p>
                 </div>
                 <SwitchField
                   value={form.disabled}
@@ -1451,7 +1451,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">Props FormItem</label>
+            <label className="mb-1 block text-xs font-medium text-foreground">{t('field.formItemProps')}</label>
             <div className="flex flex-col field-gap rounded-lg border border-border px-3 py-2">
               <div>
                 <label className="mb-1 block font-mono text-xs text-muted-foreground">layout</label>
@@ -1461,7 +1461,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                     patchFormItem({ layout: next === '' ? undefined : next })
                   }
                   options={[
-                    { label: 'Default (horizontal)', value: '' },
+                    { label: t('field.defaultHorizontal'), value: '' },
                     { label: 'horizontal', value: 'horizontal' },
                     { label: 'vertical', value: 'vertical' },
                   ]}
@@ -1474,7 +1474,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                   value={form.props.formItem?.align ?? ''}
                   onChange={(next) => patchFormItem({ align: next === '' ? undefined : next })}
                   options={[
-                    { label: 'Default (center)', value: '' },
+                    { label: t('field.defaultCenter'), value: '' },
                     { label: 'center', value: 'center' },
                     { label: 'start', value: 'start' },
                   ]}
@@ -1482,10 +1482,10 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                 />
               </div>
               <PropText
-                label="labelTooltip"
+                label={t('field.labelTooltip')}
                 value={form.props.formItem?.labelTooltip ?? ''}
                 onChange={(labelTooltip) => patchFormItem({ labelTooltip })}
-                placeholder="Teks bantuan label"
+                placeholder={t('field.tooltipPh')}
               />
               <div>
                 <label className="mb-1 block font-mono text-xs text-muted-foreground">
@@ -1495,7 +1495,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                   value={form.props.formItem?.labelFontWeight ?? ''}
                   onChange={(next) => patchFormItem({ labelFontWeight: next === '' ? undefined : next })}
                   options={[
-                    { label: 'Default (medium)', value: '' },
+                    { label: t('field.defaultMedium'), value: '' },
                     { label: 'light', value: 'light' },
                     { label: 'normal', value: 'normal' },
                     { label: 'medium', value: 'medium' },
@@ -1510,7 +1510,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
 
           <div>
             <label className="mb-1 block text-xs font-medium text-foreground">
-              Props {COMPONENT_LABEL[form.type]}
+              {t('field.componentProps', { comp: componentLabel(t, form.type) })}
             </label>
             <div className="flex flex-col field-gap rounded-lg border border-border px-3 py-2">
               {renderTypedProps()}
@@ -1521,12 +1521,12 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
 
 
       {!hideTableFilter && (
-      <Card size="sm" title="Tabel & Filter" collapsible defaultOpen={false}>
+      <Card size="sm" title={t('field.tableFilter')} collapsible defaultOpen={false}>
         <div className="flex flex-col field-gap">
           <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2">
             <div className="min-w-0">
-              <p className="text-xs font-medium text-foreground">Sortable</p>
-              <p className="text-xs text-muted-foreground">Kolom bisa di-sort di tabel.</p>
+              <p className="text-xs font-medium text-foreground">{t('field.sortable')}</p>
+              <p className="text-xs text-muted-foreground">{t('field.sortableDesc')}</p>
             </div>
             <SwitchField
               value={form.sortable}
@@ -1536,8 +1536,8 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
           </div>
           <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2">
             <div className="min-w-0">
-              <p className="text-xs font-medium text-foreground">Filterable</p>
-              <p className="text-xs text-muted-foreground">Tampil di filter drawer halaman list.</p>
+              <p className="text-xs font-medium text-foreground">{t('field.filterable')}</p>
+              <p className="text-xs text-muted-foreground">{t('field.filterableDesc')}</p>
             </div>
             <SwitchField
               value={form.filterable}
@@ -1548,21 +1548,20 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
           {form.filterable && (
             <div className="rounded-lg border border-border px-3 py-2">
               <label className="mb-1 block text-xs font-medium text-foreground">
-                Kriteria filter
+                {t('field.filterCriteria')}
               </label>
               <SelectField size="sm"
                 value={form.filterCriteria ?? defaultCriteria(form.type)}
                 onChange={(next) => patch({ filterCriteria: next as FilterCriteria })}
                 options={criteriaForFieldType(form.type).map((name) => ({
-                  label: filterCriteriaRegistry[name].label,
+                  label: t(`registry.filterCriteria.${name}`),
                   value: name,
                 }))}
                 clearable={false}
               />
               <p className="mt-1 text-xs text-muted-foreground">
                 {
-                  filterCriteriaRegistry[form.filterCriteria ?? defaultCriteria(form.type)]
-                    .description
+                  t(`registry.filterCriteria.${form.filterCriteria ?? defaultCriteria(form.type)}Desc`)
                 }
               </p>
             </div>
@@ -1572,12 +1571,12 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
       )}
 
 
-      <Card size="sm" title="Validasi" collapsible defaultOpen={false}>
+      <Card size="sm" title={t('field.validation')} collapsible defaultOpen={false}>
         <ValidationEditor rules={form.rules} onChange={(rules) => patch({ rules })} />
       </Card>
 
 
-      <Card size="sm" title="Sumber Data" collapsible defaultOpen={false}>
+      <Card size="sm" title={t('field.sourceData')} collapsible defaultOpen={false}>
         <SourceEditor
           type={form.type}
           source={form.source}

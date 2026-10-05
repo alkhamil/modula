@@ -1,8 +1,9 @@
 import { useEffect, useId, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import Button from '../Button';
 import Dialog from '../Dialog';
 import Table, { type Column } from '../Table';
-import { PencilIcon, PlusIcon, TrashIcon } from '../../icons';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 
 export interface ArrayEditorApi<T> {
   /** Baris yang diedit, atau null saat tambah baru. */
@@ -25,9 +26,9 @@ interface FormArrayFieldProps<T extends Record<string, unknown>> {
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   error?: string;
-  /** Label tombol tambah (default `Tambah`). */
+  /** Add button label (defaults to `t('array.add')`). */
   addLabel?: string;
-  /** Nama data untuk judul dialog (`Tambah ${editorTitle}` / `Ubah ...`). */
+  /** Item name for dialog titles (add/edit). */
   editorTitle?: string;
   emptyTitle?: string;
   emptyDescription?: string;
@@ -50,10 +51,10 @@ export default function FormArrayField<T extends Record<string, unknown>>({
   size = 'md',
   disabled = false,
   error,
-  addLabel = 'Tambah',
-  editorTitle = 'Data',
-  emptyTitle = 'Belum ada data',
-  emptyDescription = 'Klik tombol di bawah untuk menambah baris.',
+  addLabel,
+  editorTitle,
+  emptyTitle,
+  emptyDescription,
   maxRows,
   lockFirstRow = false,
   className = '',
@@ -66,6 +67,11 @@ export default function FormArrayField<T extends Record<string, unknown>>({
   const capped = maxRows !== undefined && rows.length >= maxRows;
   /** Id form editor baris — diteruskan ke renderEditor untuk submit via footer. */
   const rowFormId = useId();
+  const { t } = useTranslation();
+  const resolvedAddLabel = addLabel ?? t('array.add');
+  const resolvedEditorTitle = editorTitle ?? t('array.data');
+  const resolvedEmptyTitle = emptyTitle ?? t('array.emptyTitle');
+  const resolvedEmptyDesc = emptyDescription ?? t('array.emptyDesc');
 
   // Baris pertama terkunci harus selalu ada — buat baris kosong otomatis.
   useEffect(() => {
@@ -102,9 +108,9 @@ export default function FormArrayField<T extends Record<string, unknown>>({
           onClick={() => setEditing({ index: index ?? 0 })}
           data-testid={resolvedTestId ? `${resolvedTestId}-edit-${index}` : undefined}
           className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
-          title="Ubah baris"
+          title={t('array.editRow')}
         >
-          <PencilIcon className="h-4 w-4" />
+          <Pencil className="h-4 w-4" />
         </button>
         {!(lockFirstRow && (index ?? 0) === 0) && (
           <button
@@ -113,9 +119,9 @@ export default function FormArrayField<T extends Record<string, unknown>>({
             onClick={() => handleDelete(index ?? 0)}
             data-testid={resolvedTestId ? `${resolvedTestId}-delete-${index}` : undefined}
             className="rounded p-1 text-danger hover:bg-danger/10 disabled:cursor-not-allowed disabled:opacity-50"
-            title="Hapus baris"
+            title={t('array.deleteRow')}
           >
-            <TrashIcon className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" />
           </button>
         )}
       </div>
@@ -129,8 +135,8 @@ export default function FormArrayField<T extends Record<string, unknown>>({
           data-testid={resolvedTestId ? `${resolvedTestId}-empty` : undefined}
           className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border px-4 py-8 text-center"
         >
-          <p className="text-sm font-medium text-foreground">{emptyTitle}</p>
-          <p className="text-xs text-muted-foreground">{emptyDescription}</p>
+          <p className="text-sm font-medium text-foreground">{resolvedEmptyTitle}</p>
+          <p className="text-xs text-muted-foreground">{resolvedEmptyDesc}</p>
           <Button
             type="button"
             size={size}
@@ -138,8 +144,8 @@ export default function FormArrayField<T extends Record<string, unknown>>({
             onClick={handleAdd}
             data-testid={resolvedTestId ? `${resolvedTestId}-add-button` : undefined}
           >
-            <PlusIcon className="h-4 w-4" />
-            {addLabel}
+            <Plus className="h-4 w-4" />
+            {resolvedAddLabel}
           </Button>
         </div>
       ) : (
@@ -153,8 +159,8 @@ export default function FormArrayField<T extends Record<string, unknown>>({
               onClick={handleAdd}
               data-testid={resolvedTestId ? `${resolvedTestId}-add-button` : undefined}
             >
-              <PlusIcon className="h-4 w-4" />
-              {addLabel}
+              <Plus className="h-4 w-4" />
+              {resolvedAddLabel}
             </Button>
           </div>
           <div className="-mt-8">
@@ -185,19 +191,19 @@ export default function FormArrayField<T extends Record<string, unknown>>({
       <Dialog
         open={editing !== null}
         onClose={() => setEditing(null)}
-        title={`${editing?.index === null ? addLabel : 'Ubah'} ${editorTitle}`}
+        title={`${editing?.index === null ? resolvedAddLabel : t('array.edit')} ${resolvedEditorTitle}`}
         testId={resolvedTestId ? `${resolvedTestId}-dialog` : undefined}
         footer={
           <>
             <Button variant="secondary" onClick={() => setEditing(null)}>
-              Batal
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
               form={rowFormId}
               data-testid={resolvedTestId ? `${resolvedTestId}-row-save` : undefined}
             >
-              Simpan
+              {t('common.save')}
             </Button>
           </>
         }

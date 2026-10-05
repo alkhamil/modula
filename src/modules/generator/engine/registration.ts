@@ -1,35 +1,20 @@
 import type { GeneratorConfig, ModuleRegistration, RegistrationRoute } from '../types';
+import { MENU_ICON_NAME_RE } from '../types';
 import { normalizeConfig } from '../parser';
 import { buildContext } from './context';
-import { toKebabCase } from '../naming';
-
-/** `mater-data` → `Mater Data`; `finance/accounting` → `Finance / Accounting`. */
-function prettifyParent(parentPath: string): string {
-  return parentPath
-    .split('/')
-    .map((segment) =>
-      toKebabCase(segment)
-        .split('-')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' '),
-    )
-    .join(' / ');
-}
+import { normalizeParentPath, prettifyParent } from '../naming';
 
 export function buildRegistration(raw: GeneratorConfig): ModuleRegistration {
   const config = normalizeConfig(raw);
   const ctx = buildContext(config);
   const { names, features, permissions } = ctx;
+  const base = config.permissionKey;
   const label = names.entityPlural;
   const listPath = `/${names.routeBase}`;
-  const parentPath = config.parentName
-    ? config.parentName
-        .split('/')
-        .map((part) => toKebabCase(part))
-        .filter(Boolean)
-        .join('/')
-    : null;
+  const parentPath = normalizeParentPath(config.parentName);
   const parentLabel = parentPath ? prettifyParent(parentPath) : null;
+  const rawIcon = config.menuIcon?.name.trim() ?? '';
+  const iconName = MENU_ICON_NAME_RE.test(rawIcon) ? rawIcon : 'Database';
 
   const pages: { page: string; route: string; crumb: string; permission: string }[] = [];
   if (features.list) {
@@ -71,11 +56,13 @@ export function buildRegistration(raw: GeneratorConfig): ModuleRegistration {
       ? ''
       : `import {\n${pages.map((p) => `  ${p.page},`).join('\n')}\n} from '${moduleImportPath}';`;
 
+  const crumbKey = (crumb: string): string =>
+    crumb === 'list' ? 'list' : crumb.toLowerCase();
   const routes: RegistrationRoute[] = pages.map((p) => {
     const breadcrumb =
       p.crumb === 'list'
-        ? `[{ label: '${label}' }]`
-        : `[{ label: '${label}', path: '${listPath}' }, { label: '${p.crumb}' }]`;
+        ? `[{ label: '${label}', labelKey: '${base}.breadcrumbs.list' }]`
+        : `[{ label: '${label}', labelKey: '${base}.breadcrumbs.list', path: '${listPath}' }, { label: '${p.crumb}', labelKey: '${base}.breadcrumbs.${crumbKey(p.crumb)}' }]`;
     return {
       path: p.route,
       code:
@@ -93,18 +80,20 @@ export function buildRegistration(raw: GeneratorConfig): ModuleRegistration {
   const flatItemCode =
     `  {\n` +
     `    label: '${label}',\n` +
+    `    labelKey: '${base}.labelPlural',\n` +
     `    path: '${listPath}',\n` +
-    `    icon: <NavMasterDataIcon className="h-5 w-5" />,\n` +
+    `    icon: <${iconName} className="h-5 w-5" />,\n` +
     `    permissionKey: '${permissions.view}',\n` +
     `  },`;
   const childItemCode =
-    `      { label: '${label}', path: '${listPath}', permissionKey: '${permissions.view}' },`;
+    `      { label: '${label}', labelKey: '${base}.labelPlural', path: '${listPath}', permissionKey: '${permissions.view}' },`;
   const navItemCode = parentPath ? childItemCode : flatItemCode;
   const navSnippet = parentPath
     ? `  // __GENERATOR_PARENT ${parentPath}__\n` +
       `  {\n` +
       `    label: '${parentLabel}',\n` +
-      `    icon: <NavMasterDataIcon className="h-5 w-5" />,\n` +
+      `    labelKey: '${base}.parentLabel',\n` +
+      `    icon: <${iconName} className="h-5 w-5" />,\n` +
       `    children: [\n` +
       `${childItemCode}\n` +
       `    ],\n` +
@@ -121,6 +110,7 @@ export function buildRegistration(raw: GeneratorConfig): ModuleRegistration {
     parentPath,
     parentLabel,
     label,
+    iconName,
     permissionView: permissions.view,
   };
 }

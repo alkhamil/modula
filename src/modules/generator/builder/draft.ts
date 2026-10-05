@@ -1,6 +1,7 @@
 import type { ModuleInfoValue } from '../components/ModuleInfoStep';
 import type { FeatureKey, GeneratorFieldConfig, MenuIcon } from '../types';
 import type { DeleteMode, ModuleLayout } from '../definitions';
+import type { ModuleI18nDict } from '../types';
 import type { DynamicDetail, DynamicListItem } from '../runtime/types';
 import { payloadValue, type DynamicFormValues } from '../runtime/validation';
 
@@ -14,6 +15,7 @@ export interface BuilderDraft {
   layout: ModuleLayout | null;
   deleteMode: DeleteMode;
   menuIcon: MenuIcon | null;
+  i18n?: ModuleI18nDict;
   sampleRows: DynamicListItem[];
   step: number;
   updatedAt: string;
@@ -21,10 +23,9 @@ export interface BuilderDraft {
 
 function toMenuIcon(raw: unknown): MenuIcon | null {
   if (!raw || typeof raw !== 'object') return null;
-  const { name, svg } = raw as Record<string, unknown>;
-  if (typeof name !== 'string' || typeof svg !== 'string') return null;
-  if (name.trim() === '' || !svg.includes('<svg')) return null;
-  return { name, svg };
+  const { name } = raw as Record<string, unknown>;
+  if (typeof name !== 'string' || name.trim() === '') return null;
+  return { name: name.trim() };
 }
 
 export function saveDraft(draft: Omit<BuilderDraft, 'updatedAt'>): void {
@@ -52,6 +53,7 @@ export function loadDraft(): BuilderDraft | null {
       layout: parsed.layout ?? null,
       deleteMode: parsed.deleteMode === 'hard' ? 'hard' : 'soft',
       menuIcon: toMenuIcon(parsed.menuIcon),
+      i18n: parsed.i18n,
       sampleRows: Array.isArray(parsed.sampleRows) ? parsed.sampleRows : [],
       step: typeof parsed.step === 'number' ? parsed.step : 0,
       updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : '',

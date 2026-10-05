@@ -1,5 +1,6 @@
 /** Dialog bulk upload generik — meniru dialog hasil generate. */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Button,
@@ -20,6 +21,7 @@ interface DynamicBulkUploadDialogProps {
 }
 
 function DynamicBulkUploadDialog({ def, open, onClose }: DynamicBulkUploadDialogProps) {
+  const { t } = useTranslation();
   const [file, setFile] = useState<File | File[] | null>(null);
   const [loadingTemplate, setLoadingTemplate] = useState(false);
   const [result, setResult] = useState<BulkUploadResult | null>(null);
@@ -44,8 +46,8 @@ function DynamicBulkUploadDialog({ def, open, onClose }: DynamicBulkUploadDialog
       const blob = await downloadTemplate(def);
       downloadBlob(blob, `${testPrefix}-template.xlsx`);
     } catch (err: unknown) {
-      const mapped = mapSubmitError(err, 'Gagal mengunduh template.');
-      setError(mapped.toastMessage ?? 'Gagal mengunduh template.');
+      const mapped = mapSubmitError(err, t('bulk.downloadFailed'));
+      setError(mapped.toastMessage ?? t('bulk.downloadFailed'));
     } finally {
       setLoadingTemplate(false);
     }
@@ -54,7 +56,7 @@ function DynamicBulkUploadDialog({ def, open, onClose }: DynamicBulkUploadDialog
   async function handleUpload(): Promise<void> {
     const single = Array.isArray(file) ? file[0] : file;
     if (!single) {
-      setError('Pilih file .xlsx terlebih dahulu.');
+      setError(t('bulk.pickFile'));
       return;
     }
     setError(null);
@@ -62,8 +64,8 @@ function DynamicBulkUploadDialog({ def, open, onClose }: DynamicBulkUploadDialog
       const uploadResult = await bulkMutation.mutateAsync(single);
       setResult(uploadResult);
     } catch (err: unknown) {
-      const mapped = mapSubmitError(err, 'Gagal mengunggah file.');
-      setError(mapped.toastMessage ?? 'Gagal mengunggah file.');
+      const mapped = mapSubmitError(err, t('bulk.uploadFailed'));
+      setError(mapped.toastMessage ?? t('bulk.uploadFailed'));
     }
   }
 
@@ -72,7 +74,7 @@ function DynamicBulkUploadDialog({ def, open, onClose }: DynamicBulkUploadDialog
       testId={`${testPrefix}-bulk-upload-dialog`}
       open={open}
       onClose={handleClose}
-      title={`Bulk Upload ${def.singularLabel}`}
+      title={t('bulk.title', { singular: def.singularLabel })}
       maxWidth="lg"
       closeOnEscape
       closeOnBackdropClick
@@ -86,14 +88,14 @@ function DynamicBulkUploadDialog({ def, open, onClose }: DynamicBulkUploadDialog
             onClick={handleDownloadTemplate}
             disabled={loadingTemplate}
           >
-            {loadingTemplate ? 'Mengunduh…' : 'Unduh template'}
+            {loadingTemplate ? t('bulk.downloading') : t('bulk.downloadTemplate')}
           </Button>
           <span className="text-xs text-muted-foreground">
-            Format .xlsx dengan kolom {bulkHeaders(def.fields).join(', ')}.
+            {t('bulk.templateHint', { columns: bulkHeaders(def.fields).join(', ') })}
           </span>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-foreground">File upload</label>
+          <label className="mb-1 block text-sm font-medium text-foreground">{t('bulk.fileUpload')}</label>
           <FileUploadField
             value={file}
             onChange={(next) => {
@@ -108,13 +110,13 @@ function DynamicBulkUploadDialog({ def, open, onClose }: DynamicBulkUploadDialog
           <div className="flex flex-col field-gap">
             <Alert
               variant={result.failedCount === 0 ? 'success' : 'warning'}
-              message={`${result.successCount} berhasil, ${result.failedCount} gagal dari ${result.totalRows} baris.`}
+              message={t('bulk.result', { success: result.successCount, failed: result.failedCount, total: result.totalRows })}
             />
             {result.errors.length > 0 && (
               <ul className="max-h-48 overflow-y-auto rounded-lg border border-border bg-surface px-3 py-2 text-xs text-foreground">
                 {result.errors.map((item, index) => (
                   <li key={`${item.row}-${item.field ?? ''}-${index}`} className="py-0.5">
-                    <span className="font-mono">Baris {item.row}</span>
+                    <span className="font-mono">{t('bulk.row', { row: item.row })}</span>
                     {item.field ? <span className="font-mono"> [{item.field}]</span> : null}:{' '}
                     {item.message}
                   </li>
@@ -125,14 +127,14 @@ function DynamicBulkUploadDialog({ def, open, onClose }: DynamicBulkUploadDialog
         )}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={handleClose}>
-            Tutup
+            {t('common.close')}
           </Button>
           <Button
             type="button"
             onClick={handleUpload}
             disabled={bulkMutation.isPending || !file}
           >
-            {bulkMutation.isPending ? 'Mengunggah…' : 'Upload'}
+            {bulkMutation.isPending ? t('bulk.uploading') : t('bulk.upload')}
           </Button>
         </div>
       </div>

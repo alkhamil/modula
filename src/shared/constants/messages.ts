@@ -1,8 +1,11 @@
+import { t } from 'i18next';
+import '../i18n';
+
 export const listEmptyState = (
   moduleListName: string,
-  description = 'There are no records to display at the moment.',
+  description?: string,
 ) =>
   ({
-    title: `${moduleListName} List is Empty`,
-    description,
+    title: t('runtime.emptyList', { singular: moduleListName }),
+    description: description ?? t('runtime.emptyDesc'),
   }) as const;

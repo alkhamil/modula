@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { SuccessIcon, ErrorIcon, WarningIcon, InfoBlueIcon } from '../icons';
+import { CircleCheck, CircleX, TriangleAlert, Info } from 'lucide-react';
 
 export type AlertVariant = 'success' | 'error' | 'warning' | 'info';
 
@@ -11,31 +11,31 @@ interface AlertProps {
 
 const variantConfig: Record<
   AlertVariant,
-  { bg: string; text: string; border: string; Icon: typeof SuccessIcon }
+  { bg: string; text: string; border: string; Icon: typeof CircleCheck }
 > = {
   success: {
     bg: 'bg-success/15',
     text: 'text-success',
     border: 'border-success',
-    Icon: SuccessIcon,
+    Icon: CircleCheck,
   },
   error: {
     bg: 'bg-danger/15',
     text: 'text-danger',
     border: 'border-danger',
-    Icon: ErrorIcon,
+    Icon: CircleX,
   },
   warning: {
     bg: 'bg-warning/15',
     text: 'text-warning',
     border: 'border-warning',
-    Icon: WarningIcon,
+    Icon: TriangleAlert,
   },
   info: {
     bg: 'bg-info/15',
     text: 'text-info',
     border: 'border-info',
-    Icon: InfoBlueIcon,
+    Icon: Info,
   },
 };
 

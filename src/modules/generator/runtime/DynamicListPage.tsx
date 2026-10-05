@@ -1,12 +1,14 @@
 /** Halaman list generik — filter/sort/paging + aksi tulis + export/bulk. */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Button, Card, Dialog, FilterToolbar } from '../../../shared/components/ui';
-import { ConfirmInfoIcon, ExportIcon, PlusIcon, TrashIcon, UploadFileIcon } from '../../../shared/components/icons';
-import { useAuth } from '../../auth';
+import { Info, Download, Plus, Trash2, Upload } from 'lucide-react';
+import { useAuth } from '../../../app/providers';
 import { listEmptyState } from '../../../shared/constants';
 import type { ModuleDefinition } from '../definitions';
 import { definitionPermissions, definitionTestId } from './types';
+import { moduleTitle } from './moduleI18n';
 import {
   useDynamicExport,
   useDynamicList,
@@ -17,6 +19,7 @@ import DynamicTable from './DynamicTable';
 import DynamicBulkUploadDialog from './DynamicBulkUploadDialog';
 
 function DynamicListPage({ def }: { def: ModuleDefinition }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { can } = useAuth();
   const permissions = definitionPermissions(def.permissionKey);
@@ -73,37 +76,37 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
     <div data-testid={`${testPrefix}-list-page`}>
       <Card
         testId={`${testPrefix}-list-card`}
-        title={`${def.singularLabel} List`}
+        title={moduleTitle(def, 'list', t('runtime.listTitle', { singular: def.singularLabel }))}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             {canExport && (
               <Button
                 data-testid={`${testPrefix}-export-button`}
                 variant="secondary"
-                icon={<ExportIcon />}
+                icon={<Download />}
                 onClick={() => exportData(queryParams)}
                 disabled={isExporting}
               >
-                {isExporting ? 'Mengekspor…' : 'Export'}
+                {isExporting ? t('runtime.exporting') : t('common.export')}
               </Button>
             )}
             {canBulkUpload && (
               <Button
                 data-testid={`${testPrefix}-bulk-upload-button`}
                 variant="secondary"
-                icon={<UploadFileIcon />}
+                icon={<Upload />}
                 onClick={() => setBulkOpen(true)}
               >
-                Bulk Upload
+                {t('common.bulkUpload')}
               </Button>
             )}
             {canCreate && (
               <Button
                 data-testid={`${testPrefix}-create-button`}
-                icon={<PlusIcon />}
+                icon={<Plus />}
                 onClick={() => navigate(`/${def.routeBase}/create`)}
               >
-                Create {def.singularLabel}
+                {moduleTitle(def, 'create', t('runtime.createTitle', { singular: def.singularLabel }))}
               </Button>
             )}
           </div>
@@ -118,7 +121,6 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
             filterValues={filterValues}
             onApply={handleApply}
             onReset={handleReset}
-            searchPlaceholder="Search"
             searchParamName="search"
           />
         </div>
@@ -164,15 +166,14 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
         closeOnBackdropClick
       >
         <div className="flex items-start gap-4">
-          <ConfirmInfoIcon className="h-12 w-12 shrink-0" />
+          <Info className="h-12 w-12 shrink-0" />
           <div>
             <p className="text-base font-medium text-foreground">
-              Are you sure you want to delete this item?
+              {t('runtime.deleteTitle')}
             </p>
             <p className="mt-1 text-sm font-normal text-muted-foreground">
               {isHardDelete
-                ? 'The selected item will be permanently deleted and cannot be restored.'
-                : 'The selected item will be deactivated but not permanently deleted. You can restore it later if needed.'}
+                ? t('runtime.deleteHard') : t('runtime.deleteSoft')}
             </p>
           </div>
         </div>
@@ -185,17 +186,17 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
             onClick={handleDeleteCancel}
             disabled={isDeleting}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             data-testid={`${testPrefix}-${isHardDelete ? 'delete' : 'deactivate'}-confirm`}
             className="w-25"
             variant="danger"
-            icon={<TrashIcon className="h-4 w-4" />}
+            icon={<Trash2 className="h-4 w-4" />}
             onClick={handleDelete}
             disabled={isDeleting}
           >
-            Delete
+            {t('common.delete')}
           </Button>
         </div>
       </Dialog>
@@ -210,13 +211,13 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
           closeOnBackdropClick
         >
           <div className="flex items-start gap-4">
-            <ConfirmInfoIcon className="h-12 w-12 shrink-0" />
+            <Info className="h-12 w-12 shrink-0" />
             <div>
               <p className="text-base font-medium text-foreground">
-                Are you sure you want to restore this item?
+                {t('runtime.restoreTitle')}
               </p>
               <p className="mt-1 text-sm font-normal text-muted-foreground">
-                The item will become active again and available for use.
+                {t('runtime.restoreDesc')}
               </p>
             </div>
           </div>
@@ -229,7 +230,7 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
               onClick={handleRestoreCancel}
               disabled={isRestoring}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               data-testid={`${testPrefix}-restore-confirm`}
@@ -237,7 +238,7 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
               onClick={handleRestore}
               disabled={isRestoring}
             >
-              Restore
+              {t('common.restore')}
             </Button>
           </div>
         </Dialog>

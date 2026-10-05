@@ -39,28 +39,33 @@ Aturan wajib saat menulis atau mengubah kode frontend di repo ini
 - Navigasi statis (Dashboard/Generator/Component) di `src/app/navigation.tsx`
   + item dinamis dari definisi published (`useDynamicNavItems`); route
   statis + `DynamicModuleRoutes` + `preview/:definitionKey` di
-  `src/app/router.tsx`; halaman di `src/pages/`. Jangan tambah route/nav
+  `src/app/router.tsx`; halaman statis di modulnya masing-masing
+  (`auth/login/pages`, `dashboard/pages`, `showcase/pages` — tanpa folder
+  `src/pages/`, mirror `boilerplate-fe`). Jangan tambah route/nav
   statis per modul bisnis — modul = data definisi (lihat skill
   `module-generator`).
 - `Sidebar`/`AppShell` menerima `navItems` via props (bukan registry); session
-  user dari `AuthProvider` (`src/modules/auth`) dialirkan ke `AppShell` via
-  `src/app/ProtectedAppShell.tsx`.
+  user dari `AuthProvider` (`src/app/providers`, mirror `boilerplate-fe`)
+  dialirkan ke `AppShell` via `src/app/ProtectedAppShell.tsx`.
 
 ## Shared components
 
 - File berisi JSX berekstensi `.tsx`.
 - Komponen shared mendukung prop `testId?: string` → `data-testid`.
 - `shared` tidak import dari `modules` (arah dependensi satu arah).
-- Ikon SVG di `src/shared/components/icons/` memakai token thema /
-  `currentColor`, bukan warna hardcode.
+- Ikon memakai `lucide-react` (import langsung per komponen, styling via
+  `className` seperti `h-4 w-4`); tidak ada set ikon SVG kustom di repo.
+  Pengecualian: `SvgIcon` (`src/shared/components/ui/`) me-render string SVG
+  mentah (ikon menu kustom modul dari wizard) via `dangerouslySetInnerHTML`.
 - Referensi pola yang benar adalah komponen di `src/shared/components/`
   milik repo ini.
 
 ## Auth & permission
 
-- Login/logout mock di `src/modules/auth` (akun demo di `api/mockUsers.ts`;
-  response login membawa permission list user). Sesi tersimpan di
-  localStorage (`auth_token`, `auth_user`, `permissions`).
+- Login/logout mock di modul `src/modules/auth/login` (`api/` =
+  service/mock/resolver/mutations, akun demo inline di `api/mock.ts`; response login
+  membawa permission list user). Sesi tersimpan di localStorage
+  (`auth_token`, `auth_user`, `permissions`).
 - Guard ganda: `RequireAuth` (belum login → redirect `/login`) dan
   `PermissionGate` (baca `handle.requiredPermission` route statis → 403 bila
   key tidak dimiliki; halaman dinamis dijaga `RequireDynamicPermission`).

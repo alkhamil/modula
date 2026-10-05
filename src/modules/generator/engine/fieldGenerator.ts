@@ -117,6 +117,19 @@ export interface FormItemSnippetOpts {
   testId?: string;
   rulesExpr?: string;
   optionsVar?: string;
+  /** Bila diisi → label/placeholder memakai t() key modul hasil generate. */
+  labelKey?: string;
+  placeholderKey?: string;
+}
+
+/** Terapkan key i18n ke snippet FormItem yang sudah jadi (label + placeholder). */
+function applyI18nKeys(snippet: string, field: FieldModel, opts?: FormItemSnippetOpts): string {
+  if (!opts?.labelKey) return snippet;
+  let next = snippet.replace(`label="${field.label}"`, `label={t('${opts.labelKey}')}`);
+  if (opts?.placeholderKey) {
+    next = next.replace(/placeholder="[^"]*"/, `placeholder={t('${opts.placeholderKey}')}`);
+  }
+  return next;
 }
 
 /** `<FormItem ... />` untuk field ini. */
@@ -153,7 +166,8 @@ export function formItemSnippet(
       ? `\n                  accept="${attrEscape(field.config.accept.trim())}"`
       : '';
 
-  switch (field.config.type) {
+  const snippet = ((): string => {
+    switch (field.config.type) {
     case 'textareaField':
       return `<FormItem
                   label="${field.label}"
@@ -307,10 +321,16 @@ export function formItemSnippet(
                 />`;
     case 'formArrayField': {
       const arrayProps = props?.array;
+      const arrayBase = opts?.labelKey?.replace(/\.label$/, '');
+      const arrayStrOpt = (name: string, value: string | undefined): string => {
+        if (!value) return '';
+        const tKey = arrayBase ? `t('${arrayBase}.array.${name}')` : null;
+        return `\n                  ${name}={${tKey ?? `"${attrEscape(value)}"`}}`;
+      };
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={${field.pascal}ArrayInput}${sizeOpt(arrayProps?.size)}${strOpt('addLabel', arrayProps?.addLabel)}${strOpt('editorTitle', arrayProps?.editorTitle || field.label)}${strOpt('emptyTitle', arrayProps?.emptyTitle)}${strOpt('emptyDescription', arrayProps?.emptyDescription)}${numOpt('maxRows', arrayProps?.maxRows)}${boolOpt('lockFirstRow', arrayProps?.lockFirstRow)}
+                  component={${field.pascal}ArrayInput}${sizeOpt(arrayProps?.size)}${arrayStrOpt('addLabel', arrayProps?.addLabel?.trim() || undefined)}${arrayBase ? `\n                  editorTitle={t('${arrayBase}.array.editorTitle')}` : strOpt('editorTitle', arrayProps?.editorTitle || field.label)}${arrayStrOpt('emptyTitle', arrayProps?.emptyTitle?.trim() || undefined)}${arrayStrOpt('emptyDescription', arrayProps?.emptyDescription?.trim() || undefined)}${numOpt('maxRows', arrayProps?.maxRows)}${boolOpt('lockFirstRow', arrayProps?.lockFirstRow)}
                 />`;
     }
     case 'textField':
@@ -321,14 +341,17 @@ export function formItemSnippet(
                   component={TextField}${maxLengthProp}${sizeOpt(props?.text?.size)}${boolOpt('clearable', props?.text?.clearable)}${strOpt('prepend', props?.text?.prefix)}${strOpt('append', props?.text?.suffix)}
                   placeholder="${placeholderText('Enter')}"
                 />`;
-  }
+    }
+  })();
+  return applyI18nKeys(snippet, field, opts);
 }
 
 /** Kolom tabel untuk field ini (dengan render khusus bila perlu). */
-export function tableColumnSnippet(field: FieldModel): string {
-  const header = field.label;
+export function tableColumnSnippet(field: FieldModel, width?: number, labelKey?: string): string {
+  const header = labelKey ? `t('${labelKey}')` : `'${field.label}'`;
   const sort = field.sortable ? ', sortable: true' : '';
-  const open = `{ key: '${field.name}', header: '${header}'${sort}`;
+  const widthPart = width !== undefined ? `, width: ${width}` : '';
+  const open = `{ key: '${field.name}', header: ${header}${sort}${widthPart}`;
   switch (field.config.type) {
     case 'numberField':
     case 'currencyField':
@@ -353,7 +376,7 @@ export function tableColumnSnippet(field: FieldModel): string {
     case 'editorField':
       return `${open}, render: (row: ROWTYPE) => stripHtml(row.${field.name} ?? '') || '-' },`;
     case 'formArrayField':
-      return `${open}, render: (row: ROWTYPE) => ((row.${field.name} ?? []).length > 0 ? (row.${field.name} ?? []).length + ' baris' : '-') },`;
+      return `${open}, render: (row: ROWTYPE) => { const count = (row.${field.name} ?? []).length; return count > 0 ? t('system.rowCount', { count }) : '-'; } },`;
     case 'textareaField':
     case 'fileUploadField':
     case 'textField':
@@ -363,34 +386,36 @@ export function tableColumnSnippet(field: FieldModel): string {
 }
 
 /** Baris detail untuk field ini. Prefix `item.` diganti nama entitas oleh template. */
-export function detailRowSnippet(field: FieldModel): string {
+export function detailRowSnippet(field: FieldModel, labelKey?: string): string {
+  const label = labelKey ? `t('${labelKey}')` : `'${field.label}'`;
+  const yesNo = labelKey ? `t('filter.yes') : t('filter.no')` : `'Yes' : 'No'`;
   switch (field.config.type) {
     case 'numberField':
     case 'currencyField':
-      return `{ label: '${field.label}', value: formatNumber(item.${field.name}) },`;
+      return `{ label: ${label}, value: formatNumber(item.${field.name}) },`;
     case 'dateField':
-      return `{ label: '${field.label}', value: formatDate(item.${field.name}) },`;
+      return `{ label: ${label}, value: formatDate(item.${field.name}) },`;
     case 'dateRangeField':
-      return `{ label: '${field.label}', value: formatDateRange(item.${field.name}) },`;
+      return `{ label: ${label}, value: formatDateRange(item.${field.name}) },`;
     case 'checkboxField':
     case 'switchField':
-      return `{ label: '${field.label}', value: item.${field.name} ? 'Yes' : 'No' },`;
+      return `{ label: ${label}, value: item.${field.name} ? ${yesNo} },`;
     case 'selectField':
     case 'radioGroupField':
-      return `{ label: '${field.label}', value: capitalize(String(item.${field.name})) },`;
+      return `{ label: ${label}, value: capitalize(String(item.${field.name})) },`;
     case 'selectMultipleField':
     case 'checkboxGroupField':
-      return `{ label: '${field.label}', value: (item.${field.name} ?? []).join(', ') },`;
+      return `{ label: ${label}, value: (item.${field.name} ?? []).join(', ') },`;
     case 'passwordField':
-      return `{ label: '${field.label}', value: '••••••' },`;
+      return `{ label: ${label}, value: '••••••' },`;
     case 'colorField':
-      return `{ label: '${field.label}', value: item.${field.name} ? (<span className="inline-flex items-center gap-1.5"><span className="inline-block h-4 w-4 rounded border border-border" style={{ backgroundColor: item.${field.name} }} /><span>{item.${field.name}}</span></span>) : '-' },`;
+      return `{ label: ${label}, value: item.${field.name} ? (<span className="inline-flex items-center gap-1.5"><span className="inline-block h-4 w-4 rounded border border-border" style={{ backgroundColor: item.${field.name} }} /><span>{item.${field.name}}</span></span>) : '-' },`;
     case 'editorField':
-      return `{ label: '${field.label}', value: stripHtml(item.${field.name} ?? '') || '-' },`;
+      return `{ label: ${label}, value: stripHtml(item.${field.name} ?? '') || '-' },`;
     case 'formArrayField':
-      return `{ label: '${field.label}', value: ((item.${field.name} ?? []).length > 0 ? (item.${field.name} ?? []).length + ' baris' : '-') },`;
+      return `{ label: ${label}, value: (() => { const count = (item.${field.name} ?? []).length; return count > 0 ? t('system.rowCount', { count }) : '-'; })() },`;
     default:
-      return `{ label: '${field.label}', value: item.${field.name} },`;
+      return `{ label: ${label}, value: item.${field.name} },`;
   }
 }
 
@@ -401,15 +426,16 @@ export function filterParamKeys(field: FieldModel): string[] {
 }
 
 /** Blok FilterToolbar per kriteria (numberRange → dua blok). */
-export function filterFieldSnippet(field: FieldModel): string {
+export function filterFieldSnippet(field: FieldModel, labelKey?: string): string {
   const criteria = field.filterCriteria;
+  const label = labelKey ? `t('${labelKey}')` : `'${field.label}'`;
   switch (criteria) {
     case 'contains':
       return `{
     name: '${field.name}',
-    label: '${field.label}',
+    label: ${label},
     type: 'text',
-    placeholder: 'Contains…',
+    placeholder: t('filter.containsPh'),
   },`;
     case 'exact':
     case 'numberExact':
@@ -423,27 +449,27 @@ export function filterFieldSnippet(field: FieldModel): string {
     name: '${field.name}',
     label: '${field.label} (Min)',
     type: 'text',
-    placeholder: 'Minimal…',
+    placeholder: t('filter.minPh'),
   },`;
     case 'numberMax':
       return `{
     name: '${field.name}',
     label: '${field.label} (Max)',
     type: 'text',
-    placeholder: 'Maksimal…',
+    placeholder: t('filter.maxPh'),
   },`;
     case 'numberRange':
       return `{
     name: '${field.name}Min',
     label: '${field.label} (Min)',
     type: 'text',
-    placeholder: 'Minimal…',
+    placeholder: t('filter.minPh'),
   },
   {
     name: '${field.name}Max',
     label: '${field.label} (Max)',
     type: 'text',
-    placeholder: 'Maksimal…',
+    placeholder: t('filter.maxPh'),
   },`;
     case 'dateExact':
       return `{
@@ -458,7 +484,7 @@ export function filterFieldSnippet(field: FieldModel): string {
     label: '${field.label}',
     type: 'date',
     range: true,
-    rangeErrorMessage: '${field.label} harus diisi awal dan akhir.',
+    rangeErrorMessage: t('validation.rangeRequired', { label: '${field.label}' }),
   },`;
     case 'booleanExact':
       return `{
@@ -466,8 +492,8 @@ export function filterFieldSnippet(field: FieldModel): string {
     label: '${field.label}',
     type: 'select',
     options: [
-      { label: 'Ya', value: 'true' },
-      { label: 'Tidak', value: 'false' },
+      { label: t('filter.yes'), value: 'true' },
+      { label: t('filter.no'), value: 'false' },
     ],
   },`;
     case 'optionAny':
@@ -657,11 +683,15 @@ ${toDataLines}
 }
 
 /** Kolom tabel array dari sub-field (reuse render per tipe). */
-export function arrayColumnsSnippet(field: FieldModel): string {
+export function arrayColumnsSnippet(field: FieldModel, labelBase?: string): string {
   const subs = arraySubs(field);
   const columns = subs
     .map((sub) =>
-      tableColumnSnippet(subFieldModel(field, sub)).replace(/ROWTYPE/g, rowTypeName(field)),
+      tableColumnSnippet(
+        subFieldModel(field, sub),
+        undefined,
+        labelBase ? `${labelBase}.sub.${sub.name}.label` : undefined,
+      ).replace(/ROWTYPE/g, rowTypeName(field)),
     )
     .map((line) => `  ${line}`)
     .join('\n');
@@ -676,10 +706,14 @@ export function arrayInputSnippet(ctx: TemplateContext, field: FieldModel): stri
   const items = subs
     .map((sub) => {
       const model = subFieldModel(field, sub);
+      const subBase = `${ctx.config.permissionKey}.fields.${field.name}.sub.${sub.name}`;
+      const subLabelKey = `${subBase}.label`;
       const snippet = formItemSnippet(ctx, model, {
         testId: `${ctx.names.testId}-${field.name}-${sub.name}`,
-        rulesExpr: buildRulesObject(model),
+        rulesExpr: buildRulesObject(model, subLabelKey),
         optionsVar: `${field.name}${toPascalCase(sub.name)}Options`,
+        labelKey: subLabelKey,
+        placeholderKey: `${subBase}.placeholder`,
       }).replace(/\n                  /g, '\n            ');
       return `          ${snippet}`;
     })

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router';
 import { useClickOutside } from '../../hooks';
 
@@ -20,10 +21,13 @@ function AvatarUser({
   user,
   onLogout,
   profilePath = '/profile',
-  profileLabel = 'Profile',
-  logoutLabel = 'Logout',
+  profileLabel,
+  logoutLabel,
   testId,
 }: AvatarUserProps) {
+  const { t } = useTranslation();
+  const resolvedProfileLabel = profileLabel ?? t('auth.profile');
+  const resolvedLogoutLabel = logoutLabel ?? t('auth.logout');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownAbove, setDropdownAbove] = useState(false);
   const dropdownRef = useClickOutside<HTMLDivElement>(
@@ -74,7 +78,7 @@ function AvatarUser({
               ].join(' ')
             }
           >
-            {profileLabel}
+            {resolvedProfileLabel}
           </NavLink>
           {onLogout && (
             <>
@@ -83,7 +87,7 @@ function AvatarUser({
                 onClick={onLogout}
                 className="block w-full px-4 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
               >
-                {logoutLabel}
+                {resolvedLogoutLabel}
               </button>
             </>
           )}

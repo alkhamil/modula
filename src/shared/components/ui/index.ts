@@ -23,6 +23,7 @@ export { useToast } from './toast/toast-context';
 export type { ToastVariant, ShowToastParams } from './toast/toast-context';
 export type { FilterField } from './FilterToolbar';
 export { default as Tooltip } from './Tooltip';
+export { default as SvgIcon } from './SvgIcon';
 export { default as NavigationGuard } from './NavigationGuard';
 export {
   TextField,

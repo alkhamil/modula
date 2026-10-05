@@ -10,7 +10,7 @@ export const moduleTypeRegistry: Record<ModuleType, ModuleTypeDef> = {
   crud: {
     label: 'CRUD',
     templateDir: 'templates/crud',
-    description: 'List, detail, create, edit, delete lengkap mengikuti modul user.',
+    description: 'Full list, detail, create, edit, delete following user modules.',
   },
 };
 

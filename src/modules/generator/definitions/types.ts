@@ -4,6 +4,7 @@ import type {
   FeatureKey,
   GeneratorFieldConfig,
   MenuIcon,
+  ModuleI18nDict,
   TableDisplayProps,
 } from '../types';
 
@@ -103,6 +104,12 @@ export interface ModuleDefinition {
   status: ModuleDefinitionStatus;
   /** Ikon menu sidebar (opsional; absen = ikon bawaan). Nempel di menu modul bila root, di grup parent bila ber-parent. */
   menuIcon?: MenuIcon;
+  /**
+   * Per-module translations (`module:{key}` namespace, e.g.
+   * `field.name.label`, `title.list`). Optional; missing entries fall back
+   * to the stored English defaults, then to the `general` namespace.
+   */
+  i18n?: ModuleI18nDict;
   createdAt?: string;
   updatedAt?: string;
 }

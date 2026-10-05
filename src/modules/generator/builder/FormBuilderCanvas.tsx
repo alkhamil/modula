@@ -1,5 +1,6 @@
 /** Canvas 1 — Form Builder: palet komponen + kanvas grid drag-drop + drawer properti + preview. */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   DndContext,
   DragOverlay,
@@ -32,7 +33,7 @@ import {
   FormGroup,
   TextField,
 } from '../../../shared/components/ui';
-import { GripIcon, TrashIcon } from '../../../shared/components/icons';
+import { GripVertical, Trash2 } from 'lucide-react';
 import type { GeneratorFieldConfig } from '../types';
 import { deriveFieldNaming, isReservedFieldName, uniqueFieldName } from '../parser';
 import type { FormLayoutItem, ModuleDefinition, ModuleLayout } from '../definitions';
@@ -89,36 +90,18 @@ type PaletteKind =
   | 'section'
   | 'divider';
 
-const PALETTE_SECTIONS: { title: string; items: { kind: PaletteKind; label: string; hint: string }[] }[] = [
+const PALETTE_SECTIONS: { titleKey: string; items: PaletteKind[] }[] = [
   {
-    title: 'Fields',
+    titleKey: 'builder.paletteSections.fields',
     items: [
-      { kind: 'text', label: 'Text', hint: 'Input teks' },
-      { kind: 'number', label: 'Number', hint: 'Input angka' },
-      { kind: 'currency', label: 'Currency', hint: 'Input mata uang' },
-      { kind: 'textarea', label: 'Textarea', hint: 'Teks multi baris' },
-      { kind: 'password', label: 'Password', hint: 'Input sandi' },
-      { kind: 'select', label: 'Select', hint: 'Dropdown options' },
-      { kind: 'multiselect', label: 'Multi Select', hint: 'Pilih banyak' },
-      { kind: 'radio', label: 'Radio', hint: 'Pilihan tunggal' },
-      { kind: 'checkbox', label: 'Checkbox', hint: 'Centang tunggal' },
-      { kind: 'checkboxgroup', label: 'Checkbox Group', hint: 'Centang banyak' },
-      { kind: 'date', label: 'Date', hint: 'Pemilih tanggal' },
-      { kind: 'daterange', label: 'Date Range', hint: 'Rentang tanggal' },
-      { kind: 'switch', label: 'Switch', hint: 'Toggle ya/tidak' },
-      { kind: 'upload', label: 'Upload', hint: 'Upload file' },
-      { kind: 'color', label: 'Color', hint: 'Pemilih warna' },
-      { kind: 'editor', label: 'Editor', hint: 'Rich text' },
-      { kind: 'array', label: 'Array', hint: 'Tabel baris' },
-      { kind: 'relation', label: 'Relation', hint: 'Options modul lain' },
+      'text', 'number', 'currency', 'textarea', 'password', 'select', 'multiselect',
+      'radio', 'checkbox', 'checkboxgroup', 'date', 'daterange', 'switch', 'upload',
+      'color', 'editor', 'array', 'relation',
     ],
   },
   {
-    title: 'Layout',
-    items: [
-      { kind: 'section', label: 'Section', hint: 'Judul seksi' },
-      { kind: 'divider', label: 'Divider', hint: 'Garis pemisah' },
-    ],
+    titleKey: 'builder.paletteSections.layout',
+    items: ['section', 'divider'],
   },
 ];
 
@@ -179,15 +162,6 @@ function PaletteItem({ kind, label, hint }: { kind: PaletteKind; label: string; 
   );
 }
 
-/** Label palet untuk ghost overlay saat drag. */
-function paletteLabelOf(kind: PaletteKind): string {
-  for (const section of PALETTE_SECTIONS) {
-    const found = section.items.find((item) => item.kind === kind);
-    if (found) return found.label;
-  }
-  return kind;
-}
-
 /**
  * Deteksi tabrakan kustom: seretan dari palet memakai posisi pointer
  * (akurat untuk drop ke area kosong kanvas), seretan antar kartu kanvas
@@ -246,6 +220,7 @@ function FieldCanvasCard({
   onSelect: () => void;
   previewDef: ModuleDefinition;
 }) {
+  const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.field,
   });
@@ -277,13 +252,14 @@ function FieldCanvasCard({
           onClick={(e) => e.stopPropagation()}
           data-testid={`canvas-drag-${item.field}`}
           className="flex w-8 shrink-0 cursor-grab items-center justify-center rounded-l-lg border-r border-border text-muted-foreground hover:bg-muted hover:text-foreground"
-          title="Geser untuk memindahkan"
+          title={t('builder.form.dragHint')}
         >
-          <GripIcon className="h-4 w-4" />
+          <GripVertical className="h-4 w-4" />
         </span>
         <div className="relative min-w-0 flex-1 p-3">
           <div className={interactivePreview ? '' : 'pointer-events-none'}>
             {renderDynamicField(field, {
+              def: previewDef,
               testPrefix: 'canvas-preview',
               optionsOf: (f) => (f.options ?? []).map((option) => ({ ...option })),
               loaderOf: (f) =>
@@ -303,8 +279,8 @@ function FieldCanvasCard({
             <button
               type="button"
               tabIndex={-1}
-              aria-label={`Pilih field ${field.label}`}
-              title="Klik untuk atur properti"
+              aria-label={t('builder.form.selectField', { label: field.label })}
+              title={t('builder.form.cardHint')}
               onClick={onSelect}
               className="absolute inset-0 h-full w-full cursor-pointer rounded-r-lg"
             />
@@ -328,6 +304,7 @@ function DecoCanvasCard({
     id: item.field,
   });
   const kind = item.kind ?? 'field';
+  const { t } = useTranslation();
   return (
     <div
       ref={setNodeRef}
@@ -352,9 +329,9 @@ function DecoCanvasCard({
           onClick={(e) => e.stopPropagation()}
           data-testid={`canvas-drag-${item.field}`}
           className="flex w-8 shrink-0 cursor-grab items-center justify-center rounded-l-lg border-r border-border text-muted-foreground hover:bg-muted hover:text-foreground"
-          title="Geser untuk memindahkan"
+          title={t('builder.form.dragHint')}
         >
-          <GripIcon className="h-4 w-4" />
+          <GripVertical className="h-4 w-4" />
         </span>
         <div className="min-w-0 flex-1 p-3">
           {kind === 'section' ? (
@@ -373,9 +350,10 @@ function DecoCanvasCard({
 }
 
 function WidthRow({ colSpan, onSpanChange }: { colSpan: number; onSpanChange: (span: number) => void }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-1">
-      <span className="flex-1 text-sm text-muted-foreground">Lebar (1–12)</span>
+      <span className="flex-1 text-sm text-muted-foreground">{t('builder.form.widthRange')}</span>
       <Button size="sm" variant="secondary" onClick={() => onSpanChange(colSpan - 1)}>
         −
       </Button>
@@ -408,6 +386,7 @@ function FieldDrawerContent({
   onRename: (oldName: string, next: GeneratorFieldConfig) => void;
   onSpanChange: (span: number) => void;
 }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState<FieldFormValue>(() => initialFormValue(field, undefined));
   const [nameError, setNameError] = useState<string | null>(null);
 
@@ -422,17 +401,17 @@ function FieldDrawerContent({
     const pending = form.name.trim();
     if (pending === field.name) return;
     if (!pending) {
-      setNameError('Name wajib diisi.');
+      setNameError(t('builder.form.nameRequired'));
       setForm({ ...form, name: field.name });
       return;
     }
     if (isReservedFieldName(pending)) {
-      setNameError(`"${pending}" reserved untuk kolom sistem.`);
+      setNameError(t('builder.form.nameReserved', { name: pending }));
       setForm({ ...form, name: field.name });
       return;
     }
     if (existingNames.includes(pending)) {
-      setNameError(`Field name "${pending}" sudah dipakai.`);
+      setNameError(t('builder.form.nameDup', { name: pending }));
       setForm({ ...form, name: field.name });
       return;
     }
@@ -441,7 +420,7 @@ function FieldDrawerContent({
 
   return (
     <div className="flex flex-col stack-gap">
-      <Card title="Layout" collapsible size="sm">
+      <Card title={t('builder.form.layoutCard')} size="sm">
         <WidthRow colSpan={colSpan} onSpanChange={onSpanChange} />
       </Card>
       {nameError && <p className="text-sm text-danger">{nameError}</p>}
@@ -472,11 +451,19 @@ function FormBuilderCanvas({
   const [activePalette, setActivePalette] = useState<PaletteKind | null>(null);
   /** Kata kunci pencarian palet komponen. */
   const [paletteQuery, setPaletteQuery] = useState('');
+  const { t } = useTranslation();
   const sensors = useSensors(
     useSensor(CanvasPointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
   const paletteDownAt = useRef<{ x: number; y: number } | null>(null);
+
+  function paletteText(kind: PaletteKind): { label: string; hint: string } {
+    return {
+      label: t(`builder.palette.${kind}`),
+      hint: t(`builder.palette.${kind}Hint`),
+    };
+  }
 
   /** Seksi palet tersaring kata kunci (label + hint, case-insensitive). */
   const visiblePaletteSections = useMemo(() => {
@@ -484,11 +471,12 @@ function FormBuilderCanvas({
     if (!query) return PALETTE_SECTIONS;
     return PALETTE_SECTIONS.map((section) => ({
       ...section,
-      items: section.items.filter(
-        (item) =>
-          item.label.toLowerCase().includes(query) || item.hint.toLowerCase().includes(query),
-      ),
+      items: section.items.filter((kind) => {
+        const { label, hint } = paletteText(kind);
+        return label.toLowerCase().includes(query) || hint.toLowerCase().includes(query);
+      }),
     })).filter((section) => section.items.length > 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paletteQuery]);
 
   const effective = useMemo(
@@ -704,7 +692,7 @@ function FormBuilderCanvas({
     <div className="flex flex-col section-gap">
       <Alert
         variant="info"
-        message="Klik atau seret komponen dari palet ke kanvas — field langsung jadi dengan nama otomatis, ubah lewat drawer properti. Klik kartu untuk memilih; Delete/Backspace menghapus kartu yang dipilih."
+        message={t('builder.form.hint')}
       />
 
       <div>
@@ -718,55 +706,58 @@ function FormBuilderCanvas({
           <DragOverlay dropAnimation={null}>
             {activePalette ? (
               <div className="cursor-grabbing rounded-lg border border-primary bg-surface px-2 py-1.5 opacity-90 shadow-lg">
-                <p className="text-xs font-medium text-foreground">+ {paletteLabelOf(activePalette)}</p>
-                <p className="text-xs text-muted-foreground">Tarik ke kanvas…</p>
+                <p className="text-xs font-medium text-foreground">+ {t(`builder.palette.${activePalette}`)}</p>
+                <p className="text-xs text-muted-foreground">{t('builder.form.dragToCanvas')}</p>
               </div>
             ) : null}
           </DragOverlay>
           <div className="grid gap-4 xl:grid-cols-[220px_minmax(0,1fr)]">
             <div>
-              <p className="mb-2 text-sm font-medium text-foreground">Palet</p>
+              <p className="mb-2 text-sm font-medium text-foreground">{t('builder.form.palette')}</p>
               <div className="mb-2">
                 <TextField
                   size="sm"
                   value={paletteQuery}
                   onChange={(e) => setPaletteQuery(e.target.value)}
-                  placeholder="Cari komponen…"
+                  placeholder={t('builder.form.searchPh')}
                   data-testid="palette-search"
                 />
               </div>
               <div className="flex flex-col stack-gap">
                 {visiblePaletteSections.length === 0 && (
                   <p className="text-xs text-muted-foreground">
-                    Tidak ada komponen yang cocok.
+                    {t('builder.form.noMatch')}
                   </p>
                 )}
                 {visiblePaletteSections.map((section) => (
-                  <div key={section.title}>
-                    <p className="mb-2 text-sm font-semibold text-foreground">{section.title}</p>
+                  <div key={section.titleKey}>
+                    <p className="mb-2 text-sm font-semibold text-foreground">{t(section.titleKey)}</p>
                     <div className="flex flex-col field-gap">
-                      {section.items.map((item) => (
-                        <div
-                          key={item.kind}
-                          onPointerDown={(e) =>
-                            (paletteDownAt.current = { x: e.clientX, y: e.clientY })
-                          }
-                          onClick={(e) => {
-                            // Abaikan klik yang mengakhiri drag (drop sudah menambah).
-                            const down = paletteDownAt.current;
-                            paletteDownAt.current = null;
-                            if (
-                              down &&
-                              Math.hypot(e.clientX - down.x, e.clientY - down.y) > 4
-                            ) {
-                              return;
+                      {section.items.map((kind) => {
+                        const { label, hint } = paletteText(kind);
+                        return (
+                          <div
+                            key={kind}
+                            onPointerDown={(e) =>
+                              (paletteDownAt.current = { x: e.clientX, y: e.clientY })
                             }
-                            addFromPalette(item.kind);
-                          }}
-                        >
-                          <PaletteItem kind={item.kind} label={item.label} hint={item.hint} />
-                        </div>
-                      ))}
+                            onClick={(e) => {
+                              // Abaikan klik yang mengakhiri drag (drop sudah menambah).
+                              const down = paletteDownAt.current;
+                              paletteDownAt.current = null;
+                              if (
+                                down &&
+                                Math.hypot(e.clientX - down.x, e.clientY - down.y) > 4
+                              ) {
+                                return;
+                              }
+                              addFromPalette(kind);
+                            }}
+                          >
+                            <PaletteItem kind={kind} label={label} hint={hint} />
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
@@ -775,17 +766,17 @@ function FormBuilderCanvas({
 
             <div>
               <div className="mb-2 flex items-center justify-between gap-2">
-                <p className="text-sm font-medium text-foreground">Kanvas form (grid 12)</p>
+                <p className="text-sm font-medium text-foreground">{t('builder.form.canvasTitle')}</p>
                 <Button
                   size="sm"
                   variant="danger"
                   onClick={() => setShowResetConfirm(true)}
                   disabled={formItems.length === 0}
-                  icon={<TrashIcon className="h-4 w-4" />}
+                  icon={<Trash2 className="h-4 w-4" />}
                   testId="canvas-reset"
-                  title="Kosongkan seluruh kanvas"
+                  title={t('builder.form.resetTitle')}
                 >
-                  Reset
+                  {t('builder.form.reset')}
                 </Button>
               </div>
               <SortableContext
@@ -796,7 +787,7 @@ function FormBuilderCanvas({
                   <CanvasDropGrid activePalette={activePalette}>
                     {formItems.length === 0 && (
                       <p className="col-span-12 py-8 text-center text-sm text-muted-foreground">
-                        Kanvas kosong — tambah komponen dari palet.
+                        {t('builder.form.canvasEmpty')}
                       </p>
                     )}
                     {formItems.map((item) => {
@@ -833,7 +824,7 @@ function FormBuilderCanvas({
       <Drawer
         open={drawerOpen}
         onClose={() => setSelectedId(null)}
-        title="Properti"
+        title={t('builder.form.properties')}
         width="md"
         modal={false}
         testId="property-drawer"
@@ -842,9 +833,9 @@ function FormBuilderCanvas({
             size="sm"
             variant="danger"
             onClick={handleDeleteSelected}
-            icon={<TrashIcon className="h-4 w-4" />}
+            icon={<Trash2 className="h-4 w-4" />}
           >
-            {selectedField ? 'Hapus field' : 'Hapus'}
+            {selectedField ? t('builder.form.deleteField') : t('common.delete')}
           </Button>
         }
       >
@@ -861,11 +852,11 @@ function FormBuilderCanvas({
           />
         )}
         {selectedItem && !selectedField && (
-          <Card title="Layout" collapsible size="sm">
+          <Card title={t('builder.form.layoutCard')} size="sm">
             <div className="flex flex-col field-gap">
               {(selectedItem.kind ?? 'field') === 'section' && (
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-foreground">Judul</label>
+                  <label className="mb-1 block text-sm font-medium text-foreground">{t('builder.form.sectionTitle')}</label>
                   <TextField
                     value={selectedItem.label ?? ''}
                     onChange={(e) =>
@@ -889,7 +880,7 @@ function FormBuilderCanvas({
         testId="canvas-reset-dialog"
         open={showResetConfirm}
         onClose={() => setShowResetConfirm(false)}
-        title="Reset kanvas"
+        title={t('builder.form.resetTitle')}
         maxWidth="md"
         closeOnEscape
         closeOnBackdropClick
@@ -898,13 +889,12 @@ function FormBuilderCanvas({
             <Button variant="secondary" onClick={() => setShowResetConfirm(false)}>
               Batal
             </Button>
-            <Button variant="danger" onClick={handleResetAll} icon={<TrashIcon className="h-4 w-4" />}>Reset kanvas</Button>
+            <Button variant="danger" onClick={handleResetAll} icon={<Trash2 className="h-4 w-4" />}>{t('builder.form.resetConfirm')}</Button>
           </>
         }
       >
         <p className="text-sm text-foreground">
-          Kosongkan seluruh kanvas? Semua field, section/divider, dan data contoh ikut
-          terhapus dan tidak bisa dikembalikan.
+          {t('builder.form.resetBody')}
         </p>
       </Dialog>
 

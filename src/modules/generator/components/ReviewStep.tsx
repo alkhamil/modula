@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Badge } from '../../../shared/components/ui';
-import { SvgIcon } from '../../../shared/components/icons';
+import ModuleMenuIcon from './ModuleMenuIcon';
 import type { FeatureKey, GeneratorConfig } from '../types';
 import type { DeleteMode, ModuleLayout } from '../definitions';
 import { configToDefinition, validateDefinition } from '../definitions';
-import { dataSourceRegistry, featureRegistry, filterCriteriaRegistry } from '../registry';
 
 interface ReviewStepProps {
   config: GeneratorConfig;
@@ -13,6 +13,7 @@ interface ReviewStepProps {
 }
 
 function ReviewStep({ config, layout, deleteMode }: ReviewStepProps) {
+  const { t } = useTranslation();
   const preview = useMemo(
     () =>
       configToDefinition(config, {
@@ -57,70 +58,70 @@ function ReviewStep({ config, layout, deleteMode }: ReviewStepProps) {
       )}
 
       <dl className="grid grid-cols-[160px_1fr] gap-y-2 text-sm">
-        <dt className="text-muted-foreground">Module</dt>
+        <dt className="text-muted-foreground">{t('review.module')}</dt>
         <dd className="font-medium text-foreground">
           {preview.singularLabel} ({preview.label})
         </dd>
-        <dt className="text-muted-foreground">Parent</dt>
+        <dt className="text-muted-foreground">{t('review.parent')}</dt>
         <dd className="text-foreground">{preview.parent ?? '(root)'}</dd>
-        <dt className="text-muted-foreground">Key</dt>
+        <dt className="text-muted-foreground">{t('review.key')}</dt>
         <dd className="font-mono text-xs text-foreground">{preview.key}</dd>
-        <dt className="text-muted-foreground">Route</dt>
+        <dt className="text-muted-foreground">{t('review.route')}</dt>
         <dd className="font-mono text-xs text-foreground">/{preview.routeBase}</dd>
-        <dt className="text-muted-foreground">Data</dt>
+        <dt className="text-muted-foreground">{t('review.data')}</dt>
         <dd className="font-mono text-xs text-foreground">{preview.apiPlural} (mock store)</dd>
-        <dt className="text-muted-foreground">Permission</dt>
+        <dt className="text-muted-foreground">{t('review.permission')}</dt>
         <dd className="font-mono text-xs text-foreground">
           {['view', 'create', 'update', 'delete', 'bulk_upload', 'export']
             .map((suffix) => `${preview.permissionKey}.${suffix}`)
             .join(', ')}
         </dd>
-        <dt className="text-muted-foreground">Delete mode</dt>
+        <dt className="text-muted-foreground">{t('review.deleteMode')}</dt>
         <dd className="text-foreground">
           {preview.deleteMode === 'soft' ? 'Soft delete' : 'Hard delete'}
         </dd>
-        <dt className="text-muted-foreground">Ikon menu</dt>
+        <dt className="text-muted-foreground">{t('review.menuIcon')}</dt>
         <dd className="flex flex-wrap items-center gap-3 text-foreground">
-          {!preview.menuIcon && <span className="text-muted-foreground">Bawaan</span>}
+          {!preview.menuIcon && <span className="text-muted-foreground">{t('review.defaultIcon')}</span>}
           {preview.menuIcon && (
             <span className="flex items-center gap-1.5 text-sm">
-              <SvgIcon svg={preview.menuIcon.svg} className="h-5 w-5" />
-              {preview.menuIcon.name} ({preview.parent ? 'parent' : 'modul'})
+              <ModuleMenuIcon name={preview.menuIcon.name} className="h-5 w-5" />
+              {preview.menuIcon.name} ({preview.parent ? t('review.parentScope') : t('review.moduleScope')})
             </span>
           )}
         </dd>
-        <dt className="text-muted-foreground">Features</dt>
+        <dt className="text-muted-foreground">{t('review.features')}</dt>
         <dd className="flex flex-wrap gap-1.5">
           {features.length === 0 && <span className="text-muted-foreground">-</span>}
           {features.map((key) => (
             <Badge key={key} variant="primary">
-              {featureRegistry[key].label}
+              {t(`registry.features.${key}`)}
             </Badge>
           ))}
         </dd>
         <dt className="text-muted-foreground">Fields</dt>
-        <dd className="text-foreground">{preview.fields.length} field(s)</dd>
-        <dt className="text-muted-foreground">Layout form</dt>
+        <dd className="text-foreground">{t('review.fieldsCount', { count: preview.fields.length })}</dd>
+        <dt className="text-muted-foreground">{t('review.layoutForm')}</dt>
         <dd className="text-foreground">
-          {preview.layout.form.length} item ({sectionCount} section, {dividerCount} divider)
+          {t('review.formSummary', { total: preview.layout.form.length, sections: sectionCount, dividers: dividerCount })}
         </dd>
-        <dt className="text-muted-foreground">Layout tabel</dt>
+        <dt className="text-muted-foreground">{t('review.layoutTable')}</dt>
         <dd className="text-foreground">
-          {preview.layout.table.order.length - preview.layout.table.hidden.length} kolom tampil
+          {t('review.tableSummary', { shown: preview.layout.table.order.length - preview.layout.table.hidden.length })}
           {preview.layout.table.hidden.length > 0 &&
-            ` (${preview.layout.table.hidden.length} tersembunyi)`}
-          {widthCount > 0 && `, ${widthCount} lebar kustom`}
+            ` (${t('review.hiddenCount', { count: preview.layout.table.hidden.length })})`}
+          {widthCount > 0 && `, ${t('review.customWidths', { count: widthCount })}`}
         </dd>
-        <dt className="text-muted-foreground">Layout detail</dt>
+        <dt className="text-muted-foreground">{t('review.layoutDetail')}</dt>
         <dd className="text-foreground">
-          {(preview.layout.detail?.order.length ?? 0) - detailHidden.size} field tampil
-          {detailHidden.size > 0 && ` (${detailHidden.size} tersembunyi)`}
+          {t('review.detailSummary', { shown: (preview.layout.detail?.order.length ?? 0) - detailHidden.size })}
+          {detailHidden.size > 0 && ` (${t('review.hiddenCount', { count: detailHidden.size })})`}
         </dd>
       </dl>
 
       {preview.fields.length > 0 && (
         <div>
-          <p className="mb-2 text-sm font-medium text-foreground">Field configuration</p>
+          <p className="mb-2 text-sm font-medium text-foreground">{t('review.fieldConfig')}</p>
           <ul className="rounded-lg border border-border">
             {preview.fields.map((field) => {
               const formItem = formOrder.get(field.name);
@@ -144,24 +145,24 @@ function ReviewStep({ config, layout, deleteMode }: ReviewStepProps) {
                   {tableIndex !== undefined && !hidden && (
                     <Badge variant="info">Tabel #{tableIndex + 1}</Badge>
                   )}
-                  {hidden && <Badge variant="secondary">Tabel: hidden</Badge>}
+                  {hidden && <Badge variant="secondary">{t('review.tableHidden')}</Badge>}
                   {detailIndex !== undefined && !detailHide && (
                     <Badge variant="info">Detail #{detailIndex + 1}</Badge>
                   )}
-                  {detailHide && <Badge variant="secondary">Detail: hidden</Badge>}
+                  {detailHide && <Badge variant="secondary">{t('review.detailHidden')}</Badge>}
                   {field.source === 'relation' && field.relation && (
                     <Badge variant="primary">→ {field.relation.definitionKey}</Badge>
                   )}
                   {field.source !== 'none' && field.source !== 'relation' && (
-                    <Badge variant="secondary">{dataSourceRegistry[field.source].label}</Badge>
+                    <Badge variant="secondary">{t(`registry.dataSources.${field.source}`)}</Badge>
                   )}
-                  {field.sortable !== false && <Badge variant="primary">Sort</Badge>}
+                  {field.sortable !== false && <Badge variant="primary">{t('review.sortBadge')}</Badge>}
                   {field.filterable !== false && field.filterCriteria ? (
                     <Badge variant="info">
-                      Filter: {filterCriteriaRegistry[field.filterCriteria].label}
+                      Filter: {t(`registry.filterCriteria.${field.filterCriteria}`)}
                     </Badge>
                   ) : (
-                    <Badge variant="secondary">No filter</Badge>
+                    <Badge variant="secondary">{t('review.noFilter')}</Badge>
                   )}
                 </li>
               );
@@ -169,6 +170,7 @@ function ReviewStep({ config, layout, deleteMode }: ReviewStepProps) {
           </ul>
         </div>
       )}
+
     </div>
   );
 }

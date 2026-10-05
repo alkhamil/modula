@@ -6,8 +6,15 @@ import type { FieldModel } from './context';
  * (`required|min:3|max:100|withoutemoticon|email|regex:...`).
  * `unique` dilewat (dicek server-side saat submit).
  */
-export function buildRulesObject(field: FieldModel): string {
+export function buildRulesObject(field: FieldModel, labelKey?: string): string {
   const label = field.label;
+  // Bila labelKey diisi → pesan memakai key general + label terjemahan.
+  // Tanpa labelKey → pesan Inggris literal (dipakai probe/konteks non-i18n).
+  const req = (suffix: string): string =>
+    labelKey
+      ? `t('validation.required', { label: t('${labelKey}') })${suffix}`
+      : `'${label} is required.'${suffix}`;
+  const tLabel = labelKey ? `t('${labelKey}')` : null;
   const isNumber = field.valueType === 'number';
   const isArray = field.valueType === 'stringArray' || field.valueType === 'rowArray';
   const lines: string[] = [];
@@ -21,8 +28,8 @@ export function buildRulesObject(field: FieldModel): string {
       case 'required':
         lines.push(
           isArray
-            ? `validate: (value: unknown[]) => (value && value.length > 0) || '${label} is required.',`
-            : `required: '${label} is required.',`,
+            ? `validate: (value: unknown[]) => (value && value.length > 0) || ${req(',')}`
+            : `required: ${req(',')}`
         );
         break;
       case 'min':
@@ -30,14 +37,14 @@ export function buildRulesObject(field: FieldModel): string {
           if (isArray) {
             if (!hasValidate()) {
               lines.push(
-                `validate: (value: unknown[]) => (value && value.length >= ${arg}) || '${label} must have at least ${arg} item(s).',`,
+                `validate: (value: unknown[]) => (value && value.length >= ${arg}) || ${tLabel ? `t('validation.minItems', { label: ${tLabel}, count: ${arg} })` : `'${label} must have at least ${arg} item(s).'`},`,
               );
             }
           } else {
             lines.push(
               isNumber
-                ? `min: { value: ${arg}, message: '${label} must be at least ${arg}.' },`
-                : `minLength: { value: ${arg}, message: '${label} must be at least ${arg} characters.' },`,
+                ? `min: { value: ${arg}, message: ${tLabel ? `t('validation.minValue', { label: ${tLabel}, count: ${arg} })` : `'${label} must be at least ${arg}.'`} },`
+                : `minLength: { value: ${arg}, message: ${tLabel ? `t('validation.minLength', { label: ${tLabel}, count: ${arg} })` : `'${label} must be at least ${arg} characters.'`} },`,
             );
           }
         }
@@ -47,14 +54,14 @@ export function buildRulesObject(field: FieldModel): string {
           if (isArray) {
             if (!hasValidate()) {
               lines.push(
-                `validate: (value: unknown[]) => (value && value.length <= ${arg}) || '${label} must have at most ${arg} item(s).',`,
+                `validate: (value: unknown[]) => (value && value.length <= ${arg}) || ${tLabel ? `t('validation.maxItems', { label: ${tLabel}, count: ${arg} })` : `'${label} must have at most ${arg} item(s).'`},`,
               );
             }
           } else {
             lines.push(
               isNumber
-                ? `max: { value: ${arg}, message: '${label} must be at most ${arg}.' },`
-                : `maxLength: { value: ${arg}, message: '${label} cannot be greater than ${arg} characters.' },`,
+                ? `max: { value: ${arg}, message: ${tLabel ? `t('validation.maxValue', { label: ${tLabel}, count: ${arg} })` : `'${label} must be at most ${arg}.'`} },`
+                : `maxLength: { value: ${arg}, message: ${tLabel ? `t('validation.maxLength', { label: ${tLabel}, count: ${arg} })` : `'${label} cannot be greater than ${arg} characters.'`} },`,
             );
           }
         }
@@ -62,35 +69,35 @@ export function buildRulesObject(field: FieldModel): string {
       case 'minLength':
         if (arg !== undefined && !isArray) {
           lines.push(
-            `minLength: { value: ${arg}, message: '${label} must be at least ${arg} characters.' },`,
+            `minLength: { value: ${arg}, message: ${tLabel ? `t('validation.minLength', { label: ${tLabel}, count: ${arg} })` : `'${label} must be at least ${arg} characters.'`} },`,
           );
         }
         break;
       case 'maxLength':
         if (arg !== undefined && !isArray) {
           lines.push(
-            `maxLength: { value: ${arg}, message: '${label} cannot be greater than ${arg} characters.' },`,
+            `maxLength: { value: ${arg}, message: ${tLabel ? `t('validation.maxLength', { label: ${tLabel}, count: ${arg} })` : `'${label} cannot be greater than ${arg} characters.'`} },`,
           );
         }
         break;
       case 'email':
         if (!isArray) {
           lines.push(
-            `pattern: { value: /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, message: '${label} format is invalid.' },`,
+            `pattern: { value: /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, message: ${tLabel ? `t('validation.pattern', { label: ${tLabel} })` : `'${label} format is invalid.'`} },`,
           );
         }
         break;
       case 'withoutemoticon':
         if (!isArray) {
           lines.push(
-            `validate: (value: string) => !hasEmoticon(value || '') || WITHOUT_EMOTICON_MESSAGE,`,
+            `validate: (value: string) => !hasEmoticon(value || '') || ${tLabel ? `t('validation.noEmoticon')` : 'WITHOUT_EMOTICON_MESSAGE'},`,
           );
         }
         break;
       case 'regex':
         if (arg !== undefined && !isArray) {
           const escaped = arg.replace(/\//g, '\\/');
-          lines.push(`pattern: { value: /${escaped}/, message: '${label} format is invalid.' },`);
+          lines.push(`pattern: { value: /${escaped}/, message: ${tLabel ? `t('validation.pattern', { label: ${tLabel} })` : `'${label} format is invalid.'`} },`);
         }
         break;
       case 'unique':

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
-import { CloseIcon } from '../icons';
+import { X } from 'lucide-react';
 
 interface DrawerProps {
   open: boolean;
@@ -34,6 +35,7 @@ function Drawer({
   closeOnEscape = true,
   testId,
 }: DrawerProps) {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const asideRef = useRef<HTMLElement>(null);
 
@@ -119,10 +121,10 @@ function Drawer({
               data-testid={testId ? `${testId}-close` : undefined}
               type="button"
               onClick={onClose}
-              aria-label="Tutup panel"
+              aria-label={t('common.close')}
               className="flex cursor-pointer items-center rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              <CloseIcon className="h-5 w-5" />
+              <X className="h-5 w-5" />
             </button>
           </div>
         )}

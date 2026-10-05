@@ -135,6 +135,20 @@ function hasPermission(item: SubItem | NavItemType, permissions: string[]): bool
   return hasPermissionKey(permissions, item.permissionKey);
 }
 
+export type TranslateFn = (key: string, opts?: { defaultValue?: string }) => string;
+
+/**
+ * Resolve a nav/sub item display label via its `labelKey`,
+ * falling back to the stored English `label`.
+ */
+export function resolveNavLabel(
+  item: Pick<NavItemType, 'label' | 'labelKey'> | Pick<SubItem, 'label' | 'labelKey'>,
+  t: TranslateFn,
+): string {
+  if (!item.labelKey) return item.label;
+  return t(item.labelKey, { defaultValue: item.label });
+}
+
 export function filterNavItems(items: NavItemType[], permissions: string[]): NavItemType[] {
   return items
     .map((item) => {

@@ -122,7 +122,7 @@ export async function getRecord(def: ModuleDefinition, id: string): Promise<Dyna
   await delay(150);
   const rows = await seedRows(def.apiPlural);
   const found = rows.find((row) => String(row.id) === id);
-  if (!found) throw new Error('Data tidak ditemukan.');
+  if (!found) throw new Error('Data not found.');
   const { id: _omitId, status, created_by, created_date, ...data } = found;
   void _omitId;
   return {
@@ -159,7 +159,7 @@ function mockConflictError(field: string, message: string, code: string): unknow
       data: {
         response_schema: {
           response_code: code,
-          response_message: 'Parameter tidak valid',
+          response_message: 'Invalid parameters',
         },
         response_output: { errors: [{ field, message }] },
       },
@@ -327,7 +327,7 @@ export async function bulkUploadRecords(
       errors: missing.map((field) => ({
         row: 1,
         field,
-        message: `Kolom "${field}" tidak ditemukan di file.`,
+        message: `Column "${field}" not found in file.`,
       })),
     };
   }

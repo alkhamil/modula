@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import type { ModuleRegistration } from '../src/modules/generator/types.ts';
 
 export const ROUTER_IMPORTS_ANCHOR = '// __GENERATOR_IMPORTS__';
@@ -62,6 +63,43 @@ export function registerModuleRoutes(
   return { source: next, addedRoutes };
 }
 
+/** Daftar nama ikon lucide bila pustaka bisa dimuat di Node; null = tak bisa dicek. */
+function knownIconNames(): Set<string> | null {
+  try {
+    const require = createRequire(import.meta.url);
+    const mod = require('lucide-react') as { icons?: Record<string, unknown> };
+    if (!mod || typeof mod.icons !== 'object' || mod.icons === null) return null;
+    return new Set(Object.keys(mod.icons));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Ikon final untuk snippet nav: nama dari engine bila dikenal lucide,
+ * `Database` bila tidak (engine sudah menjamin bentuk identifier aman).
+ */
+export function resolveNavIconName(iconName: string): string {
+  if (!/^[A-Z][A-Za-z0-9]{0,39}$/.test(iconName)) return 'Database';
+  const known = knownIconNames();
+  if (known !== null && !known.has(iconName)) return 'Database';
+  return iconName;
+}
+
+/** Pastikan `import { <name> } from 'lucide-react'` ada di `navigation.tsx`. */
+export function ensureLucideImport(source: string, name: string): string {
+  const importRe = /import\s*\{([^}]*)\}\s*from\s*'lucide-react'/;
+  const match = importRe.exec(source);
+  if (!match) return `import { ${name} } from 'lucide-react';\n${source}`;
+  const members = match[1] as string;
+  if (members.split(',').map((part) => part.trim()).includes(name)) return source;
+  const updated = match[0].replace(/\{([^}]*)\}/, (_, inner: string) => {
+    const trimmed = (inner as string).trim();
+    return `{ ${trimmed === '' ? name : `${trimmed}, ${name}`} }`;
+  });
+  return source.replace(match[0], updated);
+}
+
 /**
  * Sisipkan item nav modul ke `navigation.tsx`. Idempoten: dilewati bila
  * nav path sudah ada. Modul ber-parent masuk ke group marker parent
@@ -74,11 +112,15 @@ export function registerModuleNav(
   if (reg.routes.length === 0) return { source, added: false };
   if (source.includes(`path: '${reg.navPath}'`)) return { source, added: false };
 
+  const icon = resolveNavIconName(reg.iconName);
+  const withIcon = (code: string): string =>
+    icon === reg.iconName
+      ? code
+      : code.split(`<${reg.iconName} className="h-5 w-5" />`).join(`<${icon} className="h-5 w-5" />`);
+
   if (!reg.parentPath) {
-    return {
-      source: insertBeforeAnchor(source, NAV_ITEMS_ANCHOR, reg.navItemCode, 'navigation.tsx'),
-      added: true,
-    };
+    const next = insertBeforeAnchor(source, NAV_ITEMS_ANCHOR, withIcon(reg.navItemCode), 'navigation.tsx');
+    return { source: ensureLucideImport(next, icon), added: true };
   }
 
   const marker = parentMarker(reg.parentPath);
@@ -96,8 +138,6 @@ export function registerModuleNav(
     return { source: next, added: true };
   }
 
-  return {
-    source: insertBeforeAnchor(source, NAV_ITEMS_ANCHOR, reg.navSnippet, 'navigation.tsx'),
-    added: true,
-  };
+  const next = insertBeforeAnchor(source, NAV_ITEMS_ANCHOR, withIcon(reg.navSnippet), 'navigation.tsx');
+  return { source: ensureLucideImport(next, icon), added: true };
 }

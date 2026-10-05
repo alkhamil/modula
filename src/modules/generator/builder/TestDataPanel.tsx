@@ -1,5 +1,6 @@
 /** Canvas Test Data — isi form draft, simpan baris contoh untuk pratinjau list/detail. */
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert } from '../../../shared/components/ui';
 import type { ModuleDefinition } from '../definitions';
 import type { DynamicFormValues } from '../runtime/validation';
@@ -14,6 +15,7 @@ interface TestDataPanelProps {
 }
 
 function TestDataPanel({ def, onAddRow }: TestDataPanelProps) {
+  const { t } = useTranslation();
   const defaults: DynamicFormValues = useMemo(() => {
     const values: DynamicFormValues = {};
     for (const field of def.fields) values[field.name] = formDefaultValue(field);
@@ -26,14 +28,14 @@ function TestDataPanel({ def, onAddRow }: TestDataPanelProps) {
   }
 
   if (def.fields.length === 0) {
-    return <p className="text-sm text-muted-foreground">Tambahkan field di kanvas form dulu.</p>;
+    return <p className="text-sm text-muted-foreground">{t('detail.needFields')}</p>;
   }
 
   return (
     <div className="flex flex-col stack-gap">
       <Alert
         variant="info"
-        message="Isi form lalu Create — baris tersimpan sebagai data contoh (bukan ke mock store), dipakai pratinjau List & Detail, lalu langsung lanjut ke langkah berikutnya."
+        message={t('detail.testHint')}
       />
       <DynamicForm
         def={def}

@@ -1,4 +1,7 @@
+import { t } from 'i18next';
+import '../../shared/i18n';
 import type { GeneratorConfig, GeneratorFieldConfig } from './types';
+import { MENU_ICON_NAME_RE } from './types';
 import { pruneComponentProps } from './componentProps';
 import { toCamelCase, toPascalCase } from './naming';
 import {
@@ -78,38 +81,35 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
   const issues: ConfigIssue[] = [];
 
   if (!config.moduleName || !normalizeModuleName(config.moduleName)) {
-    issues.push({ path: 'moduleName', message: 'Module name wajib diisi.' });
+    issues.push({ path: 'moduleName', message: t('configValidate.moduleNameRequired') });
   }
   if (config.parentName && config.parentName.length > 50) {
-    issues.push({ path: 'parentName', message: 'Parent module maksimal 50 karakter.' });
+    issues.push({ path: 'parentName', message: t('configValidate.parentMax') });
   }
   if (config.parentName && !/^[a-zA-Z0-9 /_-]*$/.test(config.parentName)) {
-    issues.push({ path: 'parentName', message: 'Parent module mengandung karakter tidak valid.' });
+    issues.push({ path: 'parentName', message: t('configValidate.parentInvalid') });
   }
   if (!config.permissionKey || config.permissionKey.trim() === '') {
-    issues.push({ path: 'permissionKey', message: 'Permission key wajib diisi.' });
+    issues.push({ path: 'permissionKey', message: t('configValidate.permissionRequired') });
   } else if (config.permissionKey.length > 100) {
-    issues.push({ path: 'permissionKey', message: 'Permission key maksimal 100 karakter.' });
+    issues.push({ path: 'permissionKey', message: t('configValidate.permissionMax') });
   } else if (!/^[a-z][a-z0-9_]*$/.test(config.permissionKey)) {
     issues.push({
       path: 'permissionKey',
-      message:
-        'Permission key harus single value: huruf kecil, angka, underscore, diawali huruf ' +
-        '(contoh: user, generator, dashboard, audit_trail). Tanpa titik — ' +
-        'suffix .view/.create/.update/.delete otomatis.',
+      message: t('configValidate.permissionPattern'),
     });
   }
   if (!Object.values(config.features).some(Boolean)) {
-    issues.push({ path: 'features', message: 'Pilih minimal satu feature.' });
+    issues.push({ path: 'features', message: t('configValidate.featureRequired') });
   }
   if ((config.features.bulkUpload || config.features.export) && !config.features.list) {
     issues.push({
       path: 'features',
-      message: 'Bulk upload & export butuh feature list (tombolnya di halaman list).',
+      message: t('configValidate.bulkNeedsList'),
     });
   }
   if (config.fields.length === 0) {
-    issues.push({ path: 'fields', message: 'Tambahkan minimal satu field.' });
+    issues.push({ path: 'fields', message: t('configValidate.fieldRequired') });
   }
   if (
     config.features.bulkUpload &&
@@ -117,7 +117,7 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
   ) {
     issues.push({
       path: 'features',
-      message: 'Bulk upload butuh minimal satu field non-file & non-array.',
+      message: t('configValidate.bulkNeedsField'),
     });
   }
 
@@ -125,19 +125,19 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
   config.fields.forEach((field, index) => {
     const path = `fields[${index}]`;
     if (!field.name) {
-      issues.push({ path: `${path}.name`, message: 'Field name wajib diisi.' });
+      issues.push({ path: `${path}.name`, message: t('configValidate.fieldNameRequired') });
     } else if (seen.has(field.name)) {
-      issues.push({ path: `${path}.name`, message: `Field name "${field.name}" duplikat.` });
+      issues.push({ path: `${path}.name`, message: t('configValidate.fieldNameDup', { name: field.name }) });
     } else if (isReservedFieldName(field.name)) {
       issues.push({
         path: `${path}.name`,
-        message: `Field name "${field.name}" reserved untuk kolom sistem (${RESERVED_FIELD_NAMES.join(', ')}).`,
+        message: t('configValidate.fieldNameReserved', { name: field.name }),
       });
     } else {
       seen.add(field.name);
     }
     if (!field.label) {
-      issues.push({ path: `${path}.label`, message: 'Field label wajib diisi.' });
+      issues.push({ path: `${path}.label`, message: t('configValidate.fieldLabelRequired') });
     }
     const allowedSources = (
       Object.keys(dataSourceRegistry) as (keyof typeof dataSourceRegistry)[]
@@ -145,14 +145,14 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
     if (!allowedSources.includes(field.source)) {
       issues.push({
         path: `${path}.source`,
-        message: `Field "${field.name}" tipe ${field.type} hanya mendukung source: ${allowedSources.join(', ')}.`,
+        message: t('configValidate.fieldSource', { name: field.name, type: field.type, sources: allowedSources.join(', ') }),
       });
     }
     if (field.source === 'mockStatic') {
       if (!field.options || field.options.length === 0) {
         issues.push({
           path: `${path}.options`,
-          message: `Field "${field.name}" source mockStatic butuh minimal satu option.`,
+          message: t('configValidate.fieldOptions', { name: field.name }),
         });
       }
     }
@@ -160,7 +160,7 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
       if (!field.api?.endpoint) {
         issues.push({
           path: `${path}.api.endpoint`,
-          message: `Field "${field.name}" source api butuh endpoint.`,
+          message: t('configValidate.fieldApi', { name: field.name }),
         });
       }
     }
@@ -168,13 +168,13 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
       if (!field.relation?.definitionKey) {
         issues.push({
           path: `${path}.relation.definitionKey`,
-          message: `Field "${field.name}" source relation butuh modul target.`,
+          message: t('configValidate.fieldRelationTarget', { name: field.name }),
         });
       }
       if (!field.relation?.labelField) {
         issues.push({
           path: `${path}.relation.labelField`,
-          message: `Field "${field.name}" source relation butuh label field.`,
+          message: t('configValidate.fieldRelationLabel', { name: field.name }),
         });
       }
     }
@@ -183,7 +183,7 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
     if (filterable && !criteriaForFieldType(field.type).includes(criteria)) {
       issues.push({
         path: `${path}.filterCriteria`,
-        message: `Field "${field.name}" tipe ${field.type} tidak mendukung kriteria ${criteria}.`,
+        message: t('configValidate.fieldCriteria', { name: field.name, type: field.type, criteria }),
       });
     }
     if (field.type === 'formArrayField') {
@@ -191,34 +191,34 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
       if (subs.length === 0) {
         issues.push({
           path: `${path}.subFields`,
-          message: `Field "${field.name}" butuh minimal satu sub-field.`,
+          message: t('configValidate.fieldSubs', { name: field.name }),
         });
       }
       const seenSub = new Set<string>();
       subs.forEach((sub, subIndex) => {
         const subPath = `${path}.subFields[${subIndex}]`;
         if (!sub.name) {
-          issues.push({ path: `${subPath}.name`, message: 'Sub-field name wajib diisi.' });
+          issues.push({ path: `${subPath}.name`, message: t('configValidate.subNameRequired') });
         } else if (seenSub.has(sub.name)) {
           issues.push({
             path: `${subPath}.name`,
-            message: `Sub-field name "${sub.name}" duplikat.`,
+            message: t('configValidate.subNameDup', { name: sub.name }),
           });
         } else if (isReservedFieldName(sub.name)) {
           issues.push({
             path: `${subPath}.name`,
-            message: `Sub-field name "${sub.name}" reserved untuk kolom sistem.`,
+            message: t('configValidate.subNameReserved', { name: sub.name }),
           });
         } else {
           seenSub.add(sub.name);
         }
         if (!sub.label?.trim()) {
-          issues.push({ path: `${subPath}.label`, message: 'Sub-field label wajib diisi.' });
+          issues.push({ path: `${subPath}.label`, message: t('configValidate.subLabelRequired') });
         }
         if (sub.type === 'formArrayField') {
           issues.push({
             path: `${subPath}.type`,
-            message: 'Sub-field tidak boleh form array (maksimal satu level).',
+            message: t('configValidate.subNoNested'),
           });
         }
         const allowedSubSources = (
@@ -227,7 +227,7 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
         if (!allowedSubSources.includes(sub.source)) {
           issues.push({
             path: `${subPath}.source`,
-            message: `Sub-field "${sub.name}" tipe ${sub.type} hanya mendukung source: ${allowedSubSources.join(', ')}.`,
+            message: t('configValidate.subSource', { name: sub.name, type: sub.type, sources: allowedSubSources.join(', ') }),
           });
         }
         if (
@@ -239,26 +239,26 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
         ) {
           issues.push({
             path: `${subPath}.options`,
-            message: `Sub-field "${sub.name}" source mockStatic butuh minimal satu option.`,
+            message: t('configValidate.subOptions', { name: sub.name }),
           });
         }
         if (sub.source === 'api' && !sub.api?.endpoint) {
           issues.push({
             path: `${subPath}.api.endpoint`,
-            message: `Sub-field "${sub.name}" source api butuh endpoint.`,
+            message: t('configValidate.subApi', { name: sub.name }),
           });
         }
         if (sub.source === 'relation') {
           if (!sub.relation?.definitionKey) {
             issues.push({
               path: `${subPath}.relation.definitionKey`,
-              message: `Sub-field "${sub.name}" source relation butuh modul target.`,
+              message: t('configValidate.subRelationTarget', { name: sub.name }),
             });
           }
           if (!sub.relation?.labelField) {
             issues.push({
               path: `${subPath}.relation.labelField`,
-              message: `Sub-field "${sub.name}" source relation butuh label field.`,
+              message: t('configValidate.subRelationLabel', { name: sub.name }),
             });
           }
         }
@@ -266,13 +266,10 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
     }
   });
 
-  // Ikon menu: cek string ringan (sanitasi penuh + parse SVG di dialog, browser-only).
+  // Ikon menu: nama komponen lucide-react (keberadaan ikon dicek saat render/register).
   if (config.menuIcon) {
-    if (!config.menuIcon.name.trim()) {
-      issues.push({ path: 'menuIcon.name', message: 'Nama ikon wajib diisi.' });
-    }
-    if (!config.menuIcon.svg.includes('<svg')) {
-      issues.push({ path: 'menuIcon.svg', message: 'Kode SVG tidak valid.' });
+    if (!MENU_ICON_NAME_RE.test(config.menuIcon.name.trim())) {
+      issues.push({ path: 'menuIcon.name', message: t('configValidate.iconNameRequired') });
     }
   }
 

@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type InputHTMLAttributes } from 'react';
-import { FieldErrorIcon } from '../../icons';
+import { CircleAlert } from 'lucide-react';
 import { stripNonAscii } from '../../../utils';
 
 interface PasswordFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'> {
@@ -135,7 +135,7 @@ function PasswordField({
         </button>
         {(error || isInvalid) && (
           <span className="flex items-center pr-3">
-            <FieldErrorIcon className="h-3.5 w-3.5" />
+            <CircleAlert className="h-3.5 w-3.5" />
           </span>
         )}
       </div>

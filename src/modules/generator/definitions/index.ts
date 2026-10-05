@@ -13,6 +13,7 @@ export type {
 export {
   defaultLayoutForFields,
   normalizeLayout,
+  normalizeModuleI18n,
   configToDefinition,
   normalizeDefinition,
 } from './normalize';

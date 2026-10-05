@@ -1,5 +1,6 @@
 import { isValidElement, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDownIcon, ConfirmWarningIcon } from '../icons';
+import { useTranslation } from 'react-i18next';
+import { ChevronDown, TriangleAlert } from 'lucide-react';
 import { formatNumber } from '../../utils';
 import SelectField from './fields/SelectField';
 import Button from './Button';
@@ -127,6 +128,7 @@ function Pagination({
   onPageChange,
   onPageSizeChange,
 }: PaginationProps) {
+  const { t } = useTranslation();
   const pages = useMemo(() => buildPageNumbers(page, totalPages), [page, totalPages]);
 
   return (
@@ -139,7 +141,7 @@ function Pagination({
           options={[10, 20, 50, 100].map((n) => ({ label: String(n), value: String(n) }))}
           className="w-16"
         />
-        <span>Rows per page</span>
+        <span>{t('table.rowsPerPage')}</span>
       </div>
 
       <div className="flex items-center gap-1">
@@ -149,7 +151,7 @@ function Pagination({
           disabled={page <= 1}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-primary transition-colors hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed border border-transparent hover:border-primary"
         >
-          <ChevronDownIcon className="h-4 w-4 rotate-180" />
+          <ChevronDown className="h-4 w-4 rotate-180" />
         </button>
 
         {pages.map((p, i) =>
@@ -185,7 +187,7 @@ function Pagination({
           disabled={page >= totalPages}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-primary transition-colors hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed border border-transparent hover:border-primary"
         >
-          <ChevronDownIcon className="h-4 w-4" />
+          <ChevronDown className="h-4 w-4" />
         </button>
       </div>
     </div>
@@ -273,7 +275,7 @@ function Table<T>({
   onSort,
   renderAction,
   actionWidth = 'w-16',
-  actionHeader = 'Action',
+  actionHeader,
   actionPosition = 'left',
   hideActionColumn = false,
   fixedLayout = false,
@@ -281,16 +283,16 @@ function Table<T>({
   rowKey,
   isEmptyState,
   isFilteredEmptyState,
-  emptyStateTitle = 'No Data Available',
+  emptyStateTitle,
   emptyStateDescription = '',
-  filteredEmptyStateTitle = 'No Data Found!',
-  filteredEmptyStateDescription = 'Try adjusting your search or using different keywords.',
+  filteredEmptyStateTitle,
+  filteredEmptyStateDescription,
   loading,
   error,
   onRetry,
   errorTitle = 'Oops! Something Went Wrong',
   errorDescription = "We're sorry, but something went wrong on our end. Please try again later.",
-  retryLabel = 'Try Again',
+  retryLabel,
   dense = false,
   hidePagination = false,
   hideTotalRecords = false,
@@ -306,6 +308,12 @@ function Table<T>({
   const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
   const cellPy = dense ? 'py-1' : 'py-3';
   const actionRight = actionPosition === 'right';
+  const { t } = useTranslation();
+  const resolvedActionHeader = actionHeader ?? t('table.action');
+  const resolvedEmptyTitle = emptyStateTitle ?? t('table.emptyTitle');
+  const resolvedFilteredTitle = filteredEmptyStateTitle ?? t('table.filteredTitle');
+  const resolvedFilteredDesc = filteredEmptyStateDescription ?? t('table.filteredDesc');
+  const resolvedRetryLabel = retryLabel ?? t('table.retry');
 
   const skeletonRows = Array.from({ length: pageSize }, (_, i) => i);
   const showAction = !!renderAction && !hideActionColumn;
@@ -382,6 +390,14 @@ function Table<T>({
   }
 
   const scrollable = barWidth - clientWidth;
+  // Shadow tepi kolom aksi sticky: muncul hanya saat ada konten yang
+  // ter-scroll di baliknya (kiri: scrollLeft > 0; kanan: belum mentok).
+  const showLeftActionShadow =
+    stickyAction && !actionRight && hasOverflow && scrollLeft > 0;
+  const showRightActionShadow =
+    stickyAction && actionRight && hasOverflow && scrollLeft < scrollable - 1;
+  const leftActionShadow = 'shadow-[6px_0_6px_-4px_rgb(0_0_0/0.2)]';
+  const rightActionShadow = 'shadow-[-6px_0_6px_-4px_rgb(0_0_0/0.2)]';
   const thumbPct = clientWidth > 0 && scrollable > 0 ? (clientWidth / barWidth) * 100 : 100;
   const thumbOffsetPct = scrollable > 0 ? (scrollLeft / scrollable) * (100 - thumbPct) : 0;
 
@@ -406,7 +422,7 @@ function Table<T>({
       {!loading && !error && !hideTotalRecords && (
         <div className="flex items-center gap-6 py-3">
           <span className="text-sm text-muted-foreground">
-            Total Records:{' '}
+            {t('table.totalRecords')}:{' '}
             <span className="font-medium text-foreground">{formatNumber(totalRecords)}</span>
           </span>
           {headerExtra}
@@ -439,13 +455,14 @@ function Table<T>({
                 {showAction && !actionRight && (
                   <th
                     className={bc(
-                      `px-4 py-3 text-left text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-b border-border`,
+                      `px-4 py-3 text-center text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-b border-border`,
                       stickyHeader ? 'sticky top-0 z-20 bg-surface' : 'bg-surface',
                       stickyAction && 'sticky left-0 z-30',
+                      showLeftActionShadow && leftActionShadow,
                       actionWidth,
                     )}
                   >
-                    {actionHeader}
+                    {resolvedActionHeader}
                   </th>
                 )}
                 {columns.map((col) => (
@@ -479,13 +496,14 @@ function Table<T>({
                 {showAction && actionRight && (
                   <th
                     className={bc(
-                      `px-4 py-3 text-left text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-b border-border`,
+                      `px-4 py-3 text-center text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-b border-border`,
                       stickyHeader ? 'sticky top-0 z-20 bg-surface' : 'bg-surface',
                       stickyAction && 'sticky right-0 z-30',
+                      showRightActionShadow && rightActionShadow,
                       actionWidth,
                     )}
                   >
-                    {actionHeader}
+                    {resolvedActionHeader}
                   </th>
                 )}
               </tr>
@@ -522,14 +540,14 @@ function Table<T>({
                 <tr>
                   <td colSpan={totalColumns} className="px-5 py-12">
                     <div className="sticky left-1/2 w-max -translate-x-1/2 flex flex-col gap-2 items-center justify-center text-center">
-                      <ConfirmWarningIcon className="h-12 w-12 shrink-0" />
+                      <TriangleAlert className="h-12 w-12 shrink-0" />
                       <p className="text-lg font-semibold text-foreground">{errorTitle}</p>
                       {errorDescription && (
                         <p className="text-sm text-muted-foreground">{errorDescription}</p>
                       )}
                       {onRetry && (
                         <Button type="button" onClick={onRetry} variant="secondary">
-                          {retryLabel}
+                          {resolvedRetryLabel}
                         </Button>
                       )}
                     </div>
@@ -542,7 +560,7 @@ function Table<T>({
                       {isEmptyState ? (
                         <div className="flex flex-col gap-1.5 items-center justify-center text-center">
                           <p className="text-2xl font-semibold text-foreground">
-                            {emptyStateTitle}
+                            {resolvedEmptyTitle}
                           </p>
                           {emptyStateDescription && (
                             <p className="text-base text-muted-foreground">
@@ -553,11 +571,11 @@ function Table<T>({
                       ) : isFilteredEmptyState ? (
                         <div className="flex flex-col gap-1.5 items-center justify-center text-center">
                           <p className="text-2xl font-semibold text-foreground">
-                            {filteredEmptyStateTitle}
+                            {resolvedFilteredTitle}
                           </p>
                           {filteredEmptyStateDescription && (
                             <p className="text-base text-muted-foreground">
-                              {filteredEmptyStateDescription}
+                              {resolvedFilteredDesc}
                             </p>
                           )}
                         </div>
@@ -586,6 +604,7 @@ function Table<T>({
                               : `${STICKY_ROW_BG} ${STICKY_ROW_HOVER_BG}`,
                             `${actionWidth} px-4 ${cellPy} whitespace-nowrap border-border`,
                             stickyAction && 'sticky left-0 z-10',
+                            showLeftActionShadow && leftActionShadow,
                             isLast ? '' : 'border-b border-border',
                           )}
                         >
@@ -626,6 +645,7 @@ function Table<T>({
                               : `${STICKY_ROW_BG} ${STICKY_ROW_HOVER_BG}`,
                             `${actionWidth} px-4 ${cellPy} whitespace-nowrap border-border`,
                             stickyAction && 'sticky right-0 z-10',
+                            showRightActionShadow && rightActionShadow,
                             isLast ? '' : 'border-b border-border',
                           )}
                         >

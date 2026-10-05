@@ -1,34 +1,34 @@
 import type { GeneratedFile, ModuleRegistration } from '../types';
 
-/** Endpoint dev-server (vite plugin `moduleWriter`) yang menulis file ke repo. */
+/** Dev-server endpoint (vite plugin `moduleWriter`) that writes files to the repo. */
 const WRITE_ENDPOINT = '/__api/write-module';
 
 export interface WriteToRepoResult {
   written: string[];
-  /** Hasil auto-registrasi routes + navigasi (null bila tidak dikirim). */
+  /** Auto-registration result for routes + navigation (null when not sent). */
   registered: { routes: number; navigation: boolean } | null;
 }
 
-/** Dilempar saat ada file yang sudah ada dan `overwrite === false`. */
+/** Thrown when files already exist and `overwrite === false`. */
 export class WriteConflictError extends Error {
   existing: string[];
 
   constructor(existing: string[]) {
-    super(`File sudah ada: ${existing.join(', ')}`);
+    super(`File already exists: ${existing.join(', ')}`);
     this.name = 'WriteConflictError';
     this.existing = existing;
   }
 }
 
-/** Dilempar saat endpoint dev-server tidak tersedia (mis. production build). */
+/** Thrown when the dev-server endpoint is unavailable (e.g. production build). */
 export class WriteEndpointUnavailableError extends Error {
   constructor() {
-    super('Endpoint tulis-repo tidak tersedia. Jalankan via `npm run dev`.');
+    super('Repo-write endpoint is unavailable. Run via `npm run dev`.');
     this.name = 'WriteEndpointUnavailableError';
   }
 }
 
-/** Tulis hasil generate langsung ke `src/modules/` via dev-server + daftarkan routes/nav. */
+/** Write generate output directly to `src/modules/` via dev-server + register routes/nav. */
 export async function writeModuleToRepo(
   files: GeneratedFile[],
   overwrite: boolean,
@@ -51,7 +51,7 @@ export async function writeModuleToRepo(
   }
   if (!res.ok) {
     const data = (await res.json().catch(() => null)) as { error?: string } | null;
-    throw new Error(data?.error ?? `Gagal menulis ke repo (HTTP ${res.status}).`);
+    throw new Error(data?.error ?? `Failed to write to repo (HTTP ${res.status}).`);
   }
   return (await res.json()) as WriteToRepoResult;
 }

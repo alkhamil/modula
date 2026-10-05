@@ -1,32 +1,47 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { NavItemType } from '../shared/types/navigation';
-import {
-  NavDashboardIcon,
-  NavMasterDataIcon,
-  NavSettingsIcon,
-} from '../shared/components/icons';
+import { LayoutDashboard, Database, Settings, Users } from 'lucide-react';
 import { useDynamicDefinitions } from '../modules/generator/runtime/hooks';
 import { buildDynamicNavItems } from '../modules/generator/runtime/dynamicNav';
 
 export const navItems: NavItemType[] = [
   {
     label: 'Dashboard',
+    labelKey: 'nav.dashboard',
     path: '/',
-    icon: <NavDashboardIcon className="h-5 w-5" />,
+    icon: <LayoutDashboard className="h-5 w-5" />,
   },
   {
     label: 'Generator',
+    labelKey: 'nav.generator',
     path: '/generator',
-    icon: <NavSettingsIcon className="h-5 w-5" />,
+    icon: <Settings className="h-5 w-5" />,
   },
   {
     label: 'Component',
-    icon: <NavMasterDataIcon className="h-5 w-5" />,
+    labelKey: 'nav.components',
+    icon: <Database className="h-5 w-5" />,
     children: [
-      { label: 'Typography', path: '/components/typography' },
-      { label: 'Colors', path: '/components/colors' },
-      { label: 'Icons', path: '/components/icons' },
-      { label: 'UI', path: '/components/ui' },
+      { label: 'Typography', labelKey: 'nav.typography', path: '/components/typography' },
+      { label: 'Colors', labelKey: 'nav.colors', path: '/components/colors' },
+      { label: 'UI', labelKey: 'nav.ui', path: '/components/ui' },
+    ],
+  },
+  {
+    label: 'User Management',
+    icon: <Users className="h-5 w-5" />,
+    children: [
+      { label: 'User', path: '/user-management/user', permissionKey: 'master-user.view' },
+      { label: 'Role', path: '/user-management/role', permissionKey: 'master-role.view' },
+    ],
+  },
+  // __GENERATOR_PARENT master-data__
+  {
+    label: 'Master Data',
+    icon: <Database className="h-5 w-5" />,
+    children: [
+      { label: 'Companies', path: '/master-data/companies', permissionKey: 'company.view' },
     ],
   },
   // __GENERATOR_NAV_ITEMS__
@@ -34,8 +49,9 @@ export const navItems: NavItemType[] = [
 
 /** Item nav dari definisi published (flat untuk root, group per parent). */
 export function useDynamicNavItems(): NavItemType[] {
+  const { i18n } = useTranslation();
   const { data } = useDynamicDefinitions('published');
-  return useMemo(() => (data ? buildDynamicNavItems(data) : []), [data]);
+  return useMemo(() => (data ? buildDynamicNavItems(data) : []), [data, i18n.language]);
 }
 
 /**

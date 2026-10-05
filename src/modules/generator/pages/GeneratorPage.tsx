@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
 import { Alert, Button, Card, Dialog, useToast } from '../../../shared/components/ui';
 import { downloadBlob } from '../../../shared/utils';
-import { ChevronLeftIcon, ChevronRightIcon, StepDoneIcon, StepInProgressIcon, StepOutGoingIcon } from '../../../shared/components/icons';
+import { ChevronLeft, ChevronRight, Check, CircleDot, Circle } from 'lucide-react';
 import type { FeatureKey, GeneratorConfig, GeneratorFieldConfig, MenuIcon } from '../types';
 import { normalizeModuleName } from '../parser';
 import type { DeleteMode, ModuleDefinition, ModuleLayout } from '../definitions';
+import type { ModuleI18nDict } from '../types';
 import {
   NEW_PARENT_VALUE,
   buildApiContract,
@@ -29,9 +30,10 @@ import ModuleInfoStep, {
   type ModuleInfoValue,
 } from '../components/ModuleInfoStep';
 import FeaturesStep from '../components/FeaturesStep';
-import MenuIconDialog from '../components/MenuIconDialog';
+import IconPickerDialog from '../components/IconPickerDialog';
 import ModulesTab from '../components/ModulesTab';
 import ReviewStep from '../components/ReviewStep';
+import TranslationStep from '../components/TranslationStep';
 import FormBuilderCanvas from '../builder/FormBuilderCanvas';
 import TestDataPanel from '../builder/TestDataPanel';
 import ListBuilderCanvas from '../builder/ListBuilderCanvas';
@@ -40,12 +42,13 @@ import ContractPanel from '../builder/ContractPanel';
 import { clearDraft, loadDraft, saveDraft, valuesToSampleRow } from '../builder/draft';
 
 const STEPS = [
-  'Config',
-  'Form Canvas',
-  'Live Preview',
-  'List Canvas',
-  'Detail Canvas',
-  'Review & Generate',
+  'config',
+  'formCanvas',
+  'livePreview',
+  'listCanvas',
+  'detailCanvas',
+  'translation',
+  'review',
 ] as const;
 
 const DEFAULT_FEATURES: Record<FeatureKey, boolean> = {
@@ -59,19 +62,21 @@ const DEFAULT_FEATURES: Record<FeatureKey, boolean> = {
 };
 
 function StepIndicator({ step }: { step: number }) {
+  const { t } = useTranslation();
   return (
     <ol className="flex flex-wrap items-center gap-2">
-      {STEPS.map((label, index) => {
+      {STEPS.map((key, index) => {
         const state = index < step ? 'done' : index === step ? 'current' : 'todo';
+        const label = t(`wizard.steps.${key}`);
         return (
-          <li key={label} className="flex items-center gap-2">
+          <li key={key} className="flex items-center gap-2">
             {index > 0 && <span className="h-px w-6 bg-border" />}
             {state === 'done' ? (
-              <StepDoneIcon className="h-5 w-5" />
+              <Check className="h-5 w-5" />
             ) : state === 'current' ? (
-              <StepInProgressIcon className="h-5 w-5" />
+              <CircleDot className="h-5 w-5" />
             ) : (
-              <StepOutGoingIcon className="h-5 w-5" />
+              <Circle className="h-5 w-5" />
             )}
             <span
               className={`text-sm ${state === 'current' ? 'font-semibold text-foreground' : state === 'done' ? 'text-foreground' : 'text-muted-foreground'}`}
@@ -99,9 +104,9 @@ interface PublishResult {
 }
 
 function GeneratorPage() {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const [initialDraft] = useState(loadDraft);
   const [step, setStep] = useState(() =>
     Math.min(initialDraft?.step ?? 0, STEPS.length - 1),
@@ -114,6 +119,7 @@ function GeneratorPage() {
   const [layout, setLayout] = useState<ModuleLayout | null>(initialDraft?.layout ?? null);
   const [deleteMode, setDeleteMode] = useState<DeleteMode>(initialDraft?.deleteMode ?? 'soft');
   const [menuIcon, setMenuIcon] = useState<MenuIcon | null>(initialDraft?.menuIcon ?? null);
+  const [i18nDict, setI18nDict] = useState<ModuleI18nDict | undefined>(initialDraft?.i18n);
   const [iconDialogOpen, setIconDialogOpen] = useState(false);
   const [sampleRows, setSampleRows] = useState<DynamicListItem[]>(
     initialDraft?.sampleRows ?? [],
@@ -136,8 +142,8 @@ function GeneratorPage() {
 
   useEffect(() => {
     if (publishResult) return;
-    saveDraft({ info, features, fields, layout, deleteMode, menuIcon, sampleRows, step });
-  }, [info, features, fields, layout, deleteMode, menuIcon, sampleRows, step, publishResult]);
+    saveDraft({ info, features, fields, layout, deleteMode, menuIcon, i18n: i18nDict, sampleRows, step });
+  }, [info, features, fields, layout, deleteMode, menuIcon, i18nDict, sampleRows, step, publishResult]);
 
   const effectiveLayout = useMemo(
     () => normalizeLayout(layout ?? defaultLayoutForFields(fields), fields.map((f) => f.name)),
@@ -154,6 +160,7 @@ function GeneratorPage() {
       features,
       fields,
       menuIcon: menuIcon ?? undefined,
+      i18n: i18nDict,
     };
   }
 
@@ -165,34 +172,34 @@ function GeneratorPage() {
         deleteMode,
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [info, features, fields, effectiveLayout, deleteMode, menuIcon],
+    [info, features, fields, effectiveLayout, deleteMode, menuIcon, i18nDict],
   );
 
   function validateStep(current: number): string | null {
     if (current === 0) {
-      if (!info.moduleName.trim()) return 'Module name wajib diisi.';
-      if (!normalizeModuleName(info.moduleName)) return 'Module name tidak valid.';
+      if (!info.moduleName.trim()) return t('wizard.validateModuleRequired');
+      if (!normalizeModuleName(info.moduleName)) return t('wizard.validateModuleInvalid');
       if (info.parentName === NEW_PARENT_VALUE) {
-        if (!info.newParentName.trim()) return 'Nama parent baru wajib diisi.';
-        if (info.newParentName.length > 50) return 'Parent module maksimal 50 karakter.';
+        if (!info.newParentName.trim()) return t('wizard.validateParentRequired');
+        if (info.newParentName.length > 50) return t('wizard.validateParentMax');
         if (!/^[a-zA-Z0-9 /_-]*$/.test(info.newParentName)) {
-          return 'Parent module mengandung karakter tidak valid.';
+          return t('wizard.validateParentInvalid');
         }
       } else if (info.parentName !== '' && !parentOptions.includes(info.parentName)) {
-        return 'Parent module tidak dikenal. Pilih dari daftar atau buat parent baru.';
+        return t('wizard.validateParentUnknown');
       }
-      if (!info.permissionKey.trim()) return 'Permission key wajib diisi.';
+      if (!info.permissionKey.trim()) return t('wizard.validatePermissionRequired');
       if (!/^[a-z][a-z0-9_]*$/.test(info.permissionKey.trim().toLowerCase())) {
-        return 'Permission key harus single value tanpa titik (contoh: user, audit_trail).';
+        return t('wizard.validatePermissionInvalid');
       }
-      if (!Object.values(features).some(Boolean)) return 'Pilih minimal satu feature.';
+      if (!Object.values(features).some(Boolean)) return t('wizard.validateFeatureRequired');
       if ((features.bulkUpload || features.export) && !features.list) {
-        return 'Bulk upload & export butuh feature list.';
+        return t('wizard.validateBulkList');
       }
       return null;
     }
     if (current === 1) {
-      if (fields.length === 0) return 'Tambahkan minimal satu field dari palet.';
+      if (fields.length === 0) return t('wizard.validateFieldRequired');
       return null;
     }
     return null;
@@ -228,6 +235,7 @@ function GeneratorPage() {
     setLayout(null);
     setDeleteMode('soft');
     setMenuIcon(null);
+    setI18nDict(undefined);
     setSampleRows([]);
     setStepError(null);
     setPublishResult(null);
@@ -250,6 +258,7 @@ function GeneratorPage() {
     setLayout(structuredClone(def.layout));
     setDeleteMode(def.deleteMode);
     setMenuIcon(def.menuIcon ? { ...def.menuIcon } : null);
+    setI18nDict(def.i18n ? structuredClone(def.i18n) : undefined);
     setSampleRows([]);
     setStep(0);
     setStepError(null);
@@ -258,7 +267,7 @@ function GeneratorPage() {
     setEditingApiPlural(def.apiPlural);
     setInfoSession((prev) => prev + 1);
     setView('builder');
-    showToast({ variant: 'info', message: `Memuat "${def.key}" ke Builder untuk diedit.` });
+    showToast({ variant: 'info', message: t('wizard.loadToWizard', { key: def.key }) });
   }
 
   function requestEdit(def: ModuleDefinition): void {
@@ -275,7 +284,7 @@ function GeneratorPage() {
   function handleAddSampleRow(values: DynamicFormValues): void {
     const nextId = Math.max(...sampleRows.map((row) => row.id), 0) + 1;
     setSampleRows((prev) => [...prev, valuesToSampleRow(values, nextId, fields)]);
-    showToast({ variant: 'success', message: `Baris contoh #${nextId} ditambahkan.` });
+    showToast({ variant: 'success', message: t('wizard.sampleRowAdded', { id: nextId }) });
     // Langsung lanjut ke List Canvas setelah test data dibuat.
     setStepError(null);
     setStep((prev) => Math.min(prev + 1, STEPS.length - 1));
@@ -295,7 +304,9 @@ function GeneratorPage() {
         .map((issue) => `${issue.path}: ${issue.message}`)
         .join('; ');
       setStepError(
-        `${issues.length} masalah definisi: ${shown}${issues.length > 3 ? '…' : ''} Periksa kembali langkah sebelumnya.`,
+        issues.length > 3
+          ? t('wizard.publishIssuesMore', { count: issues.length, shown })
+          : t('wizard.publishIssues', { count: issues.length, shown }),
       );
       return;
     }
@@ -309,7 +320,7 @@ function GeneratorPage() {
       if (editingKey && editingKey !== saved.definition.key) {
         await deleteDefinition(editingKey);
         if (editingApiPlural) await deleteModuleRecords(editingApiPlural);
-        showToast({ variant: 'info', message: `Definisi lama "${editingKey}" dihapus.` });
+        showToast({ variant: 'info', message: t('wizard.deleteOldModule', { key: editingKey }) });
       }
       setEditingKey(null);
       setEditingApiPlural(null);
@@ -319,11 +330,11 @@ function GeneratorPage() {
         variant: 'success',
         message:
           targetStatus === 'published'
-            ? `Modul "${saved.definition.key}" terbit dan langsung live.`
-            : `Draft "${saved.definition.key}" tersimpan.`,
+            ? t('wizard.publishedLive', { key: saved.definition.key })
+            : t('wizard.draftSaved', { key: saved.definition.key }),
       });
     } catch (err) {
-      setStepError(err instanceof Error ? err.message : 'Gagal menyimpan definisi.');
+      setStepError(err instanceof Error ? err.message : t('wizard.saveFailed'));
     } finally {
       setIsPublishing(false);
     }
@@ -343,8 +354,8 @@ function GeneratorPage() {
           variant="success"
           message={
             isLive
-              ? `Modul "${definition.key}" ${created ? 'dibuat' : 'diperbarui'} dan langsung live di navigasi + routes.`
-              : `Draft "${definition.key}" ${created ? 'disimpan' : 'diperbarui'}. Terbitkan untuk menampilkannya di navigasi.`
+              ? t('wizard.resultLive', { key: definition.key, verb: created ? t('wizard.created') : t('wizard.updated') })
+              : t('wizard.resultDraft', { key: definition.key, verb: created ? t('wizard.created') : t('wizard.updated') })
           }
         />
         <Card title={`Modul: ${definition.singularLabel}`}>
@@ -362,10 +373,10 @@ function GeneratorPage() {
           </dl>
           <div className="mt-6 flex flex-wrap justify-end gap-2">
             <Button type="button" variant="secondary" onClick={() => setPublishResult(null)}>
-              Ubah lagi
+              {t('wizard.editAgain')}
             </Button>
             <Button type="button" variant="secondary" onClick={resetWizard}>
-              Buat modul baru
+              {t('wizard.newModule')}
             </Button>
             <Button
               type="button"
@@ -375,16 +386,10 @@ function GeneratorPage() {
                 setView('modules');
               }}
             >
-              Lihat daftar modul
+              {t('wizard.viewList')}
             </Button>
             <Button type="button" variant="secondary" onClick={() => handleDownloadContract(definition)}>
-              Unduh kontrak
-            </Button>
-            <Button
-              type="button"
-              onClick={() => navigate(`/preview/${encodeURIComponent(definition.key)}`)}
-            >
-              Buka pratinjau
+              {t('wizard.downloadContract')}
             </Button>
           </div>
         </Card>
@@ -397,8 +402,8 @@ function GeneratorPage() {
       <div role="tablist" aria-label="Tampilan generator" className="flex items-center gap-4 border-b border-border">
         {(
           [
-            { id: 'builder', label: 'Builder' },
-            { id: 'modules', label: 'Daftar Modul' },
+            { id: 'builder', label: t('wizard.builder') },
+            { id: 'modules', label: t('wizard.moduleList') },
           ] as const
         ).map((tab) => (
           <button
@@ -418,7 +423,7 @@ function GeneratorPage() {
         ))}
       </div>
       {view === 'modules' && (
-        <Card title="Daftar Modul">
+        <Card title={t('wizard.modulesTitle')}>
           <ModulesTab
             definitions={definitionsQuery.data ?? []}
             isLoading={definitionsQuery.isLoading}
@@ -430,7 +435,7 @@ function GeneratorPage() {
         <>
           <StepIndicator step={step} />
           {editingKey && (
-            <Alert variant="info" message={`Mengedit "${editingKey}" — publish menimpa modul ini.`} />
+            <Alert variant="info" message={t('wizard.editingModule', { key: editingKey })} />
           )}
           {stepError && <Alert variant="error" message={stepError} />}
           {initialDraft && step === 0 && (
@@ -440,7 +445,7 @@ function GeneratorPage() {
             />
           )}
           <Card
-            title={step === 5 ? 'Review & Generate' : `Builder — ${STEPS[step]}`}
+            title={step === 6 ? t('wizard.steps.review') : `${t('wizard.builder')} — ${t(`wizard.steps.${STEPS[step]}`)}`}
             actions={
               <div className="flex flex-wrap items-center justify-end gap-2">
                 <Button
@@ -448,26 +453,26 @@ function GeneratorPage() {
                   variant="secondary"
                   onClick={handleBack}
                   disabled={step === 0}
-                  icon={<ChevronLeftIcon className="h-4 w-4" />}
+                  icon={<ChevronLeft className="h-4 w-4" />}
                 >
-                  Kembali
+                  {t('common.back')}
                 </Button>
                 {step === 0 && (
                   <Button type="button" variant="secondary" onClick={resetWizard}>
-                    Buang draft
+                    {t('wizard.discardDraft')}
                   </Button>
                 )}
-                {step < 5 && (
+                {step < 6 && (
                   <Button
                     type="button"
                     onClick={handleNext}
                     iconPosition="right"
-                    icon={<ChevronRightIcon className="h-4 w-4" />}
+                    icon={<ChevronRight className="h-4 w-4" />}
                   >
-                    Lanjut
+                    {t('common.next')}
                   </Button>
                 )}
-                {step === 5 && (
+                {step === 6 && (
                   <>
                     <Button
                       type="button"
@@ -475,14 +480,14 @@ function GeneratorPage() {
                       disabled={isPublishing}
                       onClick={() => void handlePublish('draft')}
                     >
-                      {isPublishing ? 'Menyimpan…' : 'Simpan sebagai Draft'}
+                      {isPublishing ? t('wizard.saving') : t('wizard.saveAsDraft')}
                     </Button>
                     <Button
                       type="button"
                       disabled={isPublishing}
                       onClick={() => void handlePublish('published')}
                     >
-                      {isPublishing ? 'Menerbitkan…' : 'Publish'}
+                      {isPublishing ? t('wizard.publishing') : t('wizard.publish')}
                     </Button>
                   </>
                 )}
@@ -511,21 +516,19 @@ function GeneratorPage() {
           </div>
         )}
         {iconDialogOpen && (
-          <MenuIconDialog
+          <IconPickerDialog
             open={iconDialogOpen}
-            initial={menuIcon}
-            parentName={resolveEffectiveParent(info)}
-            moduleName={info.moduleName.trim()}
+            initial={menuIcon?.name ?? null}
             onClose={() => setIconDialogOpen(false)}
-            onSave={(next) => {
-              setMenuIcon(next);
+            onSave={(name) => {
+              setMenuIcon(name === null ? null : { name });
               setStepError(null);
               showToast({
                 variant: 'success',
                 message:
-                  next === null
-                    ? 'Ikon menu dihapus — sidebar memakai ikon bawaan.'
-                    : 'Ikon menu tersimpan ke draft.',
+                  name === null
+                    ? t('wizard.iconRemoved')
+                    : t('wizard.iconSaved'),
               });
             }}
           />
@@ -572,6 +575,9 @@ function GeneratorPage() {
           />
         )}
         {step === 5 && (
+          <TranslationStep config={buildConfig()} i18n={i18nDict} onI18nChange={setI18nDict} />
+        )}
+        {step === 6 && (
           <div className="flex flex-col stack-gap">
             <ReviewStep config={buildConfig()} layout={layout} deleteMode={deleteMode} />
             <ContractPanel def={draftDef} />
@@ -584,7 +590,7 @@ function GeneratorPage() {
         testId="generator-edit-dialog"
         open={editTarget !== null}
         onClose={() => setEditTarget(null)}
-        title="Muat modul ke Builder"
+        title={t('wizard.loadToBuilder')}
         maxWidth="md"
         closeOnEscape
         closeOnBackdropClick
@@ -599,13 +605,13 @@ function GeneratorPage() {
                 setEditTarget(null);
               }}
             >
-              Buang draft, muat modul
+              {t('wizard.discardAndLoad')}
             </Button>
           </>
         }
       >
         <p className="text-sm text-foreground">
-          Draft berjalan akan dibuang dan diganti modul "{editTarget?.key}". Lanjutkan?
+          {t('wizard.loadConfirm', { key: editTarget?.key ?? '' })}
         </p>
       </Dialog>
     </div>

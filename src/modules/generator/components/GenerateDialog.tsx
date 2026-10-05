@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Button, Dialog, useToast } from '../../../shared/components/ui';
 import type { GeneratedFile, GeneratorConfig, ModuleRegistration } from '../types';
 import { definitionToConfig } from '../engine/fromDefinition';
@@ -25,6 +26,7 @@ type WriteStatus =
   | { state: 'failed'; message: string };
 
 function GenerateDialog({ def, onClose }: GenerateDialogProps) {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const [writeStatus, setWriteStatus] = useState<WriteStatus>({ state: 'idle' });
 
@@ -45,7 +47,7 @@ function GenerateDialog({ def, onClose }: GenerateDialogProps) {
         error:
           err instanceof GeneratorConfigError
             ? err.issues.map((issue) => `${issue.path}: ${issue.message}`).join('; ')
-            : 'Gagal men-generate modul.',
+            : t('generate.generateFailed'),
       };
     }
   }, [def]);
@@ -68,8 +70,8 @@ function GenerateDialog({ def, onClose }: GenerateDialogProps) {
         variant: 'success',
         message:
           reg && (reg.routes > 0 || reg.navigation)
-            ? `${result.written.length} file ditulis ke repo. Routes + navigasi terdaftar.`
-            : `${result.written.length} file ditulis ke repo.`,
+            ? t('generate.writtenRegistered', { count: result.written.length })
+            : t('generate.written', { count: result.written.length }),
       });
     } catch (err) {
       if (err instanceof WriteConflictError) {
@@ -79,7 +81,7 @@ function GenerateDialog({ def, onClose }: GenerateDialogProps) {
       } else {
         setWriteStatus({
           state: 'failed',
-          message: err instanceof Error ? err.message : 'Gagal menulis ke repo.',
+          message: err instanceof Error ? err.message : t('generate.writeFailed'),
         });
       }
     }
@@ -89,13 +91,13 @@ function GenerateDialog({ def, onClose }: GenerateDialogProps) {
     <Dialog
       open
       onClose={onClose}
-      title={`Generate ke repo: ${def.label}`}
+      title={t('generate.title', { label: def.label })}
       maxWidth="2xl"
       testId="generate-dialog"
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
-            Tutup
+            {t('common.close')}
           </Button>
           {'files' in generated && (
             <Button
@@ -103,8 +105,8 @@ function GenerateDialog({ def, onClose }: GenerateDialogProps) {
               onClick={() => void writeFiles(generated.files, false, generated.registration)}
             >
               {writeStatus.state === 'writing'
-                ? 'Menulis…'
-                : `Tulis ke repo (${generated.files.length} file)`}
+                ? t('generate.writing')
+                : t('generate.writeRepo', { count: generated.files.length })}
             </Button>
           )}
         </>
@@ -116,28 +118,27 @@ function GenerateDialog({ def, onClose }: GenerateDialogProps) {
         ) : (
           <>
             {writeStatus.state === 'writing' && (
-              <Alert variant="info" message="Menulis file ke repo…" />
+              <Alert variant="info" message={t('generate.writingFiles')} />
             )}
             {writeStatus.state === 'written' && (
               <Alert
                 variant="success"
-                message={`${writeStatus.count} file sudah ditulis ke repo.${
+                message={`${t('generate.writtenDone', { count: writeStatus.count })}${
                   writeStatus.registered &&
                   (writeStatus.registered.routes > 0 || writeStatus.registered.navigation)
-                    ? ` ${writeStatus.registered.routes} route(s) + navigasi terdaftar otomatis — modul langsung bisa dibuka.`
-                    : ' Routes + navigasi sudah terdaftar sebelumnya.'
+                    ? ` ${t('generate.registeredAuto', { count: writeStatus.registered.routes })}`
+                    : ` ${t('generate.registeredBefore')}`
                 }`}
               />
             )}
             {writeStatus.state === 'failed' && (
               <Alert
                 variant="warning"
-                message={`${writeStatus.message} File tetap bisa disalin/download manual di bawah.`}
+                message={`${writeStatus.message} ${t('generate.manualFallback')}`}
               />
             )}
             <p className="text-xs text-muted-foreground">
-              Tulis ke repo hanya jalan di `npm run dev`. Modul statis menutupi versi dinamis di
-              route yang sama dan memakai data mock-nya sendiri.
+              {t('generate.devOnlyNote')}
             </p>
             <OutputPanel files={generated.files} config={generated.config} onBack={onClose} />
           </>
@@ -147,28 +148,27 @@ function GenerateDialog({ def, onClose }: GenerateDialogProps) {
         testId="generate-overwrite-dialog"
         open={writeStatus.state === 'conflict'}
         onClose={() => setWriteStatus({ state: 'idle' })}
-        title="File sudah ada"
+        title={t('generate.conflictTitle')}
         maxWidth="md"
         closeOnEscape
         closeOnBackdropClick
         footer={
           <>
             <Button variant="secondary" onClick={() => setWriteStatus({ state: 'idle' })}>
-              Batal
+              {t('common.cancel')}
             </Button>
             {'files' in generated && (
               <Button
                 onClick={() => void writeFiles(generated.files, true, generated.registration)}
               >
-                Timpa semua
+                {t('generate.overwriteAll')}
               </Button>
             )}
           </>
         }
       >
         <p className="text-sm text-foreground">
-          {writeStatus.state === 'conflict' ? writeStatus.existing.length : 0} file sudah ada di
-          repo dan akan ditimpa:
+          {t('generate.conflictBody', { count: writeStatus.state === 'conflict' ? writeStatus.existing.length : 0 })}
         </p>
         {writeStatus.state === 'conflict' && (
           <ul className="mt-2 max-h-48 list-disc overflow-y-auto pl-5 font-mono text-xs text-foreground">

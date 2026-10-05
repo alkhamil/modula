@@ -1,5 +1,6 @@
 /** Hooks TanStack Query + filter + form untuk runtime modul dinamis. */
 import { isValidElement, useMemo, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -33,6 +34,7 @@ import {
   makeRelationOptionsLoader,
 } from './recordsApi';
 import { buildFilterFields } from './filtering';
+import { moduleFieldLabel } from './moduleI18n';
 import { formDefaultValue, formEditValue, payloadValue, type DynamicFormValues } from './validation';
 import {
   useDeleteDynamicRecord,
@@ -80,7 +82,7 @@ export function useDynamicListFilter(def: ModuleDefinition) {
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   const filterFields: FilterField[] = useMemo(
-    () => buildFilterFields(def.fields, (field) => makeOptionsLoader(def, field)),
+    () => buildFilterFields(def.fields, (field) => makeOptionsLoader(def, field), def),
     [def],
   );
 
@@ -273,7 +275,7 @@ export function buildDetailRows(def: ModuleDefinition, item: DynamicDetail | nul
   if (!item) {
     return [
       { label: 'Status', value: '' },
-      ...fields.map((field) => ({ name: field.name, label: field.label, value: '', ...rowPropsOf(field.name) })),
+      ...fields.map((field) => ({ name: field.name, label: moduleFieldLabel(def, field), value: '', ...rowPropsOf(field.name) })),
     ];
   }
   return [
@@ -287,7 +289,7 @@ export function buildDetailRows(def: ModuleDefinition, item: DynamicDetail | nul
     },
     ...fields.map((field) => ({
       name: field.name,
-      label: field.label,
+      label: moduleFieldLabel(def, field),
       value: detailValue(field, item) as ReactNode,
       ...rowPropsOf(field.name),
     })),
@@ -298,6 +300,7 @@ export function buildDetailRows(def: ModuleDefinition, item: DynamicDetail | nul
 
 /** Hook form generik — meniru `useUserForm` (detail, defaults, submit, opsi). */
 export function useDynamicForm(def: ModuleDefinition, id?: string) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const isEdit = !!id;
@@ -328,7 +331,9 @@ export function useDynamicForm(def: ModuleDefinition, id?: string) {
       setTimeout(() => navigate(`/${def.routeBase}`), 500);
       return { success: true };
     } catch (err: unknown) {
-      const fallback = `Failed to ${isEdit ? 'update' : 'create'} ${def.singularLabel.toLowerCase()}`;
+      const fallback = isEdit
+        ? t('runtime.saveFailedUpdate', { singular: def.singularLabel.toLowerCase() })
+        : t('runtime.saveFailedCreate', { singular: def.singularLabel.toLowerCase() });
       const result = mapSubmitError(err, fallback);
       if (result.fieldErrors) {
         const { fieldErrors, unknownMessage } = splitFieldErrors(result.fieldErrors, (field) => field);
@@ -370,6 +375,7 @@ export function useDynamicForm(def: ModuleDefinition, id?: string) {
 
 /** Aksi list generik: dialog delete/restore + toast — meniru `useUserList`. */
 export function useDynamicListActions(def: ModuleDefinition) {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const [deleteTarget, setDeleteTarget] = useState<DynamicListItem | null>(null);
   const [restoreTarget, setRestoreTarget] = useState<DynamicListItem | null>(null);
@@ -391,7 +397,7 @@ export function useDynamicListActions(def: ModuleDefinition) {
       setDeleteTarget(null);
       showToast({ message: res.message, variant: 'success' });
     } catch (err: unknown) {
-      const fallback = `Failed to delete ${def.singularLabel.toLowerCase()}`;
+      const fallback = t('runtime.deleteFailed', { singular: def.singularLabel.toLowerCase() });
       const result = mapSubmitError(err, fallback);
       showToast({ message: result.toastMessage ?? fallback, variant: 'error' });
     }
@@ -412,7 +418,7 @@ export function useDynamicListActions(def: ModuleDefinition) {
       setRestoreTarget(null);
       showToast({ message: res.message, variant: 'success' });
     } catch (err: unknown) {
-      const fallback = `Failed to restore ${def.singularLabel.toLowerCase()}`;
+      const fallback = t('runtime.restoreFailed', { singular: def.singularLabel.toLowerCase() });
       const result = mapSubmitError(err, fallback);
       showToast({ message: result.toastMessage ?? fallback, variant: 'error' });
     }
@@ -434,6 +440,7 @@ export function useDynamicListActions(def: ModuleDefinition) {
 
 /** Export .xlsx generik — meniru `useUserExport`. */
 export function useDynamicExport(def: ModuleDefinition) {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const [isExporting, setExporting] = useState(false);
 
@@ -443,9 +450,9 @@ export function useDynamicExport(def: ModuleDefinition) {
       const blob = await exportRecords(def, params);
       const stamp = new Date().toISOString().slice(0, 10);
       downloadBlob(blob, `${def.apiPlural}-${stamp}.xlsx`);
-      showToast({ variant: 'success', message: 'Export berhasil diunduh.' });
+      showToast({ variant: 'success', message: t('runtime.exportDone') });
     } catch (err: unknown) {
-      const fallback = 'Gagal mengekspor data.';
+      const fallback = t('runtime.exportFailed');
       const result = mapSubmitError(err, fallback);
       showToast({ message: result.toastMessage ?? fallback, variant: 'error' });
     } finally {

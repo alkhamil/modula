@@ -1,13 +1,10 @@
 import { createBrowserRouter } from 'react-router';
 import { ErrorStatePage } from '../shared/components/ui';
-import { AuthProvider, PermissionGate } from '../modules/auth';
+import { AuthProvider, PermissionGate } from './providers';
 import ProtectedAppShell from './ProtectedAppShell';
-import DashboardPage from '../pages/DashboardPage';
-import TypographyPage from '../pages/components/TypographyPage';
-import ColorsPage from '../pages/components/ColorsPage';
-import IconsPage from '../pages/components/IconsPage';
-import UiPage from '../pages/components/UiPage';
-import LoginPage from '../pages/LoginPage';
+import { DashboardPage } from '../modules/dashboard';
+import { TypographyPage, ColorsPage, UiPage } from '../modules/showcase';
+import { LoginPage } from '../modules/auth/login';
 import { GeneratorPage } from '../modules/generator';
 import {
   DynamicModuleRoutes,
@@ -16,6 +13,24 @@ import {
   DynamicPreviewEditPage,
   DynamicPreviewPage,
 } from '../modules/generator/runtime/DynamicRoutes';
+import {
+  CompanyListPage,
+  CompanyCreatePage,
+  CompanyViewPage,
+  CompanyEditPage,
+} from '../modules/master-data/company';
+import {
+  UserList as UserListPage,
+  UserCreate as UserCreatePage,
+  UserView as UserViewPage,
+  UserEdit as UserEditPage,
+} from '../modules/user-management/user';
+import {
+  RoleList as RoleListPage,
+  RoleCreate as RoleCreatePage,
+  RoleView as RoleViewPage,
+  RoleEdit as RoleEditPage,
+} from '../modules/user-management/role';
 // __GENERATOR_IMPORTS__
 
 export const router = createBrowserRouter([
@@ -32,51 +47,142 @@ export const router = createBrowserRouter([
               {
                 path: 'components/typography',
                 element: <TypographyPage />,
-                handle: { breadcrumb: [{ label: 'Component' }, { label: 'Typography' }] },
+                handle: { breadcrumb: [{ label: 'Component', labelKey: 'nav.components' }, { label: 'Typography', labelKey: 'nav.typography' }] },
               },
               {
                 path: 'components/colors',
                 element: <ColorsPage />,
-                handle: { breadcrumb: [{ label: 'Component' }, { label: 'Colors' }] },
-              },
-              {
-                path: 'components/icons',
-                element: <IconsPage />,
-                handle: { breadcrumb: [{ label: 'Component' }, { label: 'Icons' }] },
+                handle: { breadcrumb: [{ label: 'Component', labelKey: 'nav.components' }, { label: 'Colors', labelKey: 'nav.colors' }] },
               },
               {
                 path: 'components/ui',
                 element: <UiPage />,
-                handle: { breadcrumb: [{ label: 'Component' }, { label: 'UI' }] },
+                handle: { breadcrumb: [{ label: 'Component', labelKey: 'nav.components' }, { label: 'UI', labelKey: 'nav.ui' }] },
               },
               {
                 path: 'generator',
                 element: <GeneratorPage />,
-                handle: { breadcrumb: [{ label: 'Generator' }] },
+                handle: { breadcrumb: [{ label: 'Generator', labelKey: 'nav.generator' }] },
               },
               {
                 path: 'preview/:definitionKey',
                 element: <DynamicPreviewPage />,
-                handle: { breadcrumb: [{ label: 'Preview' }] },
+                handle: { breadcrumb: [{ label: 'Preview', labelKey: 'common.preview' }] },
               },
               {
                 path: 'preview/:definitionKey/create',
                 element: <DynamicPreviewCreatePage />,
-                handle: { breadcrumb: [{ label: 'Preview' }, { label: 'Create' }] },
+                handle: { breadcrumb: [{ label: 'Preview', labelKey: 'common.preview' }, { label: 'Create', labelKey: 'common.create' }] },
               },
               {
                 path: 'preview/:definitionKey/:recordId/view',
                 element: <DynamicPreviewDetailPage />,
-                handle: { breadcrumb: [{ label: 'Preview' }, { label: 'Detail' }] },
+                handle: { breadcrumb: [{ label: 'Preview', labelKey: 'common.preview' }, { label: 'Detail', labelKey: 'common.detail' }] },
               },
               {
                 path: 'preview/:definitionKey/:recordId/edit',
                 element: <DynamicPreviewEditPage />,
-                handle: { breadcrumb: [{ label: 'Preview' }, { label: 'Edit' }] },
+                handle: { breadcrumb: [{ label: 'Preview', labelKey: 'common.preview' }, { label: 'Edit', labelKey: 'common.edit' }] },
               },
               // Modul hasil generate-ke-repo terdaftar statis di sini (di atas
               // host dinamis agar menang). Modul dinamis murni tetap lewat
               // definisi published tanpa route statis.
+              {
+                path: 'master-data/companies',
+                element: <CompanyListPage />,
+                handle: {
+                  breadcrumb: [{ label: 'Companies' }],
+                  requiredPermission: 'company.view',
+                },
+              },
+              {
+                path: 'master-data/companies/create',
+                element: <CompanyCreatePage />,
+                handle: {
+                  breadcrumb: [{ label: 'Companies', path: '/master-data/companies' }, { label: 'Create' }],
+                  requiredPermission: 'company.create',
+                },
+              },
+              {
+                path: 'master-data/companies/:companyId/view',
+                element: <CompanyViewPage />,
+                handle: {
+                  breadcrumb: [{ label: 'Companies', path: '/master-data/companies' }, { label: 'Detail' }],
+                  requiredPermission: 'company.view',
+                },
+              },
+              {
+                path: 'master-data/companies/:companyId/edit',
+                element: <CompanyEditPage />,
+                handle: {
+                  breadcrumb: [{ label: 'Companies', path: '/master-data/companies' }, { label: 'Edit' }],
+                  requiredPermission: 'company.update',
+                },
+              },
+              {
+                path: 'user-management/user',
+                element: <UserListPage />,
+                handle: {
+                  breadcrumb: [{ label: 'User' }],
+                  requiredPermission: 'master-user.view',
+                },
+              },
+              {
+                path: 'user-management/user/create',
+                element: <UserCreatePage />,
+                handle: {
+                  breadcrumb: [{ label: 'User', path: '/user-management/user' }, { label: 'Create' }],
+                  requiredPermission: 'master-user.create',
+                },
+              },
+              {
+                path: 'user-management/user/:userId/view',
+                element: <UserViewPage />,
+                handle: {
+                  breadcrumb: [{ label: 'User', path: '/user-management/user' }, { label: 'Detail' }],
+                  requiredPermission: 'master-user.view',
+                },
+              },
+              {
+                path: 'user-management/user/:userId/edit',
+                element: <UserEditPage />,
+                handle: {
+                  breadcrumb: [{ label: 'User', path: '/user-management/user' }, { label: 'Edit' }],
+                  requiredPermission: 'master-user.update',
+                },
+              },
+              {
+                path: 'user-management/role',
+                element: <RoleListPage />,
+                handle: {
+                  breadcrumb: [{ label: 'Role' }],
+                  requiredPermission: 'master-role.view',
+                },
+              },
+              {
+                path: 'user-management/role/create',
+                element: <RoleCreatePage />,
+                handle: {
+                  breadcrumb: [{ label: 'Role', path: '/user-management/role' }, { label: 'Create' }],
+                  requiredPermission: 'master-role.create',
+                },
+              },
+              {
+                path: 'user-management/role/:roleId/view',
+                element: <RoleViewPage />,
+                handle: {
+                  breadcrumb: [{ label: 'Role', path: '/user-management/role' }, { label: 'Detail' }],
+                  requiredPermission: 'master-role.view',
+                },
+              },
+              {
+                path: 'user-management/role/:roleId/edit',
+                element: <RoleEditPage />,
+                handle: {
+                  breadcrumb: [{ label: 'Role', path: '/user-management/role' }, { label: 'Edit' }],
+                  requiredPermission: 'master-role.update',
+                },
+              },
               // __GENERATOR_ROUTES__
               // Host WAJIB `path: '*'`: pathless tidak match URL dinamis
               // (sisa pathname tak terkonsumsi → jatuh ke 404).

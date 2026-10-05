@@ -1,11 +1,12 @@
 import { useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useMatches } from 'react-router';
 import Sidebar from './Sidebar';
 import PageHeader, { type BreadcrumbItem } from './PageHeader';
 import AvatarUser, { type AvatarUserData } from './AvatarUser';
 import PageContent from './PageContent';
 import { type NavItemType } from '../../types/navigation';
-import { filterNavItems } from '../../utils';
+import { filterNavItems, resolveNavLabel } from '../../utils';
 import { useMediaQuery, useSessionStorage } from '../../hooks';
 import { ThemeCustomizer } from '../../theme';
 
@@ -21,6 +22,8 @@ interface AppShellProps {
   title?: string;
   /** Tampilkan floating button pengatur thema (default: false). */
   showThemeCustomizer?: boolean;
+  /** Konten tambahan di header (mis. pemilih bahasa), sebelum avatar user. */
+  headerExtra?: ReactNode;
 }
 
 function AppShell({
@@ -33,7 +36,9 @@ function AppShell({
   appName,
   title: titleOverride,
   showThemeCustomizer = false,
+  headerExtra,
 }: AppShellProps) {
+  const { t } = useTranslation();
   const isNarrowScreen = useMediaQuery('(max-width: 1023px)');
   const [storedCollapsed, setStoredCollapsed] = useSessionStorage<boolean | null>(
     'sidebar-collapsed',
@@ -69,13 +74,22 @@ function AppShell({
 
   const parent = isNotFoundRoute ? null : findActiveParent();
 
-  const title = titleOverride ?? (isNotFoundRoute ? 'Page Not Found' : (parent?.label ?? ''));
+  const title =
+    titleOverride ??
+    (isNotFoundRoute
+      ? t('error.notFoundTitle', { defaultValue: 'Page Not Found' })
+      : parent
+        ? resolveNavLabel(parent, t)
+        : '');
   const breadcrumb: BreadcrumbItem[] = isNotFoundRoute
     ? []
     : matches.flatMap(
         (match) =>
           (match.handle as { breadcrumb?: BreadcrumbItem[] } | undefined)?.breadcrumb ?? [],
-      );
+      ).map((item) => ({
+        ...item,
+        label: item.labelKey ? t(item.labelKey, { defaultValue: item.label }) : item.label,
+      }));
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -102,7 +116,10 @@ function AppShell({
           breadcrumb={breadcrumb.length > 0 ? breadcrumb : undefined}
           onMenuToggle={() => setMobileSidebarOpen(!mobileSidebarOpen)}
         >
-          <AvatarUser user={user} onLogout={onLogout} profilePath={profilePath} />
+          <div className="flex items-center gap-2">
+            {headerExtra}
+            <AvatarUser user={user} onLogout={onLogout} profilePath={profilePath} />
+          </div>
         </PageHeader>
         <PageContent>
           <Outlet />

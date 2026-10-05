@@ -20,6 +20,8 @@ import {
   TextField,
 } from '../../../shared/components/ui/fields';
 import type { GeneratorFieldConfig } from '../types';
+import type { ModuleDefinition } from '../definitions';
+import { moduleFieldLabel, moduleFieldPlaceholder } from './moduleI18n';
 import { parseConfigDate } from '../componentProps';
 import type { DynamicOption } from './types';
 import { columnRenderForType } from './cellRender';
@@ -27,6 +29,7 @@ import { fieldRulesToRHF, maxLengthOf, rowFormValues, rowPayloadValues } from '.
 import type { LoadOptionsFn } from '../../../shared/components/ui/fields/SelectField';
 
 export interface FieldRenderContext {
+  def?: Pick<ModuleDefinition, 'i18n'>;
   testPrefix: string;
   optionsOf: (field: GeneratorFieldConfig) => DynamicOption[];
   loaderOf: (field: GeneratorFieldConfig) => LoadOptionsFn | undefined;
@@ -49,16 +52,17 @@ export function renderDynamicField(
     ...(itemProps?.labelFontWeight ? { labelFontWeight: itemProps.labelFontWeight } : {}),
     ...(field.disabled === true ? { disabled: true as const } : {}),
   };
-  const lower = field.label.toLowerCase();
+  const label = moduleFieldLabel(ctx.def, field);
+  const lower = label.toLowerCase();
   const placeholderFor = (verb: string): string =>
-    field.placeholder?.trim() || `${verb} ${lower}`;
+    moduleFieldPlaceholder(ctx.def, field, `${verb} ${lower}`);
   const props = field.componentProps;
   switch (field.type) {
     case 'numberField': {
       const p = props?.text;
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={TextField}
           currency
@@ -75,7 +79,7 @@ export function renderDynamicField(
       const p = props?.text;
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={TextField}
           currency
@@ -91,7 +95,7 @@ export function renderDynamicField(
       const p = props?.textarea;
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={TextAreaField}
           placeholder={placeholderFor('Enter')}
@@ -105,7 +109,7 @@ export function renderDynamicField(
       const p = props?.password;
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={PasswordField}
           {...(maxLength !== null ? { maxLength } : {})}
@@ -121,7 +125,7 @@ export function renderDynamicField(
       const maxDate = parseConfigDate(p?.maxDate);
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={DatePickerField}
           placeholder={placeholderFor('Select')}
@@ -138,7 +142,7 @@ export function renderDynamicField(
       const maxDate = parseConfigDate(p?.maxDate);
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={DateRangeField}
           placeholder={placeholderFor('Select')}
@@ -154,7 +158,7 @@ export function renderDynamicField(
       if (loader) {
         return (
           <FormItem
-            label={field.label}
+            label={label}
             {...common}
             component={SelectField}
             placeholder={placeholderFor('Select')}
@@ -174,7 +178,7 @@ export function renderDynamicField(
       }
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={SelectField}
           placeholder={placeholderFor('Select')}
@@ -196,7 +200,7 @@ export function renderDynamicField(
       if (loader) {
         return (
           <FormItem
-            label={field.label}
+            label={label}
             {...common}
             component={SelectMultipleField}
             placeholder={placeholderFor('Select')}
@@ -218,7 +222,7 @@ export function renderDynamicField(
       }
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={SelectMultipleField}
           placeholder={placeholderFor('Select')}
@@ -240,7 +244,7 @@ export function renderDynamicField(
       const p = props?.radio;
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={RadioGroupField}
           options={ctx.optionsOf(field)}
@@ -252,7 +256,7 @@ export function renderDynamicField(
       const p = props?.checkbox;
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={CheckboxField}
           {...(p?.size ? { size: p.size } : {})}
@@ -264,7 +268,7 @@ export function renderDynamicField(
       const p = props?.checkboxGroup;
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={CheckboxGroupField}
           options={ctx.optionsOf(field)}
@@ -276,7 +280,7 @@ export function renderDynamicField(
       const p = props?.switch;
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={SwitchField}
           showCheckedLabels={p?.showCheckedLabels ?? false}
@@ -290,7 +294,7 @@ export function renderDynamicField(
       const p = props?.upload;
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={FileUploadField}
           {...(p?.size ? { size: p.size } : {})}
@@ -303,7 +307,7 @@ export function renderDynamicField(
       const p = props?.color;
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={ColorField}
           {...(p?.size ? { size: p.size } : {})}
@@ -314,7 +318,7 @@ export function renderDynamicField(
       const p = props?.editor;
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={EditorField}
           {...(p?.size ? { size: p.size } : {})}
@@ -332,7 +336,7 @@ export function renderDynamicField(
       });
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={FormArrayField}
           columns={columns}
@@ -346,6 +350,7 @@ export function renderDynamicField(
               <div className="flex flex-col section-gap">
                 {subs.map((sub) =>
                   renderDynamicField(sub, {
+                    def: ctx.def,
                     testPrefix: `${testId}-row`,
                     optionsOf: ctx.optionsOf,
                     loaderOf: ctx.loaderOf,
@@ -356,7 +361,7 @@ export function renderDynamicField(
           )}
           {...(p?.size ? { size: p.size } : {})}
           {...(p?.addLabel?.trim() ? { addLabel: p.addLabel.trim() } : {})}
-          editorTitle={p?.editorTitle?.trim() || field.label}
+          editorTitle={p?.editorTitle?.trim() || label}
           {...(p?.emptyTitle?.trim() ? { emptyTitle: p.emptyTitle.trim() } : {})}
           {...(p?.emptyDescription?.trim() ? { emptyDescription: p.emptyDescription.trim() } : {})}
           {...(p?.maxRows ? { maxRows: p.maxRows } : {})}
@@ -370,7 +375,7 @@ export function renderDynamicField(
       const p = props?.text;
       return (
         <FormItem
-          label={field.label}
+          label={label}
           {...common}
           component={TextField}
           {...(maxLength !== null ? { maxLength } : {})}

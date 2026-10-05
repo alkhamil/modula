@@ -3,24 +3,28 @@ import { splitRule } from '../../parser';
 import { buildRulesObject, needsEmoticonUtils } from '../../engine/validationGenerator';
 
 export function validationTemplate(ctx: TemplateContext): string {
-  const { names, fields } = ctx;
+  const { names, fields, config } = ctx;
+  const base = config.permissionKey;
   const needUtils = needsEmoticonUtils(fields);
 
   const rules = fields
-    .map(
-      (f) =>
-        `export const ${f.rulesVar}: RegisterOptions<FormValues, '${f.name}'> = ${buildRulesObject(f)};`,
-    )
+    .map((f) => {
+      const body = buildRulesObject(f, `${base}.fields.${f.name}.label`);
+      // Field tanpa rules → body tak memakai t; prefix `_` agar lolos noUnusedParameters.
+      const param = body.includes("t('") ? 't' : '_t';
+      return `export function get${f.pascal}Rules(${param}: TFunction): RegisterOptions<FormValues, '${f.name}'> {\n  return ${body};\n}`;
+    })
     .join('\n\n');
 
   return `import type { RegisterOptions } from 'react-hook-form';
+import type { TFunction } from 'i18next';
 import type { FormValues } from '../hooks';
-${needUtils ? `import { hasEmoticon, WITHOUT_EMOTICON_MESSAGE } from '${names.sharedPrefix}shared/utils';\n` : ''}
+${needUtils ? `import { hasEmoticon } from '${names.sharedPrefix}shared/utils';\n` : ''}
 ${rules}
 `;
 }
 
-/** Contoh nilai bulk per field (baris contoh template). */
+/** Sample bulk value per field (template example row). */
 function bulkExampleValue(field: FieldModel): string | number {
   const options = field.config.options ?? [];
   switch (field.config.type) {
@@ -31,7 +35,7 @@ function bulkExampleValue(field: FieldModel): string | number {
       return '2024-01-15';
     case 'checkboxField':
     case 'switchField':
-      return 'Ya';
+      return 'Yes';
     case 'passwordField':
       return 'secret123';
     case 'selectField':
@@ -43,7 +47,7 @@ function bulkExampleValue(field: FieldModel): string | number {
         ? `${options[0]?.value},${options[1]?.value}`
         : (options[0]?.value ?? `${field.name.toUpperCase()}_1,${field.name.toUpperCase()}_2`);
     default:
-      return `Contoh ${field.label}`;
+      return `Sample ${field.label}`;
   }
 }
 
@@ -75,13 +79,13 @@ function bulkStaticValues(field: FieldModel): string[] | null {
   return options.length > 0 ? options.map((o) => o.value) : null;
 }
 
-/** Blok parse + cek rules satu field dalam validator baris bulk. */
-function bulkFieldChecks(field: FieldModel): string {
+/** Parse block + rule checks for one field in the bulk row validator. */
+function bulkFieldChecks(ctx: TemplateContext, field: FieldModel): string {
   const { label } = field;
   const kind = bulkKind(field);
   const header = JSON.stringify(label);
-  const fail = (message: string): string =>
-    `errors.push({ field: ${header}, message: ${JSON.stringify(message)} });`;
+  const L = `t('${ctx.config.permissionKey}.fields.${field.name}.label')`;
+  const failT = (expr: string): string => `errors.push({ field: ${header}, message: ${expr} });`;
   const lines: string[] = [];
   const v = `${field.name}Value`;
   const rules = field.config.rules.map((rule) => splitRule(rule));
@@ -93,17 +97,17 @@ function bulkFieldChecks(field: FieldModel): string {
     lines.push(`const ${raw} = String(row[${header}] ?? '').trim();`);
     lines.push(`const ${v} = ${raw} === '' ? NaN : Number(${raw});`);
     if (has('required')) {
-      lines.push(`if (${raw} === '') ${fail(`${label} wajib diisi.`)}`);
-      lines.push(`else if (Number.isNaN(${v})) ${fail(`${label} harus angka.`)}`);
+      lines.push(`if (${raw} === '') ${failT(`t('validation.required', { label: ${L} })`)}`);
+      lines.push(`else if (Number.isNaN(${v})) ${failT(`t('validation.number', { label: ${L} })`)}`);
     } else {
-      lines.push(`if (${raw} === '' || Number.isNaN(${v})) ${fail(`${label} harus angka.`)}`);
+      lines.push(`if (${raw} === '' || Number.isNaN(${v})) ${failT(`t('validation.number', { label: ${L} })`)}`);
     }
   } else if (kind === 'date') {
     lines.push(`const ${v} = String(row[${header}] ?? '').trim();`);
     lines.push(
-      `if (${v} !== '' && !/^\\d{4}-\\d{2}-\\d{2}$/.test(${v})) ${fail(`${label} formatnya YYYY-MM-DD.`)}`,
+      `if (${v} !== '' && !/^\\d{4}-\\d{2}-\\d{2}$/.test(${v})) ${failT(`t('validation.dateFormat', { label: ${L} })`)}`,
     );
-    if (has('required')) lines.push(`if (!${v}) ${fail(`${label} wajib diisi.`)}`);
+    if (has('required')) lines.push(`if (!${v}) ${failT(`t('validation.required', { label: ${L} })`)}`);
   } else if (kind === 'dateRange') {
     const startHeader = JSON.stringify(`${label} Start`);
     const endHeader = JSON.stringify(`${label} End`);
@@ -112,13 +116,13 @@ function bulkFieldChecks(field: FieldModel): string {
     lines.push(`const ${s} = String(row[${startHeader}] ?? '').trim();`);
     lines.push(`const ${e} = String(row[${endHeader}] ?? '').trim();`);
     lines.push(
-      `if (${s} !== '' && !/^\\d{4}-\\d{2}-\\d{2}$/.test(${s})) ${fail(`${label} Start formatnya YYYY-MM-DD.`)}`,
+      `if (${s} !== '' && !/^\\d{4}-\\d{2}-\\d{2}$/.test(${s})) ${failT(`t('validation.dateStartFormat', { label: ${L} })`)}`,
     );
     lines.push(
-      `if (${e} !== '' && !/^\\d{4}-\\d{2}-\\d{2}$/.test(${e})) ${fail(`${label} End formatnya YYYY-MM-DD.`)}`,
+      `if (${e} !== '' && !/^\\d{4}-\\d{2}-\\d{2}$/.test(${e})) ${failT(`t('validation.dateEndFormat', { label: ${L} })`)}`,
     );
     if (has('required')) {
-      lines.push(`if (!${s} || !${e}) ${fail(`${label} wajib diisi awal dan akhir.`)}`);
+      lines.push(`if (!${s} || !${e}) ${failT(`t('validation.rangeRequired', { label: ${L} })`)}`);
     }
     lines.push(`const ${v} = ${s} || ${e} ? ${s} + ',' + ${e} : '';`);
   } else if (kind === 'multi') {
@@ -126,7 +130,7 @@ function bulkFieldChecks(field: FieldModel): string {
       `const ${v} = String(row[${header}] ?? '').split(',').map((item) => item.trim()).filter(Boolean);`,
     );
     if (has('required')) {
-      lines.push(`if (${v}.length === 0) ${fail(`${label} wajib diisi.`)}`);
+      lines.push(`if (${v}.length === 0) ${failT(`t('validation.required', { label: ${L} })`)}`);
     }
   } else if (kind === 'bool') {
     const raw = `${field.name}Raw`;
@@ -134,11 +138,11 @@ function bulkFieldChecks(field: FieldModel): string {
     lines.push(
       `const ${v} = ['ya', 'true', '1'].includes(${raw}) ? true : ['tidak', 'false', '0', ''].includes(${raw}) ? false : null;`,
     );
-    lines.push(`if (${v} === null) ${fail(`${label} diisi Ya atau Tidak.`)}`);
-    if (has('required')) lines.push(`if (${v} !== true) ${fail(`${label} wajib diisi.`)}`);
+    lines.push(`if (${v} === null) ${failT(`t('validation.boolYesNo', { label: ${L} })`)}`);
+    if (has('required')) lines.push(`if (${v} !== true) ${failT(`t('validation.required', { label: ${L} })`)}`);
   } else {
     lines.push(`const ${v} = String(row[${header}] ?? '').trim();`);
-    if (has('required')) lines.push(`if (!${v}) ${fail(`${label} wajib diisi.`)}`);
+    if (has('required')) lines.push(`if (!${v}) ${failT(`t('validation.required', { label: ${L} })`)}`);
   }
 
   const min = argOf('min');
@@ -148,86 +152,86 @@ function bulkFieldChecks(field: FieldModel): string {
   if (kind === 'number') {
     if (min !== undefined) {
       lines.push(
-        `if (!Number.isNaN(${v}) && ${v} < ${min}) ${fail(`${label} minimal ${min}.`)}`,
+        `if (!Number.isNaN(${v}) && ${v} < ${min}) ${failT(`t('validation.minValue', { label: ${L}, count: ${min} })`)}`,
       );
     }
     if (max !== undefined) {
       lines.push(
-        `if (!Number.isNaN(${v}) && ${v} > ${max}) ${fail(`${label} maksimal ${max}.`)}`,
+        `if (!Number.isNaN(${v}) && ${v} > ${max}) ${failT(`t('validation.maxValue', { label: ${L}, count: ${max} })`)}`,
       );
     }
   } else if (kind === 'multi') {
     if (min !== undefined) {
-      lines.push(`if (${v}.length < ${min}) ${fail(`${label} minimal ${min} item.`)}`);
+      lines.push(`if (${v}.length < ${min}) ${failT(`t('validation.minItems', { label: ${L}, count: ${min} })`)}`);
     }
     if (max !== undefined) {
-      lines.push(`if (${v}.length > ${max}) ${fail(`${label} maksimal ${max} item.`)}`);
+      lines.push(`if (${v}.length > ${max}) ${failT(`t('validation.maxItems', { label: ${L}, count: ${max} })`)}`);
     }
   } else if (kind !== 'bool' && kind !== 'dateRange') {
     const target = v;
     if (min !== undefined) {
       lines.push(
-        `if (${target} !== '' && ${target}.length < ${min}) ${fail(`${label} minimal ${min} karakter.`)}`,
+        `if (${target} !== '' && ${target}.length < ${min}) ${failT(`t('validation.minLength', { label: ${L}, count: ${min} })`)}`,
       );
     }
     if (max !== undefined) {
       lines.push(
-        `if (${target} !== '' && ${target}.length > ${max}) ${fail(`${label} maksimal ${max} karakter.`)}`,
+        `if (${target} !== '' && ${target}.length > ${max}) ${failT(`t('validation.maxLength', { label: ${L}, count: ${max} })`)}`,
       );
     }
   }
   if ((kind === 'string' || kind === 'date' || kind === 'number') && minLength !== undefined) {
     const target = kind === 'number' ? `${field.name}Raw` : v;
     lines.push(
-      `if (${target} !== '' && ${target}.length < ${minLength}) ${fail(`${label} minimal ${minLength} karakter.`)}`,
+      `if (${target} !== '' && ${target}.length < ${minLength}) ${failT(`t('validation.minLength', { label: ${L}, count: ${minLength} })`)}`,
     );
   }
   if ((kind === 'string' || kind === 'date' || kind === 'number') && maxLength !== undefined) {
     const target = kind === 'number' ? `${field.name}Raw` : v;
     lines.push(
-      `if (${target} !== '' && ${target}.length > ${maxLength}) ${fail(`${label} maksimal ${maxLength} karakter.`)}`,
+      `if (${target} !== '' && ${target}.length > ${maxLength}) ${failT(`t('validation.maxLength', { label: ${L}, count: ${maxLength} })`)}`,
     );
   }
   if (has('email') && (kind === 'string' || kind === 'date' || kind === 'number')) {
     const target = kind === 'number' ? `${field.name}Raw` : v;
     lines.push(
-      `if (${target} !== '' && !EMAIL_RE.test(${target})) ${fail(`${label} format email tidak valid.`)}`,
+      `if (${target} !== '' && !EMAIL_RE.test(${target})) ${failT(`t('validation.email')`)}`,
     );
   }
   const regexArg = argOf('regex');
   if (regexArg !== undefined && (kind === 'string' || kind === 'date' || kind === 'number')) {
     const target = kind === 'number' ? `${field.name}Raw` : v;
     lines.push(
-      `if (${target} !== '' && !new RegExp(${JSON.stringify(regexArg)}).test(${target})) ${fail(`${label} format tidak valid.`)}`,
+      `if (${target} !== '' && !new RegExp(${JSON.stringify(regexArg)}).test(${target})) ${failT(`t('validation.pattern', { label: ${L} })`)}`,
     );
   }
   if (has('withoutemoticon') && kind === 'string') {
-    lines.push(`if (${v} !== '' && hasEmoticon(${v})) ${fail(`${label} tidak boleh mengandung emoticon.`)}`);
+    lines.push(`if (${v} !== '' && hasEmoticon(${v})) ${failT(`t('validation.noEmoticon')`)}`);
   }
   const staticValues = bulkStaticValues(field);
   if (staticValues && (kind === 'string' || kind === 'multi')) {
     if (kind === 'multi') {
       lines.push(
-        `for (const item of ${v}) { if (!${field.name}Values.includes(item)) errors.push({ field: ${header}, message: ${JSON.stringify(`${label} berisi nilai tidak dikenal: `)} + item }); }`,
+        `for (const item of ${v}) { if (!${field.name}Values.includes(item)) errors.push({ field: ${header}, message: t('validation.unknownOption', { label: ${L}, value: item }) }); }`,
       );
     } else {
       lines.push(
-        `if (${v} !== '' && !${field.name}Values.includes(${v})) ${fail(`${label} harus salah satu: ${staticValues.join(', ')}.`)}`,
+        `if (${v} !== '' && !${field.name}Values.includes(${v})) ${failT(`t('validation.optionIn', { label: ${L}, options: ${JSON.stringify(staticValues.join(', '))} })`)}`,
       );
     }
   }
   if (has('unique') && kind !== 'multi' && kind !== 'bool') {
     if (kind === 'number') {
       lines.push(
-        `if (!Number.isNaN(${v}) && isTaken('${field.name}', String(${v}))) ${fail(`${label} sudah dipakai.`)}`,
+        `if (!Number.isNaN(${v}) && isTaken('${field.name}', String(${v}))) ${failT(`t('validation.unique', { label: ${L} })`)}`,
       );
     } else if (kind === 'dateRange') {
       lines.push(
-        `if (${v} !== '' && isTaken('${field.name}', ${v})) ${fail(`${label} sudah dipakai.`)}`,
+        `if (${v} !== '' && isTaken('${field.name}', ${v})) ${failT(`t('validation.unique', { label: ${L} })`)}`,
       );
     } else {
       lines.push(
-        `if (${v} !== '' && isTaken('${field.name}', ${v})) ${fail(`${label} sudah dipakai.`)}`,
+        `if (${v} !== '' && isTaken('${field.name}', ${v})) ${failT(`t('validation.unique', { label: ${L} })`)}`,
       );
     }
   }
@@ -263,8 +267,8 @@ export function bulkValidationTemplate(ctx: TemplateContext): string {
     .filter(Boolean)
     .join('\n');
 
-  const checks = bulkFields.map((f) => bulkFieldChecks(f)).join('\n');
-  // Samakan kondisi pemakaian isTaken di bulkFieldChecks agar param tak unused.
+  const checks = bulkFields.map((f) => bulkFieldChecks(ctx, f)).join('\n');
+  // Mirror the isTaken usage condition in bulkFieldChecks so the param is not unused.
   const hasUniqueCheck = bulkFields.some(
     (f) =>
       f.config.rules.map((rule) => splitRule(rule)).some((r) => r.name === 'unique') &&
@@ -280,7 +284,9 @@ export function bulkValidationTemplate(ctx: TemplateContext): string {
     })
     .join('\n');
 
-  return `import type { ${names.payload} } from '../types';
+  const needI18n = checks.includes("t('");
+  const i18nImport = needI18n ? `import { t } from 'i18next';\nimport '${names.sharedPrefix}shared/i18n';\n` : '';
+  return `${i18nImport}import type { ${names.payload} } from '../types';
 ${needUtils ? `import { hasEmoticon } from '${names.sharedPrefix}shared/utils';\n` : ''}
 export interface BulkFieldError {
   field: string;
@@ -292,10 +298,10 @@ export interface BulkRowValidation {
   errors: BulkFieldError[];
 }
 
-/** Header kolom template bulk upload (dipakai juga untuk mapping baris). */
+/** Bulk template column headers (also used for row mapping). */
 export const BULK_${constName}_HEADERS = ${JSON.stringify(headers)};
 
-/** Contoh baris pada template bulk upload. */
+/** Example row in the bulk upload template. */
 export const BULK_${constName}_EXAMPLE = ${JSON.stringify(examples)};
 ${needEmailRe ? '\nconst EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n' : ''}${valuesConsts ? `\n${valuesConsts}\n` : ''}
 /**

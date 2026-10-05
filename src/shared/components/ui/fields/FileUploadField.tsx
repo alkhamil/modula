@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type DragEvent } from 'react';
-import { FieldErrorIcon } from '../../icons';
+import { useTranslation } from 'react-i18next';
+import { CircleAlert } from 'lucide-react';
 
 interface FileUploadFieldProps {
   size?: 'sm' | 'md' | 'lg';
@@ -38,6 +39,7 @@ function FileUploadField({
   testId,
   'data-testid': dataTestId,
 }: FileUploadFieldProps) {
+  const { t } = useTranslation();
   const resolvedTestId = dataTestId ?? testId;
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -133,13 +135,18 @@ function FileUploadField({
       >
         {error && (
           <span className="absolute top-2 right-3">
-            <FieldErrorIcon className="h-3.5 w-3.5" />
+            <CircleAlert className="h-3.5 w-3.5" />
           </span>
         )}
         {uploading ? (
           <div className="flex w-full flex-col items-center gap-2">
             <span className="text-foreground">
-              Mengunggah {files.length > 1 ? `${files.length} file` : (files[0]?.name ?? '')}…
+              {t('upload.uploading', {
+                target:
+                  files.length > 1
+                    ? t('upload.fileCount', { count: files.length })
+                    : (files[0]?.name ?? ''),
+              })}
             </span>
             <div
               data-testid={resolvedTestId ? `${resolvedTestId}-progress` : undefined}
@@ -174,16 +181,16 @@ function FileUploadField({
                     type="button"
                     onClick={(e) => handleRemove(e, multiple ? i : undefined)}
                     className="shrink-0 text-xs font-medium text-danger hover:text-danger/80"
-                    aria-label={`Hapus ${file.name}`}
+                    aria-label={t('upload.removeFile', { name: file.name })}
                   >
-                    Hapus
+                    {t('common.delete')}
                   </button>
                 )}
               </div>
             ))}
             {multiple && !disabled && (
               <span className="text-xs text-muted-foreground">
-                Klik atau drop untuk menambah file
+                {t('upload.addMore')}
               </span>
             )}
           </div>
@@ -203,7 +210,7 @@ function FileUploadField({
                 d="M12 16.5V9.75m0 0l-3 3m3-3l3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
               />
             </svg>
-            <span>Drop file atau klik untuk mengunggah</span>
+            <span>{t('upload.dropHint')}</span>
           </div>
         )}
       </div>

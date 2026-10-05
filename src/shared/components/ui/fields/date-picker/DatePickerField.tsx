@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './DatePickerField.css';
-import { CalendarIcon, FieldErrorIcon } from '../../../icons';
+import { Calendar, CircleAlert } from 'lucide-react';
 import { useSelectDropdown } from '../../../../hooks';
 import Button from '../../Button';
 import DatePickerHeader, { YEAR_ITEM_COUNT, type PickerView } from './DatePickerHeader';
@@ -131,11 +132,11 @@ function renderRightSide(
         </button>
       )}
       <span className="pointer-events-none flex items-center mr-1">
-        <CalendarIcon />
+        <Calendar />
       </span>
       {showError && (
         <span className="pointer-events-none flex items-center">
-          <FieldErrorIcon className="h-3.5 w-3.5" />
+          <CircleAlert className="h-3.5 w-3.5" />
         </span>
       )}
     </div>
@@ -146,7 +147,7 @@ function DatePickerField({
   size = 'md',
   disabled = false,
   error,
-  placeholder = 'Select date...',
+  placeholder,
   range: isRange = false,
   showTime = false,
   minDate,
@@ -160,6 +161,8 @@ function DatePickerField({
   'data-testid': dataTestId,
 }: DatePickerFieldProps) {
   const resolvedTestId = dataTestId ?? testId;
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('fields.selectDate');
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -280,7 +283,7 @@ function DatePickerField({
           type="text"
           readOnly
           value={formatDisplay(value, showTime)}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           disabled={disabled}
           onClick={() => (open ? setOpen(false) : openPanel())}
           data-testid={resolvedTestId}
@@ -352,7 +355,7 @@ function DatePickerField({
                     disabled={disabled}
                     onChange={(e) => setDraftHour(e.target.value)}
                     className={timeSelectClasses}
-                    aria-label="Hour"
+                    aria-label={t('fields.hour')}
                   >
                     {HOURS.map((h) => (
                       <option key={h} value={h}>
@@ -367,7 +370,7 @@ function DatePickerField({
                     disabled={disabled}
                     onChange={(e) => setDraftMinute(e.target.value)}
                     className={timeSelectClasses}
-                    aria-label="Minute"
+                    aria-label={t('fields.minute')}
                   >
                     {MINUTES.map((m) => (
                       <option key={m} value={m}>
@@ -386,7 +389,7 @@ function DatePickerField({
                   data-testid={resolvedTestId ? `${resolvedTestId}-cancel` : undefined}
                   onClick={() => setOpen(false)}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   type="button"
@@ -396,7 +399,7 @@ function DatePickerField({
                   disabled={!draftDate || disabled}
                   onClick={handleApply}
                 >
-                  Apply
+                  {t('common.apply')}
                 </Button>
               </div>
             </div>,

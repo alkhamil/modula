@@ -1,5 +1,6 @@
 /** Canvas 3 — Detail Builder: kartu detail langsung (drag-drop baris + drawer properti). */
 import { useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   DndContext,
   KeyboardSensor,
@@ -25,7 +26,7 @@ import {
   SwitchField,
   TextField,
 } from '../../../shared/components/ui';
-import { NavSettingsIcon } from '../../../shared/components/icons';
+import { Settings } from 'lucide-react';
 import { capitalize } from '../../../shared/utils';
 import type { ModuleDefinition, ModuleLayout } from '../definitions';
 import type {
@@ -103,6 +104,7 @@ function SortableDetailRow({
   });
   // Posisi tekan untuk bedakan klik (pilih) vs seret (pindah).
   const downAt = useRef<{ x: number; y: number } | null>(null);
+  const { t } = useTranslation();
   return (
     <div
       ref={setNodeRef}
@@ -129,7 +131,7 @@ function SortableDetailRow({
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') onSelect();
         }}
-        title="Geser dari area mana pun untuk memindahkan • klik untuk atur properti"
+        title={t('detail.dragHint')}
         className={`cursor-grab active:cursor-grabbing ${
           selected ? 'bg-primary/5 ring-1 ring-inset ring-primary' : 'hover:bg-primary/5'
         } ${hidden ? 'opacity-50' : ''}`}
@@ -169,44 +171,45 @@ function RowDrawerContent({
   onToggleHidden: () => void;
   onPatchProps: (patch: Partial<DetailRowDisplayProps>) => void;
 }) {
+  const { t } = useTranslation();
   const props = rowProps ?? {};
   return (
     <div className="flex flex-col stack-gap">
-      <Card size="sm" title="Baris">
+      <Card size="sm" title={t('detail.rowCard')}>
         <div className="flex flex-col field-gap">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground">Label</span>
+            <span className="text-xs text-muted-foreground">{t('field.label')}</span>
             <span className="text-xs font-medium text-foreground">{field.label}</span>
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground">Name</span>
+            <span className="text-xs text-muted-foreground">{t('field.name')}</span>
             <span className="font-mono text-xs text-muted-foreground">{field.name}</span>
           </div>
         </div>
       </Card>
-      <Card size="sm" title="Tampil & Gaya" collapsible>
+      <Card size="sm" title={t('detail.styleCard')} collapsible>
         <div className="flex flex-col field-gap">
           <SwitchRow
-            label="Tampilkan"
-            desc="Sembunyikan tanpa menghapus field."
+            label={t('detail.showRow')}
+            desc={t('detail.showRowDesc')}
             value={!hidden}
             onChange={() => onToggleHidden()}
           />
           <SwitchRow
-            label="Mode judul"
-            desc="Render sebagai judul seksi."
+            label={t('detail.headingMode')}
+            desc={t('detail.headingModeDesc')}
             value={props.heading === true}
             onChange={(heading) => onPatchProps({ heading })}
           />
           <SwitchRow
-            label="Lebar penuh"
-            desc="Nilai di bawah label."
+            label={t('detail.fullWidth')}
+            desc={t('detail.fullWidthDesc')}
             value={props.fullWidth === true}
             onChange={(fullWidth) => onPatchProps({ fullWidth })}
           />
           <SwitchRow
-            label="Tanpa divider"
-            desc="Hilangkan garis atas baris."
+            label={t('detail.noDivider')}
+            desc={t('detail.noDividerDesc')}
             value={props.noDivider === true}
             onChange={(noDivider) => onPatchProps({ noDivider })}
           />
@@ -226,23 +229,24 @@ function DetailCardDrawerContent({
   card: DetailCardDisplayProps | undefined;
   onPatchCard: (patch: Partial<DetailCardDisplayProps>) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col stack-gap">
-      <Card size="sm" title="Kartu detail">
+      <Card size="sm" title={t('detail.cardCard')}>
         <div className="flex flex-col field-gap">
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">Judul</label>
+            <label className="mb-1 block text-xs font-medium text-foreground">{t('detail.cardTitle')}</label>
             <TextField
               size="sm"
               value={card?.title ?? ''}
               onChange={(e) => onPatchCard({ title: e.target.value })}
-              placeholder={`${singularLabel} Details`}
+              placeholder={t('detail.cardTitleDefault', { singular: singularLabel })}
               maxLength={100}
             />
           </div>
           <SwitchRow
-            label="Bisa di-collapse"
-            desc="Kartu dapat dilipat pengguna."
+            label={t('detail.collapsible')}
+            desc={t('detail.collapsibleDesc')}
             value={card?.collapsible === true}
             onChange={(collapsible) => onPatchCard({ collapsible })}
           />
@@ -261,6 +265,7 @@ function DetailBuilderCanvas({
 }: DetailBuilderCanvasProps) {
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [cardOpen, setCardOpen] = useState(false);
+  const { t } = useTranslation();
   const sensors = useSensors(
     useSensor(CanvasPointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -292,7 +297,7 @@ function DetailBuilderCanvas({
   }
 
   if (fields.length === 0) {
-    return <p className="text-sm text-muted-foreground">Tambahkan field di kanvas form dulu.</p>;
+    return <p className="text-sm text-muted-foreground">{t('detail.needFields')}</p>;
   }
 
   let prevWasHeading = false;
@@ -302,19 +307,19 @@ function DetailBuilderCanvas({
       <div className="flex flex-col field-gap">
         <Alert
           variant="info"
-          message="Geser baris dari area mana pun untuk menyusun. Klik baris untuk atur properti."
+          message={t('detail.canvasHint')}
         />
         <div>
           <Button
             variant="secondary"
-            icon={<NavSettingsIcon className="h-4 w-4" />}
+            icon={<Settings className="h-4 w-4" />}
             onClick={() => {
               setSelectedName(null);
               setCardOpen(true);
             }}
             testId="detail-card-settings"
           >
-            Pengaturan kartu
+            {t('detail.cardSettings')}
           </Button>
         </div>
       </div>
@@ -326,7 +331,7 @@ function DetailBuilderCanvas({
         >
           <Card
             testId="detail-canvas-card"
-            title={cardProps?.title?.trim() || `${def.singularLabel} Details`}
+            title={cardProps?.title?.trim() || t('detail.cardTitleDefault', { singular: def.singularLabel })}
             collapsible={cardProps?.collapsible === true}
           >
             <div
@@ -389,7 +394,7 @@ function DetailBuilderCanvas({
       <Drawer
         open={drawerOpen}
         onClose={closeDrawers}
-        title={selectedField ? `Baris — ${selectedField.label}` : 'Pengaturan kartu'}
+        title={selectedField ? t('detail.rowTitle', { label: selectedField.label }) : t('detail.cardSettings')}
         width="md"
         modal={false}
         testId="detail-property-drawer"

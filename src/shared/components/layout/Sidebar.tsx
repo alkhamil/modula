@@ -1,8 +1,9 @@
 import { useState, useRef, useCallback, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { NavLink, useLocation } from 'react-router';
 import { type NavItemType, type SubItem } from '../../types/navigation';
-import { filterNavItems } from '../../utils';
-import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from '../icons';
+import { filterNavItems, resolveNavLabel } from '../../utils';
+import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 
 interface SidebarProps {
   items: NavItemType[];
@@ -29,6 +30,7 @@ function Sidebar({
   appName = 'App',
   testId,
 }: SidebarProps) {
+  const { t } = useTranslation();
   const location = useLocation();
   const navItems = filterNavItems(items, permissions);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
@@ -117,9 +119,9 @@ function Sidebar({
             ].join(' ')}
           >
             {collapsed ? (
-              <ChevronRightIcon className="h-3.5 w-3.5" />
+              <ChevronRight className="h-3.5 w-3.5" />
             ) : (
-              <ChevronLeftIcon className="h-3.5 w-3.5" />
+              <ChevronLeft className="h-3.5 w-3.5" />
             )}
           </button>
         </div>
@@ -144,8 +146,8 @@ function Sidebar({
                     {item.icon}
                     {!collapsed && (
                       <>
-                        <span className="flex-1 text-left">{item.label}</span>
-                        <ChevronDownIcon
+                        <span className="flex-1 text-left">{resolveNavLabel(item, t)}</span>
+                        <ChevronDown
                           className={`h-4 w-4 transition-transform ${isExpanded ? '-rotate-90' : 'rotate-90'}`}
                         />
                       </>
@@ -158,7 +160,7 @@ function Sidebar({
                     className={({ isActive }) => itemClasses(isActive)}
                   >
                     {item.icon}
-                    {!collapsed && <span>{item.label}</span>}
+                    {!collapsed && <span>{resolveNavLabel(item, t)}</span>}
                   </NavLink>
                 )}
 
@@ -178,7 +180,7 @@ function Sidebar({
                           ].join(' ')
                         }
                       >
-                        {child.label}
+                        {resolveNavLabel(child, t)}
                       </NavLink>
                     ))}
                   </div>
@@ -199,7 +201,7 @@ function Sidebar({
           {hoveredNavItem.children ? (
             <>
               <div className="border-b border-border px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {hoveredNavItem.label}
+                {resolveNavLabel(hoveredNavItem, t)}
               </div>
               {hoveredNavItem.children.map((child) => (
                 <NavLink
@@ -212,7 +214,7 @@ function Sidebar({
                     ].join(' ')
                   }
                 >
-                  {child.label}
+                  {resolveNavLabel(child, t)}
                 </NavLink>
               ))}
             </>
@@ -227,7 +229,7 @@ function Sidebar({
                 ].join(' ')
               }
             >
-              {hoveredNavItem.label}
+              {resolveNavLabel(hoveredNavItem, t)}
             </NavLink>
           )}
         </div>

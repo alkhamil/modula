@@ -2,6 +2,7 @@ import type { TemplateContext } from '../../engine/context';
 
 export function listPageTemplate(ctx: TemplateContext): string {
   const { names, features } = ctx;
+  const base = ctx.config.permissionKey;
   const withCreate = features.create;
   const withView = features.detail;
   const withEdit = features.edit;
@@ -10,10 +11,10 @@ export function listPageTemplate(ctx: TemplateContext): string {
   const withExport = features.export;
   const hasActions = withCreate || withBulk || withExport;
   const iconList = [
-    withCreate ? 'PlusIcon' : '',
-    withDelete ? 'ConfirmInfoIcon' : '',
-    withExport ? 'ExportIcon' : '',
-    withBulk ? 'UploadFileIcon' : '',
+    withCreate ? 'Plus' : '',
+    withDelete ? 'Info' : '',
+    withExport ? 'Download' : '',
+    withBulk ? 'Upload' : '',
   ].filter(Boolean);
   const needView = withView;
   const needCreate = withCreate;
@@ -21,16 +22,19 @@ export function listPageTemplate(ctx: TemplateContext): string {
   const needDelete = withDelete;
   const needAuth = needView || needCreate || needUpdate || needDelete || withExport || withBulk;
 
-  return `${withBulk ? `import { useState } from 'react';\n` : ''}import { useNavigate } from 'react-router';
+  return `${withBulk ? `import { useState } from 'react';\n` : ''}import { useTranslation } from 'react-i18next';\nimport { useNavigate } from 'react-router';
 import { Card${hasActions ? ', Button' : ''}, FilterToolbar${withDelete ? ', Dialog' : ''} } from '${names.sharedPrefix}shared/components/ui';
-${iconList.length > 0 ? `import { ${iconList.join(', ')} } from '${names.sharedPrefix}shared/components/icons';\n` : ''}
-${needAuth ? `import { useAuth } from '${names.sharedPrefix}modules/auth';\n` : ''}import { use${names.entity}List, use${names.entity}ListFilter${withExport ? `, use${names.entity}Export` : ''} } from '../hooks';
+${iconList.length > 0 ? `import { ${iconList.join(', ')} } from 'lucide-react';\n` : ''}
+${needAuth ? `import { useAuth } from '${names.sharedPrefix}app/providers';\n` : ''}import { use${names.entity}List, use${names.entity}ListFilter${withExport ? `, use${names.entity}Export` : ''} } from '../hooks';
 import { ${names.entity}Table${withBulk ? `, ${names.entity}BulkUploadDialog` : ''} } from '../components';
 ${needAuth ? `import { ${names.entity}Permissions } from '../permissions';\n` : ''}import { listEmptyState } from '${names.sharedPrefix}shared/constants';
+import { t } from 'i18next';
+import '${names.sharedPrefix}shared/i18n';
 
-const EMPTY_STATE = listEmptyState('${names.entity}');
+const EMPTY_STATE = listEmptyState(t('${base}.label'));
 
 function ${names.entity}ListPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 ${needAuth ? '  const { can } = useAuth();\n' : ''}${needView ? `  const canView = can(${names.entity}Permissions.view);\n` : ''}${needCreate ? `  const canCreate = can(${names.entity}Permissions.create);\n` : ''}${needUpdate ? `  const canUpdate = can(${names.entity}Permissions.update);\n` : ''}${needDelete ? `  const canDelete = can(${names.entity}Permissions.delete);\n` : ''}${withExport ? `  const canExport = can(${names.entity}Permissions.export);\n` : ''}${withBulk ? `  const canBulkUpload = can(${names.entity}Permissions.bulkUpload);\n` : ''}${withBulk ? '  const [bulkOpen, setBulkOpen] = useState(false);\n' : ''}${withExport ? `  const { exportData, isExporting } = use${names.entity}Export();\n` : ''}
   const {
@@ -76,12 +80,12 @@ ${needAuth ? '  const { can } = useAuth();\n' : ''}${needView ? `  const canView
     <div data-testid="${names.testId}-list-page">
       <Card
         testId="${names.testId}-list-card"
-        title="${names.entity} List"
+        title={t('runtime.listTitle', { singular: t('${base}.label') })}
 ${
   withCreate || withBulk || withExport
     ? `        actions={
           <div className="flex flex-wrap items-center gap-2">
-${withExport ? `            {canExport && (\n              <Button\n                data-testid="${names.testId}-export-button"\n                variant="secondary"\n                icon={<ExportIcon />}\n                onClick={() => exportData(queryParams)}\n                disabled={isExporting}\n              >\n                {isExporting ? 'Mengekspor…' : 'Export'}\n              </Button>\n            )}\n` : ''}${withBulk ? `            {canBulkUpload && (\n              <Button\n                data-testid="${names.testId}-bulk-upload-button"\n                variant="secondary"\n                icon={<UploadFileIcon />}\n                onClick={() => setBulkOpen(true)}\n              >\n                Bulk Upload\n              </Button>\n            )}\n` : ''}${withCreate ? `            {canCreate && (\n              <Button\n                data-testid="${names.testId}-create-button"\n                icon={<PlusIcon />}\n                onClick={() => navigate('/${names.routeBase}/create')}\n              >\n                Create ${names.entity}\n              </Button>\n            )}\n` : ''}          </div>
+${withExport ? `            {canExport && (\n              <Button\n                data-testid="${names.testId}-export-button"\n                variant="secondary"\n                icon={<Download />}\n                onClick={() => exportData(queryParams)}\n                disabled={isExporting}\n              >\n                {isExporting ? t('runtime.exporting') : t('common.export')}\n              </Button>\n            )}\n` : ''}${withBulk ? `            {canBulkUpload && (\n              <Button\n                data-testid="${names.testId}-bulk-upload-button"\n                variant="secondary"\n                icon={<Upload />}\n                onClick={() => setBulkOpen(true)}\n              >\n                {t('common.bulkUpload')}\n              </Button>\n            )}\n` : ''}${withCreate ? `            {canCreate && (\n              <Button\n                data-testid="${names.testId}-create-button"\n                icon={<Plus />}\n                onClick={() => navigate('/${names.routeBase}/create')}\n              >\n                {t('runtime.createTitle', { singular: t('${base}.label') })}\n              </Button>\n            )}\n` : ''}          </div>
         }
 `
     : ''
@@ -95,7 +99,6 @@ ${withExport ? `            {canExport && (\n              <Button\n            
             filterValues={filterValues}
             onApply={handleApply}
             onReset={handleReset}
-            searchPlaceholder="Search"
             searchParamName="search"
           />
         </div>
@@ -134,15 +137,10 @@ ${withBulk ? `      <${names.entity}BulkUploadDialog open={bulkOpen} onClose={()
         closeOnBackdropClick
       >
         <div className="flex items-start gap-4">
-          <ConfirmInfoIcon className="h-12 w-12 shrink-0" />
+          <Info className="h-12 w-12 shrink-0" />
           <div>
-            <p className="text-base font-medium text-foreground">
-              Are you sure you want to delete this item?
-            </p>
-            <p className="mt-1 text-sm font-normal text-muted-foreground">
-              The selected item will be deactivated but not permanently deleted. You can restore it
-              later if needed.
-            </p>
+            <p className="text-base font-medium text-foreground">{t('runtime.deleteTitle')}</p>
+            <p className="mt-1 text-sm font-normal text-muted-foreground">{t('runtime.deleteSoft')}</p>
           </div>
         </div>
         <div className="mt-6 flex justify-end gap-2">
@@ -154,7 +152,7 @@ ${withBulk ? `      <${names.entity}BulkUploadDialog open={bulkOpen} onClose={()
             onClick={handleDeleteCancel}
             disabled={isDeleting}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             data-testid="${names.testId}-deactivate-confirm"
@@ -162,7 +160,7 @@ ${withBulk ? `      <${names.entity}BulkUploadDialog open={bulkOpen} onClose={()
             onClick={handleDelete}
             disabled={isDeleting}
           >
-            Delete
+            {t('common.delete')}
           </Button>
         </div>
       </Dialog>
@@ -176,14 +174,10 @@ ${withBulk ? `      <${names.entity}BulkUploadDialog open={bulkOpen} onClose={()
         closeOnBackdropClick
       >
         <div className="flex items-start gap-4">
-          <ConfirmInfoIcon className="h-12 w-12 shrink-0" />
+          <Info className="h-12 w-12 shrink-0" />
           <div>
-            <p className="text-base font-medium text-foreground">
-              Are you sure you want to restore this item?
-            </p>
-            <p className="mt-1 text-sm font-normal text-muted-foreground">
-              The item will become active again and available for use.
-            </p>
+            <p className="text-base font-medium text-foreground">{t('runtime.restoreTitle')}</p>
+            <p className="mt-1 text-sm font-normal text-muted-foreground">{t('runtime.restoreDesc')}</p>
           </div>
         </div>
         <div className="mt-6 flex justify-end gap-2">
@@ -195,7 +189,7 @@ ${withBulk ? `      <${names.entity}BulkUploadDialog open={bulkOpen} onClose={()
             onClick={handleRestoreCancel}
             disabled={isDeleting}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             data-testid="${names.testId}-restore-confirm"
@@ -203,7 +197,7 @@ ${withBulk ? `      <${names.entity}BulkUploadDialog open={bulkOpen} onClose={()
             onClick={handleRestore}
             disabled={isRestoring}
           >
-            Restore
+            {t('common.restore')}
           </Button>
         </div>
       </Dialog>
@@ -241,11 +235,14 @@ export default ${names.entity}CreatePage;
 
 export function viewPageTemplate(ctx: TemplateContext): string {
   const { names, features } = ctx;
+  const base = ctx.config.permissionKey;
   return `import { useParams, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { Button, DetailCard } from '${names.sharedPrefix}shared/components/ui';
-${features.edit ? `import { useAuth } from '${names.sharedPrefix}modules/auth';\n` : ''}import { use${names.entity}Form } from '../hooks';
+${features.edit ? `import { useAuth } from '${names.sharedPrefix}app/providers';\n` : ''}import { use${names.entity}Form } from '../hooks';
 ${features.edit ? `import { ${names.entity}Permissions } from '../permissions';\n` : ''}
 function ${names.entity}ViewPage() {
+  const { t } = useTranslation();
   const { ${names.paramId} } = useParams<{ ${names.paramId}: string }>();
   const navigate = useNavigate();
 ${features.edit ? '  const { can } = useAuth();\n' : ''}  const { queryStatus, queryMessage, errorType, detailRows } = use${names.entity}Form(${names.paramId});
@@ -254,7 +251,7 @@ ${features.edit ? '  const { can } = useAuth();\n' : ''}  const { queryStatus, q
     <div data-testid="${names.testId}-view-page" className="flex min-h-full flex-col stack-gap">
       <DetailCard
         testId="${names.testId}-detail-card"
-        title="${names.entity} Details"
+        title={t('runtime.detailTitle', { singular: t('${base}.label') })}
         state={{ status: queryStatus, message: queryMessage, rows: detailRows, errorType }}
       />
       {queryStatus !== 'error' && (
@@ -265,7 +262,7 @@ ${features.edit ? '  const { can } = useAuth();\n' : ''}  const { queryStatus, q
             variant="secondary"
             onClick={() => navigate(-1)}
           >
-            Back
+            {t('common.back')}
           </Button>
 ${
   features.edit
@@ -276,7 +273,7 @@ ${
               variant="primary"
               onClick={() => navigate(\`/${names.routeBase}/\${${names.paramId}}/edit\`)}
             >
-              Edit
+              {t('common.edit')}
             </Button>
           )}
 `
@@ -293,13 +290,16 @@ export default ${names.entity}ViewPage;
 
 export function editPageTemplate(ctx: TemplateContext): string {
   const { names, fields } = ctx;
+  const base = ctx.config.permissionKey;
   const optionsFields = fields.filter((f) => f.isOptionsQuery);
   return `import { useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { Card, ErrorStatePage, FormSkeleton } from '${names.sharedPrefix}shared/components/ui';
 import { use${names.entity}Form } from '../hooks';
 import { ${names.entity}Form } from '../components';
 
 function ${names.entity}EditPage() {
+  const { t } = useTranslation();
   const { ${names.paramId} } = useParams<{ ${names.paramId}: string }>();
   const {
     defaultValues,
@@ -315,7 +315,7 @@ ${optionsFields.length > 0 ? '' : ''}    isSubmitting,
 
   if (queryStatus === 'loading') {
     return (
-      <Card title="Edit ${names.entity}">
+      <Card title={t('runtime.editTitle', { singular: t('${base}.label') })}>
         <FormSkeleton />
       </Card>
     );

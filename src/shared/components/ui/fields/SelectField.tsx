@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { useDebounce, useClickOutside, useSelectDropdown } from '../../../hooks';
 import { stripNonAscii } from '../../../utils';
-import { FieldErrorIcon } from '../../icons';
+import { CircleAlert } from 'lucide-react';
 
 export interface SelectOption {
   label: string;
@@ -90,7 +91,7 @@ function SelectField({
   searchable = false,
   paginateOnScroll = false,
   pageSize = 20,
-  emptyOptionsText = 'No options',
+  emptyOptionsText,
   showSelectedOptions = true,
   testId,
   'data-testid': dataTestId,
@@ -99,6 +100,8 @@ function SelectField({
   isLoading = false,
   isOptionDisabled,
 }: SelectFieldProps) {
+  const { t } = useTranslation();
+  const resolvedEmptyText = emptyOptionsText ?? t('fields.noOptions');
   const [isOpen, setIsOpen] = useState(false);
   const [loadedOptions, setLoadedOptions] = useState<SelectOption[]>(
     defaultOption ? [defaultOption] : [],
@@ -182,7 +185,7 @@ function SelectField({
           return existing ? [existing, ...data] : data;
         });
       } catch (err) {
-        setLoadError(err instanceof Error ? err.message : 'Failed to load options');
+        setLoadError(err instanceof Error ? err.message : t('fields.loadFailed'));
       } finally {
         setLoading(false);
       }
@@ -410,7 +413,7 @@ function SelectField({
                   clipRule="evenodd"
                 />
               </svg>
-              {error && <FieldErrorIcon className="h-3.5 w-3.5" />}
+              {error && <CircleAlert className="h-3.5 w-3.5" />}
             </span>
           </div>
         ) : (
@@ -488,7 +491,7 @@ function SelectField({
                   />
                 </svg>
               )}
-              {error && <FieldErrorIcon className="h-3.5 w-3.5" />}
+              {error && <CircleAlert className="h-3.5 w-3.5" />}
             </span>
           </button>
         )}
@@ -526,9 +529,9 @@ function SelectField({
                     </button>
                   </div>
                 ) : !showLoading && listOptions.length === 0 ? (
-                  <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-                    {emptyOptionsText}
-                  </p>
+                    <p className="px-3 py-6 text-center text-sm text-muted-foreground">
+                      {resolvedEmptyText}
+                    </p>
                 ) : (
                   <>
                     {listOptions.map((opt, index) => {

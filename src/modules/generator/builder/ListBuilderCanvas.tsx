@@ -1,5 +1,6 @@
 /** Canvas 2 — List Builder: tabel sungguhan + toolbar/filter + drawer properti. */
 import { useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   DndContext,
   DragOverlay,
@@ -31,16 +32,7 @@ import {
   useToast,
 } from '../../../shared/components/ui';
 import Table, { type Column } from '../../../shared/components/ui/Table';
-import {
-  ExportIcon,
-  NavSettingsIcon,
-  PencilIcon,
-  PlusIcon,
-  RestoreIcon,
-  TrashIcon,
-  UploadFileIcon,
-  ViewIcon,
-} from '../../../shared/components/icons';
+import { Download, Settings, Pencil, Plus, RotateCcw, Trash2, Upload, Eye } from 'lucide-react';
 import type { DeleteMode, ModuleDefinition, ModuleLayout } from '../definitions';
 import { SYSTEM_TABLE_COLUMNS } from '../definitions';
 import type {
@@ -52,7 +44,6 @@ import type {
 import {
   criteriaForFieldType,
   defaultCriteria,
-  filterCriteriaRegistry,
 } from '../registry';
 import { columnRenderForType, systemTableColumn } from '../runtime/cellRender';
 import {
@@ -81,9 +72,10 @@ interface ListBuilderCanvasProps {
 const PAGE_SIZE = 10;
 
 function WidthInput({ value, onCommit }: { value: number | undefined; onCommit: (px: number) => void }) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState(value === undefined ? '' : String(value));
   return (
-    <div className="w-24" title="Lebar kolom px (kosong = otomatis)">
+    <div className="w-24" title={t('list.widthTitle')}>
       <TextField
         value={draft}
         onChange={(e) => setDraft(e.target.value.replace(/[^0-9]/g, ''))}
@@ -91,7 +83,7 @@ function WidthInput({ value, onCommit }: { value: number | undefined; onCommit: 
         onKeyDown={(e) => {
           if (e.key === 'Enter') onCommit(draft === '' ? 0 : Number(draft));
         }}
-        placeholder="Auto"
+        placeholder={t('list.widthAuto')}
       />
     </div>
   );
@@ -124,10 +116,11 @@ function SwitchRow({
  * (kursor ew-resize) lalu seret — lebar px dikomit live saat digeser.
  */
 function ColumnResizer({ name, onWidth }: { name: string; onWidth: (px: number) => void }) {
+  const { t } = useTranslation();
   return (
     <div
       data-testid={`list-col-resize-${name}`}
-      title="Seret untuk ubah lebar kolom"
+      title={t('list.resizeHint')}
       onPointerDown={(e) => {
         e.preventDefault();
         const th = e.currentTarget.closest('th');
@@ -182,6 +175,7 @@ function SortableColumnHeader({
   // Posisi tekan untuk bedakan klik (pilih) vs seret (pindah): dnd-kit
   // mulai drag setelah jarak aktivasi, klik yang mengakhiri drag diabaikan.
   const downAt = useRef<{ x: number; y: number } | null>(null);
+  const { t } = useTranslation();
   // Overlay sendiri menjadi node sortable: `th` (relative via className
   // kolom) adalah containing block-nya sehingga menutupi seluruh sel.
   // (Transform di ancestor justru akan mengecilkan cakupan overlay.)
@@ -189,7 +183,7 @@ function SortableColumnHeader({
     <>
       <div className={`flex items-center gap-1 px-1 py-0.5 ${hidden ? 'opacity-50' : ''} ${isDragging ? 'opacity-60' : ''}`}>
         <span className="truncate text-sm font-medium text-foreground">{label}</span>
-        {hidden && <Badge variant="secondary">Hidden</Badge>}
+        {hidden && <Badge variant="secondary">{t('list.hiddenBadge')}</Badge>}
       </div>
       <div
         ref={setNodeRef}
@@ -217,9 +211,7 @@ function SortableColumnHeader({
           if (selectable && (e.key === 'Enter' || e.key === ' ')) onSelect();
         }}
         title={
-          selectable
-            ? 'Geser dari area header mana pun untuk memindahkan • klik untuk atur properti'
-            : 'Geser untuk memindahkan'
+          selectable ? t('list.dragHint') : t('builder.form.dragHint')
         }
         className={`absolute inset-0 cursor-grab active:cursor-grabbing ${
           selected
@@ -252,69 +244,69 @@ function ColumnDrawerContent({
   onFilterable: (value: boolean) => void;
   onCriteria: (value: FilterCriteria) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col stack-gap">
-      <Card size="sm" title="Kolom">
+      <Card size="sm" title={t('list.columnCard')}>
         <div className="flex flex-col field-gap">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground">Label</span>
+            <span className="text-xs text-muted-foreground">{t('field.label')}</span>
             <span className="text-xs font-medium text-foreground">{field.label}</span>
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground">Name</span>
+            <span className="text-xs text-muted-foreground">{t('field.name')}</span>
             <span className="font-mono text-xs text-muted-foreground">{field.name}</span>
           </div>
         </div>
       </Card>
-      <Card size="sm" title="Tampil & Interaksi" collapsible>
+      <Card size="sm" title={t('list.interactCard')} collapsible>
         <div className="flex flex-col field-gap">
           <SwitchRow
-            label="Tampilkan"
-            desc="Sembunyikan tanpa menghapus field."
+            label={t('list.showColumn')}
+            desc={t('list.showColumnDesc')}
             value={!hidden}
             onChange={() => onToggleHidden()}
           />
           <SwitchRow
-            label="Sortable"
-            desc="Kolom bisa di-sort di tabel."
+            label={t('field.sortable')}
+            desc={t('field.sortableDesc')}
             value={field.sortable !== false}
             onChange={onSortable}
           />
           <SwitchRow
-            label="Filterable"
-            desc="Tampil di filter halaman list."
+            label={t('field.filterable')}
+            desc={t('field.filterableDesc')}
             value={field.filterable !== false}
             onChange={onFilterable}
           />
           {field.filterable !== false && (
             <div className="rounded-lg border border-border px-3 py-2">
               <label className="mb-1 block text-xs font-medium text-foreground">
-                Kriteria filter
+                {t('field.filterCriteria')}
               </label>
               <SelectField size="sm"
                 value={field.filterCriteria ?? defaultCriteria(field.type)}
                 onChange={(next) => onCriteria(next as FilterCriteria)}
                 options={criteriaForFieldType(field.type).map((name) => ({
-                  label: filterCriteriaRegistry[name].label,
+                  label: t(`registry.filterCriteria.${name}`),
                   value: name,
                 }))}
                 clearable={false}
               />
               <p className="mt-1 text-xs text-muted-foreground">
                 {
-                  filterCriteriaRegistry[field.filterCriteria ?? defaultCriteria(field.type)]
-                    .description
+                  t(`registry.filterCriteria.${field.filterCriteria ?? defaultCriteria(field.type)}Desc`)
                 }
               </p>
             </div>
           )}
         </div>
       </Card>
-      <Card size="sm" title="Lebar" collapsible>
+      <Card size="sm" title={t('list.widthCard')} collapsible>
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-xs font-medium text-foreground">Lebar kolom (px)</p>
-            <p className="text-xs text-muted-foreground">Kosong = otomatis.</p>
+            <p className="text-xs font-medium text-foreground">{t('list.widthLabel')}</p>
+            <p className="text-xs text-muted-foreground">{t('list.widthDesc')}</p>
           </div>
           <WidthInput key={`${field.name}-${width ?? 'auto'}`} value={width} onCommit={onWidth} />
         </div>
@@ -339,56 +331,55 @@ function ActionDrawerContent({
   displayProps: TableDisplayProps | undefined;
   onPatchProps: (patch: Partial<TableDisplayProps>) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col stack-gap">
-      <p className="text-xs text-muted-foreground">
-        Aksi tampil bila fitur aktif <em>dan</em> user punya permission-nya.
-      </p>
-      <Card size="sm" title="Aksi baris">
+      <p className="text-xs text-muted-foreground">{t('list.actionVisibilityHint')}</p>
+      <Card size="sm" title={t('list.actionCard')}>
         <div className="flex flex-col field-gap">
           <SwitchRow
-            label="Aksi Lihat"
-            desc="Butuh permission view."
+            label={t('list.rowActView')}
+            desc={t('list.rowActViewDesc')}
             value={features.detail}
             onChange={() => onToggleFeature('detail')}
           />
           <SwitchRow
-            label="Aksi Edit"
-            desc="Butuh permission update."
+            label={t('list.rowActEdit')}
+            desc={t('list.rowActEditDesc')}
             value={features.edit}
             onChange={() => onToggleFeature('edit')}
           />
           <SwitchRow
-            label="Aksi Hapus"
-            desc="Butuh permission delete."
+            label={t('list.rowActDelete')}
+            desc={t('list.rowActDeleteDesc')}
             value={features.delete}
             onChange={() => onToggleFeature('delete')}
           />
           <div>
-            <label className="mb-1 block text-sm font-medium text-foreground">Mode hapus</label>
+            <label className="mb-1 block text-sm font-medium text-foreground">{t('list.deleteMode')}</label>
             <SelectField size="sm"
               value={deleteMode}
               onChange={(value) => onDeleteModeChange(value as DeleteMode)}
               options={[
-                { label: 'Soft — nonaktif + Restore', value: 'soft' },
-                { label: 'Hard — hapus permanen', value: 'hard' },
+                { label: t('list.softMode'), value: 'soft' },
+                { label: t('list.hardMode'), value: 'hard' },
               ]}
               clearable={false}
             />
           </div>
         </div>
       </Card>
-      <Card size="sm" title="Kolom aksi">
+      <Card size="sm" title={t('list.actionColCard')}>
         <div>
-          <label className="mb-1 block text-sm font-medium text-foreground">Posisi kolom</label>
+          <label className="mb-1 block text-sm font-medium text-foreground">{t('list.actionPosition')}</label>
           <SelectField size="sm"
             value={displayProps?.actionPosition ?? 'left'}
             onChange={(value) =>
               onPatchProps({ actionPosition: value as 'left' | 'right' })
             }
             options={[
-              { label: 'Kiri', value: 'left' },
-              { label: 'Kanan', value: 'right' },
+              { label: t('list.left'), value: 'left' },
+              { label: t('list.right'), value: 'right' },
             ]}
             clearable={false}
           />
@@ -410,68 +401,69 @@ function TableDrawerContent({
   displayProps: TableDisplayProps | undefined;
   onPatchProps: (patch: Partial<TableDisplayProps>) => void;
 }) {
+  const { t } = useTranslation();
   const props = displayProps ?? {};
   return (
     <div className="flex flex-col stack-gap">
-      <Card size="sm" title="Tombol list">
+      <Card size="sm" title={t('list.buttonsCard')}>
         <div className="flex flex-col field-gap">
           <SwitchRow
-            label="Tombol Bulk Upload"
-            desc="Butuh permission bulk_upload."
+            label={t('list.bulkBtn')}
+            desc={t('list.bulkDesc')}
             value={features.bulkUpload}
             onChange={() => onToggleFeature('bulkUpload')}
           />
           <SwitchRow
-            label="Tombol Export"
-            desc="Butuh permission export."
+            label={t('list.exportBtn')}
+            desc={t('list.exportDesc')}
             value={features.export}
             onChange={() => onToggleFeature('export')}
           />
           <p className="text-xs text-muted-foreground">
-            Fitur List & Create diatur di langkah Config.
+            {t('list.configNote')}
           </p>
         </div>
       </Card>
-      <Card size="sm" title="Props tabel" collapsible>
+      <Card size="sm" title={t('list.tablePropsCard')} collapsible>
         <div className="flex flex-col field-gap">
           <SwitchRow
-            label="Baris rapat"
-            desc="Padding vertikal sel lebih rapat."
+            label={t('list.propDense')}
+            desc={t('list.propDenseDesc')}
             value={props.dense === true}
             onChange={(dense) => onPatchProps({ dense })}
           />
           <SwitchRow
-            label="Fixed layout"
-            desc="Lebar kolom px ditaati (default menyala)."
+            label={t('list.propFixed')}
+            desc={t('list.propFixedDesc')}
             value={props.fixedLayout ?? true}
             onChange={(fixedLayout) => onPatchProps({ fixedLayout })}
           />
           <SwitchRow
-            label="Sticky header"
-            desc="Header tetap terlihat saat scroll."
+            label={t('list.propStickyHead')}
+            desc={t('list.propStickyHeadDesc')}
             value={props.stickyHeader === true}
             onChange={(stickyHeader) => onPatchProps({ stickyHeader })}
           />
           <SwitchRow
-            label="Freeze kolom aksi"
-            desc="Kolom Aksi nempel saat scroll horizontal."
+            label={t('list.propFreezeAction')}
+            desc={t('list.propFreezeActionDesc')}
             value={props.stickyAction === true}
             onChange={(stickyAction) => onPatchProps({ stickyAction })}
           />
           <SwitchRow
-            label="Sembunyikan pagination"
-            desc="Kontrol halaman di bawah tabel."
+            label={t('list.propHidePaging')}
+            desc={t('list.propHidePagingDesc')}
             value={props.hidePagination === true}
             onChange={(hidePagination) => onPatchProps({ hidePagination })}
           />
           <SwitchRow
-            label="Sembunyikan total records"
-            desc="Baris ringkasan jumlah data."
+            label={t('list.propHideTotal')}
+            desc={t('list.propHideTotalDesc')}
             value={props.hideTotalRecords === true}
             onChange={(hideTotalRecords) => onPatchProps({ hideTotalRecords })}
           />
           <p className="text-xs text-muted-foreground">
-            Ukuran halaman mengikuti parameter URL.
+            {t('list.pageSizeNote')}
           </p>
         </div>
       </Card>
@@ -498,6 +490,7 @@ function ListBuilderCanvas({
   const [actionOpen, setActionOpen] = useState(false);
   const [tableOpen, setTableOpen] = useState(false);
   const [activeName, setActiveName] = useState<string | null>(null);
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const sensors = useSensors(
     useSensor(CanvasPointerSensor, { activationConstraint: { distance: 4 } }),
@@ -569,17 +562,20 @@ function ListBuilderCanvas({
   }
 
   function previewAction(label: string): void {
-    showToast({ variant: 'info', message: `Pratinjau: aksi ${label} aktif.` });
+    showToast({ variant: 'info', message: t('builder.previewAction', { label }) });
   }
 
   const filterFields = useMemo(
     () =>
-      buildFilterFields(fields, (field) =>
-        field.source === 'mockPagingInfinityScroll'
-          ? makeOptionsLoader(previewDef, field)
-          : field.source === 'relation'
-            ? makeRelationOptionsLoader(field)
-            : undefined,
+      buildFilterFields(
+        fields,
+        (field) =>
+          field.source === 'mockPagingInfinityScroll'
+            ? makeOptionsLoader(previewDef, field)
+            : field.source === 'relation'
+              ? makeRelationOptionsLoader(field)
+              : undefined,
+        previewDef,
       ),
     [fields, previewDef],
   );
@@ -648,7 +644,7 @@ function ListBuilderCanvas({
       : '';
 
   if (fields.length === 0) {
-    return <p className="text-sm text-muted-foreground">Tambahkan field di kanvas form dulu.</p>;
+    return <p className="text-sm text-muted-foreground">{t('detail.needFields')}</p>;
   }
 
   return (
@@ -661,7 +657,7 @@ function ListBuilderCanvas({
         <div>
           <Button
             variant="secondary"
-            icon={<NavSettingsIcon className="h-4 w-4" />}
+            icon={<Settings className="h-4 w-4" />}
             onClick={() => {
               setSelectedName(null);
               setActionOpen(false);
@@ -669,7 +665,7 @@ function ListBuilderCanvas({
             }}
             testId="list-table-settings"
           >
-            Pengaturan tabel
+            {t('list.tableSettingsBtn')}
           </Button>
         </div>
       </div>
@@ -681,27 +677,27 @@ function ListBuilderCanvas({
             {features.export && (
               <Button
                 variant="secondary"
-                icon={<ExportIcon className="h-4 w-4" />}
-                onClick={() => previewAction('Export')}
+                icon={<Download className="h-4 w-4" />}
+                onClick={() => previewAction(t('list.actExport'))}
               >
-                Export
+                {t('common.export')}
               </Button>
             )}
             {features.bulkUpload && (
               <Button
                 variant="secondary"
-                icon={<UploadFileIcon className="h-4 w-4" />}
-                onClick={() => previewAction('Bulk Upload')}
+                icon={<Upload className="h-4 w-4" />}
+                onClick={() => previewAction(t('list.actBulk'))}
               >
-                Bulk Upload
+                {t('common.bulkUpload')}
               </Button>
             )}
             {features.create && (
               <Button
-                icon={<PlusIcon className="h-4 w-4" />}
-                onClick={() => previewAction('Buat')}
+                icon={<Plus className="h-4 w-4" />}
+                onClick={() => previewAction(t('list.actCreate'))}
               >
-                Create {def.singularLabel}
+                {t('list.createTitle', { singular: def.singularLabel })}
               </Button>
             )}
           </div>
@@ -725,7 +721,7 @@ function ListBuilderCanvas({
               setFilterValues({});
               setPage(1);
             }}
-            searchPlaceholder="Search"
+            searchPlaceholder={t('filter.search')}
             searchParamName="search"
           />
         </div>
@@ -781,10 +777,10 @@ function ListBuilderCanvas({
                         setActionOpen(true);
                       }
                     }}
-                    title="Klik untuk atur aksi baris"
+                    title={t('list.actionHint')}
                     className="flex cursor-pointer items-center gap-1 rounded-md px-1 py-0.5"
                   >
-                    <span className="text-sm font-medium">Aksi</span>
+                    <span className="text-sm font-medium">{t('table.action')}</span>
                   </div>
                 ) : undefined
               }
@@ -797,10 +793,10 @@ function ListBuilderCanvas({
                             type="button"
                             data-testid={`list-canvas-view-${row.id}`}
                             className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
-                            title={`View ${row.id}`}
-                            onClick={() => previewAction('Lihat')}
+                            title={t('list.rowView', { id: row.id })}
+                            onClick={() => previewAction(t('list.actView'))}
                           >
-                            <ViewIcon />
+                            <Eye />
                           </button>
                         )}
                         {features.edit && (
@@ -808,10 +804,10 @@ function ListBuilderCanvas({
                             type="button"
                             data-testid={`list-canvas-edit-${row.id}`}
                             className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
-                            title={`Edit ${row.id}`}
-                            onClick={() => previewAction('Edit')}
+                            title={t('list.rowEdit', { id: row.id })}
+                            onClick={() => previewAction(t('list.actEdit'))}
                           >
-                            <PencilIcon />
+                            <Pencil />
                           </button>
                         )}
                         {features.delete && row.status === 'active' && (
@@ -819,10 +815,10 @@ function ListBuilderCanvas({
                             type="button"
                             data-testid={`list-canvas-delete-${row.id}`}
                             className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-danger hover:bg-danger/10"
-                            title={`Delete ${row.id}`}
-                            onClick={() => previewAction('Hapus')}
+                            title={t('list.rowDelete', { id: row.id })}
+                            onClick={() => previewAction(t('list.actDelete'))}
                           >
-                            <TrashIcon />
+                            <Trash2 />
                           </button>
                         )}
                         {features.delete && deleteMode === 'soft' && row.status === 'inactive' && (
@@ -830,10 +826,10 @@ function ListBuilderCanvas({
                             type="button"
                             data-testid={`list-canvas-restore-${row.id}`}
                             className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
-                            title={`Restore ${row.id}`}
-                            onClick={() => previewAction('Restore')}
+                            title={t('list.rowRestore', { id: row.id })}
+                            onClick={() => previewAction(t('list.actRestore'))}
                           >
-                            <RestoreIcon />
+                            <RotateCcw />
                           </button>
                         )}
                       </div>
@@ -849,8 +845,8 @@ function ListBuilderCanvas({
               stickyAction={displayProps?.stickyAction}
               isEmptyState={sampleRows.length === 0 && !isFilterActive}
               isFilteredEmptyState={isFilterActive && filteredRows.length === 0}
-              emptyStateTitle="Belum ada data contoh"
-              emptyStateDescription="Isi dulu di langkah Live Preview — header tetap bisa digeser."
+              emptyStateTitle={t('list.emptyTitle')}
+              emptyStateDescription={t('list.emptyDesc')}
             />
             </div>
           </SortableContext>
@@ -862,10 +858,10 @@ function ListBuilderCanvas({
         onClose={closeDrawers}
         title={
           selectedField
-            ? `Kolom — ${selectedField.label}`
+            ? t('list.columnTitle', { label: selectedField.label })
             : actionOpen
-              ? 'Aksi baris'
-              : 'Pengaturan tabel'
+              ? t('list.actionTitle')
+              : t('list.tableSettings')
         }
         width="md"
         modal={false}

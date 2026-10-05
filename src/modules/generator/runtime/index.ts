@@ -84,3 +84,15 @@ export {
   DynamicPreviewPage,
 } from './DynamicRoutes';
 export { buildDynamicNavItems } from './dynamicNav';
+export {
+  collectModuleI18nKeys,
+  fieldLabelKey,
+  fieldPlaceholderKey,
+  moduleFieldLabel,
+  moduleFieldPlaceholder,
+  moduleText,
+  moduleTitle,
+  moduleTitleKey,
+  navLabelKey,
+} from './moduleI18n';
+export type { ModuleI18nEntry, ModuleTitleKind } from './moduleI18n';

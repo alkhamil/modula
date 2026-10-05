@@ -1,9 +1,10 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { useDebounce, useClickOutside, useSelectDropdown } from '../../../hooks';
 import { stripNonAscii } from '../../../utils';
 import type { SelectOption, LoadOptionsFn } from './SelectField';
-import { FieldErrorIcon } from '../../icons';
+import { CircleAlert } from 'lucide-react';
 
 function dedupeByValue(list: SelectOption[]): SelectOption[] {
   const seen = new Set<string>();
@@ -107,7 +108,7 @@ function SelectMultipleField({
   paginateOnScroll = false,
   pageSize = 20,
   showSelectedOptions = true,
-  emptyOptionsText = 'No options',
+  emptyOptionsText,
   chipsSummary = false,
   summaryFormat = (count) => `${count} items selected`,
   closeOnSelect = false,
@@ -117,6 +118,8 @@ function SelectMultipleField({
   'data-testid': dataTestId,
   isOptionDisabled,
 }: SelectMultipleFieldProps) {
+  const { t } = useTranslation();
+  const resolvedEmptyText = emptyOptionsText ?? t('fields.noOptions');
   const [isOpen, setIsOpen] = useState(false);
   const [loadedOptions, setLoadedOptions] = useState<SelectOption[]>(
     dedupeByValue(defaultOptions ?? []),
@@ -259,7 +262,7 @@ function SelectMultipleField({
           return dedupeByValue([...selected, ...data]);
         });
       } catch (err) {
-        setLoadError(err instanceof Error ? err.message : 'Failed to load options');
+        setLoadError(err instanceof Error ? err.message : t('fields.loadFailed'));
       } finally {
         setLoading(false);
       }
@@ -500,7 +503,7 @@ function SelectMultipleField({
             clipRule="evenodd"
           />
         </svg>
-        {error && <FieldErrorIcon className="h-3.5 w-3.5" />}
+        {error && <CircleAlert className="h-3.5 w-3.5" />}
       </span>
     </>
   );
@@ -574,7 +577,7 @@ function SelectMultipleField({
                   </div>
                 ) : !loading && listOptions.length === 0 ? (
                   <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-                    {emptyOptionsText}
+                    {resolvedEmptyText}
                   </p>
                 ) : (
                   <>

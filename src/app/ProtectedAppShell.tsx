@@ -1,6 +1,7 @@
 import { mergeNavItems, navItems, useDynamicNavItems } from './navigation';
 import { AppShell } from '../shared/components/layout';
-import { RequireAuth, useAuth } from '../modules/auth';
+import { RequireAuth, useAuth } from './providers';
+import LanguageSwitcher from '../shared/i18n/LanguageSwitcher';
 
 /** App shell terproteksi: guard session + user/permissions/logout dari auth. */
 function ProtectedAppShell() {
@@ -15,6 +16,7 @@ function ProtectedAppShell() {
         onLogout={logout}
         appName="Generator"
         showThemeCustomizer
+        headerExtra={<LanguageSwitcher />}
       />
     </RequireAuth>
   );

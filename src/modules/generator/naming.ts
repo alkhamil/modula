@@ -53,6 +53,30 @@ export function toPluralPascal(pascal: string): string {
   return `${pascal}s`;
 }
 
+/** Normalisasi path parent (`Master Data` → `master-data`, kosong → null). */
+export function normalizeParentPath(parentName: string | null): string | null {
+  if (!parentName || parentName.trim() === '') return null;
+  const normalized = parentName
+    .split('/')
+    .map((part) => toKebabCase(part))
+    .filter(Boolean)
+    .join('/');
+  return normalized === '' ? null : normalized;
+}
+
+/** `master-data` → `Master Data`; `finance/accounting` → `Finance / Accounting`. */
+export function prettifyParent(parentPath: string): string {
+  return parentPath
+    .split('/')
+    .map((segment) =>
+      toKebabCase(segment)
+        .split('-')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' '),
+    )
+    .join(' / ');
+}
+
 /**
  * Resolve folder modul. Parent kosong/null → root.
  * `administration` + `region` → `src/modules/administration/region/`

@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { CloseIcon, SuccessIcon, ErrorIcon, WarningIcon, InfoIcon } from '../../icons';
+import { X, CircleCheck, CircleX, TriangleAlert, Info } from 'lucide-react';
 import { ToastContext, type ToastVariant, type ShowToastParams } from './toast-context';
 
 interface ToastItemData {
@@ -15,31 +15,31 @@ interface ToastItemData {
 
 const variantConfig: Record<
   ToastVariant,
-  { bg: string; text: string; border: string; Icon: typeof SuccessIcon }
+  { bg: string; text: string; border: string; Icon: typeof CircleCheck }
 > = {
   success: {
     bg: 'bg-success/15',
     text: 'text-success',
     border: 'border-success',
-    Icon: SuccessIcon,
+    Icon: CircleCheck,
   },
   error: {
     bg: 'bg-danger/15',
     text: 'text-danger',
     border: 'border-danger',
-    Icon: ErrorIcon,
+    Icon: CircleX,
   },
   warning: {
     bg: 'bg-warning/15',
     text: 'text-warning',
     border: 'border-warning',
-    Icon: WarningIcon,
+    Icon: TriangleAlert,
   },
   info: {
     bg: 'bg-info/15',
     text: 'text-info',
     border: 'border-info',
-    Icon: InfoIcon,
+    Icon: Info,
   },
 };
 
@@ -88,7 +88,7 @@ function ToastItem({ item, onClose }: { item: ToastItemData; onClose: (id: numbe
           onClick={() => onClose(item.id)}
           className="shrink-0 cursor-pointer rounded-full p-0.5 transition-opacity hover:opacity-70"
         >
-          <CloseIcon className="h-4 w-4" />
+          <X className="h-4 w-4" />
         </button>
       )}
     </div>

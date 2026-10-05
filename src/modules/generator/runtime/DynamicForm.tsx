@@ -1,5 +1,6 @@
 /** Form generik — field + validasi + grid layout dari definisi modul. */
 import { useCallback, useRef, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Card,
@@ -15,6 +16,7 @@ import { definitionTestId, type DynamicOption } from './types';
 import { type DynamicFormValues } from './validation';
 import type { LoadOptionsFn } from '../../../shared/components/ui/fields/SelectField';
 import { colSpanClass } from './grid';
+import { moduleTitle } from './moduleI18n';
 import { renderDynamicField } from './fieldRenderer';
 
 interface DynamicFormProps {
@@ -41,6 +43,7 @@ function DynamicForm({
   loaderOf,
   actionsInFooter = false,
 }: DynamicFormProps) {
+  const { t } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
@@ -94,7 +97,7 @@ function DynamicForm({
           onClick={onCancel}
           disabled={isSubmitting || submitting}
         >
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button
           data-testid={`${testPrefix}-submit-button`}
@@ -103,7 +106,7 @@ function DynamicForm({
           onClick={methods.handleSubmit(handleFormSubmit)}
           disabled={isSubmitting || submitting}
         >
-          {isEdit ? 'Update' : 'Create'}
+          {isEdit ? t('common.update') : t('common.create')}
         </Button>
       </>
     );
@@ -134,7 +137,7 @@ function DynamicForm({
           if (!field) return null;
           return (
             <div key={field.name} className={colSpanClass(item.colSpan)}>
-              {renderDynamicField(field, { testPrefix, optionsOf, loaderOf })}
+              {renderDynamicField(field, { def, testPrefix, optionsOf, loaderOf })}
             </div>
           );
         })}
@@ -155,7 +158,7 @@ function DynamicForm({
           return (
             <Card
               testId={`${testPrefix}-form-card`}
-              title={isEdit ? `Edit ${def.singularLabel}` : `Create ${def.singularLabel}`}
+              title={moduleTitle(def, isEdit ? 'edit' : 'create', isEdit ? t('runtime.editTitle', { singular: def.singularLabel }) : t('runtime.createTitle', { singular: def.singularLabel }))}
               footer={renderActionButtons(methods)}
             >
               <FormDefaultValuesWatcher methods={methods} defaultValues={defaultValues} />
@@ -169,7 +172,7 @@ function DynamicForm({
   }
 
   return (
-    <Card testId={`${testPrefix}-form-card`} title={isEdit ? `Edit ${def.singularLabel}` : `Create ${def.singularLabel}`}>
+    <Card testId={`${testPrefix}-form-card`} title={moduleTitle(def, isEdit ? 'edit' : 'create', isEdit ? t('runtime.editTitle', { singular: def.singularLabel }) : t('runtime.createTitle', { singular: def.singularLabel }))}>
       <FormGroup<DynamicFormValues>
         testId={`${testPrefix}-form`}
         defaultValues={defaultValues}

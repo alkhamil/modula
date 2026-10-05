@@ -3,6 +3,8 @@
  * Kepala + pesan + perilaku SAMA PERSIS agar mock dan BE sejalan.
  * Murni & Node-safe.
  */
+import { t } from 'i18next';
+import '../../../shared/i18n';
 import type { GeneratorFieldConfig } from '../types';
 
 export interface BulkFieldError {
@@ -116,7 +118,7 @@ export function bulkExampleRow(fields: GeneratorFieldConfig[]): (string | number
         break;
       }
       default:
-        row.push(`Contoh ${field.label}`);
+        row.push(`${t('bulk.examplePrefix')} ${field.label}`);
         break;
     }
   }
@@ -175,36 +177,36 @@ export function validateBulkRow(
       const raw = String(row[label] ?? '').trim();
       const value = raw === '' ? NaN : Number(raw);
       if (has('required')) {
-        if (raw === '') fail(label, `${label} wajib diisi.`);
-        else if (Number.isNaN(value)) fail(label, `${label} harus angka.`);
+        if (raw === '') fail(label, t('validation.required', { label }));
+        else if (Number.isNaN(value)) fail(label, t('validation.number', { label }));
       } else if (raw === '' || Number.isNaN(value)) {
-        fail(label, `${label} harus angka.`);
+        fail(label, t('validation.number', { label }));
       }
       const min = argOf('min');
       const max = argOf('max');
       if (min !== undefined && !Number.isNaN(value) && value < Number(min)) {
-        fail(label, `${label} minimal ${min}.`);
+        fail(label, t('validation.minValue', { label, count: min }));
       }
       if (max !== undefined && !Number.isNaN(value) && value > Number(max)) {
-        fail(label, `${label} maksimal ${max}.`);
+        fail(label, t('validation.maxValue', { label, count: max }));
       }
       const minLength = argOf('minLength');
       const maxLength = argOf('maxLength');
       if (minLength !== undefined && raw !== '' && raw.length < Number(minLength)) {
-        fail(label, `${label} minimal ${minLength} karakter.`);
+        fail(label, t('validation.minLength', { label, count: minLength }));
       }
       if (maxLength !== undefined && raw !== '' && raw.length > Number(maxLength)) {
-        fail(label, `${label} maksimal ${maxLength} karakter.`);
+        fail(label, t('validation.maxLength', { label, count: maxLength }));
       }
       if (has('email') && raw !== '' && !EMAIL_RE.test(raw)) {
-        fail(label, `${label} format email tidak valid.`);
+        fail(label, t('validation.email'));
       }
       const regexArg = argOf('regex');
       if (regexArg !== undefined && raw !== '' && !new RegExp(regexArg).test(raw)) {
-        fail(label, `${label} format tidak valid.`);
+        fail(label, t('validation.pattern', { label }));
       }
       if (has('unique') && !Number.isNaN(value) && isTaken(field.name, String(value))) {
-        fail(label, `${label} sudah dipakai.`);
+        fail(label, t('validation.unique', { label }));
       }
       payload[field.name] = value;
       continue;
@@ -212,11 +214,11 @@ export function validateBulkRow(
 
     if (kind === 'date') {
       const value = String(row[label] ?? '').trim();
-      if (value !== '' && !DATE_RE.test(value)) fail(label, `${label} formatnya YYYY-MM-DD.`);
-      if (has('required') && !value) fail(label, `${label} wajib diisi.`);
+      if (value !== '' && !DATE_RE.test(value)) fail(label, t('validation.dateFormat', { label }));
+      if (has('required') && !value) fail(label, t('validation.required', { label }));
       applyStringRules(field, value, fail, { email: true, regex: true, lengths: true, minMaxLength: true });
       if (has('unique') && value !== '' && isTaken(field.name, value)) {
-        fail(label, `${label} sudah dipakai.`);
+        fail(label, t('validation.unique', { label }));
       }
       payload[field.name] = value;
       continue;
@@ -226,15 +228,15 @@ export function validateBulkRow(
       const start = String(row[`${label} Start`] ?? '').trim();
       const end = String(row[`${label} End`] ?? '').trim();
       if (start !== '' && !DATE_RE.test(start)) {
-        fail(label, `${label} Start formatnya YYYY-MM-DD.`);
+        fail(label, t('validation.dateStartFormat', { label }));
       }
-      if (end !== '' && !DATE_RE.test(end)) fail(label, `${label} End formatnya YYYY-MM-DD.`);
+      if (end !== '' && !DATE_RE.test(end)) fail(label, t('validation.dateEndFormat', { label }));
       if (has('required') && (!start || !end)) {
-        fail(label, `${label} wajib diisi awal dan akhir.`);
+        fail(label, t('validation.rangeRequired', { label }));
       }
       const value = start || end ? `${start},${end}` : '';
       if (has('unique') && value !== '' && isTaken(field.name, value)) {
-        fail(label, `${label} sudah dipakai.`);
+        fail(label, t('validation.unique', { label }));
       }
       payload[field.name] = value;
       continue;
@@ -245,19 +247,19 @@ export function validateBulkRow(
         .split(',')
         .map((item) => item.trim())
         .filter(Boolean);
-      if (has('required') && value.length === 0) fail(label, `${label} wajib diisi.`);
+      if (has('required') && value.length === 0) fail(label, t('validation.required', { label }));
       const min = argOf('min');
       const max = argOf('max');
       if (min !== undefined && value.length < Number(min)) {
-        fail(label, `${label} minimal ${min} item.`);
+        fail(label, t('validation.minItems', { label, count: min }));
       }
       if (max !== undefined && value.length > Number(max)) {
-        fail(label, `${label} maksimal ${max} item.`);
+        fail(label, t('validation.maxItems', { label, count: max }));
       }
       if (statics) {
         for (const item of value) {
           if (!statics.includes(item)) {
-            fail(label, `${label} berisi nilai tidak dikenal: ${item}`);
+            fail(label, t('validation.unknownOption', { label, value: item }));
           }
         }
       }
@@ -272,14 +274,14 @@ export function validateBulkRow(
         : ['tidak', 'false', '0', ''].includes(raw)
           ? false
           : null;
-      if (value === null) fail(label, `${label} diisi Ya atau Tidak.`);
-      if (has('required') && value !== true) fail(label, `${label} wajib diisi.`);
+      if (value === null) fail(label, t('validation.boolYesNo', { label }));
+      if (has('required') && value !== true) fail(label, t('validation.required', { label }));
       payload[field.name] = value ?? false;
       continue;
     }
 
     const value = String(row[label] ?? '').trim();
-    if (has('required') && !value) fail(label, `${label} wajib diisi.`);
+    if (has('required') && !value) fail(label, t('validation.required', { label }));
     applyStringRules(field, value, fail, {
       email: true,
       regex: true,
@@ -288,10 +290,10 @@ export function validateBulkRow(
       minMaxLength: true,
     });
     if (statics && value !== '' && !statics.includes(value)) {
-      fail(label, `${label} harus salah satu: ${statics.join(', ')}.`);
+      fail(label, t('validation.optionIn', { label, options: statics.join(', ') }));
     }
     if (has('unique') && value !== '' && isTaken(field.name, value)) {
-      fail(label, `${label} sudah dipakai.`);
+      fail(label, t('validation.unique', { label }));
     }
     payload[field.name] = value;
   }
@@ -315,28 +317,28 @@ function applyStringRules(
     const min = argOf('min');
     const max = argOf('max');
     if (min !== undefined && value !== '' && value.length < Number(min)) {
-      fail(label, `${label} minimal ${min} karakter.`);
+      fail(label, t('validation.minLength', { label, count: min }));
     }
     if (max !== undefined && value !== '' && value.length > Number(max)) {
-      fail(label, `${label} maksimal ${max} karakter.`);
+      fail(label, t('validation.maxLength', { label, count: max }));
     }
   }
   if (opts.lengths) {
     const minLength = argOf('minLength');
     const maxLength = argOf('maxLength');
     if (minLength !== undefined && value !== '' && value.length < Number(minLength)) {
-      fail(label, `${label} minimal ${minLength} karakter.`);
+      fail(label, t('validation.minLength', { label, count: minLength }));
     }
     if (maxLength !== undefined && value !== '' && value.length > Number(maxLength)) {
-      fail(label, `${label} maksimal ${maxLength} karakter.`);
+      fail(label, t('validation.maxLength', { label, count: maxLength }));
     }
   }
   if (opts.email && has('email') && value !== '' && !EMAIL_RE.test(value)) {
-    fail(label, `${label} format email tidak valid.`);
+    fail(label, t('validation.email'));
   }
   const regexArg = argOf('regex');
   if (opts.regex && regexArg !== undefined && value !== '' && !new RegExp(regexArg).test(value)) {
-    fail(label, `${label} format tidak valid.`);
+    fail(label, t('validation.pattern', { label }));
   }
   if (opts.emoticon && has('withoutemoticon') && value !== '' && EMOTICON_RE.test(value)) {
     fail(label, `${label} tidak boleh mengandung emoticon.`);

@@ -1,11 +1,12 @@
 /** Route dinamis dari definisi published + halaman preview satu definisi. */
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Navigate, useParams, useRoutes, type RouteObject } from 'react-router';
 import { ErrorStatePage, LoadingOverlay } from '../../../shared/components/ui';
 import type { ModuleDefinition } from '../definitions';
 import { definitionPermissions } from './types';
 import { useDynamicDefinition, useDynamicDefinitions } from './hooks';
-import { useAuth } from '../../auth';
+import { useAuth } from '../../../app/providers';
 import DynamicListPage from './DynamicListPage';
 import { DynamicCreatePage, DynamicDetailPage, DynamicEditPage } from './DynamicFormPages';
 
@@ -73,6 +74,7 @@ function routesForDefinition(def: ModuleDefinition): RouteObject[] {
 }
 
 function DynamicModuleRoutes() {
+  const { t } = useTranslation();
   const { data, isLoading, isError, refetch } = useDynamicDefinitions('published');
   const routes: RouteObject[] = useMemo(
     () => (data ?? []).flatMap(routesForDefinition),
@@ -84,7 +86,7 @@ function DynamicModuleRoutes() {
     return (
       <ErrorStatePage
         type="500"
-        title="Gagal memuat modul dinamis."
+        title={t('error.dynamicLoadFailed')}
         onRetry={() => refetch()}
       />
     );

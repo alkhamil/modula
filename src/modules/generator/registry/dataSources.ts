@@ -10,7 +10,7 @@ export interface DataSourceDef {
 export const dataSourceRegistry: Record<DataSource, DataSourceDef> = {
   none: {
     label: 'None',
-    description: 'Tanpa sumber data eksternal.',
+    description: 'No external data source.',
     appliesTo: [
       'textField',
       'textareaField',
@@ -33,22 +33,22 @@ export const dataSourceRegistry: Record<DataSource, DataSourceDef> = {
   },
   mockStatic: {
     label: 'Mock Static',
-    description: 'Options statis [{label, value}] di mock.',
+    description: 'Static options [{label, value}] in mock.',
     appliesTo: ['selectField', 'selectMultipleField', 'radioGroupField', 'checkboxGroupField'],
   },
   mockPagingInfinityScroll: {
     label: 'Mock Paging (Infinite Scroll + Search)',
-    description: 'Options mock paginated dan searchable via loadOptions.',
+    description: 'Paginated, searchable mock options via loadOptions.',
     appliesTo: ['selectField', 'selectMultipleField'],
   },
   relation: {
     label: 'Relation',
-    description: 'Options dari records modul lain (target + label field).',
+    description: 'Options from another module records (target + label field).',
     appliesTo: ['selectField', 'selectMultipleField'],
   },
   api: {
     label: 'API',
-    description: 'Options dari endpoint real (mock memakai contoh options).',
+    description: 'Options from a real endpoint (mock uses sample options).',
     appliesTo: ['selectField', 'selectMultipleField', 'radioGroupField', 'checkboxGroupField'],
   },
 };

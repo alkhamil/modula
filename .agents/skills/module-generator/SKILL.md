@@ -11,15 +11,20 @@ Repo ini tidak punya kode per modul — modul bisnis adalah data
 Pakai skill ini saat user meminta modul baru, mengubah wizard, menambah
 tipe field/fitur/validasi, atau mengubah cara definisi di-render.
 
-## Alur wizard (6 langkah, `builder/` + `GeneratorPage.tsx`)
+## Alur wizard (7 langkah, `builder/` + `GeneratorPage.tsx`)
 
 Config → Form Canvas → Live Preview → List Canvas → Detail Canvas →
-Review & Generate. Navigasi Kembali/Lanjut (+ Simpan/Publish) di header
-Card tiap langkah. Config = Module Info (nama, parent, tipe, permission
-auto dari nama, ikon) + Features saja; field dibuat di Form Canvas via
-palet (validasi minimal 1 field di langkah kanvas). Draft autosave ke
-localStorage tiap langkah (`builder/draft.ts`); **Simpan sebagai Draft**
-atau **Publish**.
+Translation → Review & Generate. Navigasi Kembali/Lanjut (+
+Simpan/Publish) di header Card tiap langkah. Config = Module Info (nama,
+parent, tipe, permission auto dari nama, ikon) + Features saja; field
+dibuat di Form Canvas via palet (validasi minimal 1 field di langkah
+kanvas). Draft autosave ke localStorage tiap langkah (`builder/draft.ts`);
+**Simpan sebagai Draft** atau **Publish**. Translation = preview
+`en.json` otomatis (`buildModuleLocales`) + editor manual per key
+(`TextField` + pencarian) untuk bahasa `id`; terisi disimpan ke
+draft/definisi (`i18n.id`, key dot `"<base>..."`), kosong = fallback `en`;
+dipakai Generate-to-repo untuk `i18n/id.json`. Review (langkah akhir)
+tanpa editor translasi.
 Publish = upsert definisi ke mock store (seed + localStorage,
 persisten tahan refresh); modul `published` langsung live di navigasi
 + routes tanpa tulis file dan tanpa restart. Tombol **Buka pratinjau**
@@ -44,7 +49,7 @@ permissions, index, INTEGRATION.md) + `buildRegistration(config)` →
 `vite-plugin/moduleWriter.ts`, hanya di `npm run dev`; konflik → 409 →
 dialog Timpa). Registrasi idempoten via anchor `// __GENERATOR_*__` di
 `router.tsx`/`navigation.tsx` (`vite-plugin/moduleRegistration.ts`).
-Batasan: tanpa `service.ts` (axios), layout kanvas/relation/menuIcon tak
+Batasan: tanpa `service.ts` (axios), layout kanvas/relation tak
 ikut template, field relation jadi select biasa. Modul statis menutupi
 versi dinamis di route sama + memakai mock-nya sendiri; duplikat nav
 dicegah `mergeNavItems` (statis menang, anak grup digabung per path).
@@ -61,12 +66,14 @@ dicegah `mergeNavItems` (statis menang, anak grup digabung per path).
   `entityPlural`, `routeBase` (parent + plural, mis.
   `mater-data/companies`), `apiPlural` flat (`companies`).
 - `type: 'crud'` — registry di `registry/moduleTypes.ts`.
-- `menuIcon?: {name, svg}` — satu ikon menu (nama + kode SVG paste
-  Figma, disanitasi `sanitizeSvg` saat save dialog). Mapping otomatis:
+- `menuIcon?: {name}` — satu ikon menu (nama komponen `lucide-react`,
+  mis. `Users`; validasi pola `MENU_ICON_NAME_RE`). Mapping otomatis:
   menempel di menu modul bila root, di grup parent bila ber-parent
   (grup = definisi pertama urut label yang mengaturnya). Diatur lewat
-  popup `MenuIconDialog` (baris Ikon menu di Module Info, langkah Config);
-  render via `SvgIcon` di `buildDynamicNavItems`, fallback ikon bawaan.
+  popup `IconPickerDialog` (listing + pencarian ikon lucide, baris Ikon
+  menu di Module Info, langkah Config); render via `ModuleMenuIcon`
+  (fallback `Database`), dipakai juga di nav statis hasil Generate
+  (nama dicek ke map `icons`, import lucide dikelola otomatis).
 - `permissionKey` — wajib, single value tanpa titik (mis. `region`;
   regex `^[a-z][a-z0-9_]*$`, maks 100 char). Runtime menurunkan
   `{base}.view/.create/.update/.delete/.bulk_upload/.export`.
@@ -241,7 +248,8 @@ dicegah `mergeNavItems` (statis menang, anak grup digabung per path).
   Node/jiti); hanya client API runtime + komponen UI yang bergantung
   Vite/browser.
 - Jangan hardcode nama modul contoh (`Region`) di kode generik.
-- `src/modules/` tetap hanya `auth/` + `generator/` — modul baru =
+- Modul statis di `src/modules/` hanya yang non-CRUD/shell (`auth/`,
+  `dashboard/`, `showcase/`, `generator/`) — modul bisnis baru =
   definisi baru, bukan folder baru.
 - Verifikasi generator: `npm run verify:generator`
   (`scripts/verify-generator/`: asersi emisi template + generate

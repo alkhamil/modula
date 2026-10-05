@@ -1,50 +1,45 @@
 import { useNavigate } from 'react-router';
-import { ErrorIcon, SearchIcon, WarningIcon } from '../icons';
+import { useTranslation } from 'react-i18next';
+import { CircleX, Search, TriangleAlert } from 'lucide-react';
 import Button from './Button';
 
 export type ErrorStateType = '403' | '404' | '500';
 
 interface ErrorStateConfig {
-  title: string;
-  subtitle: string;
+  titleKey: string;
+  subtitleKey: string;
   testId: string;
   /** Tone medallion ikon. */
   tone: string;
-  icon: typeof ErrorIcon;
+  icon: typeof CircleX;
   /** Aksi primer kontekstual. */
-  primaryLabel: string;
+  primaryKey: string;
 }
 
 const ERROR_STATE_CONFIG: Record<ErrorStateType, ErrorStateConfig> = {
   '403': {
-    title: 'Akses Ditolak',
-    subtitle:
-      'Akun Anda tidak memiliki permission untuk membuka halaman ini. ' +
-      'Hubungi administrator jika Anda merasa ini keliru.',
+    titleKey: 'error.forbiddenTitle',
+    subtitleKey: 'error.forbiddenSubtitle',
     testId: 'forbidden-page',
     tone: 'bg-warning/15 text-warning',
-    icon: WarningIcon,
-    primaryLabel: 'Ke Dashboard',
+    icon: TriangleAlert,
+    primaryKey: 'error.toDashboard',
   },
   '404': {
-    title: 'Halaman Tidak Ditemukan',
-    subtitle:
-      'Alamat yang Anda tuju tidak tersedia atau sudah dipindahkan. ' +
-      'Periksa kembali URL atau kembali ke halaman utama.',
+    titleKey: 'error.notFoundTitle',
+    subtitleKey: 'error.notFoundSubtitle',
     testId: 'not-found-page',
     tone: 'bg-info/15 text-info',
-    icon: SearchIcon,
-    primaryLabel: 'Ke Dashboard',
+    icon: Search,
+    primaryKey: 'error.toDashboard',
   },
   '500': {
-    title: 'Terjadi Kesalahan Sistem',
-    subtitle:
-      'Sesuatu bermasalah di sisi kami. Coba muat ulang halaman, ' +
-      'atau hubungi administrator bila berlanjut.',
+    titleKey: 'error.systemTitle',
+    subtitleKey: 'error.systemSubtitle',
     testId: 'error-page',
     tone: 'bg-danger/15 text-danger',
-    icon: ErrorIcon,
-    primaryLabel: 'Coba Lagi',
+    icon: CircleX,
+    primaryKey: 'error.retry',
   },
 };
 
@@ -72,6 +67,7 @@ function ErrorStatePage({
   hideActions = false,
 }: ErrorStatePageProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const config = ERROR_STATE_CONFIG[type];
   const Icon = config.icon;
 
@@ -92,17 +88,17 @@ function ErrorStatePage({
       <div className={`flex h-20 w-20 items-center justify-center rounded-full ${config.tone}`}>
         <Icon className="h-10 w-10" />
       </div>
-      <h1 className="mt-6 text-2xl font-semibold text-foreground">{title ?? config.title}</h1>
+      <h1 className="mt-6 text-2xl font-semibold text-foreground">{title ?? t(config.titleKey)}</h1>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-        {subtitle ?? config.subtitle}
+        {subtitle ?? t(config.subtitleKey)}
       </p>
-      <p className="mt-4 font-mono text-xs text-muted-foreground">Kode error: {type}</p>
+      <p className="mt-4 font-mono text-xs text-muted-foreground">{t('error.code', { code: type })}</p>
       {!hideActions && (
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
           <Button variant="secondary" onClick={() => navigate(-1)}>
-            Kembali
+            {t('common.back')}
           </Button>
-          <Button onClick={handlePrimary}>{config.primaryLabel}</Button>
+          <Button onClick={handlePrimary}>{t(config.primaryKey)}</Button>
         </div>
       )}
     </div>

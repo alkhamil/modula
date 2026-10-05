@@ -2,15 +2,11 @@
 import type { ReactNode } from 'react';
 import { Table } from '../../../shared/components/ui';
 import type { Column } from '../../../shared/components/ui/Table';
-import {
-  PencilIcon,
-  RestoreIcon,
-  TrashIcon,
-  ViewIcon,
-} from '../../../shared/components/icons';
+import { Pencil, RotateCcw, Trash2, Eye } from 'lucide-react';
 import type { ModuleDefinition } from '../definitions';
 import { definitionTestId, type DynamicListItem } from './types';
 import { columnRenderForType, systemTableColumn } from './cellRender';
+import { moduleFieldLabel } from './moduleI18n';
 
 interface DynamicTableProps {
   testId?: string;
@@ -86,7 +82,7 @@ function DynamicTable({
       const type = field.type;
       const column: Column<DynamicListItem> = {
         key: name,
-        header: field.label,
+        header: moduleFieldLabel(def, field),
         sortable: field.sortable !== false,
       };
       const render = cellRender(type, name);
@@ -133,7 +129,7 @@ function DynamicTable({
                     title={`View ${row.id}`}
                     onClick={() => onView(row)}
                   >
-                    <ViewIcon />
+                    <Eye />
                   </button>
                 )}
                 {onEdit && (
@@ -143,7 +139,7 @@ function DynamicTable({
                     title={`Edit ${row.id}`}
                     onClick={() => onEdit(row)}
                   >
-                    <PencilIcon />
+                    <Pencil />
                   </button>
                 )}
                 {row.status === 'active' && onDelete && (
@@ -154,7 +150,7 @@ function DynamicTable({
                     onClick={() => onDelete(row)}
                     disabled={isDeleting}
                   >
-                    <TrashIcon />
+                    <Trash2 />
                   </button>
                 )}
                 {row.status === 'inactive' && onRestore && (
@@ -165,7 +161,7 @@ function DynamicTable({
                     onClick={() => onRestore(row)}
                     disabled={isRestoring}
                   >
-                    <RestoreIcon />
+                    <RotateCcw />
                   </button>
                 )}
               </div>

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Button from '../Button';
@@ -31,6 +32,7 @@ export default function EditorField({
   'data-testid': dataTestId,
 }: EditorFieldProps) {
   const resolvedTestId = dataTestId ?? testId;
+  const { t } = useTranslation();
   const editor = useEditor({
     extensions: [StarterKit],
     content: value,
@@ -55,36 +57,36 @@ export default function EditorField({
 
   const toolbarButtons = [
     {
-      label: 'Bold',
-      title: 'Tebal',
+      label: t('fields.bold'),
+      title: t('fields.boldTitle'),
       active: editor?.isActive('bold') ?? false,
       action: () => editor?.chain().focus().toggleBold().run(),
       className: 'font-bold',
     },
     {
-      label: 'Italic',
-      title: 'Miring',
+      label: t('fields.italic'),
+      title: t('fields.italicTitle'),
       active: editor?.isActive('italic') ?? false,
       action: () => editor?.chain().focus().toggleItalic().run(),
       className: 'italic',
     },
     {
-      label: '• Daftar',
-      title: 'Daftar poin',
+      label: t('fields.bulletList'),
+      title: t('fields.bulletListTitle'),
       active: editor?.isActive('bulletList') ?? false,
       action: () => editor?.chain().focus().toggleBulletList().run(),
       className: '',
     },
     {
-      label: '1. Daftar',
-      title: 'Daftar bernomor',
+      label: t('fields.orderedList'),
+      title: t('fields.orderedListTitle'),
       active: editor?.isActive('orderedList') ?? false,
       action: () => editor?.chain().focus().toggleOrderedList().run(),
       className: '',
     },
     {
-      label: 'Kutipan',
-      title: 'Kutipan',
+      label: t('fields.quote'),
+      title: t('fields.quoteTitle'),
       active: editor?.isActive('blockquote') ?? false,
       action: () => editor?.chain().focus().toggleBlockquote().run(),
       className: '',

@@ -1,5 +1,16 @@
 export type ModuleType = 'crud';
 
+/** Language codes supported for per-module translations. */
+export type ModuleLanguage = 'en' | 'id';
+
+/**
+ * Per-module translation dictionaries, embedded in the definition
+ * (`ModuleDefinition.i18n`). Keys follow the `module:{key}` convention,
+ * e.g. `field.name.label`, `title.list`. Missing entries fall back to the
+ * stored English defaults, then to the `general` namespace.
+ */
+export type ModuleI18nDict = Partial<Record<ModuleLanguage, Record<string, string>>>;
+
 export type FeatureKey =
   | 'list'
   | 'detail'
@@ -233,7 +244,7 @@ export interface EditorPropsConfig {
 /** Props FormArrayField (formArrayField). Nilai baris embedded `Record<string, unknown>[]`. */
 export interface ArrayPropsConfig {
   size?: FieldSize;
-  /** Label tombol tambah (default `Tambah`). */
+  /** Add button label (defaults to `t('array.add')`). */
   addLabel?: string;
   /** Judul dialog editor (default label field). */
   editorTitle?: string;
@@ -325,22 +336,28 @@ export interface GeneratorConfig {
    * Props tampilan tabel (diteruskan dari `layout.table.props` definisi;
    * dibake sebagai literal di kode statis).
    */
-  tableProps?: TableDisplayProps;  /**
+  tableProps?: TableDisplayProps;
+  /** Lebar kolom tabel (px) per nama field/kolom sistem; dibake sebagai literal. */
+  tableWidths?: Record<string, number>;  /**
    * Ikon menu sidebar (opsional; tanpa entri = ikon bawaan).
    * Mapping otomatis: menempel di menu modul bila root, di grup parent
    * bila modul punya parent.
    */
   menuIcon?: MenuIcon;
+  /** Per-module translations (`module:{key}` namespace); missing keys fall back to English defaults. */
+  i18n?: ModuleI18nDict;
 }
 
 /**
- * Ikon menu kustom dari kode SVG (paste Figma, sudah disanitasi saat save).
- * `name` untuk identifikasi; `svg` satu elemen `<svg>` utuh.
+ * Ikon menu dari `lucide-react`: nama komponen PascalCase (mis. `Database`,
+ * `Users`). Render fallback ke `Database` bila nama tak dikenal.
  */
 export interface MenuIcon {
   name: string;
-  svg: string;
 }
+
+/** Nama komponen ikon valid: PascalCase tanpa spasi/simbol (aman di-emit ke kode). */
+export const MENU_ICON_NAME_RE = /^[A-Z][A-Za-z0-9]{0,39}$/;
 
 /** Satu file hasil generate: path relatif repo + isi kode. */
 export interface GeneratedFile {
@@ -379,6 +396,8 @@ export interface ModuleRegistration {
   parentLabel: string | null;
   /** Label modul plural, mis. `Companies`. */
   label: string;
+  /** Nama ikon lucide nav (`Database` bila default; sudah disanitasi identifier). */
+  iconName: string;
   permissionView: string;
 }
 

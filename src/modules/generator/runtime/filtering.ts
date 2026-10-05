@@ -4,7 +4,11 @@
  * `filter<EntityPlural>Records`, `sort<EntityPlural>`, `paginate`).
  * Murni & Node-safe (tipe UI diimpor type-only).
  */
+import { t } from 'i18next';
+import '../../../shared/i18n';
 import type { FilterField } from '../../../shared/components/ui';
+import type { ModuleDefinition } from '../definitions';
+import { moduleFieldLabel } from './moduleI18n';
 import type { LoadOptionsFn } from '../../../shared/components/ui/fields/SelectField';
 import type { GeneratorFieldConfig } from '../types';
 import { fieldTypeRegistry } from '../registry';
@@ -14,6 +18,7 @@ import type { DynamicListItem } from './types';
 export function buildFilterFields(
   fields: GeneratorFieldConfig[],
   loadOptionsFor: (field: GeneratorFieldConfig) => LoadOptionsFn | undefined,
+  def?: Pick<ModuleDefinition, 'i18n'>,
 ): FilterField[] {
   const statusField: FilterField = {
     name: 'status',
@@ -32,45 +37,45 @@ export function buildFilterFields(
     const isMulti = field.type === 'selectMultipleField' || field.type === 'checkboxGroupField';
     switch (criteria) {
       case 'contains':
-        items.push({ name: field.name, label: field.label, type: 'text', placeholder: 'Contains…' });
+        items.push({ name: field.name, label: moduleFieldLabel(def, field), type: 'text', placeholder: t('filter.containsPh') });
         break;
       case 'exact':
       case 'numberExact':
-        items.push({ name: field.name, label: field.label, type: 'text' });
+        items.push({ name: field.name, label: moduleFieldLabel(def, field), type: 'text' });
         break;
       case 'numberMin':
-        items.push({ name: field.name, label: `${field.label} (Min)`, type: 'text', placeholder: 'Minimal…' });
+        items.push({ name: field.name, label: `${moduleFieldLabel(def, field)} (Min)`, type: 'text', placeholder: t('filter.minPh') });
         break;
       case 'numberMax':
-        items.push({ name: field.name, label: `${field.label} (Max)`, type: 'text', placeholder: 'Maksimal…' });
+        items.push({ name: field.name, label: `${moduleFieldLabel(def, field)} (Max)`, type: 'text', placeholder: t('filter.maxPh') });
         break;
       case 'numberRange':
         items.push(
-          { name: `${field.name}Min`, label: `${field.label} (Min)`, type: 'text', placeholder: 'Minimal…' },
-          { name: `${field.name}Max`, label: `${field.label} (Max)`, type: 'text', placeholder: 'Maksimal…' },
+          { name: `${field.name}Min`, label: `${moduleFieldLabel(def, field)} (Min)`, type: 'text', placeholder: t('filter.minPh') },
+          { name: `${field.name}Max`, label: `${moduleFieldLabel(def, field)} (Max)`, type: 'text', placeholder: t('filter.maxPh') },
         );
         break;
       case 'dateExact':
-        items.push({ name: field.name, label: field.label, type: 'date' });
+        items.push({ name: field.name, label: moduleFieldLabel(def, field), type: 'date' });
         break;
       case 'dateRange':
       case 'dateOverlap':
         items.push({
           name: field.name,
-          label: field.label,
+          label: moduleFieldLabel(def, field),
           type: 'date',
           range: true,
-          rangeErrorMessage: `${field.label} harus diisi awal dan akhir.`,
+          rangeErrorMessage: t('validation.rangeRequired', { label: moduleFieldLabel(def, field) }),
         });
         break;
       case 'booleanExact':
         items.push({
           name: field.name,
-          label: field.label,
+          label: moduleFieldLabel(def, field),
           type: 'select',
           options: [
-            { label: 'Ya', value: 'true' },
-            { label: 'Tidak', value: 'false' },
+            { label: t('filter.yes'), value: 'true' },
+            { label: t('filter.no'), value: 'false' },
           ],
         });
         break;
@@ -82,14 +87,14 @@ export function buildFilterFields(
         if (field.source === 'mockStatic' || field.source === 'api') {
           items.push({
             name: field.name,
-            label: field.label,
+            label: moduleFieldLabel(def, field),
             type: filterType,
             options: (field.options ?? []).map((option) => ({ ...option })),
           });
         } else if (loader) {
-          items.push({ name: field.name, label: field.label, type: filterType, loadOptions: loader });
+          items.push({ name: field.name, label: moduleFieldLabel(def, field), type: filterType, loadOptions: loader });
         } else {
-          items.push({ name: field.name, label: field.label, type: filterType, options: [] });
+          items.push({ name: field.name, label: moduleFieldLabel(def, field), type: filterType, options: [] });
         }
         break;
       }

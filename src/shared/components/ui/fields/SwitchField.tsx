@@ -1,4 +1,4 @@
-import { FieldErrorIcon } from '../../icons';
+import { CircleAlert } from 'lucide-react';
 
 interface SwitchFieldProps {
   value: boolean;
@@ -80,7 +80,7 @@ function SwitchField({ value = false, onChange, size = 'md', disabled, error, cl
         {visibleLabel ? (
           <span className="text-sm font-medium text-foreground">{visibleLabel}</span>
         ) : null}
-        {error && <FieldErrorIcon className="h-3.5 w-3.5" />}
+        {error && <CircleAlert className="h-3.5 w-3.5" />}
       </div>
       {error && (
         <p data-testid={resolvedTestId ? `${resolvedTestId}-error` : undefined} className="mt-1 text-xs text-danger" role="alert">

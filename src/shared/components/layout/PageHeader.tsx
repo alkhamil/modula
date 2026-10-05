@@ -1,9 +1,11 @@
 import { type ReactNode } from 'react';
 import { NavLink } from 'react-router';
-import { MenuIcon } from '../icons';
+import { Menu } from 'lucide-react';
 
 export interface BreadcrumbItem {
   label: string;
+  /** General-namespace key for the label; falls back to `label`. */
+  labelKey?: string;
   path?: string;
 }
 
@@ -32,7 +34,7 @@ function PageHeader({
     >
       {onMenuToggle && (
         <button onClick={onMenuToggle} className="mr-4 md:hidden" aria-label="Toggle menu">
-          <MenuIcon className="h-6 w-6" />
+          <Menu className="h-6 w-6" />
         </button>
       )}
 

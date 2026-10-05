@@ -1,4 +1,6 @@
 /** Mock definisi modul: seed JSON + persist localStorage (mock-only, tanpa BE). */
+import { t } from 'i18next';
+import '../../../shared/i18n';
 import type { ModuleDefinition } from '../definitions';
 
 export interface SaveDefinitionResult {
@@ -67,7 +69,7 @@ export async function listDefinitions(status?: string): Promise<ModuleDefinition
 export async function getDefinition(key: string): Promise<ModuleDefinition> {
   await delay(150);
   const found = seedDefinitions().find((def) => def.key === key);
-  if (!found) throw new Error(`Definisi "${key}" tidak ditemukan.`);
+  if (!found) throw new Error(t('api.definitionNotFound', { key }));
   return { ...found };
 }
 

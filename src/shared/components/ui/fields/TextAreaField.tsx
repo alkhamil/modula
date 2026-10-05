@@ -1,5 +1,5 @@
 import { type ChangeEvent, type TextareaHTMLAttributes, forwardRef } from 'react';
-import { FieldErrorIcon } from '../../icons';
+import { CircleAlert } from 'lucide-react';
 import { stripNonAscii } from '../../../utils';
 
 interface TextAreaFieldProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'> {
@@ -69,7 +69,7 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
           />
           {error && (
             <span className="absolute top-2 right-3">
-              <FieldErrorIcon className="h-3.5 w-3.5" />
+              <CircleAlert className="h-3.5 w-3.5" />
             </span>
           )}
         </div>

@@ -1,4 +1,5 @@
-import type { GeneratorConfig } from '../types';
+import type { GeneratorConfig, MenuIcon, ModuleI18nDict, ModuleLanguage } from '../types';
+import { MENU_ICON_NAME_RE } from '../types';
 import { normalizeConfig } from '../parser';
 import { resolveNames, toKebabCase } from '../naming';
 import type {
@@ -12,6 +13,29 @@ import type {
 import type { DetailCardDisplayProps, DetailRowDisplayProps } from '../types';
 import type { TableDisplayProps } from '../types';
 import { MODULE_DEFINITION_VERSION, SYSTEM_TABLE_COLUMNS } from './types';
+
+const MODULE_LANGUAGES: readonly ModuleLanguage[] = ['en', 'id'];
+
+/**
+ * Sanitize per-module translations: keep string entries only, drop empty
+ * keys/values and unknown languages. Returns undefined when empty.
+ */
+export function normalizeModuleI18n(raw: unknown): ModuleI18nDict | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const out: ModuleI18nDict = {};
+  for (const lng of MODULE_LANGUAGES) {
+    const dict = (raw as Record<string, unknown>)[lng];
+    if (!dict || typeof dict !== 'object') continue;
+    const clean: Record<string, string> = {};
+    for (const [key, value] of Object.entries(dict as Record<string, unknown>)) {
+      if (typeof value === 'string' && key.trim() !== '' && value !== '') {
+        clean[key.trim()] = value;
+      }
+    }
+    if (Object.keys(clean).length > 0) out[lng] = clean;
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
 
 /** Layout default: form satu kolom penuh (meniru tampilan form hasil generate), tabel semua field tampil. */
 export function defaultLayoutForFields(
@@ -187,10 +211,23 @@ export function configToDefinition(
     deleteMode: opts.deleteMode ?? 'soft',
     status: opts.status ?? 'draft',
     menuIcon: config.menuIcon,
+    i18n: normalizeModuleI18n(raw.i18n),
   };
 }
 
 /** Normalisasi definisi penuh (dipakai wizard publish & validasi seed). */
+/**
+ * Bersihkan ikon menu lama/asing ke bentuk `{ name }` lucide (atau undefined).
+ * Murni & Node-safe.
+ */
+export function cleanMenuIcon(raw: unknown): MenuIcon | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const name = (raw as Record<string, unknown>).name;
+  if (typeof name !== 'string') return undefined;
+  const trimmed = name.trim();
+  return MENU_ICON_NAME_RE.test(trimmed) ? { name: trimmed } : undefined;
+}
+
 export function normalizeDefinition(def: ModuleDefinition): ModuleDefinition {
   const asConfig: GeneratorConfig = {
     parentName: def.parent,
@@ -204,6 +241,7 @@ export function normalizeDefinition(def: ModuleDefinition): ModuleDefinition {
   return {
     ...def,
     version: MODULE_DEFINITION_VERSION,
+    menuIcon: cleanMenuIcon(def.menuIcon),
     key: def.key.trim(),
     label: def.label.trim(),
     singularLabel: def.singularLabel.trim(),
@@ -213,5 +251,6 @@ export function normalizeDefinition(def: ModuleDefinition): ModuleDefinition {
     apiPlural: def.apiPlural.trim().toLowerCase(),
     fields: normalized.fields,
     layout: normalizeLayout(def.layout, normalized.fields.map((field) => field.name)),
+    i18n: normalizeModuleI18n(def.i18n),
   };
 }
