@@ -51,7 +51,7 @@ export interface FieldFormValue {
   source: DataSource;
   options: FieldOption[];
   api: Required<ApiSourceConfig>;
-  relation: { definitionKey: string; labelField: string; valueField: string };
+  relation: { definitionKey: string; labelField: string; valueField: string; apiPlural?: string };
   placeholder: string;
   disabled: boolean;
   /** String mentah input angka ('' = default). */
@@ -73,7 +73,7 @@ export interface SubFieldDraft {
   source: DataSource;
   options: FieldOption[];
   api: Required<ApiSourceConfig>;
-  relation: { definitionKey: string; labelField: string; valueField: string };
+  relation: { definitionKey: string; labelField: string; valueField: string; apiPlural?: string };
   placeholder: string;
   disabled: boolean;
   /** String mentah input angka ('' = default). */
@@ -162,6 +162,7 @@ function configToSubDraft(sub: GeneratorFieldConfig): SubFieldDraft {
       definitionKey: sub.relation?.definitionKey ?? '',
       labelField: sub.relation?.labelField ?? '',
       valueField: sub.relation?.valueField ?? 'id',
+      ...(sub.relation?.apiPlural ? { apiPlural: sub.relation.apiPlural } : {}),
     },
     placeholder: sub.placeholder ?? '',
     disabled: sub.disabled ?? false,
@@ -201,6 +202,7 @@ function subDraftToConfig(sub: SubFieldDraft): GeneratorFieldConfig {
             definitionKey: sub.relation.definitionKey,
             labelField: sub.relation.labelField,
             valueField: sub.relation.valueField.trim() || 'id',
+            ...(sub.relation.apiPlural ? { apiPlural: sub.relation.apiPlural } : {}),
           },
         }
       : {}),
@@ -286,6 +288,7 @@ export function initialFormValue(
       definitionKey: field?.relation?.definitionKey ?? '',
       labelField: field?.relation?.labelField ?? '',
       valueField: field?.relation?.valueField ?? 'id',
+      ...(field?.relation?.apiPlural ? { apiPlural: field.relation.apiPlural } : {}),
     },
     placeholder: field?.placeholder ?? '',
     disabled: field?.disabled ?? false,
@@ -306,6 +309,7 @@ export function buildFieldConfig(form: FieldFormValue): GeneratorFieldConfig {
     definitionKey: form.relation.definitionKey,
     labelField: form.relation.labelField,
     valueField: form.relation.valueField.trim() || 'id',
+    ...(form.relation.apiPlural ? { apiPlural: form.relation.apiPlural } : {}),
   };
   return {
     name: form.name,
@@ -578,7 +582,7 @@ export interface SourcePatch {
   source?: DataSource;
   options?: FieldOption[];
   api?: Required<ApiSourceConfig>;
-  relation?: { definitionKey: string; labelField: string; valueField: string };
+  relation?: { definitionKey: string; labelField: string; valueField: string; apiPlural?: string };
 }
 
 /**
@@ -600,7 +604,7 @@ function SourceEditor({
   source: DataSource;
   options: FieldOption[];
   api: Required<ApiSourceConfig>;
-  relation: { definitionKey: string; labelField: string; valueField: string };
+  relation: { definitionKey: string; labelField: string; valueField: string; apiPlural?: string };
   definitions: ModuleDefinition[];
   onPatch: (part: SourcePatch) => void;
   iconOnlyRemove?: boolean;
@@ -689,6 +693,7 @@ function SourceEditor({
                     labelField: target?.fields.some((f) => f.name === relation.labelField)
                       ? relation.labelField
                       : '',
+                    ...(target ? { apiPlural: target.apiPlural } : {}),
                   },
                 });
               }}

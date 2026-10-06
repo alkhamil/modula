@@ -1,15 +1,34 @@
 import type { TemplateContext } from '../../engine/context';
-import { arraySubLoadModels, rowTypeName, tsDataType } from '../../engine/fieldGenerator';
-import { toPascalCase } from '../../naming';
+import {
+  arraySubLoadModels,
+  arraySubRelationModels,
+  relationSelects,
+  rowTypeName,
+  tsDataType,
+} from '../../engine/fieldGenerator';
+import type { FieldModel } from '../../engine/context';
+import { resolveRelationTarget, toPascalCase } from '../../naming';
 import {
   loadLabelHelper,
   mockFilterLine,
   mockLoadOptionsFn,
   mockOptionsConst,
   mockRecordValue,
+  mockRelationOptionsFn,
+  mockRelationOptionsImport,
   optionMapping,
   optionsEndpoint,
 } from '../../engine/sourceGenerator';
+
+/** Semua field ber-loader: paging + relasi (top-level). */
+function loadableSelects(ctx: TemplateContext): FieldModel[] {
+  return [...loadSelects(ctx), ...relationSelects(ctx)];
+}
+
+/** Semua model ber-loader: paging + relasi (termasuk sub-field array). */
+function loadableSubModels(fields: FieldModel[]): FieldModel[] {
+  return [...arraySubLoadModels(fields), ...arraySubRelationModels(fields)];
+}
 
 function optionsSelects(ctx: TemplateContext) {
   return ctx.fields.filter((f) => f.isOptionsQuery);
@@ -44,8 +63,8 @@ export function serviceTemplate(ctx: TemplateContext): string {
     names.params,
     names.listItem,
     ...optionsSelects(ctx).map((f) => f.optionType),
-    ...loadSelects(ctx).map((f) => f.optionType),
-    ...arraySubLoadModels(ctx.fields).map((m) => m.optionType),
+    ...loadableSelects(ctx).map((f) => f.optionType),
+    ...loadableSubModels(ctx.fields).map((m) => m.optionType),
   ];
 
   const optionsFns = optionsSelects(ctx)
@@ -62,14 +81,42 @@ export function serviceTemplate(ctx: TemplateContext): string {
     })
     .join('\n\n');
 
-  const loadFieldsAll = [...loadSelects(ctx), ...arraySubLoadModels(ctx.fields)];
+  const loadFieldsAll = [...loadableSelects(ctx), ...loadableSubModels(ctx.fields)];
   const loadFns = loadFieldsAll
     .map((f) => {
+      if (f.isRelationOptions) {
+        // Relasi: options dari endpoint list modul target.
+        const target = resolveRelationTarget(f.config.relation);
+        const labelField = f.config.relation?.labelField || 'name';
+        const valueField = f.config.relation?.valueField?.trim() || 'id';
+        return `export async function ${f.loadOptionsFn}(
+  search = '',
+  page = 1,
+  size = 20,
+): Promise<${f.optionType}[]> {
+  const res = await api.get<ApiResponse<ApiList<Record<string, unknown>>>>('/api/v1/${target?.apiPlural ?? 'items'}', {
+    params: { search, page, size },
+  });
+  const content = res.data.response_output?.list.content ?? [];
+  return content.map((r) => ({
+    label: String(r['${labelField}'] ?? ''),
+    value: String(r['${valueField}'] ?? ''),
+  }));
+}`;
+      }
       const mapping = optionMapping(f);
       const shape = mapping ? 'Record<string, unknown>' : f.optionType;
       const body = mapping
         ? `const content = res.data.response_output?.list.content ?? [];\n  return content.map(${mapping});`
         : `return res.data.response_output?.list.content ?? [];`;
+      // Relasi memakai RelationLabel async — tanpa stub label sinkron.
+      const stub = f.isRelationOptions
+        ? ''
+        : `
+/** Label sinkron mock-only; service mengembalikan value (resolve via endpoint bila perlu). */
+export function ${loadLabelHelper(f)}(value: string): string {
+  return value;
+}`;
       return `export async function ${f.loadOptionsFn}(
   search = '',
   page = 1,
@@ -79,11 +126,7 @@ export function serviceTemplate(ctx: TemplateContext): string {
     params: { search, page, size },
   });
   ${body}
-}
-/** Label sinkron mock-only; service mengembalikan value (resolve via endpoint bila perlu). */
-export function ${loadLabelHelper(f)}(value: string): string {
-  return value;
-}`;
+}${stub}`;
     })
     .join('\n\n');
 
@@ -175,8 +218,8 @@ export function mockTemplate(ctx: TemplateContext): string {
     names.payload,
     names.params,
     ...optionsSelects(ctx).map((f) => f.optionType),
-    ...loadSelects(ctx).map((f) => f.optionType),
-    ...arraySubLoadModels(fields).map((m) => m.optionType),
+    ...loadableSelects(ctx).map((f) => f.optionType),
+    ...loadableSubModels(fields).map((m) => m.optionType),
     ...fields.filter((f) => f.config.type === 'formArrayField').map((f) => rowTypeName(f)),
   ];
 
@@ -188,8 +231,8 @@ export function mockTemplate(ctx: TemplateContext): string {
     '  delete: true,',
     '  restore: true,',
     ...optionsSelects(ctx).map((f) => `  ${f.name}Options: true,`),
-    ...loadSelects(ctx).map((f) => `  ${f.name}LoadOptions: true,`),
-    ...arraySubLoadModels(ctx.fields).map((f) => `  ${f.name}LoadOptions: true,`),
+    ...loadableSelects(ctx).map((f) => `  ${f.name}LoadOptions: true,`),
+    ...loadableSubModels(ctx.fields).map((f) => `  ${f.name}LoadOptions: true,`),
     ...loadSelects(ctx).map((f) => `  ${f.name}Label: true,`),
     ...arraySubLoadModels(ctx.fields).map((f) => `  ${f.name}Label: true,`),
     ...(features.export ? ['  export: true,'] : []),
@@ -197,8 +240,16 @@ export function mockTemplate(ctx: TemplateContext): string {
   ].join('\n');
 
   const optionsConsts = optionsSelects(ctx).map(mockOptionsConst).join('\n\n');
-  const loadFns = [...loadSelects(ctx), ...arraySubLoadModels(fields)]
-    .map(mockLoadOptionsFn)
+  const loadModels = [...loadableSelects(ctx), ...loadableSubModels(fields)];
+  const relationImports = [
+    ...loadableSelects(ctx),
+    ...loadableSubModels(fields),
+  ]
+    .filter((f) => f.isRelationOptions)
+    .map(mockRelationOptionsImport)
+    .join('\n');
+  const loadFns = loadModels
+    .map((f) => (f.isRelationOptions ? mockRelationOptionsFn(f) : mockLoadOptionsFn(f)))
     .join('\n\n');
 
   const recordFields = fields.map((f) => `  ${f.name}: ${mockRecordValue(f)},`).join('\n');
@@ -261,7 +312,7 @@ import type {
   ${typeImports.join(',\n  ')},
 } from '../types';
 import type { ApiList } from '${names.sharedPrefix}shared/types';
-${excelImport}${validationImport}
+${excelImport}${validationImport}${relationImports ? `${relationImports}\n` : ''}
 export const USE_MOCK = {
 ${mockFlags}
 };
@@ -555,7 +606,7 @@ export function resolverTemplate(ctx: TemplateContext): string {
       `${f.loadOptionsFn} as mock${toPascalCase(f.loadOptionsFn)}`,
     ]);
   }
-  for (const f of arraySubLoadModels(ctx.fields)) {
+  for (const f of loadableSubModels(ctx.fields)) {
     ops.push([
       `${f.name}LoadOptions`,
       f.loadOptionsFn,

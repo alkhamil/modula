@@ -86,6 +86,11 @@ export interface RelationConfig {
   labelField: string;
   /** Field target yang dipakai sebagai value (default `id`). */
   valueField?: string;
+  /**
+   * `apiPlural` modul target (mis. `companies`) — diisi wizard saat target
+   * dipilih; fallback turunan jamak Inggris sederhana bila kosong.
+   */
+  apiPlural?: string;
 }
 
 /** Kriteria filter per field — opsi valid tergantung tipe field (lihat filterCriteriaRegistry). */

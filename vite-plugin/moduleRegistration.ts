@@ -71,6 +71,50 @@ function removeBlockContaining(source: string, token: string): { source: string;
   return removeBraceBlockAt(source, tokenIndex);
 }
 
+/**
+ * Indeks `]` penutup array yang dibuka pada openIndex (harus menunjuk `[`).
+ * Quote-aware seperti removeBraceBlockAt; -1 bila tak seimbang.
+ */
+function findMatchingBracket(source: string, openIndex: number): number {
+  if (source[openIndex] !== '[') return -1;
+  let depth = 0;
+  let quote: string | null = null;
+  for (let i = openIndex; i < source.length; i++) {
+    const ch = source[i] as string;
+    if (quote !== null) {
+      if (ch === '\\') i++;
+      else if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"') {
+      quote = ch;
+      continue;
+    }
+    if (ch === '[') depth++;
+    else if (ch === ']') {
+      depth--;
+      if (depth === 0) return i;
+    }
+  }
+  return -1;
+}
+
+/** Indeks `[` pembuka array `children` grup parent mulai markerIndex; -1 bila tak ada. */
+function findChildrenOpen(source: string, markerIndex: number): number {
+  const match = /children\s*:\s*\[/.exec(source.slice(markerIndex));
+  return match ? markerIndex + match.index + match[0].length - 1 : -1;
+}
+
+/**
+ * Indeks `]` penutup array `children` (harus diikuti koma); -1 bila tak ada
+ * penutup yang sah — mis. `]` milik array lain di bawahnya diabaikan.
+ */
+function findChildrenClose(source: string, childrenOpen: number): number {
+  const closeIndex = findMatchingBracket(source, childrenOpen);
+  if (closeIndex === -1 || source[closeIndex + 1] !== ',') return -1;
+  return closeIndex;
+}
+
 function insertBeforeAnchor(source: string, anchor: string, block: string, file: string): string {
   const index = source.indexOf(anchor);
   if (index === -1) throw new Error(`Anchor ${anchor} tidak ditemukan di ${file}.`);
@@ -244,10 +288,10 @@ export function unregisterModuleNav(
     const marker = parentMarker(reg.parentPath);
     const markerIndex = next.indexOf(marker);
     if (markerIndex !== -1) {
-      const childrenIndex = next.indexOf('children: [', markerIndex);
-      if (childrenIndex !== -1) {
-        const childrenEnd = next.indexOf('],', childrenIndex);
-        const slice = childrenEnd === -1 ? '' : next.slice(childrenIndex, childrenEnd);
+      const childrenOpen = findChildrenOpen(next, markerIndex);
+      if (childrenOpen !== -1) {
+        const childrenEnd = findChildrenClose(next, childrenOpen);
+        const slice = childrenEnd === -1 ? '' : next.slice(childrenOpen, childrenEnd);
         if (childrenEnd !== -1 && !/\{/.test(slice)) {
           // Grup kosong: hapus baris marker + blok grup sampai penutupnya.
           const lineStart = next.lastIndexOf('\n', markerIndex - 1) + 1;
@@ -289,15 +333,23 @@ export function registerModuleNav(
   const marker = parentMarker(reg.parentPath);
   const markerIndex = source.indexOf(marker);
   if (markerIndex !== -1) {
-    const childrenIndex = source.indexOf('children: [', markerIndex);
-    if (childrenIndex === -1) {
+    const childrenOpen = findChildrenOpen(source, markerIndex);
+    if (childrenOpen === -1) {
       throw new Error(`Blok ${marker} rusak (children tidak ditemukan).`);
     }
-    const closeIndex = source.indexOf('\n    ],', childrenIndex);
+    const closeIndex = findChildrenClose(source, childrenOpen);
     if (closeIndex === -1) {
       throw new Error(`Blok ${marker} rusak (penutup children tidak ditemukan).`);
     }
-    const next = `${source.slice(0, closeIndex)}\n${reg.navItemCode}${source.slice(closeIndex)}`;
+    // Selaraskan indent item baru ke baris penutup (tahan formatter ulang).
+    const closeLineStart = source.lastIndexOf('\n', closeIndex - 1) + 1;
+    const closeIndent = /^ */.exec(source.slice(closeLineStart, closeIndex))?.[0] ?? '';
+    const itemIndent = `${closeIndent}  `;
+    const itemCode = reg.navItemCode
+      .split('\n')
+      .map((line) => (line.trim() === '' ? line : itemIndent + line.trimStart()))
+      .join('\n');
+    const next = `${source.slice(0, closeIndex)}\n${itemCode}${source.slice(closeIndex)}`;
     return { source: next, added: true };
   }
 

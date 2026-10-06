@@ -14,19 +14,19 @@ import type { Region } from '../types';
 import { useRegionDetailQuery, useUpsertRegion } from '../api';
 
 export interface FormValues {
-  name: string;
-  code: string;
+  regionName: string;
+  description: string;
 }
 
 function buildDefaultValues(item?: Region): FormValues {
   return item
     ? {
-        name: item.name,
-        code: item.code,
+        regionName: item.regionName,
+        description: item.description,
       }
     : {
-        name: '',
-        code: '',
+        regionName: '',
+        description: '',
       };
 }
 
@@ -47,8 +47,8 @@ export function useRegionForm(id?: string) {
       const res = await upsertMutation.mutateAsync({
         id: isEdit ? id : undefined,
         data: {
-          name: data.name,
-          code: data.code,
+          regionName: data.regionName,
+          description: data.description,
         },
       });
 
@@ -85,8 +85,8 @@ export function useRegionForm(id?: string) {
     if (!region) {
       return [
         { label: t('table.status'), value: '' },
-        { label: t('region.fields.name.label'), value: '' },
-        { label: t('region.fields.code.label'), value: '' },
+        { label: t('region.fields.regionName.label'), value: '' },
+        { label: t('region.fields.description.label'), value: '' },
       ];
     }
     return [
@@ -98,8 +98,8 @@ export function useRegionForm(id?: string) {
           </Badge>
         ),
       },
-      { label: t('region.fields.name.label'), value: region.name },
-      { label: t('region.fields.code.label'), value: region.code },
+      { label: t('region.fields.regionName.label'), value: region.regionName },
+      { label: t('region.fields.description.label'), value: region.description },
       { label: t('table.createdBy'), value: region.createdBy },
       { label: t('table.createdDate'), value: region.createdDate },
     ];

@@ -5,8 +5,10 @@ import {
   arrayInputSnippet,
   arrayNeedsParseCurrency,
   arraySubLoadModels,
+  arraySubRelationModels,
   formItemSnippet,
   loadLabelHelpers,
+  relationLoaders,
   rowFormTypeName,
   rowMappersSnippet,
   rowTypeName,
@@ -62,6 +64,8 @@ export function tableTemplate(ctx: TemplateContext): string {
 
   // Helper label paging untuk kolom tabel (`getXOptionLabel` dari api).
   const tableLabelHelpers = loadLabelHelpers(fields);
+  // Loader + RelationLabel untuk kolom relasi.
+  const tableRelationLoaders = relationLoaders(fields);
   const needFormatNumber = ctx.hasNumberFields;
   const needFormatDate = fields.some((f) => f.config.type === 'dateField');
   const needFormatDateRange = fields.some((f) => f.config.type === 'dateRangeField');
@@ -97,11 +101,12 @@ export function tableTemplate(ctx: TemplateContext): string {
     ...utilImports,
   ];
 
+  const tableApiImports = [...tableLabelHelpers, ...tableRelationLoaders];
   return `import { t } from 'i18next';
 import '${names.sharedPrefix}shared/i18n';
 import type { ${names.listItem} } from '../types';
 import { Table, Badge, RowActionButton } from '${names.sharedPrefix}shared/components/ui';
-${tableLabelHelpers.length > 0 ? `import { ${tableLabelHelpers.join(', ')} } from '../api';\n` : ''}import { ${tableUtils.join(', ')} } from '${names.sharedPrefix}shared/utils';
+${tableRelationLoaders.length > 0 ? `import { RelationLabel } from '${names.sharedPrefix}shared/components/ui';\n` : ''}${tableApiImports.length > 0 ? `import { ${tableApiImports.join(', ')} } from '../api';\n` : ''}import { ${tableUtils.join(', ')} } from '${names.sharedPrefix}shared/utils';
 
 interface Props {
   testId?: string;
@@ -228,7 +233,8 @@ export function formTemplate(ctx: TemplateContext): string {
   const allLoadFns = [...new Set([...loadFields, ...subLoadFields].map((f) => f.loadOptionsFn))];
   // Kolom tabel array (sub-field) memakai helper label; field top-level tidak.
   const apiLabelHelpers = loadLabelHelpers(subLoadFields);
-  const apiImports = [...allLoadFns, ...apiLabelHelpers];
+  const apiRelationLoaders = relationLoaders(arraySubRelationModels(fields));
+  const apiImports = [...allLoadFns, ...apiLabelHelpers, ...apiRelationLoaders];
   const rowTypeImports = arrayFields.flatMap((f) => [rowTypeName(f), rowFormTypeName(f)]);
   const arrayUtils = [...new Set(arrayFields.flatMap((f) => arrayColumnUtils(f)))];
   if (arrayFields.some((f) => arrayNeedsParseCurrency(f))) arrayUtils.push('parseCurrency');
@@ -292,7 +298,7 @@ import {
   FormDefaultValuesWatcher,
   ${usedComponents.join(',\n  ')},
   NavigationGuard,
-} from '${names.sharedPrefix}shared/components/ui';
+${apiRelationLoaders.length > 0 ? '  RelationLabel,\n' : ''}} from '${names.sharedPrefix}shared/components/ui';
 import type { FormValues } from '../hooks';
 import type { SubmitResult } from '${names.sharedPrefix}shared/types';
 import { type UseFormReturn } from 'react-hook-form';

@@ -753,8 +753,18 @@ function ListBuilderCanvas({
     const hidden = field ? layout.table.hidden.includes(name) : false;
     const selected = selectedName === name;
     const active = activeName === name;
-    const render =
-      field ? columnRenderForType(field.type, name, staticOptionsOf(field)) : (system?.render as Column<DynamicListItem>['render']);
+    const render = field
+      ? columnRenderForType(
+        field.type,
+        name,
+        staticOptionsOf(field),
+        field.source === 'mockPagingInfinityScroll'
+          ? makeOptionsLoader(previewDef, field)
+          : field.source === 'relation'
+            ? makeRelationOptionsLoader(field)
+            : undefined,
+      )
+      : (system?.render as Column<DynamicListItem>['render']);
     const column: Column<DynamicListItem> = {
       key: name,
       header: (

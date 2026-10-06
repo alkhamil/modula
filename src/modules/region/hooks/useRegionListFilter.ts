@@ -16,6 +16,18 @@ const filterFields: FilterField[] = [
         { label: t('common.inactive'), value: 'inactive' },
       ],
     },
+  {
+      name: 'regionName',
+      label: t('region.fields.regionName.label'),
+      type: 'text',
+      placeholder: t('filter.containsPh'),
+    },
+  {
+      name: 'description',
+      label: t('region.fields.description.label'),
+      type: 'text',
+      placeholder: t('filter.containsPh'),
+    },
 ];
 
 export function useRegionListFilter() {
@@ -29,13 +41,18 @@ export function useRegionListFilter() {
     const initial: Record<string, string> = {};
     const status = searchParams.get('status');
     if (status) initial.status = status;
+    const regionName = searchParams.get('regionName');
+    if (regionName) initial.regionName = regionName;
+    const description = searchParams.get('description');
+    if (description) initial.description = description;
     return initial;
   });
 
   const queryParams: GetRegionsParams = {
     search: debouncedSearchQuery || undefined,
     status: filterValues.status || undefined,
-
+    regionName: filterValues.regionName || undefined,
+    description: filterValues.description || undefined,
     order: sortKey,
     sort: sortKey ? sortDir : undefined,
     page,

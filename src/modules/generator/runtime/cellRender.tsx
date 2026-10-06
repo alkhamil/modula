@@ -13,6 +13,7 @@ import {
   stripHtml,
 } from '../../../shared/utils';
 import type { DynamicListItem } from './types';
+import { RelationLabel, type RelationOptionLoader } from '../../../shared/components/ui';
 
 /** Opsi statis untuk dipetakan value → label di sel tabel. */
 export interface StaticOption {
@@ -49,6 +50,7 @@ export function columnRenderForType(
   fieldType: string,
   name: string,
   options?: StaticOption[],
+  loader?: RelationOptionLoader,
 ): ((row: Record<string, unknown>) => ReactNode) | undefined {
   switch (fieldType) {
     case 'numberField':
@@ -63,9 +65,24 @@ export function columnRenderForType(
       return (row) => (row[name] ? 'Yes' : 'No');
     case 'selectField':
     case 'radioGroupField':
+      if (!options && loader) {
+        return (row) => <RelationLabel loader={loader} value={String(row[name] ?? '')} />;
+      }
       return (row) => singleLabel(options, row[name]);
     case 'selectMultipleField':
     case 'checkboxGroupField':
+      if (!options && loader) {
+        return (row) => (
+          <>
+            {(Array.isArray(row[name]) ? (row[name] as unknown[]) : []).map((v, i) => (
+              <span key={String(v ?? i)}>
+                {i > 0 ? ', ' : ''}
+                <RelationLabel loader={loader} value={String(v ?? '')} />
+              </span>
+            ))}
+          </>
+        );
+      }
       return (row) => multiLabel(options, row[name]);
     case 'passwordField':
       return () => '••••••';

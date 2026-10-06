@@ -1,0 +1,34 @@
+{
+  "product": {
+    "label": "Product",
+    "labelPlural": "Products",
+    "parentLabel": "Catalogue",
+    "breadcrumbs": {
+      "list": "Products",
+      "create": "Create",
+      "detail": "Detail",
+      "edit": "Edit"
+    },
+    "fields": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter name"
+      },
+      "price": {
+        "label": "Price",
+        "placeholder": "Enter price"
+      },
+      "category": {
+        "label": "Category",
+        "placeholder": "Select category"
+      }
+    },
+    "toast": {
+      "created": "Product created successfully.",
+      "updated": "Product updated successfully.",
+      "deleted": "Product deleted successfully",
+      "restored": "Product restored successfully",
+      "notFound": "Product not found"
+    }
+  }
+}

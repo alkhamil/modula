@@ -1,0 +1,34 @@
+{
+  "product": {
+    "label": "Produk",
+    "labelPlural": "Produk",
+    "parentLabel": "Katalog",
+    "breadcrumbs": {
+      "list": "Produk",
+      "create": "Buat",
+      "detail": "Detail",
+      "edit": "Ubah"
+    },
+    "fields": {
+      "name": {
+        "label": "Nama",
+        "placeholder": "Masukan nama"
+      },
+      "price": {
+        "label": "Harga",
+        "placeholder": "Masukan harga"
+      },
+      "category": {
+        "label": "Kategori",
+        "placeholder": "Pilih kategori"
+      }
+    },
+    "toast": {
+      "created": "Produk berhasil dibuat.",
+      "updated": "Produk berhasil diubah.",
+      "deleted": "Produk berhasil dihapus.",
+      "restored": "Produk berhasil dipulihkan.",
+      "notFound": "Produk tidak ditemukan"
+    }
+  }
+}

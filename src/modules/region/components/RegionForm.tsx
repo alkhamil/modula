@@ -7,12 +7,13 @@ import {
   FormItem,
   FormDefaultValuesWatcher,
   TextField,
+  TextAreaField,
   NavigationGuard,
 } from '../../../shared/components/ui';
 import type { FormValues } from '../hooks';
 import type { SubmitResult } from '../../../shared/types';
 import { type UseFormReturn } from 'react-hook-form';
-import { getNameRules, getCodeRules } from '../validation/regionValidation';
+import { getRegionNameRules, getDescriptionRules } from '../validation/regionValidation';
 
 interface RegionFormProps {
   defaultValues: FormValues;
@@ -84,28 +85,32 @@ function RegionForm({
             <>
               <FormDefaultValuesWatcher methods={methods} defaultValues={defaultValues} />
 
-              <div className="flex flex-col section-gap">
+              <div className="grid grid-cols-12 field-gap">
+              <div className="col-span-12">
                 <FormItem
-                  label={t('region.fields.name.label')}
-                  testId="region-name"
-                  name="name"
-                  rules={getNameRules(t)}
+                  label={t('region.fields.regionName.label')}
+                  testId="region-regionName"
+                  name="regionName"
+                  rules={getRegionNameRules(t)}
                   layout="horizontal"
                   component={TextField}
                   maxLength={100}
-                  placeholder={t('region.fields.name.placeholder')}
+                  placeholder={t('region.fields.regionName.placeholder')}
                 />
+              </div>
 
+              <div className="col-span-12">
                 <FormItem
-                  label={t('region.fields.code.label')}
-                  testId="region-code"
-                  name="code"
-                  rules={getCodeRules(t)}
+                  label={t('region.fields.description.label')}
+                  testId="region-description"
+                  name="description"
+                  rules={getDescriptionRules(t)}
                   layout="horizontal"
-                  component={TextField}
-                  maxLength={5}
-                  placeholder={t('region.fields.code.placeholder')}
+                  component={TextAreaField}
+                  maxLength={100}
+                  placeholder={t('region.fields.description.placeholder')}
                 />
+              </div>
               </div>
 
               <div className="-mx-5 mt-6 flex items-center justify-end gap-2 border-t border-border px-5 pt-4">

@@ -221,11 +221,11 @@ export function formItemSnippet(
         `${strOpt('emptyOptionsText', selectProps?.emptyOptionsText)}` +
         `${boolOpt('showSelectedOptions', selectProps?.showSelectedOptions)}` +
         `${boolOpt('showValueOnly', selectProps?.showValueOnly)}`;
-      if (field.isLoadOptions) {
+      if (field.isLoadOptions || field.isRelationOptions) {
         const paginate = boolDefault(
           'paginateOnScroll',
           selectProps?.paginateOnScroll,
-          field.config.source === 'mockPagingInfinityScroll',
+          field.config.source === 'mockPagingInfinityScroll' || field.config.source === 'relation',
         );
         return `<FormItem
                   label="${field.label}"
@@ -254,11 +254,11 @@ export function formItemSnippet(
         `${boolOpt('chipsSummary', multiProps?.chipsSummary)}` +
         `${boolOpt('closeOnSelect', multiProps?.closeOnSelect)}` +
         `${boolOpt('hideCheckBox', multiProps?.hideCheckBox)}`;
-      if (field.isLoadOptions) {
+      if (field.isLoadOptions || field.isRelationOptions) {
         const paginate = boolDefault(
           'paginateOnScroll',
           multiProps?.paginateOnScroll,
-          field.config.source === 'mockPagingInfinityScroll',
+          field.config.source === 'mockPagingInfinityScroll' || field.config.source === 'relation',
         );
         return `<FormItem
                   label="${field.label}"
@@ -368,8 +368,21 @@ export function loadLabelHelpers(models: FieldModel[]): string[] {
   return [...new Set(models.flatMap((f) => (f.isLoadOptions ? [loadLabelHelper(f)] : [])))];
 }
 
-/** Ekspresi label satu value: helper paging → map statis → fallback capitalize. */
+/** Field top-level bersumber relasi (loader target-backed). */
+export function relationSelects(ctx: { fields: FieldModel[] }): FieldModel[] {
+  return ctx.fields.filter((f) => f.isRelationOptions);
+}
+
+/** Nama loader (`loadXOptions`) semua field relasi dalam daftar. */
+export function relationLoaders(models: FieldModel[]): string[] {
+  return [...new Set(models.flatMap((f) => (f.isRelationOptions ? [f.loadOptionsFn] : [])))];
+}
+
+/** Ekspresi label satu value: relasi → helper paging → map statis → fallback. */
 function singleLabelExpr(field: FieldModel, valueExpr: string): string {
+  if (field.isRelationOptions) {
+    return `<RelationLabel loader={${field.loadOptionsFn}} value={${valueExpr}} />`;
+  }
   const helper = optionLabelHelper(field);
   if (helper) return `${helper}(${valueExpr})`;
   const map = optionMapLiteral(field);
@@ -379,6 +392,9 @@ function singleLabelExpr(field: FieldModel, valueExpr: string): string {
 
 /** Ekspresi label multi value (join koma). */
 function multiLabelExpr(field: FieldModel, valueExpr: string): string {
+  if (field.isRelationOptions) {
+    return `(${valueExpr} ?? []).map((v: string, i: number) => (<span key={v}>{i > 0 ? ', ' : ''}<RelationLabel loader={${field.loadOptionsFn}} value={v} /></span>))`;
+  }
   const helper = optionLabelHelper(field);
   if (helper) return `(${valueExpr} ?? []).map((v: string) => ${helper}(v)).join(', ')`;
   const map = optionMapLiteral(field);
@@ -594,6 +610,7 @@ function subFieldModel(parent: FieldModel, sub: GeneratorFieldConfig): FieldMode
     isLoadOptions:
       (sub.type === 'selectField' || sub.type === 'selectMultipleField') &&
       sub.source === 'mockPagingInfinityScroll',
+    isRelationOptions: isOptionField && sub.source === 'relation',
     rulesVar: `${sub.name}Rules`,
     optionType: `${pascal}Option`,
     mockOptionsVar: `mock${pascal}Options`,
@@ -616,6 +633,14 @@ export function arraySubLoadModels(fields: FieldModel[]): FieldModel[] {
     .filter((f) => f.config.type === 'formArrayField')
     .flatMap((f) => arraySubs(f).map((sub) => subFieldModel(f, sub)))
     .filter((model) => model.isLoadOptions);
+}
+
+/** Model sub-field relasi di seluruh fields (emisi loader target-backed). */
+export function arraySubRelationModels(fields: FieldModel[]): FieldModel[] {
+  return fields
+    .filter((f) => f.config.type === 'formArrayField')
+    .flatMap((f) => arraySubs(f).map((sub) => subFieldModel(f, sub)))
+    .filter((model) => model.isRelationOptions);
 }
 
 function isSubOptionType(type: string): boolean {
@@ -665,10 +690,28 @@ export function arrayNeedsParseCurrency(field: FieldModel): boolean {
 }
 
 /** Util format yang dibutuhkan kolom array (`capitalize`, `format*`, `stripHtml`). */
+/**
+ * True bila kolom tabel model ini memanggil `capitalize` — semua ekspresi
+ * label kecuali helper paging dan `RelationLabel` (menelan fallback sendiri).
+ */
+export function selectNeedsCapitalize(model: FieldModel): boolean {
+  if (model.isRelationOptions) return false;
+  const t = model.config.type;
+  if (
+    t !== 'selectField' &&
+    t !== 'radioGroupField' &&
+    t !== 'selectMultipleField' &&
+    t !== 'checkboxGroupField'
+  ) {
+    return false;
+  }
+  return optionLabelHelper(model) === null;
+}
+
 export function arrayColumnUtils(field: FieldModel): string[] {
   const subs = arraySubs(field);
   const utils: string[] = [];
-  if (subs.some((sub) => sub.type === 'selectField' || sub.type === 'radioGroupField')) {
+  if (subs.some((sub) => selectNeedsCapitalize(subFieldModel(field, sub)))) {
     utils.push('capitalize');
   }
   if (subs.some((sub) => sub.type === 'numberField' || sub.type === 'currencyField'))

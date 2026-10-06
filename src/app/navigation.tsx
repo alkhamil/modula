@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { NavItemType } from '../shared/types/navigation';
-import { LayoutDashboard, Database, Settings, SlidersHorizontal, Users, NotebookText } from 'lucide-react';
+import { LayoutDashboard, Database, Settings, SlidersHorizontal, Users, NotebookText, Map } from 'lucide-react';
 import { useDynamicDefinitions } from '../modules/generator/runtime/hooks';
 import { buildDynamicNavItems } from '../modules/generator/runtime/dynamicNav';
 
@@ -54,14 +54,7 @@ export const navItems: NavItemType[] = [
       icon: <SlidersHorizontal className="h-5 w-5" />,
       permissionKey: 'settings.view',
     },
-    {
-      label: 'Invoices',
-      labelKey: 'invoice.labelPlural',
-      path: '/invoices',
-      icon: <NotebookText className="h-5 w-5" />,
-      permissionKey: 'invoice.view',
-    },
-    // __GENERATOR_NAV_ITEMS__
+                // __GENERATOR_NAV_ITEMS__
 ];
 
 /** Item nav dari definisi published (flat untuk root, group per parent). */

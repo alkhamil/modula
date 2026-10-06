@@ -47,8 +47,8 @@ function RegionTable({
   ...rest
 }: Props) {
   const columns = [
-    { key: 'name', header: t('region.fields.name.label'), sortable: true },
-    { key: 'code', header: t('region.fields.code.label'), sortable: true },
+    { key: 'regionName', header: t('region.fields.regionName.label'), sortable: true },
+    { key: 'description', header: t('region.fields.description.label'), sortable: true },
     { key: 'created_by', header: t('table.createdBy') },
     {
       key: 'created_date',
@@ -76,6 +76,7 @@ function RegionTable({
       data={data}
       rowKey={(r) => String(r.id)}
       fixedLayout={true}
+      actionPosition="right"
       renderAction={(row) => (
         <div className="flex justify-evenly w-full gap-1">
           {onView && (

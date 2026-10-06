@@ -156,7 +156,7 @@ function RegionListPage() {
         closeOnBackdropClick
       >
         <div className="flex items-start gap-4">
-          <Info className="h-12 w-12 shrink-0 text-warning" />
+          <Info className="h-12 w-12 shrink-0" />
           <div>
             <p className="text-base font-medium text-foreground">{t('runtime.deleteTitle')}</p>
             <p className="mt-1 text-sm font-normal text-muted-foreground">{t('runtime.deleteSoft')}</p>
@@ -193,7 +193,7 @@ function RegionListPage() {
         closeOnBackdropClick
       >
         <div className="flex items-start gap-4">
-          <Info className="h-12 w-12 shrink-0 text-success" />
+          <Info className="h-12 w-12 shrink-0" />
           <div>
             <p className="text-base font-medium text-foreground">{t('runtime.restoreTitle')}</p>
             <p className="mt-1 text-sm font-normal text-muted-foreground">{t('runtime.restoreDesc')}</p>

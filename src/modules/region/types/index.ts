@@ -1,7 +1,7 @@
 export interface Region {
   id: string;
-  name: string;
-  code: string;
+  regionName: string;
+  description: string;
   status: 'active' | 'inactive';
   createdBy: string;
   createdDate: string;
@@ -9,21 +9,23 @@ export interface Region {
 
 export interface RegionListItem {
   id: number;
-  name: string;
-  code: string;
+  regionName: string;
+  description: string;
   created_date: string;
   created_by: string | null;
   status: 'active' | 'inactive';
 }
 
 export interface CreateRegionPayload {
-  name: string;
-  code: string;
+  regionName: string;
+  description: string;
 }
 
 export interface GetRegionsParams {
   search?: string;
   status?: string;
+  regionName?: string;
+  description?: string;
   order?: string;
   sort?: 'asc' | 'desc';
   page?: number;

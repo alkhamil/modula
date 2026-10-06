@@ -1,3 +1,5 @@
+import type { RelationConfig } from './types';
+
 /** Ubah teks bebas menjadi kebab-case (`Master Data` → `master-data`). */
 export function toKebabCase(value: string): string {
   return value
@@ -62,6 +64,39 @@ export function normalizeParentPath(parentName: string | null): string | null {
     .filter(Boolean)
     .join('/');
   return normalized === '' ? null : normalized;
+}
+
+/** Target relasi yang di-resolve untuk emisi loader statis; null bila tak valid. */
+export interface ResolvedRelationTarget {
+  /** Path import mock target dari file `api/` modul, mis. `../../catalogue/category/api/mock`. */
+  mockImportPath: string;
+  /** `apiPlural` target (tersimpan wizard atau turunan jamak naif). */
+  apiPlural: string;
+  /** Nama fungsi list mock target, mis. `mockGetCategories`. */
+  mockListFn: string;
+}
+
+/**
+ * Resolve target relasi dari `definitionKey` (`catalogue/category`).
+ * Semua modul 2 level di bawah `src/modules/` sehingga prefix selalu `../../`.
+ */
+export function resolveRelationTarget(
+  relation: RelationConfig | undefined,
+): ResolvedRelationTarget | null {
+  const key = relation?.definitionKey?.trim();
+  if (!key) return null;
+  const segs = key
+    .split('/')
+    .map((s) => toKebabCase(s))
+    .filter(Boolean);
+  if (segs.length === 0) return null;
+  const last = segs[segs.length - 1] as string;
+  const apiPlural = relation?.apiPlural?.trim() || toPluralKebab(last);
+  return {
+    mockImportPath: `../../${segs.join('/')}/api/mock`,
+    apiPlural,
+    mockListFn: `mockGet${toPascalCase(apiPlural)}`,
+  };
 }
 
 /** `master-data` → `Master Data`; `finance/accounting` → `Finance / Accounting`. */

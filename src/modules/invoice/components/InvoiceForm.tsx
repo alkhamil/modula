@@ -20,7 +20,7 @@ import { type UseFormReturn } from 'react-hook-form';
 import type { DetailProductRow, DetailProductRowForm } from '../types';
 import type { Column } from '../../../shared/components/ui/Table';
 import { loadSellerOptions, loadBuyerOptions, loadDetailProductProductOptions, getDetailProductProductOptionLabel } from '../api';
-import { capitalize, formatNumber, parseCurrency } from '../../../shared/utils';
+import { formatNumber, parseCurrency } from '../../../shared/utils';
 import { hasEmoticon } from '../../../shared/utils';
 import { getInvoiceNumberRules, getDateOfIssueRules, getDueDateRules, getSellerRules, getBuyerRules, getDetailProductRules } from '../validation/invoiceValidation';
 function toDetailProductRowForm(row?: DetailProductRow | null): DetailProductRowForm {

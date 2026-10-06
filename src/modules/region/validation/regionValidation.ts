@@ -3,21 +3,19 @@ import type { TFunction } from 'i18next';
 import type { FormValues } from '../hooks';
 import { hasEmoticon } from '../../../shared/utils';
 
-export function getNameRules(t: TFunction): RegisterOptions<FormValues, 'name'> {
+export function getRegionNameRules(t: TFunction): RegisterOptions<FormValues, 'regionName'> {
   return {
-  required: t('validation.required', { label: t('region.fields.name.label') }),
-  minLength: { value: 3, message: t('validation.minLength', { label: t('region.fields.name.label'), count: 3 }) },
-  maxLength: { value: 100, message: t('validation.maxLength', { label: t('region.fields.name.label'), count: 100 }) },
+  required: t('validation.required', { label: t('region.fields.regionName.label') }),
+  minLength: { value: 3, message: t('validation.minLength', { label: t('region.fields.regionName.label'), count: 3 }) },
+  maxLength: { value: 100, message: t('validation.maxLength', { label: t('region.fields.regionName.label'), count: 100 }) },
   validate: (value: string) => !hasEmoticon(value || '') || t('validation.noEmoticon'),
 };
 }
 
-export function getCodeRules(t: TFunction): RegisterOptions<FormValues, 'code'> {
+export function getDescriptionRules(t: TFunction): RegisterOptions<FormValues, 'description'> {
   return {
-  required: t('validation.required', { label: t('region.fields.code.label') }),
-  minLength: { value: 5, message: t('validation.minLength', { label: t('region.fields.code.label'), count: 5 }) },
-  maxLength: { value: 5, message: t('validation.maxLength', { label: t('region.fields.code.label'), count: 5 }) },
+  minLength: { value: 10, message: t('validation.minLength', { label: t('region.fields.description.label'), count: 10 }) },
+  maxLength: { value: 100, message: t('validation.maxLength', { label: t('region.fields.description.label'), count: 100 }) },
   validate: (value: string) => !hasEmoticon(value || '') || t('validation.noEmoticon'),
-  pattern: { value: /[A-Z]+/, message: t('validation.pattern', { label: t('region.fields.code.label') }) },
 };
 }

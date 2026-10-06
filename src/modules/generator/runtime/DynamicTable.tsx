@@ -3,8 +3,11 @@ import type { ReactNode } from 'react';
 import { RowActionButton, Table } from '../../../shared/components/ui';
 import type { Column } from '../../../shared/components/ui/Table';
 import type { ModuleDefinition } from '../definitions';
+import type { GeneratorFieldConfig } from '../types';
+import type { LoadOptionsFn } from '../../../shared/components/ui/fields/SelectField';
 import { definitionTestId, type DynamicListItem } from './types';
 import { columnRenderForType, staticOptionsOf, systemTableColumn } from './cellRender';
+import { useDynamicOptions } from './hooks';
 import { moduleFieldLabel } from './moduleI18n';
 
 interface DynamicTableProps {
@@ -40,9 +43,15 @@ interface DynamicTableProps {
 function cellRender(
   fieldType: string,
   name: string,
-  field?: { source?: string; options?: { label: string; value: string }[] | undefined },
+  field?: GeneratorFieldConfig,
+  loaderOf?: (field: GeneratorFieldConfig) => LoadOptionsFn | undefined,
 ): ((row: DynamicListItem) => ReactNode) | undefined {
-  const render = columnRenderForType(fieldType, name, field ? staticOptionsOf(field) : undefined);
+  const render = columnRenderForType(
+    fieldType,
+    name,
+    field ? staticOptionsOf(field) : undefined,
+    field && loaderOf ? loaderOf(field) : undefined,
+  );
   return render
     ? (row: DynamicListItem) => render(row as Record<string, unknown>)
     : undefined;
@@ -63,6 +72,7 @@ function DynamicTable({
   ...rest
 }: DynamicTableProps) {
   const testPrefix = definitionTestId(def.key);
+  const { loaderOf } = useDynamicOptions(def);
   const byName = new Map(def.fields.map((field) => [field.name, field]));
   const hidden = new Set(def.layout.table.hidden);
   const widths = def.layout.table.widths ?? {};
@@ -85,7 +95,7 @@ function DynamicTable({
         header: moduleFieldLabel(def, field),
         sortable: field.sortable !== false,
       };
-      const render = cellRender(type, name, field);
+      const render = cellRender(type, name, field, loaderOf);
       if (render) column.render = render;
       if (widths[name]) column.width = widths[name];
       return [column];

@@ -22,6 +22,8 @@ export interface FieldModel {
   isMultiOption: boolean;
   isOptionsQuery: boolean;
   isLoadOptions: boolean;
+  /** Select dari modul lain (`source === 'relation'`): loader target-backed. */
+  isRelationOptions: boolean;
   rulesVar: string;
   optionType: string;
   mockOptionsVar: string;
@@ -76,6 +78,7 @@ function toFieldModel(config: GeneratorFieldConfig): FieldModel {
     isOptionsQuery: isOptionField && (config.source === 'mockStatic' || config.source === 'api'),
     isLoadOptions:
       LOADABLE_TYPES.includes(config.type) && config.source === 'mockPagingInfinityScroll',
+    isRelationOptions: isOptionField && config.source === 'relation',
     rulesVar: `${config.name}Rules`,
     optionType: `${pascal}Option`,
     mockOptionsVar: `mock${pascal}Options`,

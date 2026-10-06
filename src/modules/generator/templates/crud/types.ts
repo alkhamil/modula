@@ -1,6 +1,7 @@
 import type { TemplateContext } from '../../engine/context';
 import {
   arraySubLoadModels,
+  arraySubRelationModels,
   filterParamKeys,
   rowInterfacesSnippet,
   tsDataType,
@@ -20,13 +21,13 @@ export function typesTemplate(ctx: TemplateContext): string {
     .map((key) => `  ${key}?: string;`)
     .join('\n');
   const optionTypes = fields
-    .filter((f) => f.isOptionsQuery || f.isLoadOptions)
+    .filter((f) => f.isOptionsQuery || f.isLoadOptions || f.isRelationOptions)
     .map(
       (f) =>
         `export interface ${f.optionType} {\n  label: string;\n  value: string;\n}`,
     )
     .join('\n\n');
-  const subOptionTypes = arraySubLoadModels(fields)
+  const subOptionTypes = [...arraySubLoadModels(fields), ...arraySubRelationModels(fields)]
     .map(
       (m) =>
         `export interface ${m.optionType} {\n  label: string;\n  value: string;\n}`,

@@ -36,8 +36,8 @@ function delay(ms: number): Promise<void> {
 
 interface MockRegionRecord {
   id: number;
-  name: string;
-  code: string;
+  regionName: string;
+  description: string;
   status: 'active' | 'inactive';
   created_by: string | null;
   created_date: string;
@@ -45,8 +45,8 @@ interface MockRegionRecord {
 
 const mockRegionRecords: MockRegionRecord[] = Array.from({ length: 14 }, (_, i) => ({
   id: i + 1,
-  name: `Name ${i + 1}`,
-  code: `Code ${i + 1}`,
+  regionName: `Region Name ${i + 1}`,
+  description: `Description ${i + 1} text`,
   status: i % 4 === 3 ? 'inactive' : 'active',
   created_by: 'System',
   created_date: `2024-0${(i % 9) + 1}-${10 + (i % 9)} 09:00`,
@@ -55,8 +55,8 @@ const mockRegionRecords: MockRegionRecord[] = Array.from({ length: 14 }, (_, i) 
 function toListItem(record: MockRegionRecord): RegionListItem {
   return {
     id: record.id,
-    name: record.name,
-    code: record.code,
+    regionName: record.regionName,
+    description: record.description,
     created_date: record.created_date,
     created_by: record.created_by,
     status: record.status,
@@ -66,8 +66,8 @@ function toListItem(record: MockRegionRecord): RegionListItem {
 function toDetail(record: MockRegionRecord): Region {
   return {
     id: String(record.id),
-    name: record.name,
-    code: record.code,
+    regionName: record.regionName,
+    description: record.description,
     status: record.status,
     createdBy: record.created_by ?? '',
     createdDate: record.created_date,
@@ -85,7 +85,7 @@ function paginate<T>(items: T[], page: number, size: number) {
 }
 
 function sortRegions(items: RegionListItem[], key: string | undefined, dir: string | undefined) {
-  const sortKey = key || 'name';
+  const sortKey = key || 'regionName';
   const direction = dir === 'desc' ? -1 : 1;
   return [...items].sort((a, b) => {
     const av = (a as unknown as Record<string, unknown>)[sortKey];
@@ -103,13 +103,20 @@ function filterRegionsRecords(params?: GetRegionsParams): RegionListItem[] {
     const q = params.search.toLowerCase();
     items = items.filter(
       (r) =>
-        r.name.toLowerCase().includes(q) ||
-        r.code.toLowerCase().includes(q) ||
+        r.regionName.toLowerCase().includes(q) ||
+        r.description.toLowerCase().includes(q) ||
         String(r.id).includes(q),
     );
   }
   if (params?.status) items = items.filter((r) => r.status === params.status);
-
+  if (params?.regionName) {
+    const qRegionName = params.regionName.toLowerCase();
+    items = items.filter((r) => String(r.regionName ?? '').toLowerCase().includes(qRegionName));
+  }
+  if (params?.description) {
+    const qDescription = params.description.toLowerCase();
+    items = items.filter((r) => String(r.description ?? '').toLowerCase().includes(qDescription));
+  }
   return sortRegions(items, params?.order, params?.sort);
 }
 
@@ -124,8 +131,8 @@ export async function mockExportRegions(params?: GetRegionsParams): Promise<Blob
   await delay(300);
   const items = filterRegionsRecords({ ...params, page: undefined, size: undefined });
   const data = await buildWorkbook(
-    ["Name","Code","Status","Created Date"],
-    items.map((r) => [r.name, r.code, r.status, r.created_date]),
+    ["Region Name","Description","Status","Created Date"],
+    items.map((r) => [r.regionName, r.description, r.status, r.created_date]),
   );
   return new Blob([data], { type: XLSX_MIME });
 }
@@ -162,8 +169,7 @@ export async function mockBulkUploadRegions(file: File | ArrayBuffer): Promise<B
       errors: [{ row: 1, message: t('bulk.emptyFile') }],
     };
   }
-  const seenName = new Set(mockRegionRecords.map((r) => String(r.name).toLowerCase()));
-  const seenCode = new Set(mockRegionRecords.map((r) => String(r.code).toLowerCase()));
+  const seenRegionName = new Set(mockRegionRecords.map((r) => String(r.regionName).toLowerCase()));
   const errors: BulkRowError[] = [];
   let successCount = 0;
   rows.forEach((row, index) => {
@@ -173,8 +179,7 @@ export async function mockBulkUploadRegions(file: File | ArrayBuffer): Promise<B
       mapped[header] = row[source] ?? '';
     }
     const { payload, errors: rowErrors } = validateBulkRegionRow(mapped, (field, value) => {
-      if (field === 'name') return seenName.has(value.toLowerCase());
-      if (field === 'code') return seenCode.has(value.toLowerCase());
+      if (field === 'regionName') return seenRegionName.has(value.toLowerCase());
       return false;
     });
     if (!payload) {
@@ -183,12 +188,11 @@ export async function mockBulkUploadRegions(file: File | ArrayBuffer): Promise<B
       }
       return;
     }
-    seenName.add(String(payload.name).toLowerCase());
-    seenCode.add(String(payload.code).toLowerCase());
+    seenRegionName.add(String(payload.regionName).toLowerCase());
     mockRegionRecords.push({
       id: Math.max(...mockRegionRecords.map((r) => r.id)) + 1,
-      name: payload.name,
-      code: payload.code,
+      regionName: payload.regionName,
+      description: payload.description,
       status: 'active',
       created_by: 'Bulk Upload',
       created_date: new Date().toISOString().slice(0, 16).replace('T', ' '),
@@ -224,16 +228,16 @@ function mockConflictError(field: string, message: string) {
 
 export async function mockCreateRegion(data: CreateRegionPayload): Promise<RegionMutationResult> {
   await delay(300);
-  if (mockRegionRecords.some((r) => r.name === data.name)) {
+  if (mockRegionRecords.some((r) => r.regionName === data.regionName)) {
     throw mockConflictError(
-      'name',
-      t('validation.unique', { label: t('region.fields.name.label') }),
+      'regionName',
+      t('validation.unique', { label: t('region.fields.regionName.label') }),
     );
   }
   const record: MockRegionRecord = {
     id: Math.max(...mockRegionRecords.map((r) => r.id)) + 1,
-    name: data.name,
-    code: data.code,
+    regionName: data.regionName,
+    description: data.description,
     status: 'active',
     created_by: 'System',
     created_date: new Date().toISOString().slice(0, 16).replace('T', ' '),
@@ -249,14 +253,14 @@ export async function mockUpdateRegion(
   await delay(300);
   const record = mockRegionRecords.find((r) => String(r.id) === id);
   if (!record) throw new Error(t('region.toast.notFound'));
-  if (mockRegionRecords.some((r) => String(r.id) !== id && r.name === data.name)) {
+  if (mockRegionRecords.some((r) => String(r.id) !== id && r.regionName === data.regionName)) {
     throw mockConflictError(
-      'name',
-      t('validation.unique', { label: t('region.fields.name.label') }),
+      'regionName',
+      t('validation.unique', { label: t('region.fields.regionName.label') }),
     );
   }
-  record.name = data.name;
-  record.code = data.code;
+  record.regionName = data.regionName;
+  record.description = data.description;
   return { message: t('region.toast.updated'), data: toDetail(record) };
 }
 

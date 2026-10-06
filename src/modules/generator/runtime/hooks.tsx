@@ -11,6 +11,7 @@ import {
 import { useDebounce, useUrlPagination } from '../../../shared/hooks';
 import type { FilterField } from '../../../shared/components/ui';
 import type { ApiList, SubmitResult } from '../../../shared/types';
+import { RelationLabel, type RelationOptionLoader } from '../../../shared/components/ui';
 import { staticOptionsOf } from './cellRender';
 import {
   capitalize,
@@ -201,7 +202,11 @@ export function useDynamicOptions(def: ModuleDefinition): {
 }
 
 /** Nilai detail satu field untuk baris DetailCard (meniru `detailRowSnippet`). */
-export function detailValue(field: GeneratorFieldConfig, item: DynamicDetail): unknown {
+export function detailValue(
+  field: GeneratorFieldConfig,
+  item: DynamicDetail,
+  loader?: RelationOptionLoader,
+): unknown {
   const value = item[field.name];
   switch (field.type) {
     case 'numberField':
@@ -217,12 +222,28 @@ export function detailValue(field: GeneratorFieldConfig, item: DynamicDetail): u
     case 'selectField':
     case 'radioGroupField': {
       const options = staticOptionsOf(field);
+      if (!options && loader) {
+        return <RelationLabel loader={loader} value={String(value ?? '')} />;
+      }
       const raw = String(value ?? '');
       return options?.find((o) => o.value === raw)?.label ?? capitalize(raw);
     }
     case 'selectMultipleField':
     case 'checkboxGroupField': {
       const options = staticOptionsOf(field);
+      if (!options && loader) {
+        const list = Array.isArray(value) ? value : [];
+        return (
+          <>
+            {list.map((v, i) => (
+              <span key={String(v ?? i)}>
+                {i > 0 ? ', ' : ''}
+                <RelationLabel loader={loader} value={String(v ?? '')} />
+              </span>
+            ))}
+          </>
+        );
+      }
       const list = Array.isArray(value) ? value : [];
       return list
         .map((v) => {
@@ -290,7 +311,11 @@ function detailSystemRow(
   };
 }
 
-export function buildDetailRows(def: ModuleDefinition, item: DynamicDetail | null): DetailRow[] {
+export function buildDetailRows(
+  def: ModuleDefinition,
+  item: DynamicDetail | null,
+  loaderOf?: (field: GeneratorFieldConfig) => RelationOptionLoader | undefined,
+): DetailRow[] {
   const byName = new Map(def.fields.map((field) => [field.name, field]));
   const configured = def.layout.detail?.order ?? def.fields.map((field) => field.name);
   const hidden = new Set(def.layout.detail?.hidden ?? []);
@@ -319,7 +344,9 @@ export function buildDetailRows(def: ModuleDefinition, item: DynamicDetail | nul
         {
           name: field.name,
           label: moduleFieldLabel(def, field),
-          value: item ? (detailValue(field, item) as ReactNode) : '',
+          value: item
+            ? (detailValue(field, item, loaderOf ? loaderOf(field) : undefined) as ReactNode)
+            : '',
           ...rowPropsOf(field.name),
         },
       ];
@@ -350,7 +377,10 @@ export function useDynamicForm(def: ModuleDefinition, id?: string) {
     return values;
   }, [def, item]);
 
-  const detailRows: DetailRow[] = useMemo(() => buildDetailRows(def, item ?? null), [def, item]);
+  const detailRows: DetailRow[] = useMemo(
+    () => buildDetailRows(def, item ?? null, loaderOf),
+    [def, item, loaderOf],
+  );
 
   async function onSubmit(data: DynamicFormValues): Promise<SubmitResult> {
     try {

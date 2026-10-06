@@ -85,7 +85,7 @@ function RegionBulkUploadDialog({ open, onClose }: RegionBulkUploadDialogProps) 
             {loadingTemplate ? t('bulk.downloading') : t('bulk.downloadTemplate')}
           </Button>
           <span className="text-xs text-muted-foreground">
-            {t('bulk.templateHint', { columns: 'Name, Code' })}
+            {t('bulk.templateHint', { columns: 'Region Name, Description' })}
           </span>
         </div>
         <div>

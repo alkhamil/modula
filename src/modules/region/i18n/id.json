@@ -9,21 +9,13 @@
       "edit": "Ubah"
     },
     "fields": {
-      "name": {
-        "label": "Nama",
-        "placeholder": "Masukan nama"
+      "regionName": {
+        "label": "Nama wilayah",
+        "placeholder": "Masukan nama wilayah"
       },
-      "code": {
-        "label": "Kode",
-        "placeholder": "Masukan kode"
-      },
-      "text": {
-        "label": "Nama",
-        "placeholder": "Masukan nama"
-      },
-      "text2": {
-        "label": "Kode",
-        "placeholder": "Masukan kode"
+      "description": {
+        "label": "Deskripsi",
+        "placeholder": "Masukan deskripsi"
       }
     },
     "toast": {

@@ -8,6 +8,7 @@ import { createJiti } from 'jiti';
 const jiti = createJiti(import.meta.url);
 const ROOT = new URL('../..', import.meta.url).pathname;
 const fg = jiti(`${ROOT}/src/modules/generator/engine/fieldGenerator.ts`);
+const naming = jiti(`${ROOT}/src/modules/generator/naming.ts`);
 const vg = jiti(`${ROOT}/src/modules/generator/engine/validationGenerator.ts`);
 const sg = jiti(`${ROOT}/src/modules/generator/engine/sourceGenerator.ts`);
 const parser = jiti(`${ROOT}/src/modules/generator/parser.ts`);
@@ -140,6 +141,39 @@ const selLoad = {
 expectIn(fg.tableColumnSnippet(selLoad), 'getSellerOptionLabel(row.seller)', 'table-load-label');
 expectIn(fg.detailRowSnippet(selLoad), 'getSellerOptionLabel(item.seller)', 'detail-load-label');
 expectEq(fg.loadLabelHelpers([selLoad]).join(','), 'getSellerOptionLabel', 'label-helpers');
+// Sub-field paging: kolom array memakai helper, import capitalize tak ikut.
+const subLoad = { name: 'product', label: 'Product', type: 'selectField', rules: [], source: 'mockPagingInfinityScroll' };
+const arrayLoadModel = {
+  ...arrayModel,
+  config: { ...arrayModel.config, subFields: [subLoad] },
+};
+expectEq(fg.arrayColumnUtils(arrayLoadModel).includes('capitalize'), false, 'array-utils-no-cap-paging');
+expectIn(fg.arrayColumnsSnippet(arrayLoadModel), 'getItemsProductOptionLabel(row.product)', 'array-sub-load-label');
+// Sub-field opsi statis: map literal + fallback capitalize tetap butuh import.
+const subStatic = { name: 'kondisi', label: 'Kondisi', type: 'selectField', rules: [], source: 'mockStatic', options: [{ label: 'Baru', value: 'baru' }] };
+const arrayStaticModel = {
+  ...arrayModel,
+  config: { ...arrayModel.config, subFields: [subStatic] },
+};
+expectEq(fg.arrayColumnUtils(arrayStaticModel).includes('capitalize'), true, 'array-utils-cap-static');
+expectIn(fg.arrayColumnsSnippet(arrayStaticModel), "'baru': 'Baru'", 'array-sub-static-label');
+// Relasi: resolve target + kolom/detail memakai RelationLabel + loader terdaftar.
+const relTarget = naming.resolveRelationTarget({ definitionKey: 'catalogue/category', labelField: 'name', valueField: 'id' });
+expectEq(relTarget?.mockListFn, 'mockGetCategories', 'relation-mock-fn');
+expectEq(relTarget?.mockImportPath, '../../catalogue/category/api/mock', 'relation-import-path');
+const relField = {
+  ...base,
+  name: 'category',
+  label: 'Category',
+  pascal: 'Category',
+  isRelationOptions: true,
+  loadOptionsFn: 'loadCategoryOptions',
+  config: { name: 'category', rules: [], label: 'Category', type: 'selectField', source: 'relation', relation: { definitionKey: 'catalogue/category', labelField: 'name', valueField: 'id' } },
+};
+expectIn(fg.tableColumnSnippet(relField), '<RelationLabel loader={loadCategoryOptions} value={row.category} />', 'table-relation-label');
+expectIn(fg.detailRowSnippet(relField), '<RelationLabel loader={loadCategoryOptions} value={item.category} />', 'detail-relation-label');
+expectEq(fg.relationLoaders([relField]).join(','), 'loadCategoryOptions', 'relation-loaders');
+expectIn(sg.mockRelationOptionsFn(relField), 'mockGetCategories({ search: search || undefined', 'relation-mock-loader');
 expectEq(fg.tsDataType(arrayModel), 'ItemsRow[]', 'tsDataType-array');
 expectEq(fg.tsFormType(arrayModel), 'ItemsRow[]', 'tsFormType-array');
 expectEq(fg.formDefaultValue(arrayModel), '[]', 'formDefault-array');

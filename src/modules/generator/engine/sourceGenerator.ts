@@ -1,4 +1,4 @@
-import { toKebabCase } from '../naming';
+import { resolveRelationTarget, toKebabCase, toPascalCase, toPluralKebab } from '../naming';
 import type { FieldModel, TemplateContext } from './context';
 
 /** Endpoint default untuk options: `/api/v1/{plural}/{field}s`, atau override dari config api. */
@@ -24,6 +24,41 @@ export function mockOptionsConst(field: FieldModel): string {
 /** Nama helper label sinkron untuk field paging (`getXOptionLabel`). */
 export function loadLabelHelper(field: FieldModel): string {
   return `get${field.pascal}OptionLabel`;
+}
+
+/**
+ * Baris import mock target untuk loader relasi. Target wajib sudah
+ * publish-ke-repo sebelumnya (import statis).
+ */
+export function mockRelationOptionsImport(field: FieldModel): string {
+  const target = resolveRelationTarget(field.config.relation);
+  const importPath = target?.mockImportPath ?? `../../${toKebabCase(field.name)}/api/mock`;
+  const mockFn = target?.mockListFn ?? `mockGet${toPascalCase(toPluralKebab(toKebabCase(field.name)))}`;
+  return `import { ${mockFn} } from '${importPath}';`;
+}
+
+/**
+ * Loader mock untuk field relasi: options dari records modul target.
+ */
+export function mockRelationOptionsFn(field: FieldModel): string {
+  const target = resolveRelationTarget(field.config.relation);
+  const labelField = field.config.relation?.labelField || 'name';
+  const valueField = field.config.relation?.valueField?.trim() || 'id';
+  const mockFn = target?.mockListFn ?? `mockGet${toPascalCase(toPluralKebab(toKebabCase(field.name)))}`;
+  return `export async function ${field.loadOptionsFn}(
+  search = '',
+  page = 1,
+  size = 20,
+): Promise<${field.optionType}[]> {
+  const res = await ${mockFn}({ search: search || undefined, page: page - 1, size });
+  return res.list.content.map((r) => {
+    const record = r as unknown as Record<string, unknown>;
+    return {
+      label: String(record['${labelField}'] ?? ''),
+      value: String(record['${valueField}'] ?? ''),
+    };
+  });
+}`;
 }
 
 /** Base list + fungsi load mock paginated/searchable untuk SelectField `loadOptions`. */
@@ -60,6 +95,8 @@ export function ${loadLabelHelper(field)}(value: string): string {
 
 /** Nilai mock satu record untuk field ini (index-based, deterministik). */
 export function mockRecordValue(field: FieldModel, indexVar = 'i'): string {
+  // Relasi: id kecil berpeluang cocok records target sehingga label tampil di tabel.
+  if (field.config.source === 'relation') return `String((${indexVar} % 5) + 1)`;
   const options = field.config.options ?? [];
   const optionValues = options.map((o) => `'${o.value}'`).join(', ');
   switch (field.config.type) {

@@ -330,7 +330,12 @@ export function renderDynamicField(
       const subs = field.subFields ?? [];
       const columns: Column<Record<string, unknown>>[] = subs.map((sub) => {
         const column: Column<Record<string, unknown>> = { key: sub.name, header: sub.label };
-        const render = columnRenderForType(sub.type, sub.name, staticOptionsOf(sub));
+        const render = columnRenderForType(
+          sub.type,
+          sub.name,
+          staticOptionsOf(sub),
+          ctx.loaderOf(sub as GeneratorFieldConfig),
+        );
         if (render) column.render = render;
         return column;
       });

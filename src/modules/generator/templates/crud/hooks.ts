@@ -7,6 +7,7 @@ import {
   formEditValue,
   loadLabelHelpers,
   payloadMapping,
+  relationLoaders,
   rowTypeName,
   tsFormType,
 } from '../../engine/fieldGenerator';
@@ -98,7 +99,7 @@ export function listFilterHookTemplate(ctx: TemplateContext): string {
   const { names } = ctx;
   const base = ctx.config.permissionKey;
   const filterableFields = ctx.fields.filter((f) => f.filterable && f.filterCriteria);
-  const loadFields = filterableFields.filter((f) => f.isLoadOptions);
+  const loadFields = filterableFields.filter((f) => f.isLoadOptions || f.isRelationOptions);
   const paramKeys = filterableFields.flatMap((f) => filterParamKeys(f));
   const statusFilter = `{
     name: 'status',
@@ -214,6 +215,8 @@ export function formHookTemplate(ctx: TemplateContext): string {
     .map((f) => rowTypeName(f));
   // Helper label paging untuk baris detail (`getXOptionLabel` dari api).
   const detailLabelHelpers = loadLabelHelpers(fields);
+  // Loader + RelationLabel untuk baris detail relasi.
+  const detailRelationLoaders = relationLoaders(fields);
   const needParseCurrency = ctx.hasNumberFields;
   const needFormatNumber = ctx.hasNumberFields;
   const needFormatDate = fields.some((f) => f.config.type === 'dateField');
@@ -242,14 +245,14 @@ export function formHookTemplate(ctx: TemplateContext): string {
   return `import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { useToast, Badge } from '${names.sharedPrefix}shared/components/ui';
+import { useToast, Badge${detailRelationLoaders.length > 0 ? ', RelationLabel' : ''} } from '${names.sharedPrefix}shared/components/ui';
 import type { DetailRow } from '${names.sharedPrefix}shared/components/ui';
 import type { SubmitResult } from '${names.sharedPrefix}shared/types';
 import {
   ${utilImports.join(',\n  ')},
 } from '${names.sharedPrefix}shared/utils';
 import type { ${names.entity}${rowTypes.map((t) => `, ${t}`).join('')} } from '../types';
-import { use${names.entity}DetailQuery, useUpsert${names.entity}${optionsFields.map((f) => `, ${f.optionsQueryHook}`).join('')}${detailLabelHelpers.map((h) => `, ${h}`).join('')} } from '../api';
+import { use${names.entity}DetailQuery, useUpsert${names.entity}${optionsFields.map((f) => `, ${f.optionsQueryHook}`).join('')}${detailLabelHelpers.map((h) => `, ${h}`).join('')}${detailRelationLoaders.map((h) => `, ${h}`).join('')} } from '../api';
 
 export interface FormValues {
 ${fields.map((f) => `  ${f.name}: ${tsFormType(f)};`).join('\n')}

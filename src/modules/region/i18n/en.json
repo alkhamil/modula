@@ -9,13 +9,13 @@
       "edit": "Edit"
     },
     "fields": {
-      "name": {
-        "label": "Name",
-        "placeholder": "Enter name"
+      "regionName": {
+        "label": "Region Name",
+        "placeholder": "Enter region name"
       },
-      "code": {
-        "label": "Code",
-        "placeholder": "Enter code"
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter description"
       }
     },
     "toast": {
