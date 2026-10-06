@@ -21,6 +21,11 @@ export function mockOptionsConst(field: FieldModel): string {
   return `export const ${field.mockOptionsVar}: ${field.optionType}[] = ${optionsLiteral(field)};`;
 }
 
+/** Nama helper label sinkron untuk field paging (`getXOptionLabel`). */
+export function loadLabelHelper(field: FieldModel): string {
+  return `get${field.pascal}OptionLabel`;
+}
+
 /** Base list + fungsi load mock paginated/searchable untuk SelectField `loadOptions`. */
 export function mockLoadOptionsFn(field: FieldModel): string {
   const baseItems =
@@ -45,6 +50,11 @@ export async function ${field.loadOptionsFn}(
     ? ${field.mockOptionsVar}Base.filter((o) => o.label.toLowerCase().includes(q))
     : ${field.mockOptionsVar}Base;
   return filtered.slice((page - 1) * size, page * size);
+}
+
+/** Label sinkron dari value untuk kolom tabel/detail; tak ketemu → value as-is. */
+export function ${loadLabelHelper(field)}(value: string): string {
+  return ${field.mockOptionsVar}Base.find((o) => o.value === value)?.label ?? value;
 }`;
 }
 

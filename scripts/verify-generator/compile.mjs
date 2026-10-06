@@ -19,8 +19,19 @@ const config = {
   type: 'crud',
   permissionKey: 'verifygentmp',
   features: { list: true, detail: true, create: true, edit: true, delete: true, bulkUpload: true, export: true },
+  formLayout: [
+    { field: 'section-1', order: 0, colSpan: 12, kind: 'section', label: 'Data Umum' },
+    { field: 'itemName', order: 1, colSpan: 6 },
+    { field: 'seller', order: 2, colSpan: 6 },
+    { field: 'divider-1', order: 3, colSpan: 12, kind: 'divider' },
+    { field: 'warna', order: 4, colSpan: 12 },
+    { field: 'deskripsi', order: 5, colSpan: 12 },
+    { field: 'dokumen', order: 6, colSpan: 12 },
+    { field: 'items', order: 7, colSpan: 12 },
+  ],
   fields: [
     { name: 'itemName', label: 'Item Name', type: 'textField', rules: ['required'], sortable: true, filterable: true, filterCriteria: 'contains', source: 'none' },
+    { name: 'seller', label: 'Seller', type: 'selectField', rules: [], sortable: true, filterable: true, filterCriteria: 'optionExact', source: 'mockPagingInfinityScroll' },
     { name: 'warna', label: 'Warna', type: 'colorField', rules: [], sortable: true, filterable: true, filterCriteria: 'contains', source: 'none', componentProps: { color: { size: 'lg' } } },
     { name: 'deskripsi', label: 'Deskripsi', type: 'editorField', rules: [], sortable: true, filterable: false, filterCriteria: null, source: 'none' },
     { name: 'dokumen', label: 'Dokumen', type: 'fileUploadField', rules: [], sortable: false, filterable: false, filterCriteria: null, source: 'none', componentProps: { upload: { multiple: true } } },
@@ -28,7 +39,7 @@ const config = {
       name: 'items', label: 'Items', type: 'formArrayField', rules: ['required', 'min:1'], sortable: false, filterable: false, filterCriteria: null, source: 'none',
       componentProps: { array: { addLabel: 'Tambah Barang', maxRows: 10 } },
       subFields: [
-        { name: 'namaBarang', label: 'Nama Barang', type: 'textField', rules: ['required'], source: 'none' },
+        { name: 'namaBarang', label: 'Nama Barang', type: 'textField', rules: ['required', 'withoutemoticon'], source: 'none' },
         { name: 'qty', label: 'Qty', type: 'numberField', rules: [], source: 'none' },
         { name: 'kondisi', label: 'Kondisi', type: 'selectField', rules: [], source: 'mockStatic', options: [{ label: 'Baru', value: 'baru' }, { label: 'Bekas', value: 'bekas' }] },
         { name: 'nota', label: 'Nota', type: 'fileUploadField', rules: [], source: 'none' },

@@ -118,6 +118,28 @@ expectIn(
 );
 expectIn(fg.tableColumnSnippet(arrayModel), "t('system.rowCount'", 'array-cell');
 expectIn(fg.detailRowSnippet(arrayModel), "t('system.rowCount'", 'array-detail');
+// Select tampil label opsi di tabel/detail: map statis → literal, paging → helper api.
+const selStatic = F('status', 'Status', {
+  type: 'selectField',
+  source: 'mockStatic',
+  options: [
+    { label: 'Aktif', value: 'active' },
+    { label: "Nonaktif", value: 'inactive' },
+  ],
+});
+expectIn(fg.tableColumnSnippet(selStatic), "'active': 'Aktif'", 'table-static-label');
+expectIn(fg.detailRowSnippet(selStatic), "'active': 'Aktif'", 'detail-static-label');
+const selLoad = {
+  ...base,
+  name: 'seller',
+  label: 'Seller',
+  pascal: 'Seller',
+  isLoadOptions: true,
+  config: { name: 'seller', rules: [], label: 'Seller', type: 'selectField', source: 'mockPagingInfinityScroll' },
+};
+expectIn(fg.tableColumnSnippet(selLoad), 'getSellerOptionLabel(row.seller)', 'table-load-label');
+expectIn(fg.detailRowSnippet(selLoad), 'getSellerOptionLabel(item.seller)', 'detail-load-label');
+expectEq(fg.loadLabelHelpers([selLoad]).join(','), 'getSellerOptionLabel', 'label-helpers');
 expectEq(fg.tsDataType(arrayModel), 'ItemsRow[]', 'tsDataType-array');
 expectEq(fg.tsFormType(arrayModel), 'ItemsRow[]', 'tsFormType-array');
 expectEq(fg.formDefaultValue(arrayModel), '[]', 'formDefault-array');
@@ -408,6 +430,21 @@ const iconDef = {
 };
 const iconCfg = fd.definitionToConfig(iconDef);
 expectEq(iconCfg.menuIcon?.name, 'Users', 'fromdef-menuicon');
+// definitionToConfig mempertahankan layout form kanvas (regresi section/grid hilang saat publish ulang).
+const layoutDef = {
+  ...iconDef,
+  layout: {
+    form: [
+      { field: 'section-1', order: 0, colSpan: 12, kind: 'section', label: 'Data' },
+      { field: 'nama', order: 1, colSpan: 6 },
+    ],
+    table: { order: [], hidden: [] },
+  },
+};
+const layoutCfg = fd.definitionToConfig(layoutDef);
+expectEq(layoutCfg.formLayout?.length, 2, 'fromdef-formlayout-len');
+expectEq(layoutCfg.formLayout?.[0]?.kind, 'section', 'fromdef-formlayout-section');
+expectEq(layoutCfg.formLayout?.[1]?.colSpan, 6, 'fromdef-formlayout-span');
 const rg = jiti(`${ROOT}/src/modules/generator/engine/registration.ts`);
 const menuReg = rg.buildRegistration(iconCfg);
 expectEq(menuReg.iconName, 'Users', 'registration-iconname');

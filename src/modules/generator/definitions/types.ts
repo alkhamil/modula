@@ -2,11 +2,15 @@ import type {
   DetailCardDisplayProps,
   DetailRowDisplayProps,
   FeatureKey,
+  FormLayoutItem,
+  FormLayoutItemKind,
   GeneratorFieldConfig,
   MenuIcon,
   ModuleI18nDict,
   TableDisplayProps,
 } from '../types';
+
+export type { FormLayoutItem, FormLayoutItemKind };
 
 /** Versi skema definisi modul. Naikkan bila ada perubahan breaking. */
 export const MODULE_DEFINITION_VERSION = 1 as const;
@@ -21,26 +25,6 @@ export type ModuleDefinitionStatus = 'draft' | 'published';
  * + endpoint restore (pola modul user).
  */
 export type DeleteMode = 'hard' | 'soft';
-
-/** Jenis item form: field data, judul seksi, atau garis pemisah. */
-export type FormLayoutItemKind = 'field' | 'section' | 'divider';
-
-/** Posisi satu item dalam grid form 12 kolom. */
-export interface FormLayoutItem {
-  /**
-   * Nama field (ref ke `fields[].name`) bila `kind` field;
-   * id unik bebas (`section-1`, …) bila section/divider.
-   */
-  field: string;
-  /** Urutan tampil (0-based, unik). */
-  order: number;
-  /** Lebar kolom grid 1..12 (12 = satu baris penuh). */
-  colSpan: number;
-  /** Default `field`. */
-  kind?: FormLayoutItemKind;
-  /** Judul tampil bila `kind === 'section'`. */
-  label?: string;
-}
 
 /** Layout kolom tabel list. Kolom sistem (created_by, created_date, status) selalu di akhir. */
 export interface TableLayout {

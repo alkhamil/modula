@@ -1,5 +1,25 @@
 export type ModuleType = 'crud';
 
+/** Jenis item layout form kanvas 12 kolom. */
+export type FormLayoutItemKind = 'field' | 'section' | 'divider';
+
+/** Posisi satu item dalam grid form 12 kolom. */
+export interface FormLayoutItem {
+  /**
+   * Nama field (ref ke `fields[].name`) bila `kind` field;
+   * id unik bebas (`section-1`, …) bila section/divider.
+   */
+  field: string;
+  /** Urutan tampil (0-based, unik). */
+  order: number;
+  /** Lebar kolom grid 1..12 (12 = satu baris penuh). */
+  colSpan: number;
+  /** Default `field`. */
+  kind?: FormLayoutItemKind;
+  /** Judul tampil bila `kind === 'section'`. */
+  label?: string;
+}
+
 /** Language codes supported for per-module translations. */
 export type ModuleLanguage = 'en' | 'id';
 
@@ -351,7 +371,13 @@ export interface GeneratorConfig {
    */
   tableProps?: TableDisplayProps;
   /** Lebar kolom tabel (px) per nama field/kolom sistem; dibake sebagai literal. */
-  tableWidths?: Record<string, number>;  /**
+  tableWidths?: Record<string, number>;
+  /**
+   * Layout form kanvas (section/divider, urutan, lebar grid 1..12);
+   * dibake sebagai literal di kode statis. Absen = semua field full-width berurutan.
+   */
+  formLayout?: FormLayoutItem[];
+  /**
    * Ikon menu sidebar (opsional; tanpa entri = ikon bawaan).
    * Mapping otomatis: menempel di menu modul bila root, di grup parent
    * bila modul punya parent.

@@ -6,13 +6,37 @@ import {
   arrayNeedsParseCurrency,
   arraySubLoadModels,
   formItemSnippet,
+  loadLabelHelpers,
   rowFormTypeName,
   rowMappersSnippet,
   rowTypeName,
   subOptionsSnippet,
   tableColumnSnippet,
 } from '../../engine/fieldGenerator';
+import type { FormLayoutItem } from '../../types';
+import { colSpanClass } from '../../runtime/grid';
 import { fieldTypeRegistry } from '../../registry';
+
+/**
+ * Item layout form yang dipakai file statis: `config.formLayout` bila ada,
+ * selain itu semua field full-width berurutan. Item field tak dikenal
+ * dilewat; field yang belum ter-cover ditambah di akhir (span 12).
+ */
+function formLayoutItems(ctx: TemplateContext): FormLayoutItem[] {
+  const known = new Set(ctx.fields.map((f) => f.name));
+  const raw: FormLayoutItem[] =
+    ctx.config.formLayout ??
+    ctx.fields.map((f, i) => ({ field: f.name, order: i, colSpan: 12 }));
+  const kept = raw.filter((item) => (item.kind ?? 'field') !== 'field' || known.has(item.field));
+  const covered = new Set(
+    kept.filter((item) => (item.kind ?? 'field') === 'field').map((item) => item.field),
+  );
+  const missing: FormLayoutItem[] = ctx.fields
+    .filter((f) => !covered.has(f.name))
+    .map((f, i) => ({ field: f.name, order: kept.length + i, colSpan: 12 }));
+  return [...kept, ...missing].sort((a, b) => a.order - b.order);
+}
+
 
 export function tableTemplate(ctx: TemplateContext): string {
   const { names, fields, features } = ctx;
@@ -36,16 +60,13 @@ export function tableTemplate(ctx: TemplateContext): string {
     .map((line) => `      ${line}`)
     .join('\n');
 
-  // capitalize hanya untuk kolom select/radio.
-  const needCapitalize = fields.some(
-    (f) => f.config.type === 'selectField' || f.config.type === 'radioGroupField',
-  );
+  // Helper label paging untuk kolom tabel (`getXOptionLabel` dari api).
+  const tableLabelHelpers = loadLabelHelpers(fields);
   const needFormatNumber = ctx.hasNumberFields;
   const needFormatDate = fields.some((f) => f.config.type === 'dateField');
   const needFormatDateRange = fields.some((f) => f.config.type === 'dateRangeField');
   const needStripHtml = fields.some((f) => f.config.type === 'editorField');
   const utilImports = [
-    ...(needCapitalize ? ['capitalize'] : []),
     'formatDateTime',
     ...(needFormatNumber ? ['formatNumber'] : []),
     ...(needFormatDate ? ['formatDate'] : []),
@@ -70,12 +91,17 @@ export function tableTemplate(ctx: TemplateContext): string {
         `    ${tableColumnSnippet(f, tableWidths[f.name], fieldLabelKey(f.name)).replace(/ROWTYPE/g, names.listItem)}`,
     )
     .join('\n');
+  // capitalize hanya bila fallback label masih memakainya (helper/map tak cover semua).
+  const tableUtils = [
+    ...(columns.includes('capitalize(') ? ['capitalize'] : []),
+    ...utilImports,
+  ];
 
   return `import { t } from 'i18next';
 import '${names.sharedPrefix}shared/i18n';
 import type { ${names.listItem} } from '../types';
 import { Table, Badge, RowActionButton } from '${names.sharedPrefix}shared/components/ui';
-import { ${utilImports.join(', ')} } from '${names.sharedPrefix}shared/utils';
+${tableLabelHelpers.length > 0 ? `import { ${tableLabelHelpers.join(', ')} } from '../api';\n` : ''}import { ${tableUtils.join(', ')} } from '${names.sharedPrefix}shared/utils';
 
 interface Props {
   testId?: string;
@@ -200,21 +226,47 @@ export function formTemplate(ctx: TemplateContext): string {
   const loadFields = fields.filter((f) => f.isLoadOptions);
   const subLoadFields = arraySubLoadModels(fields);
   const allLoadFns = [...new Set([...loadFields, ...subLoadFields].map((f) => f.loadOptionsFn))];
+  // Kolom tabel array (sub-field) memakai helper label; field top-level tidak.
+  const apiLabelHelpers = loadLabelHelpers(subLoadFields);
+  const apiImports = [...allLoadFns, ...apiLabelHelpers];
   const rowTypeImports = arrayFields.flatMap((f) => [rowTypeName(f), rowFormTypeName(f)]);
   const arrayUtils = [...new Set(arrayFields.flatMap((f) => arrayColumnUtils(f)))];
   if (arrayFields.some((f) => arrayNeedsParseCurrency(f))) arrayUtils.push('parseCurrency');
+  // Aturan sub-field di-inline di editor baris (buildRulesObject) — `withoutemoticon`
+  // butuh import utils di file form (field utama memakai file validation).
+  const needEmoticonUtils = arrayFields.some((f) =>
+    (f.config.subFields ?? []).some((sub) => (sub.rules ?? []).includes('withoutemoticon')),
+  );
 
   const fieldLabelKey = (name: string): string => `${base}.fields.${name}.label`;
   const fieldPlaceholderKey = (name: string): string => `${base}.fields.${name}.placeholder`;
-  const formItems = fields
-    .map(
-      (f) =>
-        `                ${formItemSnippet(ctx, f, {
-          labelKey: fieldLabelKey(f.name),
-          placeholderKey: fieldPlaceholderKey(f.name),
-          rulesExpr: `get${f.pascal}Rules(t)`,
-        })}`,
-    )
+  const snippetByField = new Map(
+    fields.map((f) => [
+      f.name,
+      formItemSnippet(ctx, f, {
+        labelKey: fieldLabelKey(f.name),
+        placeholderKey: fieldPlaceholderKey(f.name),
+        rulesExpr: `get${f.pascal}Rules(t)`,
+      }),
+    ]),
+  );
+  // Grid 12 kolom + section/divider meniru kanvas (runtime DynamicForm).
+  const formItems = formLayoutItems(ctx)
+    .flatMap((item) => {
+      const kind = item.kind ?? 'field';
+      const span = colSpanClass(item.colSpan);
+      if (kind === 'section') {
+        return [
+          `              <div className="${span}"><p className="border-b border-border pb-1 text-sm font-semibold text-foreground">{${JSON.stringify(item.label ?? 'Section')}}</p></div>`,
+        ];
+      }
+      if (kind === 'divider') {
+        return [`              <div className="${span}"><hr className="border-border" /></div>`];
+      }
+      const snippet = snippetByField.get(item.field);
+      if (!snippet) return [];
+      return [`              <div className="${span}">\n                ${snippet}\n              </div>`];
+    })
     .join('\n\n');
   const rulesImports = fields.map((f) => `get${f.pascal}Rules`).join(', ');
   const arrayBlocks = arrayFields
@@ -244,7 +296,7 @@ import {
 import type { FormValues } from '../hooks';
 import type { SubmitResult } from '${names.sharedPrefix}shared/types';
 import { type UseFormReturn } from 'react-hook-form';
-${optionsFields.length > 0 ? `import type { ${optionsFields.map((f) => f.optionType).join(', ')} } from '../types';\n` : ''}${rowTypeImports.length > 0 ? `import type { ${rowTypeImports.join(', ')} } from '../types';\n` : ''}${arrayFields.length > 0 ? `import type { Column } from '${names.sharedPrefix}shared/components/ui/Table';\n` : ''}${loadFields.length > 0 || subLoadFields.length > 0 ? `import { ${allLoadFns.join(', ')} } from '../api';\n` : ''}${arrayUtils.length > 0 ? `import { ${arrayUtils.join(', ')} } from '${names.sharedPrefix}shared/utils';\n` : ''}import { ${rulesImports} } from '../validation/${names.camel}Validation';
+${optionsFields.length > 0 ? `import type { ${optionsFields.map((f) => f.optionType).join(', ')} } from '../types';\n` : ''}${rowTypeImports.length > 0 ? `import type { ${rowTypeImports.join(', ')} } from '../types';\n` : ''}${arrayFields.length > 0 ? `import type { Column } from '${names.sharedPrefix}shared/components/ui/Table';\n` : ''}${apiImports.length > 0 ? `import { ${apiImports.join(', ')} } from '../api';\n` : ''}${arrayUtils.length > 0 ? `import { ${arrayUtils.join(', ')} } from '${names.sharedPrefix}shared/utils';\n` : ''}${needEmoticonUtils ? `import { hasEmoticon } from '${names.sharedPrefix}shared/utils';\n` : ''}import { ${rulesImports} } from '../validation/${names.camel}Validation';
 ${arrayBlocks ? `${arrayBlocks}\n\n` : ''}
 interface ${names.entity}FormProps {
   defaultValues: FormValues;
@@ -316,7 +368,7 @@ ${optionsFields.length > 0 ? '' : ''}}: ${names.entity}FormProps) {
             <>
               <FormDefaultValuesWatcher methods={methods} defaultValues={defaultValues} />
 
-              <div className="flex flex-col section-gap">
+              <div className="grid grid-cols-12 field-gap">
 ${formItems}
               </div>
 

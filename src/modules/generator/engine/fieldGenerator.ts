@@ -1,4 +1,5 @@
 import { buildRulesObject, getMaxLength } from './validationGenerator';
+import { loadLabelHelper } from './sourceGenerator';
 import type { FieldModel, TemplateContext } from './context';
 import { fieldTypeRegistry } from '../registry/fieldTypes';
 import { toPascalCase } from '../naming';
@@ -347,6 +348,44 @@ export function formItemSnippet(
 }
 
 /** Kolom tabel untuk field ini (dengan render khusus bila perlu). */
+/** Literal map value → label dari opsi statis; null bila tak ada opsi statis. */
+function optionMapLiteral(field: FieldModel): string | null {
+  const options = field.config.options ?? [];
+  if (options.length === 0) return null;
+  const source = field.config.source;
+  if (source !== undefined && source !== 'none' && source !== 'mockStatic') return null;
+  const q = (s: string): string => `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+  return `{${options.map((o) => `${q(o.value)}: ${q(o.label)}`).join(', ')}}`;
+}
+
+/** Helper label sinkron untuk field paging (`getXOptionLabel` di api); null bila bukan paging. */
+function optionLabelHelper(field: FieldModel): string | null {
+  return field.isLoadOptions ? loadLabelHelper(field) : null;
+}
+
+/** Nama helper label semua field paging dalam daftar (untuk import file statis). */
+export function loadLabelHelpers(models: FieldModel[]): string[] {
+  return [...new Set(models.flatMap((f) => (f.isLoadOptions ? [loadLabelHelper(f)] : [])))];
+}
+
+/** Ekspresi label satu value: helper paging → map statis → fallback capitalize. */
+function singleLabelExpr(field: FieldModel, valueExpr: string): string {
+  const helper = optionLabelHelper(field);
+  if (helper) return `${helper}(${valueExpr})`;
+  const map = optionMapLiteral(field);
+  if (map) return `(${map}[${valueExpr}] ?? capitalize(String(${valueExpr})))`;
+  return `capitalize(String(${valueExpr}))`;
+}
+
+/** Ekspresi label multi value (join koma). */
+function multiLabelExpr(field: FieldModel, valueExpr: string): string {
+  const helper = optionLabelHelper(field);
+  if (helper) return `(${valueExpr} ?? []).map((v: string) => ${helper}(v)).join(', ')`;
+  const map = optionMapLiteral(field);
+  if (map) return `(${valueExpr} ?? []).map((v: string) => ${map}[v] ?? v).join(', ')`;
+  return `(${valueExpr} ?? []).join(', ')`;
+}
+
 export function tableColumnSnippet(field: FieldModel, width?: number, labelKey?: string): string {
   const header = labelKey ? `t('${labelKey}')` : `'${field.label}'`;
   const sort = field.sortable ? ', sortable: true' : '';
@@ -365,10 +404,10 @@ export function tableColumnSnippet(field: FieldModel, width?: number, labelKey?:
       return `${open}, render: (row: ROWTYPE) => (row.${field.name} ? 'Yes' : 'No') },`;
     case 'selectField':
     case 'radioGroupField':
-      return `${open}, render: (row: ROWTYPE) => capitalize(String(row.${field.name})) },`;
+      return `${open}, render: (row: ROWTYPE) => ${singleLabelExpr(field, `row.${field.name}`)} },`;
     case 'selectMultipleField':
     case 'checkboxGroupField':
-      return `${open}, render: (row: ROWTYPE) => (row.${field.name} ?? []).join(', ') },`;
+      return `${open}, render: (row: ROWTYPE) => ${multiLabelExpr(field, `row.${field.name}`)} },`;
     case 'passwordField':
       return `${open}, render: () => '••••••' },`;
     case 'colorField':
@@ -402,10 +441,10 @@ export function detailRowSnippet(field: FieldModel, labelKey?: string): string {
       return `{ label: ${label}, value: item.${field.name} ? ${yesNo} },`;
     case 'selectField':
     case 'radioGroupField':
-      return `{ label: ${label}, value: capitalize(String(item.${field.name})) },`;
+      return `{ label: ${label}, value: ${singleLabelExpr(field, `item.${field.name}`)} },`;
     case 'selectMultipleField':
     case 'checkboxGroupField':
-      return `{ label: ${label}, value: (item.${field.name} ?? []).join(', ') },`;
+      return `{ label: ${label}, value: ${multiLabelExpr(field, `item.${field.name}`)} },`;
     case 'passwordField':
       return `{ label: ${label}, value: '••••••' },`;
     case 'colorField':

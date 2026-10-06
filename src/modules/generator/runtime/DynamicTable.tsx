@@ -4,7 +4,7 @@ import { RowActionButton, Table } from '../../../shared/components/ui';
 import type { Column } from '../../../shared/components/ui/Table';
 import type { ModuleDefinition } from '../definitions';
 import { definitionTestId, type DynamicListItem } from './types';
-import { columnRenderForType, systemTableColumn } from './cellRender';
+import { columnRenderForType, staticOptionsOf, systemTableColumn } from './cellRender';
 import { moduleFieldLabel } from './moduleI18n';
 
 interface DynamicTableProps {
@@ -40,8 +40,9 @@ interface DynamicTableProps {
 function cellRender(
   fieldType: string,
   name: string,
+  field?: { source?: string; options?: { label: string; value: string }[] | undefined },
 ): ((row: DynamicListItem) => ReactNode) | undefined {
-  const render = columnRenderForType(fieldType, name);
+  const render = columnRenderForType(fieldType, name, field ? staticOptionsOf(field) : undefined);
   return render
     ? (row: DynamicListItem) => render(row as Record<string, unknown>)
     : undefined;
@@ -84,7 +85,7 @@ function DynamicTable({
         header: moduleFieldLabel(def, field),
         sortable: field.sortable !== false,
       };
-      const render = cellRender(type, name);
+      const render = cellRender(type, name, field);
       if (render) column.render = render;
       if (widths[name]) column.width = widths[name];
       return [column];

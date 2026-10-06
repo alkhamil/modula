@@ -14,9 +14,41 @@ import {
 } from '../../../shared/utils';
 import type { DynamicListItem } from './types';
 
+/** Opsi statis untuk dipetakan value → label di sel tabel. */
+export interface StaticOption {
+  label: string;
+  value: string;
+}
+
+/**
+ * Opsi statis field (source `none`/`mockStatic` + options terisi) —
+ * undefined bila label harus fallback ke value (source async).
+ */
+export function staticOptionsOf(field: {
+  source?: string;
+  options?: StaticOption[] | undefined;
+}): StaticOption[] | undefined {
+  if (!field.options || field.options.length === 0) return undefined;
+  if (field.source !== undefined && field.source !== 'none' && field.source !== 'mockStatic') {
+    return undefined;
+  }
+  return field.options;
+}
+
+function singleLabel(options: StaticOption[] | undefined, value: unknown): string {
+  const raw = String(value ?? '');
+  return options?.find((o) => o.value === raw)?.label ?? capitalize(raw);
+}
+
+function multiLabel(options: StaticOption[] | undefined, value: unknown): string {
+  const list = Array.isArray(value) ? value : [];
+  return list.map((v) => singleLabel(options, v)).join(', ');
+}
+
 export function columnRenderForType(
   fieldType: string,
   name: string,
+  options?: StaticOption[],
 ): ((row: Record<string, unknown>) => ReactNode) | undefined {
   switch (fieldType) {
     case 'numberField':
@@ -31,10 +63,10 @@ export function columnRenderForType(
       return (row) => (row[name] ? 'Yes' : 'No');
     case 'selectField':
     case 'radioGroupField':
-      return (row) => capitalize(String(row[name] ?? ''));
+      return (row) => singleLabel(options, row[name]);
     case 'selectMultipleField':
     case 'checkboxGroupField':
-      return (row) => ((row[name] as string[] | null) ?? []).join(', ');
+      return (row) => multiLabel(options, row[name]);
     case 'passwordField':
       return () => '••••••';
     case 'colorField':

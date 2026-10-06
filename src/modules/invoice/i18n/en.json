@@ -1,0 +1,59 @@
+{
+  "invoice": {
+    "label": "Invoice",
+    "labelPlural": "Invoices",
+    "breadcrumbs": {
+      "list": "Invoices",
+      "create": "Create",
+      "detail": "Detail",
+      "edit": "Edit"
+    },
+    "fields": {
+      "invoiceNumber": {
+        "label": "Invoice Number",
+        "placeholder": "Enter invoice number"
+      },
+      "dateOfIssue": {
+        "label": "Date Of Issue",
+        "placeholder": "Enter date of issue"
+      },
+      "dueDate": {
+        "label": "Due Date",
+        "placeholder": "Enter due date"
+      },
+      "seller": {
+        "label": "Seller",
+        "placeholder": "Select seller"
+      },
+      "buyer": {
+        "label": "Buyer",
+        "placeholder": "Select buyer"
+      },
+      "detailProduct": {
+        "label": "Detail Product",
+        "placeholder": "Enter detail product",
+        "sub": {
+          "product": {
+            "label": "Product",
+            "placeholder": "Select product"
+          },
+          "quantity": {
+            "label": "Quantity",
+            "placeholder": "Enter quantity"
+          }
+        },
+        "array": {
+          "addLabel": "Add Item",
+          "editorTitle": "Detail Product"
+        }
+      }
+    },
+    "toast": {
+      "created": "Invoice created successfully.",
+      "updated": "Invoice updated successfully.",
+      "deleted": "Invoice deleted successfully",
+      "restored": "Invoice restored successfully",
+      "notFound": "Invoice not found"
+    }
+  }
+}

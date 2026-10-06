@@ -11,6 +11,7 @@ import {
 import { useDebounce, useUrlPagination } from '../../../shared/hooks';
 import type { FilterField } from '../../../shared/components/ui';
 import type { ApiList, SubmitResult } from '../../../shared/types';
+import { staticOptionsOf } from './cellRender';
 import {
   capitalize,
   downloadBlob,
@@ -214,11 +215,22 @@ export function detailValue(field: GeneratorFieldConfig, item: DynamicDetail): u
     case 'switchField':
       return value ? 'Yes' : 'No';
     case 'selectField':
-    case 'radioGroupField':
-      return capitalize(String(value ?? ''));
+    case 'radioGroupField': {
+      const options = staticOptionsOf(field);
+      const raw = String(value ?? '');
+      return options?.find((o) => o.value === raw)?.label ?? capitalize(raw);
+    }
     case 'selectMultipleField':
-    case 'checkboxGroupField':
-      return ((value as string[] | null) ?? []).join(', ');
+    case 'checkboxGroupField': {
+      const options = staticOptionsOf(field);
+      const list = Array.isArray(value) ? value : [];
+      return list
+        .map((v) => {
+          const raw = String(v ?? '');
+          return options?.find((o) => o.value === raw)?.label ?? raw;
+        })
+        .join(', ');
+    }
     case 'passwordField':
       return '••••••';
     case 'colorField':

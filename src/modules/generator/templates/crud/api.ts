@@ -1,6 +1,8 @@
 import type { TemplateContext } from '../../engine/context';
 import { arraySubLoadModels, rowTypeName, tsDataType } from '../../engine/fieldGenerator';
+import { toPascalCase } from '../../naming';
 import {
+  loadLabelHelper,
   mockFilterLine,
   mockLoadOptionsFn,
   mockOptionsConst,
@@ -60,7 +62,8 @@ export function serviceTemplate(ctx: TemplateContext): string {
     })
     .join('\n\n');
 
-  const loadFns = [...loadSelects(ctx), ...arraySubLoadModels(ctx.fields)]
+  const loadFieldsAll = [...loadSelects(ctx), ...arraySubLoadModels(ctx.fields)];
+  const loadFns = loadFieldsAll
     .map((f) => {
       const mapping = optionMapping(f);
       const shape = mapping ? 'Record<string, unknown>' : f.optionType;
@@ -76,6 +79,10 @@ export function serviceTemplate(ctx: TemplateContext): string {
     params: { search, page, size },
   });
   ${body}
+}
+/** Label sinkron mock-only; service mengembalikan value (resolve via endpoint bila perlu). */
+export function ${loadLabelHelper(f)}(value: string): string {
+  return value;
 }`;
     })
     .join('\n\n');
@@ -183,6 +190,8 @@ export function mockTemplate(ctx: TemplateContext): string {
     ...optionsSelects(ctx).map((f) => `  ${f.name}Options: true,`),
     ...loadSelects(ctx).map((f) => `  ${f.name}LoadOptions: true,`),
     ...arraySubLoadModels(ctx.fields).map((f) => `  ${f.name}LoadOptions: true,`),
+    ...loadSelects(ctx).map((f) => `  ${f.name}Label: true,`),
+    ...arraySubLoadModels(ctx.fields).map((f) => `  ${f.name}Label: true,`),
     ...(features.export ? ['  export: true,'] : []),
     ...(features.bulkUpload ? ['  bulkUpload: true,', '  bulkTemplate: true,'] : []),
   ].join('\n');
@@ -518,7 +527,7 @@ export async function mockGet${f.pascal}Options(): Promise<${f.optionType}[]> {
  */
 export function resolverTemplate(ctx: TemplateContext): string {
   const { names, features } = ctx;
-  const ops: [string, string, string][] = [
+  const ops: [string, string, string, string?][] = [
     ['list', `get${names.entityPlural}`, `mockGet${names.entityPlural}`],
     ['detail', `get${names.entity}ById`, `mockGet${names.entity}ById`],
     ['create', `create${names.entity}`, `mockCreate${names.entity}`],
@@ -536,16 +545,39 @@ export function resolverTemplate(ctx: TemplateContext): string {
   for (const f of optionsSelects(ctx)) {
     ops.push([`${f.name}Options`, `get${f.pascal}Options`, `mockGet${f.pascal}Options`]);
   }
+  // Loader opsi punya nama sama di mock & service (`loadXOptions`) sehingga
+  // import mock wajib alias agar tak tabrakan dengan `export const` di bawah.
   for (const f of loadSelects(ctx)) {
-    ops.push([`${f.name}LoadOptions`, f.loadOptionsFn, f.loadOptionsFn]);
+    ops.push([
+      `${f.name}LoadOptions`,
+      f.loadOptionsFn,
+      `mock${toPascalCase(f.loadOptionsFn)}`,
+      `${f.loadOptionsFn} as mock${toPascalCase(f.loadOptionsFn)}`,
+    ]);
   }
   for (const f of arraySubLoadModels(ctx.fields)) {
-    ops.push([`${f.name}LoadOptions`, f.loadOptionsFn, f.loadOptionsFn]);
+    ops.push([
+      `${f.name}LoadOptions`,
+      f.loadOptionsFn,
+      `mock${toPascalCase(f.loadOptionsFn)}`,
+      `${f.loadOptionsFn} as mock${toPascalCase(f.loadOptionsFn)}`,
+    ]);
+  }
+  // Helper label sinkron paging: import mock dialias seperti loader.
+  for (const f of [...loadSelects(ctx), ...arraySubLoadModels(ctx.fields)]) {
+    const helper = loadLabelHelper(f);
+    ops.push([
+      `${f.name}Label`,
+      helper,
+      `mock${toPascalCase(helper)}`,
+      `${helper} as mock${toPascalCase(helper)}`,
+    ]);
   }
   const lines = ops.map(
-    ([flag, name, mockName]) => `export const ${name} = USE_MOCK.${flag} ? ${mockName} : service.${name};`,
+    ([flag, name, mockName]) =>
+      `export const ${name} = USE_MOCK.${flag} ? ${mockName} : service.${name};`,
   );
-  const mockImports = ops.map(([, , mockName]) => mockName).join(',\n  ');
+  const mockImports = ops.map((op) => op[3] ?? op[2]).join(',\n  ');
   return `import {
   USE_MOCK,
   ${mockImports},

@@ -5,6 +5,7 @@ import {
   filterParamKeys,
   formDefaultValue,
   formEditValue,
+  loadLabelHelpers,
   payloadMapping,
   rowTypeName,
   tsFormType,
@@ -211,18 +212,22 @@ export function formHookTemplate(ctx: TemplateContext): string {
   const rowTypes = fields
     .filter((f) => f.config.type === 'formArrayField')
     .map((f) => rowTypeName(f));
-  // capitalize hanya untuk baris detail select/radio.
-  const needCapitalize = fields.some(
-    (f) => f.config.type === 'selectField' || f.config.type === 'radioGroupField',
-  );
+  // Helper label paging untuk baris detail (`getXOptionLabel` dari api).
+  const detailLabelHelpers = loadLabelHelpers(fields);
   const needParseCurrency = ctx.hasNumberFields;
   const needFormatNumber = ctx.hasNumberFields;
   const needFormatDate = fields.some((f) => f.config.type === 'dateField');
   const needFormatDateRange = fields.some((f) => f.config.type === 'dateRangeField');
   const needStripHtml = fields.some((f) => f.config.type === 'editorField');
 
+  const detailRows = fields
+    .map((f) => detailRowSnippet(f, fieldLabelKey(f.name)).replace(/item\./g, `${names.camel}.`))
+    .map((line) => `      ${line}`)
+    .join('\n');
+
   const utilImports = [
-    ...(needCapitalize ? ['capitalize'] : []),
+    // capitalize hanya bila fallback label masih memakainya.
+    ...(detailRows.includes('capitalize(') ? ['capitalize'] : []),
     'isConnectionError',
     'mapSubmitError',
     ...(needParseCurrency ? ['parseCurrency'] : []),
@@ -234,11 +239,6 @@ export function formHookTemplate(ctx: TemplateContext): string {
     ...(needStripHtml ? ['stripHtml'] : []),
   ];
 
-  const detailRows = fields
-    .map((f) => detailRowSnippet(f, fieldLabelKey(f.name)).replace(/item\./g, `${names.camel}.`))
-    .map((line) => `      ${line}`)
-    .join('\n');
-
   return `import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -249,7 +249,7 @@ import {
   ${utilImports.join(',\n  ')},
 } from '${names.sharedPrefix}shared/utils';
 import type { ${names.entity}${rowTypes.map((t) => `, ${t}`).join('')} } from '../types';
-import { use${names.entity}DetailQuery, useUpsert${names.entity}${optionsFields.map((f) => `, ${f.optionsQueryHook}`).join('')} } from '../api';
+import { use${names.entity}DetailQuery, useUpsert${names.entity}${optionsFields.map((f) => `, ${f.optionsQueryHook}`).join('')}${detailLabelHelpers.map((h) => `, ${h}`).join('')} } from '../api';
 
 export interface FormValues {
 ${fields.map((f) => `  ${f.name}: ${tsFormType(f)};`).join('\n')}

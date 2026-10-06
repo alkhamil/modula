@@ -26,6 +26,12 @@ import {
   RoleEditPage,
 } from '../modules/user-management/role';
 import { SettingsPage } from '../modules/settings';
+import {
+  InvoiceListPage,
+  InvoiceCreatePage,
+  InvoiceViewPage,
+  InvoiceEditPage,
+} from '../modules/invoice';
 // __GENERATOR_IMPORTS__
 
 export const router = createBrowserRouter([
@@ -172,6 +178,38 @@ export const router = createBrowserRouter([
                   requiredPermission: 'settings.view',
                 },
               },
+                                                                      {
+                                                                        path: 'invoices',
+                                                                        element: <InvoiceListPage />,
+                                                                        handle: {
+                                                                          breadcrumb: [{ label: 'Invoices', labelKey: 'invoice.breadcrumbs.list' }],
+                                                                          requiredPermission: 'invoice.view',
+                                                                        },
+                                                                      },
+                                                                      {
+                                                                        path: 'invoices/create',
+                                                                        element: <InvoiceCreatePage />,
+                                                                        handle: {
+                                                                          breadcrumb: [{ label: 'Invoices', labelKey: 'invoice.breadcrumbs.list', path: '/invoices' }, { label: 'Create', labelKey: 'invoice.breadcrumbs.create' }],
+                                                                          requiredPermission: 'invoice.create',
+                                                                        },
+                                                                      },
+                                                                      {
+                                                                        path: 'invoices/:invoiceId/view',
+                                                                        element: <InvoiceViewPage />,
+                                                                        handle: {
+                                                                          breadcrumb: [{ label: 'Invoices', labelKey: 'invoice.breadcrumbs.list', path: '/invoices' }, { label: 'Detail', labelKey: 'invoice.breadcrumbs.detail' }],
+                                                                          requiredPermission: 'invoice.view',
+                                                                        },
+                                                                      },
+                                                                      {
+                                                                        path: 'invoices/:invoiceId/edit',
+                                                                        element: <InvoiceEditPage />,
+                                                                        handle: {
+                                                                          breadcrumb: [{ label: 'Invoices', labelKey: 'invoice.breadcrumbs.list', path: '/invoices' }, { label: 'Edit', labelKey: 'invoice.breadcrumbs.edit' }],
+                                                                          requiredPermission: 'invoice.update',
+                                                                        },
+                                                                      },
                                                                       // __GENERATOR_ROUTES__
               // Host WAJIB `path: '*'`: pathless tidak match URL dinamis
               // (sisa pathname tak terkonsumsi → jatuh ke 404).

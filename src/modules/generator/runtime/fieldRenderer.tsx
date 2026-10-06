@@ -24,7 +24,7 @@ import type { ModuleDefinition } from '../definitions';
 import { moduleFieldLabel, moduleFieldPlaceholder } from './moduleI18n';
 import { parseConfigDate } from '../componentProps';
 import type { DynamicOption } from './types';
-import { columnRenderForType } from './cellRender';
+import { columnRenderForType, staticOptionsOf } from './cellRender';
 import { fieldRulesToRHF, maxLengthOf, rowFormValues, rowPayloadValues } from './validation';
 import type { LoadOptionsFn } from '../../../shared/components/ui/fields/SelectField';
 
@@ -330,7 +330,7 @@ export function renderDynamicField(
       const subs = field.subFields ?? [];
       const columns: Column<Record<string, unknown>>[] = subs.map((sub) => {
         const column: Column<Record<string, unknown>> = { key: sub.name, header: sub.label };
-        const render = columnRenderForType(sub.type, sub.name);
+        const render = columnRenderForType(sub.type, sub.name, staticOptionsOf(sub));
         if (render) column.render = render;
         return column;
       });

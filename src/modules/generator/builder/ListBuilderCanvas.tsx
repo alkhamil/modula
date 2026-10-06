@@ -48,7 +48,7 @@ import {
   criteriaForFieldType,
   defaultCriteria,
 } from '../registry';
-import { columnRenderForType, systemTableColumn } from '../runtime/cellRender';
+import { columnRenderForType, staticOptionsOf, systemTableColumn } from '../runtime/cellRender';
 import {
   moveTableColumn,
   setTableProps,
@@ -754,7 +754,7 @@ function ListBuilderCanvas({
     const selected = selectedName === name;
     const active = activeName === name;
     const render =
-      field ? columnRenderForType(field.type, name) : (system?.render as Column<DynamicListItem>['render']);
+      field ? columnRenderForType(field.type, name, staticOptionsOf(field)) : (system?.render as Column<DynamicListItem>['render']);
     const column: Column<DynamicListItem> = {
       key: name,
       header: (
