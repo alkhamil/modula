@@ -260,6 +260,32 @@ for (const lit of [
     console.log('MISS literal-leak', JSON.stringify(lit));
   }
 }
+// --- Fase F: label filter pakai key i18n + filterFields di dalam hook ---
+// (regresi: filter region merender key mentah karena t() dievaluasi level-modul
+// sebelum addModuleLocales terdaftar).
+const fExact = F('kode', 'Kode', {});
+fExact.filterCriteria = 'exact';
+expectIn(fg.filterFieldSnippet(fExact, 'demo.fields.kode.label'), "label: t('demo.fields.kode.label')", 'filter-exact-label');
+const fMin = F('harga', 'Harga', {});
+fMin.filterCriteria = 'numberMin';
+expectIn(fg.filterFieldSnippet(fMin, 'demo.fields.harga.label'), "label: `t('demo.fields.harga.label') (Min)`", 'filter-min-label');
+const fDate = F('tgl', 'Tgl', {});
+fDate.filterCriteria = 'dateRange';
+const dateSnip = fg.filterFieldSnippet(fDate, 'demo.fields.tgl.label');
+expectIn(dateSnip, "label: t('demo.fields.tgl.label')", 'filter-date-label');
+expectIn(dateSnip, "rangeErrorMessage: t('validation.rangeRequired', { label: t('demo.fields.tgl.label') })", 'filter-date-errmsg');
+const fOpt = F('tipe', 'Tipe', {});
+fOpt.filterCriteria = 'optionExact';
+expectIn(fg.filterFieldSnippet(fOpt, 'demo.fields.tipe.label'), "label: t('demo.fields.tipe.label')", 'filter-opt-label');
+const hookFile = emitted.find((f) => f.path.endsWith('ListFilter.ts'));
+expectEq(typeof hookFile?.content, 'string', 'emit-filter-hook');
+if (hookFile) {
+  const fnAt = hookFile.content.indexOf('export function');
+  const ffAt = hookFile.content.indexOf('const filterFields');
+  expectEq(fnAt !== -1 && ffAt !== -1 && fnAt < ffAt, true, 'filterfields-in-hook');
+  expectIn(hookFile.content, "t('i18nprobe.fields.tipe.label')", 'filter-hook-opt-label');
+}
+
 // id.json = en ditimpa terjemahan step Translation (hanya key `<base>...`).
 // Tabel hasil generate memakai RowActionButton; size/warna dari canvas ikut ter-bake.
 const actionProbe = mg.generateModule({
@@ -274,6 +300,27 @@ const defaultProbe = mg.generateModule(probeConfig);
 const defaultTable = defaultProbe.find((f) => f.path.endsWith('Table.tsx')).content;
 expectIn(defaultTable, 'RowActionButton', 'table-row-action-default');
 expectEq(defaultTable.includes('iconSize='), false, 'table-action-size-absent');
+// --- Fase G: loader relasi wajib di-resolver (barrel api) ---
+// (regresi: modul ber-relasi error `loadCategoryOptions is not defined`
+// karena resolver hanya emit loader paging.)
+const relProbe = mg.generateModule({
+  ...probeConfig,
+  permissionKey: 'relprobe',
+  fields: [
+    ...probeConfig.fields,
+    { name: 'category', label: 'Category', type: 'selectField', rules: [], sortable: false, filterable: true, filterCriteria: 'optionExact', source: 'relation', relation: { definitionKey: 'catalogue/category', labelField: 'name', valueField: 'id' } },
+  ],
+});
+const relResolver = relProbe.find((f) => f.path.endsWith('api/resolver.ts')).content;
+expectIn(relResolver, 'export const loadCategoryOptions = USE_MOCK.categoryLoadOptions', 'relation-resolver-export');
+expectIn(relResolver, 'loadCategoryOptions as mockLoadCategoryOptions', 'relation-resolver-alias');
+const relMock = relProbe.find((f) => f.path.endsWith('api/mock.ts')).content;
+expectIn(relMock, 'categoryLoadOptions: true,', 'relation-mock-flag');
+const relHook = relProbe.find((f) => f.path.endsWith('ListFilter.ts')).content;
+expectIn(relHook, "import { loadCategoryOptions } from '../api'", 'relation-hook-import');
+const relForm = relProbe.find((f) => f.path.endsWith('Form.tsx')).content;
+expectIn(relForm, "import { loadCategoryOptions } from '../api'", 'relation-form-import');
+expectIn(relForm, 'loadOptions={loadCategoryOptions}', 'relation-form-loadoptions');
 const translatedConfig = {
   ...probeConfig,
   i18n: { id: { 'i18nprobe.fields.nama.label': 'Nama (ID)', 'field.nama.label': 'SKIP', 'other.x': 'SKIP' } },
@@ -591,6 +638,20 @@ const movedDetail = ops.moveDetailItem(
   'status',
 );
 expectEq(JSON.stringify(movedDetail.detail.order), JSON.stringify(['nama', 'status']), 'props-system-detail-move');
+
+// --- Fase H: rule validasi mengikuti tipe field ---
+const vr2 = jiti(`${ROOT}/src/modules/generator/registry/validationRules.ts`);
+const numRules = vr2.rulesForFieldType('numberField');
+expectEq(numRules.includes('min') && numRules.includes('max'), true, 'rules-number-minmax');
+expectEq(numRules.includes('minLength') || numRules.includes('maxLength'), false, 'rules-number-no-length');
+const textRules = vr2.rulesForFieldType('textField');
+expectEq(textRules.includes('minLength') && textRules.includes('email') && textRules.includes('regex'), true, 'rules-text-length-email');
+expectEq(textRules.includes('min') || textRules.includes('max'), false, 'rules-text-no-minmax');
+expectEq(
+  JSON.stringify(vr2.pruneRulesForType(['required', 'minLength:3', 'min:1'], 'numberField')),
+  JSON.stringify(['required', 'min:1']),
+  'rules-prune-number',
+);
 
 console.log(fail === 0 ? 'EMISSION PASS' : `EMISSION FAIL (${fail})`);
 process.exit(fail === 0 ? 0 : 1);

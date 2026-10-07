@@ -7,46 +7,46 @@ import type { GetInvoicesParams } from '../types';
 import { useDebounce, useUrlPagination } from '../../../shared/hooks';
 import { loadSellerOptions, loadBuyerOptions } from '../api';
 
-const filterFields: FilterField[] = [
-  {
-      name: 'status',
-      label: t('table.status'),
-      type: 'select',
-      options: [
-        { label: t('common.active'), value: 'active' },
-        { label: t('common.inactive'), value: 'inactive' },
-      ],
-    },
-  {
-      name: 'dateOfIssue',
-      label: 'Date Of Issue',
-      type: 'date',
-      range: true,
-      rangeErrorMessage: t('validation.rangeRequired', { label: 'Date Of Issue' }),
-    },
-  {
-      name: 'dueDate',
-      label: 'Due Date',
-      type: 'date',
-      range: true,
-      rangeErrorMessage: t('validation.rangeRequired', { label: 'Due Date' }),
-    },
-  {
-      name: 'seller',
-      label: 'Seller',
-      type: 'select',
-      loadOptions: loadSellerOptions,
-    },
-  {
-      name: 'buyer',
-      label: 'Buyer',
-      type: 'select',
-      loadOptions: loadBuyerOptions,
-    },
-];
-
 export function useInvoiceListFilter() {
   const [searchParams] = useSearchParams();
+  // filterFields di dalam hook agar t() dievaluasi setelah locale modul terdaftar.
+  const filterFields: FilterField[] = [
+    {
+        name: 'status',
+        label: t('table.status'),
+        type: 'select',
+        options: [
+          { label: t('common.active'), value: 'active' },
+          { label: t('common.inactive'), value: 'inactive' },
+        ],
+      },
+    {
+        name: 'dateOfIssue',
+        label: t('invoice.fields.dateOfIssue.label'),
+        type: 'date',
+        range: true,
+        rangeErrorMessage: t('validation.rangeRequired', { label: t('invoice.fields.dateOfIssue.label') }),
+      },
+    {
+        name: 'dueDate',
+        label: t('invoice.fields.dueDate.label'),
+        type: 'date',
+        range: true,
+        rangeErrorMessage: t('validation.rangeRequired', { label: t('invoice.fields.dueDate.label') }),
+      },
+    {
+        name: 'seller',
+        label: t('invoice.fields.seller.label'),
+        type: 'select',
+        loadOptions: loadSellerOptions,
+      },
+    {
+        name: 'buyer',
+        label: t('invoice.fields.buyer.label'),
+        type: 'select',
+        loadOptions: loadBuyerOptions,
+      },
+  ];
   const { page, setPage, pageSize, setPageSize, handlePageSizeChange } = useUrlPagination();
   const [sortKey, setSortKey] = useState<string | undefined>(undefined);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');

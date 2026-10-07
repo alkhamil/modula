@@ -1,0 +1,30 @@
+{
+  "region": {
+    "label": "Region",
+    "labelPlural": "Regions",
+    "parentLabel": "Master Data",
+    "breadcrumbs": {
+      "list": "Regions",
+      "create": "Create",
+      "detail": "Detail",
+      "edit": "Edit"
+    },
+    "fields": {
+      "regionName": {
+        "label": "Region Name",
+        "placeholder": "Enter region name"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter description"
+      }
+    },
+    "toast": {
+      "created": "Region created successfully.",
+      "updated": "Region updated successfully.",
+      "deleted": "Region deleted successfully",
+      "restored": "Region restored successfully",
+      "notFound": "Region not found"
+    }
+  }
+}

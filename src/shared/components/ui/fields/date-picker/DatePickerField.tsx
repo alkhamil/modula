@@ -132,7 +132,7 @@ function renderRightSide(
         </button>
       )}
       <span className="pointer-events-none flex items-center mr-1">
-        <Calendar />
+        <Calendar className='w-4 h-4' />
       </span>
       {showError && (
         <span className="pointer-events-none flex items-center">

@@ -6,20 +6,20 @@ import type { FilterField } from '../../../../shared/components/ui';
 import type { GetCategoriesParams } from '../types';
 import { useDebounce, useUrlPagination } from '../../../../shared/hooks';
 
-const filterFields: FilterField[] = [
-  {
-      name: 'status',
-      label: t('table.status'),
-      type: 'select',
-      options: [
-        { label: t('common.active'), value: 'active' },
-        { label: t('common.inactive'), value: 'inactive' },
-      ],
-    },
-];
-
 export function useCategoryListFilter() {
   const [searchParams] = useSearchParams();
+  // filterFields di dalam hook agar t() dievaluasi setelah locale modul terdaftar.
+  const filterFields: FilterField[] = [
+    {
+        name: 'status',
+        label: t('table.status'),
+        type: 'select',
+        options: [
+          { label: t('common.active'), value: 'active' },
+          { label: t('common.inactive'), value: 'inactive' },
+        ],
+      },
+  ];
   const { page, setPage, pageSize, setPageSize, handlePageSizeChange } = useUrlPagination();
   const [sortKey, setSortKey] = useState<string | undefined>(undefined);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');

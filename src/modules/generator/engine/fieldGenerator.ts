@@ -496,55 +496,55 @@ export function filterFieldSnippet(field: FieldModel, labelKey?: string): string
     case 'numberExact':
       return `{
     name: '${field.name}',
-    label: '${field.label}',
+    label: ${label},
     type: 'text',
   },`;
     case 'numberMin':
       return `{
     name: '${field.name}',
-    label: '${field.label} (Min)',
+    label: \`${label} (Min)\`,
     type: 'text',
     placeholder: t('filter.minPh'),
   },`;
     case 'numberMax':
       return `{
     name: '${field.name}',
-    label: '${field.label} (Max)',
+    label: \`${label} (Max)\`,
     type: 'text',
     placeholder: t('filter.maxPh'),
   },`;
     case 'numberRange':
       return `{
     name: '${field.name}Min',
-    label: '${field.label} (Min)',
+    label: \`${label} (Min)\`,
     type: 'text',
     placeholder: t('filter.minPh'),
   },
   {
     name: '${field.name}Max',
-    label: '${field.label} (Max)',
+    label: \`${label} (Max)\`,
     type: 'text',
     placeholder: t('filter.maxPh'),
   },`;
     case 'dateExact':
       return `{
     name: '${field.name}',
-    label: '${field.label}',
+    label: ${label},
     type: 'date',
   },`;
     case 'dateRange':
     case 'dateOverlap':
       return `{
     name: '${field.name}',
-    label: '${field.label}',
+    label: ${label},
     type: 'date',
     range: true,
-    rangeErrorMessage: t('validation.rangeRequired', { label: '${field.label}' }),
+    rangeErrorMessage: t('validation.rangeRequired', { label: ${label} }),
   },`;
     case 'booleanExact':
       return `{
     name: '${field.name}',
-    label: '${field.label}',
+    label: ${label},
     type: 'select',
     options: [
       { label: t('filter.yes'), value: 'true' },
@@ -560,7 +560,7 @@ export function filterFieldSnippet(field: FieldModel, labelKey?: string): string
         const rows = options.map((o) => `      { label: '${o.label}', value: '${o.value}' },`);
         return `{
     name: '${field.name}',
-    label: '${field.label}',
+    label: ${label},
     type: '${filterType}',
     options: [
 ${rows.join('\n')}
@@ -569,7 +569,7 @@ ${rows.join('\n')}
       }
       return `{
     name: '${field.name}',
-    label: '${field.label}',
+    label: ${label},
     type: '${filterType}',
     loadOptions: ${field.loadOptionsFn},
   },`;

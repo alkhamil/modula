@@ -257,7 +257,9 @@
     "compCurrency": "TextField (simbol + currency)",
     "prefixRpDefault": "Rp (default)",
     "maxDaysPh": "Batas hari",
-    "arrayAddLabelPh": "Tambah"
+    "arrayAddLabelPh": "Tambah",
+    "customName": "Nama kustom",
+    "autoName": "Nama otomatis dari label"
   },
   "generate": {
     "title": "Generate ke repo: {{label}}",

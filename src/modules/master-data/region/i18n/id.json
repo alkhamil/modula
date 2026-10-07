@@ -1,0 +1,30 @@
+{
+  "region": {
+    "label": "Wilayah",
+    "labelPlural": "Wilayah",
+    "parentLabel": "Master Data",
+    "breadcrumbs": {
+      "list": "Wilayah",
+      "create": "Buat",
+      "detail": "Detail",
+      "edit": "Ubah"
+    },
+    "fields": {
+      "regionName": {
+        "label": "Nama wilayah",
+        "placeholder": "Masukan nama wilayah"
+      },
+      "description": {
+        "label": "Deskripsi",
+        "placeholder": "Masukan deskripsi"
+      }
+    },
+    "toast": {
+      "created": "Wilayah berhasil dibuat.",
+      "updated": "Wilayah berhasil diubah.",
+      "deleted": "Wilayah berhasil dihapus.",
+      "restored": "Wilayah berhasil dipulihkan.",
+      "notFound": "Region not found"
+    }
+  }
+}

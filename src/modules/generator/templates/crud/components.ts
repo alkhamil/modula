@@ -228,7 +228,8 @@ export function formTemplate(ctx: TemplateContext): string {
     ]),
   ];
   const optionsFields = fields.filter((f) => f.isOptionsQuery);
-  const loadFields = fields.filter((f) => f.isLoadOptions);
+  // Loader form: paging + relasi (relasi memakai loadOptions + RelationLabel).
+  const loadFields = fields.filter((f) => f.isLoadOptions || f.isRelationOptions);
   const subLoadFields = arraySubLoadModels(fields);
   const allLoadFns = [...new Set([...loadFields, ...subLoadFields].map((f) => f.loadOptionsFn))];
   // Kolom tabel array (sub-field) memakai helper label; field top-level tidak.

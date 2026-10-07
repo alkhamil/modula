@@ -257,7 +257,9 @@
     "compCurrency": "TextField (currency + symbol)",
     "prefixRpDefault": "Rp (default)",
     "maxDaysPh": "Day limit",
-    "arrayAddLabelPh": "Add"
+    "arrayAddLabelPh": "Add",
+    "customName": "Custom name",
+    "autoName": "Auto name from label"
   },
   "generate": {
     "title": "Generate to repo: {{label}}",

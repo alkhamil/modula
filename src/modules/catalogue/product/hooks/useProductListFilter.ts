@@ -7,32 +7,32 @@ import type { GetProductsParams } from '../types';
 import { useDebounce, useUrlPagination } from '../../../../shared/hooks';
 import { loadCategoryOptions } from '../api';
 
-const filterFields: FilterField[] = [
-  {
-      name: 'status',
-      label: t('table.status'),
-      type: 'select',
-      options: [
-        { label: t('common.active'), value: 'active' },
-        { label: t('common.inactive'), value: 'inactive' },
-      ],
-    },
-  {
-      name: 'name',
-      label: t('product.fields.name.label'),
-      type: 'text',
-      placeholder: t('filter.containsPh'),
-    },
-  {
-      name: 'category',
-      label: 'Category',
-      type: 'select',
-      loadOptions: loadCategoryOptions,
-    },
-];
-
 export function useProductListFilter() {
   const [searchParams] = useSearchParams();
+  // filterFields di dalam hook agar t() dievaluasi setelah locale modul terdaftar.
+  const filterFields: FilterField[] = [
+    {
+        name: 'status',
+        label: t('table.status'),
+        type: 'select',
+        options: [
+          { label: t('common.active'), value: 'active' },
+          { label: t('common.inactive'), value: 'inactive' },
+        ],
+      },
+    {
+        name: 'name',
+        label: t('product.fields.name.label'),
+        type: 'text',
+        placeholder: t('filter.containsPh'),
+      },
+    {
+        name: 'category',
+        label: t('product.fields.category.label'),
+        type: 'select',
+        loadOptions: loadCategoryOptions,
+      },
+  ];
   const { page, setPage, pageSize, setPageSize, handlePageSizeChange } = useUrlPagination();
   const [sortKey, setSortKey] = useState<string | undefined>(undefined);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');

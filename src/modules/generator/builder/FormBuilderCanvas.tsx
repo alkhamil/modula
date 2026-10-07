@@ -45,7 +45,6 @@ import {
   removeFormItem,
   renameFieldInLayout,
   setFormItemLabel,
-  setFormSpan,
 } from '../runtime/layoutOps';
 import { renderDynamicField } from '../runtime/fieldRenderer';
 import { makeOptionsLoader, makeRelationOptionsLoader } from '../runtime/recordsApi';
@@ -194,12 +193,75 @@ function CanvasDropGrid({
     <div
       ref={setNodeRef}
       id="form-canvas-drop"
-      className={`grid min-h-40 grid-cols-12 field-gap rounded-xl border border-dashed bg-muted/30 p-4 transition-colors ${
+      className={`relative grid min-h-40 grid-cols-12 field-gap rounded-xl border border-dashed bg-muted/30 p-4 transition-colors ${
         isOver && activePalette ? 'border-primary ring-1 ring-primary' : 'border-border'
       }`}
     >
+      {/* Panduan grid 12 kolom (selaras padding/gap kanvas; non-interaktif). */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 grid grid-cols-12 field-gap p-4">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <div key={i} className="rounded border border-dashed border-border/60" />
+        ))}
+      </div>
       {children}
     </div>
+  );
+}
+
+/**
+ * Gagang resize tepi kanan kartu: seret horizontal, span mengikuti grid
+ * 1–12 (komit live). stopPropagation agar tak memilih/men-drag kartu.
+ */
+function ResizeHandle({
+  span,
+  onResize,
+  label,
+}: {
+  span: number;
+  onResize: (span: number) => void;
+  label: string;
+}) {
+  const { t } = useTranslation();
+  function handlePointerDown(e: React.PointerEvent<HTMLSpanElement>): void {
+    e.stopPropagation();
+    e.preventDefault();
+    const target = e.currentTarget;
+    target.setPointerCapture(e.pointerId);
+    const card = target.closest('[data-canvas-card]') as HTMLElement | null;
+    const cardWidth = card?.offsetWidth ?? 0;
+    const perSpan = cardWidth > 0 && span > 0 ? cardWidth / span : 0;
+    const startX = e.clientX;
+    let current = span;
+    function move(ev: PointerEvent): void {
+      if (perSpan <= 0) return;
+      const next = Math.min(12, Math.max(1, Math.round(span + (ev.clientX - startX) / perSpan)));
+      if (next !== current) {
+        current = next;
+        onResize(next);
+      }
+    }
+    function up(): void {
+      target.removeEventListener('pointermove', move);
+      target.removeEventListener('pointerup', up);
+      target.removeEventListener('pointercancel', up);
+    }
+    target.addEventListener('pointermove', move);
+    target.addEventListener('pointerup', up);
+    target.addEventListener('pointercancel', up);
+  }
+  return (
+    <span
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={t('builder.form.resizeHandle', { label })}
+      title={t('builder.form.resizeHandle', { label })}
+      data-testid="canvas-resize"
+      onPointerDown={handlePointerDown}
+      onClick={(e) => e.stopPropagation()}
+      className="flex w-3 shrink-0 cursor-ew-resize items-center justify-center rounded-r-lg text-transparent hover:bg-primary/20 hover:text-primary"
+    >
+      <GripVertical className="h-4 w-4" />
+    </span>
   );
 }
 
@@ -349,106 +411,116 @@ function DecoCanvasCard({
   );
 }
 
-function WidthRow({ colSpan, onSpanChange }: { colSpan: number; onSpanChange: (span: number) => void }) {
+/**
+ * Isi drawer kartu layout (section/divider): judul + lebar ditahan lokal,
+ * di-commit hanya lewat Apply. Diremount per item via key.
+ */
+function LayoutItemDrawerContent({
+  kind,
+  label,
+  onApply,
+  applyRequestRef,
+}: {
+  kind: string;
+  label: string;
+  onApply: (label: string) => void;
+  applyRequestRef: { current: (() => void) | null };
+}) {
   const { t } = useTranslation();
+  const [draftLabel, setDraftLabel] = useState(label);
+
+  // Daftarkan Apply ke tombol footer (closure segar tiap render; bersih saat unmount).
+  useEffect(() => {
+    applyRequestRef.current = () => onApply(draftLabel);
+    return () => {
+      applyRequestRef.current = null;
+    };
+  });
+
+  if (kind !== 'section') return null;
   return (
-    <div className="flex items-center gap-1">
-      <span className="flex-1 text-sm text-muted-foreground">{t('builder.form.widthRange')}</span>
-      <Button size="sm" variant="secondary" onClick={() => onSpanChange(colSpan - 1)}>
-        −
-      </Button>
-      <span className="w-8 text-center font-mono text-xs">{colSpan}</span>
-      <Button size="sm" variant="secondary" onClick={() => onSpanChange(colSpan + 1)}>
-        +
-      </Button>
+    <div className="flex flex-col stack-gap">
+      <Card title={t('builder.form.sectionTitle')} size="sm">
+        <TextField
+          value={draftLabel}
+          onChange={(e) => setDraftLabel(e.target.value)}
+        />
+      </Card>
     </div>
   );
 }
 
 /**
  * Isi drawer properti field: editor penuh + layout. Diremount per field via
- * key. Name di-commit saat blur/tutup drawer (validasi duplikat + reserved).
+ * key. Semua edit ditahan lokal (draft) dan di-commit hanya lewat tombol
+ * Apply — tidak ada auto-save. Tutup drawer tanpa Apply = buang draft.
  */
 function FieldDrawerContent({
   field,
-  colSpan,
   definitions,
   existingNames,
   onApply,
   onRename,
-  onSpanChange,
-  onClose,
-  closeRequestRef,
+  applyRequestRef,
 }: {
   field: GeneratorFieldConfig;
-  colSpan: number;
   definitions: ModuleDefinition[];
   existingNames: string[];
   onApply: (config: GeneratorFieldConfig) => void;
   onRename: (oldName: string, next: GeneratorFieldConfig) => void;
-  onSpanChange: (span: number) => void;
-  onClose: () => void;
-  closeRequestRef: { current: (() => void) | null };
+  applyRequestRef: { current: (() => void) | null };
 }) {
   const { t } = useTranslation();
   const [form, setForm] = useState<FieldFormValue>(() => initialFormValue(field, undefined));
   const [nameError, setNameError] = useState<string | null>(null);
 
-  // Bersihkan pendaftar tutup saat konten diganti/unmount agar drawer tanpa
-  // field (kartu layout) tidak memicu commit basi.
-  useEffect(() => () => {
-    closeRequestRef.current = null;
-  }, [closeRequestRef]);
-
   function handleFormChange(next: FieldFormValue): void {
     setForm(next);
     setNameError(null);
-    // Name pending: tahan hingga blur/tutup, sisanya live.
-    onApply({ ...buildFieldConfig({ ...next, name: field.name }), name: field.name });
   }
 
-  /**
-   * Commit nama pending (validasi duplikat + reserved). Dipakai blur input
-   * Name maupun penutupan drawer (auto-fill dari Label ikut tersimpan).
-   * Gagal saat tutup → drawer tetap terbuka agar error terlihat.
-   */
-  function commitPendingName(revertOnError: boolean): boolean {
+  /** Validasi Name draft (duplikat + reserved). Blur hanya tampilkan error. */
+  function validateName(): string | null {
     const pending = form.name.trim();
-    if (pending === field.name) return true;
+    if (pending === field.name) return null;
     if (!pending) {
       setNameError(t('builder.form.nameRequired'));
-      if (revertOnError) setForm({ ...form, name: field.name });
-      return false;
+      return field.name;
     }
     if (isReservedFieldName(pending)) {
       setNameError(t('builder.form.nameReserved', { name: pending }));
-      if (revertOnError) setForm({ ...form, name: field.name });
-      return false;
+      return field.name;
     }
     if (existingNames.includes(pending)) {
       setNameError(t('builder.form.nameDup', { name: pending }));
-      if (revertOnError) setForm({ ...form, name: field.name });
-      return false;
+      return field.name;
     }
-    onRename(field.name, { ...buildFieldConfig(form), name: pending });
-    return true;
+    return null;
   }
 
   function handleNameBlur(): void {
-    commitPendingName(true);
+    validateName();
   }
 
-  // Daftarkan commit saat drawer ditutup (X/backdrop) agar rename pending
-  // dari auto-fill Label tidak hilang.
-  closeRequestRef.current = () => {
-    if (commitPendingName(false)) onClose();
-  };
+  /** Commit draft ke kanvas (config + rename). Drawer tetap terbuka. */
+  function handleApply(): void {
+    if (validateName() !== null) return;
+    const pending = form.name.trim();
+    const config = { ...buildFieldConfig(form), name: pending || field.name };
+    if (pending && pending !== field.name) onRename(field.name, config);
+    else onApply({ ...config, name: field.name });
+  }
+
+  // Daftarkan Apply ke tombol footer (closure segar tiap render; bersih saat unmount).
+  useEffect(() => {
+    applyRequestRef.current = handleApply;
+    return () => {
+      applyRequestRef.current = null;
+    };
+  });
 
   return (
     <div className="flex flex-col stack-gap">
-      <Card title={t('builder.form.layoutCard')} size="sm">
-        <WidthRow colSpan={colSpan} onSpanChange={onSpanChange} />
-      </Card>
       {nameError && <p className="text-sm text-danger">{nameError}</p>}
       <FieldForm
         value={form}
@@ -471,8 +543,8 @@ function FormBuilderCanvas({
   onSampleRowsChange,
 }: FormBuilderCanvasProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  /** Commit rename pending milik konten drawer; null = tidak ada konten field. */
-  const closeRequestRef = useRef<(() => void) | null>(null);
+  /** Apply milik konten drawer properti; tombol footer memanggilnya. */
+  const applyRequestRef = useRef<(() => void) | null>(null);
   /** Dialog konfirmasi reset seluruh kanvas. */
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   /** Kind palet yang sedang diseret (ghost overlay); null = drag kanvas/batal. */
@@ -851,23 +923,20 @@ function FormBuilderCanvas({
 
       <Drawer
         open={drawerOpen}
-        onClose={() => {
-          const commit = closeRequestRef.current;
-          if (commit) commit();
-          else setSelectedId(null);
-        }}
+        // Tanpa Apply = buang draft; tidak ada commit saat tutup.
+        onClose={() => setSelectedId(null)}
         title={t('builder.form.properties')}
         width="md"
         modal={false}
         testId="property-drawer"
         footer={
           <Button
-            variant="danger"
+            variant="primary"
             className="w-full"
-            onClick={handleDeleteSelected}
-            icon={<Trash2 className="h-4 w-4" />}
+            onClick={() => applyRequestRef.current?.()}
+            testId="property-apply"
           >
-            {selectedField ? t('builder.form.deleteField') : t('common.delete')}
+            {t('common.apply')}
           </Button>
         }
       >
@@ -875,38 +944,23 @@ function FormBuilderCanvas({
           <FieldDrawerContent
             key={selectedField.name}
             field={selectedField}
-            colSpan={selectedItem.colSpan}
             definitions={definitions}
             existingNames={fields.filter((f) => f !== selectedField).map((f) => f.name)}
             onApply={handlePanelApply}
             onRename={handleRename}
-            onSpanChange={(span) => onChange(setFormSpan(effective, selectedItem.field, span))}
-            onClose={() => setSelectedId(null)}
-            closeRequestRef={closeRequestRef}
+            applyRequestRef={applyRequestRef}
           />
         )}
         {selectedItem && !selectedField && (
-          <Card title={t('builder.form.layoutCard')} size="sm">
-            <div className="flex flex-col field-gap">
-              {(selectedItem.kind ?? 'field') === 'section' && (
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-foreground">{t('builder.form.sectionTitle')}</label>
-                  <TextField
-                    value={selectedItem.label ?? ''}
-                    onChange={(e) =>
-                      onChange(setFormItemLabel(effective, selectedItem.field, e.target.value))
-                    }
-                  />
-                </div>
-              )}
-              <WidthRow
-                colSpan={selectedItem.colSpan}
-                onSpanChange={(span) =>
-                  onChange(setFormSpan(effective, selectedItem.field, span))
-                }
-              />
-            </div>
-          </Card>
+          <LayoutItemDrawerContent
+            key={selectedItem.field}
+            kind={selectedItem.kind ?? 'field'}
+            label={selectedItem.label ?? ''}
+            onApply={(label) => {
+              onChange(setFormItemLabel(effective, selectedItem.field, label));
+            }}
+            applyRequestRef={applyRequestRef}
+          />
         )}
       </Drawer>
 

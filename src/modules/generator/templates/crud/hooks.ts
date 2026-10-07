@@ -122,15 +122,17 @@ import type { FilterField } from '${names.sharedPrefix}shared/components/ui';
 import type { ${names.params} } from '../types';
 import { useDebounce, useUrlPagination } from '${names.sharedPrefix}shared/hooks';
 ${loadFields.length > 0 ? `import { ${loadFields.map((f) => f.loadOptionsFn).join(', ')} } from '../api';\n` : ''}
-const filterFields: FilterField[] = [
-${statusFilter
-  .split('\n')
-  .map((line) => `  ${line}`)
-  .join('\n')}
-${fieldFilters ? `${fieldFilters.split('\n').map((line) => `  ${line}`).join('\n')}\n` : ''}];
-
 export function use${names.entity}ListFilter() {
   const [searchParams] = useSearchParams();
+  // filterFields dibangun di dalam hook: t() modul dievaluasi saat render,
+  // setelah addModuleLocales terdaftar (konstanta level-modul membeku jadi key mentah).
+  const filterFields: FilterField[] = [
+${statusFilter
+  .split('\n')
+  .map((line) => `    ${line}`)
+  .join('\n')}
+${fieldFilters ? `${fieldFilters.split('\n').map((line) => `    ${line}`).join('\n')}\n` : ''}  ];
+
   const { page, setPage, pageSize, setPageSize, handlePageSizeChange } = useUrlPagination();
   const [sortKey, setSortKey] = useState<string | undefined>(undefined);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');

@@ -10,7 +10,7 @@ import {
   TextAreaField,
   TextField,
 } from '../../../shared/components/ui';
-import { Trash2 } from 'lucide-react';
+import { Link2, Pencil, Trash2 } from 'lucide-react';
 import type {
   ApiSourceConfig,
   DataSource,
@@ -33,6 +33,8 @@ import {
   defaultRuleArg,
   fieldTypeOptions,
   fieldTypeRegistry,
+  pruneRulesForType,
+  rulesForFieldType,
   validationRegistry,
   validationRuleNames,
 } from '../registry';
@@ -476,7 +478,7 @@ interface FieldFormProps {
   onChange: (value: FieldFormValue) => void;
   /** Definisi terdaftar untuk picker target relasi. */
   definitions: ModuleDefinition[];
-  /** Dipanggil saat input Name kehilangan fokus (drawer pakai untuk commit rename). */
+  /** Dipanggil saat input Name kehilangan fokus (drawer pakai untuk validasi awal; commit via Apply). */
   onNameBlur?: () => void;
   /** Sembunyikan kartu Tabel & Filter (untuk editor sub-field di modal). */
   hideTableFilter?: boolean;
@@ -488,9 +490,12 @@ interface FieldFormProps {
  */
 function ValidationEditor({
   rules,
+  fieldType,
   onChange,
 }: {
   rules: string[];
+  /** Hanya rule yang berlaku untuk tipe ini yang ditampilkan. */
+  fieldType: FieldType;
   onChange: (rules: string[]) => void;
 }) {
   const { t } = useTranslation();
@@ -540,7 +545,7 @@ function ValidationEditor({
       <p className="text-xs text-muted-foreground">
         {t('field.validationHint')}
       </p>
-      {validationRuleNames.map((ruleName) => {
+      {rulesForFieldType(fieldType).map((ruleName) => {
         const def = validationRegistry[ruleName];
         const entry = draft[ruleName];
         return (
@@ -567,6 +572,7 @@ function ValidationEditor({
                   value={entry.arg}
                   onChange={(e) => setArg(ruleName, e.target.value)}
                   placeholder={def.placeholder ?? 'value'}
+                  disabled={!entry.enabled}
                 />
               </div>
             )}
@@ -888,12 +894,33 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
     namingRef.current = { label: value.label, name: value.name };
   }
 
+  // Name terkunci mengikuti Label; klik ikon pensil untuk kustom manual
+  // (camelCase). Klik ikon tautan untuk kembali otomatis dari Label.
+  const [nameCustom, setNameCustom] = useState(false);
+
   function handleLabelChange(next: string): void {
     const prevDerived = deriveFieldNaming(namingRef.current.label).name;
-    const follow = form.name === '' || form.name === prevDerived;
+    const follow = !nameCustom && (form.name === '' || form.name === prevDerived);
     const name = follow ? deriveFieldNaming(next).name : form.name;
     namingRef.current = { label: next, name };
     patch({ label: next, name });
+  }
+
+  function handleNameToggle(): void {
+    if (nameCustom) {
+      const name = deriveFieldNaming(form.label).name;
+      namingRef.current = { label: form.label, name };
+      patch({ name });
+    }
+    setNameCustom(!nameCustom);
+  }
+
+  /** Normalisasi nama kustom: alfanumerik + huruf pertama kecil (camelCase). */
+  function handleCustomName(next: string): void {
+    const clean = next.replace(/[^a-zA-Z0-9]/g, '');
+    const name = clean ? clean.charAt(0).toLowerCase() + clean.slice(1) : '';
+    namingRef.current = { label: namingRef.current.label, name };
+    patch({ name });
   }
 
   function handleTypeChange(next: FieldType): void {
@@ -903,6 +930,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
       filterable: defaultFilterable(next),
       filterCriteria: defaultCriteria(next),
       source: dataSourceRegistry[form.source].appliesTo.includes(next) ? form.source : 'none',
+      rules: pruneRulesForType(form.rules, next),
     });
   }
 
@@ -1298,7 +1326,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
     <div className="flex flex-col stack-gap">
       <Card size="sm" title={t('field.general')} collapsible>
         <div className="flex flex-col stack-gap">
-          <div className="grid grid-cols-2 stack-gap">
+          <div className="flex flex-col stack-gap">
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{t('field.label')}</label>
               <TextField size="sm"
@@ -1308,16 +1336,30 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">{t('field.name')}</label>
+              <div className="mb-1 flex items-center justify-between gap-1">
+                <label className="block text-xs font-medium text-foreground">{t('field.name')}</label>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleNameToggle}
+                  icon={
+                    nameCustom ? (
+                      <Link2 className="h-4 w-4" />
+                    ) : (
+                      <Pencil className="h-4 w-4" />
+                    )
+                  }
+                  testId="field-name-toggle"
+                >
+                  {nameCustom ? t('field.autoName') : t('field.customName')}
+                </Button>
+              </div>
               <TextField size="sm"
                 value={form.name}
-                onChange={(e) => {
-                  const next = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
-                  namingRef.current = { label: namingRef.current.label, name: next };
-                  patch({ name: next });
-                }}
+                onChange={(e) => handleCustomName(e.target.value)}
                 onBlur={() => onNameBlur?.()}
                 placeholder="regionName"
+                disabled={!nameCustom}
               />
             </div>
           </div>
@@ -1545,7 +1587,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
 
 
       {!hideTableFilter && (
-      <Card size="sm" title={t('field.tableFilter')} collapsible defaultOpen={false}>
+      <Card size="sm" title={t('field.tableFilter')} collapsible>
         <div className="flex flex-col field-gap">
           <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2">
             <div className="min-w-0">
@@ -1595,12 +1637,12 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
       )}
 
 
-      <Card size="sm" title={t('field.validation')} collapsible defaultOpen={false}>
-        <ValidationEditor rules={form.rules} onChange={(rules) => patch({ rules })} />
+      <Card size="sm" title={t('field.validation')} collapsible>
+        <ValidationEditor rules={form.rules} fieldType={form.type} onChange={(rules) => patch({ rules })} />
       </Card>
 
 
-      <Card size="sm" title={t('field.sourceData')} collapsible defaultOpen={false}>
+      <Card size="sm" title={t('field.sourceData')} collapsible>
         <SourceEditor
           type={form.type}
           source={form.source}

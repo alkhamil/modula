@@ -598,7 +598,9 @@ export function resolverTemplate(ctx: TemplateContext): string {
   }
   // Loader opsi punya nama sama di mock & service (`loadXOptions`) sehingga
   // import mock wajib alias agar tak tabrakan dengan `export const` di bawah.
-  for (const f of loadSelects(ctx)) {
+  // Pakai loadableSelects (paging + relasi): loader relasi wajib ikut
+  // di-resolver agar tersedia via barrel `api/index.ts`.
+  for (const f of loadableSelects(ctx)) {
     ops.push([
       `${f.name}LoadOptions`,
       f.loadOptionsFn,

@@ -6,32 +6,32 @@ import type { FilterField } from '../../../shared/components/ui';
 import type { GetRegionsParams } from '../types';
 import { useDebounce, useUrlPagination } from '../../../shared/hooks';
 
-const filterFields: FilterField[] = [
-  {
-      name: 'status',
-      label: t('table.status'),
-      type: 'select',
-      options: [
-        { label: t('common.active'), value: 'active' },
-        { label: t('common.inactive'), value: 'inactive' },
-      ],
-    },
-  {
-      name: 'regionName',
-      label: t('region.fields.regionName.label'),
-      type: 'text',
-      placeholder: t('filter.containsPh'),
-    },
-  {
-      name: 'description',
-      label: t('region.fields.description.label'),
-      type: 'text',
-      placeholder: t('filter.containsPh'),
-    },
-];
-
 export function useRegionListFilter() {
   const [searchParams] = useSearchParams();
+  // filterFields di dalam hook agar t() dievaluasi setelah locale modul terdaftar.
+  const filterFields: FilterField[] = [
+    {
+        name: 'status',
+        label: t('table.status'),
+        type: 'select',
+        options: [
+          { label: t('common.active'), value: 'active' },
+          { label: t('common.inactive'), value: 'inactive' },
+        ],
+      },
+    {
+        name: 'regionName',
+        label: t('region.fields.regionName.label'),
+        type: 'text',
+        placeholder: t('filter.containsPh'),
+      },
+    {
+        name: 'description',
+        label: t('region.fields.description.label'),
+        type: 'text',
+        placeholder: t('filter.containsPh'),
+      },
+  ];
   const { page, setPage, pageSize, setPageSize, handlePageSizeChange } = useUrlPagination();
   const [sortKey, setSortKey] = useState<string | undefined>(undefined);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
