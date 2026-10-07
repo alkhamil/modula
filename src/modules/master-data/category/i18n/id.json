@@ -15,8 +15,8 @@
         "placeholder": "Masukan nama"
       },
       "region": {
-        "label": "Region",
-        "placeholder": "Select region"
+        "label": "Wilayah",
+        "placeholder": "Pilih Wilayah"
       }
     },
     "toast": {

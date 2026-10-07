@@ -12,6 +12,8 @@ export function getNameRules(t: TFunction): RegisterOptions<FormValues, 'name'> 
 };
 }
 
-export function getRegionRules(_t: TFunction): RegisterOptions<FormValues, 'region'> {
-  return {};
+export function getRegionRules(t: TFunction): RegisterOptions<FormValues, 'region'> {
+  return {
+  required: t('validation.required', { label: t('category.fields.region.label') }),
+};
 }

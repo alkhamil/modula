@@ -85,7 +85,7 @@ function ProductBulkUploadDialog({ open, onClose }: ProductBulkUploadDialogProps
             {loadingTemplate ? t('bulk.downloading') : t('bulk.downloadTemplate')}
           </Button>
           <span className="text-xs text-muted-foreground">
-            {t('bulk.templateHint', { columns: 'Name, Category' })}
+            {t('bulk.templateHint', { columns: 'Name, Category, Description' })}
           </span>
         </div>
         <div>

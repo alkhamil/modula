@@ -17,3 +17,11 @@ export function getCategoryRules(t: TFunction): RegisterOptions<FormValues, 'cat
   required: t('validation.required', { label: t('product.fields.category.label') }),
 };
 }
+
+export function getDescriptionRules(t: TFunction): RegisterOptions<FormValues, 'description'> {
+  return {
+  required: t('validation.required', { label: t('product.fields.description.label') }),
+  maxLength: { value: 1000, message: t('validation.maxLength', { label: t('product.fields.description.label'), count: 1000 }) },
+  validate: (value: string) => !hasEmoticon(value || '') || t('validation.noEmoticon'),
+};
+}

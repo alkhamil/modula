@@ -401,7 +401,8 @@ function multiLabelExpr(field: FieldModel, valueExpr: string): string {
   const helper = optionLabelHelper(field);
   if (helper) return `(${valueExpr} ?? []).map((v: string) => ${helper}(v)).join(', ')`;
   const map = optionMapLiteral(field);
-  if (map) return `(${valueExpr} ?? []).map((v: string) => ${map}[v] ?? v).join(', ')`;
+  // Map literal dibungkus kurung: tanpa itu `{...}` setelah `=>` dibaca sebagai block.
+  if (map) return `(${valueExpr} ?? []).map((v: string) => (${map})[v] ?? v).join(', ')`;
   return `(${valueExpr} ?? []).join(', ')`;
 }
 

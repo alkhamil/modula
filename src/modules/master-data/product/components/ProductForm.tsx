@@ -8,13 +8,14 @@ import {
   FormDefaultValuesWatcher,
   TextField,
   SelectField,
+  EditorField,
   NavigationGuard,
 } from '../../../../shared/components/ui';
 import type { FormValues } from '../hooks';
 import type { SubmitResult } from '../../../../shared/types';
 import { type UseFormReturn } from 'react-hook-form';
 import { loadCategoryOptions } from '../api';
-import { getNameRules, getCategoryRules } from '../validation/productValidation';
+import { getNameRules, getCategoryRules, getDescriptionRules } from '../validation/productValidation';
 
 interface ProductFormProps {
   defaultValues: FormValues;
@@ -112,6 +113,17 @@ function ProductForm({
                   component={TextField}
                   maxLength={100}
                   placeholder={t('product.fields.name.placeholder')}
+                />
+              </div>
+
+              <div className="col-span-12">
+                <FormItem
+                  label={t('product.fields.description.label')}
+                  testId="product-description"
+                  name="description"
+                  rules={getDescriptionRules(t)}
+                  layout="horizontal"
+                  component={EditorField}
                 />
               </div>
               </div>

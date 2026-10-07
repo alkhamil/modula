@@ -5,8 +5,8 @@ import type {
   BulkUploadResult,
   CreateProductPayload,
   GetProductsParams,
-  CategoryOption,
   ProductListItem,
+  CategoryOption,
 } from '../types';
 import type { ApiDetail, ApiList, ApiResponse } from '../../../../shared/types';
 
@@ -44,6 +44,14 @@ export async function deleteProduct(id: string): Promise<{ message: string }> {
   return { message: res.data.response_schema.response_message };
 }
 
+export async function restoreProduct(id: string): Promise<ProductMutationResult> {
+  const res = await api.patch<ApiResponse<ApiDetail<Product>>>(`/api/v1/products/${id}/restore`);
+  return {
+    message: res.data.response_schema.response_message,
+    data: res.data.response_output!.detail,
+  };
+}
+
 export async function loadCategoryOptions(
   search = '',
   page = 1,
@@ -57,14 +65,6 @@ export async function loadCategoryOptions(
     label: String(r['name'] ?? ''),
     value: String(r['id'] ?? ''),
   }));
-}
-
-export async function restoreProduct(id: string): Promise<ProductMutationResult> {
-  const res = await api.patch<ApiResponse<ApiDetail<Product>>>(`/api/v1/products/${id}/restore`);
-  return {
-    message: res.data.response_schema.response_message,
-    data: res.data.response_output!.detail,
-  };
 }
 
 export async function exportProducts(params?: GetProductsParams): Promise<Blob> {

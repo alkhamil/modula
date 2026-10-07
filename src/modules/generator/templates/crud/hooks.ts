@@ -142,8 +142,11 @@ ${fieldFilters ? `${fieldFilters.split('\n').map((line) => `    ${line}`).join('
     const initial: Record<string, string> = {};
 ${['status', ...paramKeys]
   .map(
-    (key) => `    const ${key} = searchParams.get('${key}');
-    if (${key}) initial.${key} = ${key};`,
+    // Variabel lokal memakai sufiks `Value`: nama field boleh berupa kata
+    // cadangan JS (mis. field Switch bernama `switch`) yang tidak valid
+    // sebagai identifier telanjang.
+    (key) => `    const ${key}Value = searchParams.get('${key}');
+    if (${key}Value) initial.${key} = ${key}Value;`,
   )
   .join('\n')}
     return initial;

@@ -75,7 +75,7 @@ export const navItems: NavItemType[] = [
                 { label: 'Products', labelKey: 'product.labelPlural', path: '/master-data/products', permissionKey: 'product.view' },
                   { label: 'Prices', labelKey: 'price.labelPlural', path: '/master-data/prices', permissionKey: 'price.view' },],
         },
-        // __GENERATOR_NAV_ITEMS__
+                                // __GENERATOR_NAV_ITEMS__
 ];
 
 /** Item nav dari definisi published (flat untuk root, group per parent). */

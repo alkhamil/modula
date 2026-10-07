@@ -87,26 +87,26 @@ function CategoryForm({
               <FormDefaultValuesWatcher methods={methods} defaultValues={defaultValues} />
 
               <div className="grid grid-cols-12 field-gap">
-              <div className="col-span-6">
+              <div className="col-span-12">
                 <FormItem
                   label={t('category.fields.name.label')}
                   testId="category-name"
                   name="name"
                   rules={getNameRules(t)}
-                  layout="vertical"
+                  layout="horizontal"
                   component={TextField}
                   maxLength={100}
                   placeholder={t('category.fields.name.placeholder')}
                 />
               </div>
 
-              <div className="col-span-6">
+              <div className="col-span-12">
                 <FormItem
                   label={t('category.fields.region.label')}
                   testId="category-region"
                   name="region"
                   rules={getRegionRules(t)}
-                  layout="vertical"
+                  layout="horizontal"
                   component={SelectField}
                   placeholder={t('category.fields.region.placeholder')}
                   searchable

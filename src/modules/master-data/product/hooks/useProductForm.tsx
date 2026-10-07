@@ -9,6 +9,7 @@ import {
   mapSubmitError,
   splitFieldErrors,
   getErrorStateType,
+  stripHtml,
 } from '../../../../shared/utils';
 import type { Product } from '../types';
 import { useProductDetailQuery, useUpsertProduct, loadCategoryOptions } from '../api';
@@ -16,6 +17,7 @@ import { useProductDetailQuery, useUpsertProduct, loadCategoryOptions } from '..
 export interface FormValues {
   name: string;
   category: string;
+  description: string;
 }
 
 function buildDefaultValues(item?: Product): FormValues {
@@ -23,10 +25,12 @@ function buildDefaultValues(item?: Product): FormValues {
     ? {
         name: item.name,
         category: item.category,
+        description: item.description,
       }
     : {
         name: '',
         category: '',
+        description: '',
       };
 }
 
@@ -49,6 +53,7 @@ export function useProductForm(id?: string) {
         data: {
           name: data.name,
           category: data.category,
+          description: data.description,
         },
       });
 
@@ -87,6 +92,7 @@ export function useProductForm(id?: string) {
         { label: t('table.status'), value: '' },
         { label: t('product.fields.name.label'), value: '' },
         { label: t('product.fields.category.label'), value: '' },
+        { label: t('product.fields.description.label'), value: '' },
       ];
     }
     return [
@@ -100,6 +106,7 @@ export function useProductForm(id?: string) {
       },
       { label: t('product.fields.name.label'), value: product.name },
       { label: t('product.fields.category.label'), value: <RelationLabel loader={loadCategoryOptions} value={product.category} /> },
+      { label: t('product.fields.description.label'), value: stripHtml(product.description ?? '') || '-' },
       { label: t('table.createdBy'), value: product.createdBy },
       { label: t('table.createdDate'), value: product.createdDate },
     ];

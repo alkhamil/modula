@@ -14,10 +14,10 @@ export interface BulkRowValidation {
 }
 
 /** Bulk template column headers (also used for row mapping). */
-export const BULK_PRODUCT_HEADERS = ["Name","Category"];
+export const BULK_PRODUCT_HEADERS = ["Name","Category","Description"];
 
 /** Example row in the bulk upload template. */
-export const BULK_PRODUCT_EXAMPLE = ["Sample Name","CATEGORY_1"];
+export const BULK_PRODUCT_EXAMPLE = ["Sample Name","CATEGORY_1","Sample Description"];
 
 /**
  * Validasi satu baris bulk (key = header). Aturan mirror validasi form +
@@ -36,11 +36,16 @@ export function validateBulkProductRow(
   if (nameValue !== '' && isTaken('name', nameValue)) errors.push({ field: "Name", message: t('validation.unique', { label: t('product.fields.name.label') }) });
   const categoryValue = String(row["Category"] ?? '').trim();
   if (!categoryValue) errors.push({ field: "Category", message: t('validation.required', { label: t('product.fields.category.label') }) });
+  const descriptionValue = String(row["Description"] ?? '').trim();
+  if (!descriptionValue) errors.push({ field: "Description", message: t('validation.required', { label: t('product.fields.description.label') }) });
+  if (descriptionValue !== '' && descriptionValue.length > 1000) errors.push({ field: "Description", message: t('validation.maxLength', { label: t('product.fields.description.label'), count: 1000 }) });
+  if (descriptionValue !== '' && hasEmoticon(descriptionValue)) errors.push({ field: "Description", message: t('validation.noEmoticon') });
   if (errors.length > 0) return { payload: null, errors };
   return {
     payload: {
     name: nameValue,
     category: categoryValue,
+    description: descriptionValue,
     },
     errors,
   };

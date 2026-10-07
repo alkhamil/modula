@@ -17,6 +17,10 @@
       "category": {
         "label": "Category",
         "placeholder": "Select category"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter description"
       }
     },
     "toast": {

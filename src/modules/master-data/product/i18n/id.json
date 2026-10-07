@@ -18,6 +18,10 @@
         "label": "Kategori",
         "placeholder": "Pilih kategori"
       },
+      "description": {
+        "label": "Deskripsi",
+        "placeholder": "Masukan deskripsi"
+      },
       "nama": {
         "label": "Nama",
         "placeholder": "Masukan nama"

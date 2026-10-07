@@ -1,9 +1,10 @@
 import { t } from 'i18next';
 import '../../../../shared/i18n';
 import type { ProductListItem } from '../types';
-import { Table, Badge, RowActionButton, RelationLabel } from '../../../../shared/components/ui';
-import { formatDateTime } from '../../../../shared/utils';
+import { Table, Badge, RowActionButton } from '../../../../shared/components/ui';
+import { RelationLabel } from '../../../../shared/components/ui';
 import { loadCategoryOptions } from '../api';
+import { formatDateTime, stripHtml } from '../../../../shared/utils';
 
 interface Props {
   testId?: string;
@@ -50,6 +51,7 @@ function ProductTable({
   const columns = [
     { key: 'name', header: t('product.fields.name.label'), sortable: true },
     { key: 'category', header: t('product.fields.category.label'), sortable: true, render: (row: ProductListItem) => <RelationLabel loader={loadCategoryOptions} value={row.category} /> },
+    { key: 'description', header: t('product.fields.description.label'), render: (row: ProductListItem) => stripHtml(row.description ?? '') || '-' },
     { key: 'created_by', header: t('table.createdBy') },
     {
       key: 'created_date',

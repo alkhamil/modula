@@ -36,15 +36,37 @@ function Drawer({
   testId,
 }: DrawerProps) {
   const { t } = useTranslation();
+  // `render` menahan mount selama animasi tutup; `visible` menggerakkan transisi.
+  const [render, setRender] = useState(open);
   const [visible, setVisible] = useState(false);
   const asideRef = useRef<HTMLElement>(null);
+  const closeTimer = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!open) return;
-    const frame = requestAnimationFrame(() => setVisible(true));
+    if (open) {
+      if (closeTimer.current !== null) {
+        window.clearTimeout(closeTimer.current);
+        closeTimer.current = null;
+      }
+      setRender(true);
+      const frame = requestAnimationFrame(() => setVisible(true));
+      return () => cancelAnimationFrame(frame);
+    }
+    // Tutup: mainkan transisi keluar dulu, baru unmount.
+    setVisible(false);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    closeTimer.current = window.setTimeout(
+      () => {
+        setRender(false);
+        closeTimer.current = null;
+      },
+      reduceMotion ? 0 : 200,
+    );
     return () => {
-      cancelAnimationFrame(frame);
-      setVisible(false);
+      if (closeTimer.current !== null) {
+        window.clearTimeout(closeTimer.current);
+        closeTimer.current = null;
+      }
     };
   }, [open ]);
 
@@ -88,7 +110,7 @@ function Drawer({
     return () => document.removeEventListener('pointerdown', handlePointerDown);
   }, [open, modal, closeOnBackdropClick, onClose]);
 
-  if (!open) return null;
+  if (!render) return null;
 
   return createPortal(
     <div

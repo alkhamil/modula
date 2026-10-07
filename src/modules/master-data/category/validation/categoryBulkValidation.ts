@@ -35,6 +35,7 @@ export function validateBulkCategoryRow(
   if (nameValue !== '' && hasEmoticon(nameValue)) errors.push({ field: "Name", message: t('validation.noEmoticon') });
   if (nameValue !== '' && isTaken('name', nameValue)) errors.push({ field: "Name", message: t('validation.unique', { label: t('category.fields.name.label') }) });
   const regionValue = String(row["Region"] ?? '').trim();
+  if (!regionValue) errors.push({ field: "Region", message: t('validation.required', { label: t('category.fields.region.label') }) });
   if (errors.length > 0) return { payload: null, errors };
   return {
     payload: {

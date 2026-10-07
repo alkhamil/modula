@@ -2,6 +2,7 @@ export interface Product {
   id: string;
   name: string;
   category: string;
+  description: string;
   status: 'active' | 'inactive';
   createdBy: string;
   createdDate: string;
@@ -11,6 +12,7 @@ export interface ProductListItem {
   id: number;
   name: string;
   category: string;
+  description: string;
   created_date: string;
   created_by: string | null;
   status: 'active' | 'inactive';
@@ -19,6 +21,7 @@ export interface ProductListItem {
 export interface CreateProductPayload {
   name: string;
   category: string;
+  description: string;
 }
 
 export interface GetProductsParams {

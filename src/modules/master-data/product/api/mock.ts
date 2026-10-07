@@ -51,11 +51,11 @@ export async function loadCategoryOptions(
   });
 }
 
-
 interface MockProductRecord {
   id: number;
   name: string;
   category: string;
+  description: string;
   status: 'active' | 'inactive';
   created_by: string | null;
   created_date: string;
@@ -69,6 +69,7 @@ function toListItem(record: MockProductRecord): ProductListItem {
     id: record.id,
     name: record.name,
     category: record.category,
+    description: record.description,
     created_date: record.created_date,
     created_by: record.created_by,
     status: record.status,
@@ -80,6 +81,7 @@ function toDetail(record: MockProductRecord): Product {
     id: String(record.id),
     name: record.name,
     category: record.category,
+    description: record.description,
     status: record.status,
     createdBy: record.created_by ?? '',
     createdDate: record.created_date,
@@ -117,6 +119,7 @@ function filterProductsRecords(params?: GetProductsParams): ProductListItem[] {
       (r) =>
         r.name.toLowerCase().includes(q) ||
         r.category.toLowerCase().includes(q) ||
+        r.description.toLowerCase().includes(q) ||
         String(r.id).includes(q),
     );
   }
@@ -140,8 +143,8 @@ export async function mockExportProducts(params?: GetProductsParams): Promise<Bl
   await delay(300);
   const items = filterProductsRecords({ ...params, page: undefined, size: undefined });
   const data = await buildWorkbook(
-    ["Name","Category","Status","Created Date"],
-    items.map((r) => [r.name, r.category, r.status, r.created_date]),
+    ["Name","Category","Description","Status","Created Date"],
+    items.map((r) => [r.name, r.category, r.description, r.status, r.created_date]),
   );
   return new Blob([data], { type: XLSX_MIME });
 }
@@ -202,6 +205,7 @@ export async function mockBulkUploadProducts(file: File | ArrayBuffer): Promise<
       id: Math.max(...mockProductRecords.map((r) => r.id)) + 1,
       name: payload.name,
       category: payload.category,
+      description: payload.description,
       status: 'active',
       created_by: 'Bulk Upload',
       created_date: new Date().toISOString().slice(0, 16).replace('T', ' '),
@@ -247,6 +251,7 @@ export async function mockCreateProduct(data: CreateProductPayload): Promise<Pro
     id: Math.max(...mockProductRecords.map((r) => r.id)) + 1,
     name: data.name,
     category: data.category,
+    description: data.description,
     status: 'active',
     created_by: 'System',
     created_date: new Date().toISOString().slice(0, 16).replace('T', ' '),
@@ -270,6 +275,7 @@ export async function mockUpdateProduct(
   }
   record.name = data.name;
   record.category = data.category;
+  record.description = data.description;
   return { message: t('product.toast.updated'), data: toDetail(record) };
 }
 
