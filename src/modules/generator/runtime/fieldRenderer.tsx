@@ -22,7 +22,7 @@ import {
 import type { GeneratorFieldConfig } from '../types';
 import type { ModuleDefinition } from '../definitions';
 import { moduleFieldLabel, moduleFieldPlaceholder } from './moduleI18n';
-import { parseConfigDate } from '../componentProps';
+import { parseConfigDate, resolveFormItemLayout } from '../componentProps';
 import type { DynamicOption } from './types';
 import { columnRenderForType, staticOptionsOf } from './cellRender';
 import { fieldRulesToRHF, maxLengthOf, rowFormValues, rowPayloadValues } from './validation';
@@ -33,6 +33,8 @@ export interface FieldRenderContext {
   testPrefix: string;
   optionsOf: (field: GeneratorFieldConfig) => DynamicOption[];
   loaderOf: (field: GeneratorFieldConfig) => LoadOptionsFn | undefined;
+  /** Span grid 1–12; tanpa pilihan eksplisit, span sempit default vertikal. */
+  span?: number;
 }
 
 export function renderDynamicField(
@@ -45,7 +47,7 @@ export function renderDynamicField(
     testId,
     name: field.name,
     rules: fieldRulesToRHF(field),
-    layout: itemProps?.layout ?? ('horizontal' as const),
+    layout: resolveFormItemLayout(itemProps?.layout, ctx.span),
     ...(itemProps?.labelWidth?.trim() ? { labelWidth: itemProps.labelWidth.trim() } : {}),
     ...(itemProps?.align ? { align: itemProps.align } : {}),
     ...(itemProps?.labelTooltip?.trim() ? { labelTooltip: itemProps.labelTooltip.trim() } : {}),

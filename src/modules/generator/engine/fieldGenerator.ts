@@ -1,4 +1,5 @@
 import { buildRulesObject, getMaxLength } from './validationGenerator';
+import { resolveFormItemLayout } from '../componentProps';
 import { loadLabelHelper } from './sourceGenerator';
 import type { FieldModel, TemplateContext } from './context';
 import { fieldTypeRegistry } from '../registry/fieldTypes';
@@ -121,6 +122,8 @@ export interface FormItemSnippetOpts {
   /** Bila diisi → label/placeholder memakai t() key modul hasil generate. */
   labelKey?: string;
   placeholderKey?: string;
+  /** Span grid 1–12; tanpa layout eksplisit, span sempit default vertikal. */
+  span?: number;
 }
 
 /** Terapkan key i18n ke snippet FormItem yang sudah jadi (label + placeholder). */
@@ -147,7 +150,7 @@ export function formItemSnippet(
     maxLength !== null && field.formType === 'string' ? `\n                  maxLength={${maxLength}}` : '';
   const disabledProp = field.config.disabled === true ? '\n                  disabled' : '';
   const itemProps = field.config.componentProps?.formItem;
-  const layoutProp = itemProps?.layout ?? 'horizontal';
+  const layoutProp = resolveFormItemLayout(itemProps?.layout, opts?.span);
   const labelWidthProp = strOpt('labelWidth', itemProps?.labelWidth);
   const alignProp = itemProps?.align ? `\n                  align="${itemProps.align}"` : '';
   const tooltipProp = strOpt('labelTooltip', itemProps?.labelTooltip);

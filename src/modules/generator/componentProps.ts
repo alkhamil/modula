@@ -30,6 +30,21 @@ export function propsKeyForType(type: FieldType): keyof FieldComponentProps {
   return TYPE_PROPS_KEY[type];
 }
 
+/** Span grid maksimum yang masih dianggap sempit (label pindah ke atas input). */
+export const NARROW_SPAN_MAX = 6;
+
+/**
+ * Layout FormItem efektif: pilihan eksplisit menang; tanpa pilihan,
+ * span sempit (<=6 dari 12 kolom) default vertikal agar proporsional.
+ */
+export function resolveFormItemLayout(
+  explicit: 'horizontal' | 'vertical' | undefined,
+  span?: number,
+): 'horizontal' | 'vertical' {
+  if (explicit) return explicit;
+  return span !== undefined && span <= NARROW_SPAN_MAX ? 'vertical' : 'horizontal';
+}
+
 function isEmptyObject(value: unknown): boolean {
   return (
     typeof value === 'object' &&

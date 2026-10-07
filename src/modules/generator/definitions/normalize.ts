@@ -61,12 +61,14 @@ function normalizeOrderList(
     seen.add(name);
     clean.push(name);
   }
+  // Field baru (belum ada di urutan) default di kiri, bukan di kanan.
+  const fresh: string[] = [];
   for (const name of fieldNames) {
     if (seen.has(name)) continue;
     seen.add(name);
-    clean.push(name);
+    fresh.push(name);
   }
-  return { order: clean, hidden: (hidden ?? []).filter((name) => seen.has(name)) };
+  return { order: [...fresh, ...clean], hidden: (hidden ?? []).filter((name) => seen.has(name)) };
 }
 
 /** Normalisasi layout: buang ref tak dikenal, lengkapi field yang hilang, rapikan order/span. */
@@ -152,6 +154,14 @@ export function normalizeLayout(
         }
       }
       if (Object.keys(colors).length > 0) props.actionIconColor = colors;
+    }
+    for (const key of [
+      'emptyStateTitle',
+      'emptyStateDescription',
+      'filteredEmptyStateTitle',
+      'filteredEmptyStateDescription',
+    ] as const) {
+      if (typeof src[key] === 'string' && src[key].trim()) props[key] = src[key].trim();
     }
     if (Object.keys(props).length > 0) table.props = props;
   }

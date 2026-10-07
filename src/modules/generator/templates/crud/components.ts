@@ -247,16 +247,19 @@ export function formTemplate(ctx: TemplateContext): string {
 
   const fieldLabelKey = (name: string): string => `${base}.fields.${name}.label`;
   const fieldPlaceholderKey = (name: string): string => `${base}.fields.${name}.placeholder`;
-  const snippetByField = new Map(
-    fields.map((f) => [
-      f.name,
-      formItemSnippet(ctx, f, {
-        labelKey: fieldLabelKey(f.name),
-        placeholderKey: fieldPlaceholderKey(f.name),
-        rulesExpr: `get${f.pascal}Rules(t)`,
-      }),
-    ]),
-  );
+  const modelByField = new Map(fields.map((f) => [f.name, f]));
+  // Snippet per item layout (bukan per field) agar span grid ikut menentukan
+  // default layout: span sempit (<=6) jadi vertikal, meniru runtime.
+  function snippetForItem(fieldName: string, colSpan: number): string | null {
+    const f = modelByField.get(fieldName);
+    if (!f) return null;
+    return formItemSnippet(ctx, f, {
+      labelKey: fieldLabelKey(f.name),
+      placeholderKey: fieldPlaceholderKey(f.name),
+      rulesExpr: `get${f.pascal}Rules(t)`,
+      span: colSpan,
+    });
+  }
   // Grid 12 kolom + section/divider meniru kanvas (runtime DynamicForm).
   const formItems = formLayoutItems(ctx)
     .flatMap((item) => {
@@ -270,7 +273,7 @@ export function formTemplate(ctx: TemplateContext): string {
       if (kind === 'divider') {
         return [`              <div className="${span}"><hr className="border-border" /></div>`];
       }
-      const snippet = snippetByField.get(item.field);
+      const snippet = snippetForItem(item.field, item.colSpan);
       if (!snippet) return [];
       return [`              <div className="${span}">\n                ${snippet}\n              </div>`];
     })

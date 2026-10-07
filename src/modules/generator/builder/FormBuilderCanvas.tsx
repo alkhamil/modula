@@ -33,7 +33,30 @@ import {
   FormGroup,
   TextField,
 } from '../../../shared/components/ui';
-import { GripVertical, Trash2 } from 'lucide-react';
+import {
+  AlignLeft,
+  Banknote,
+  Calendar,
+  CalendarRange,
+  CheckSquare,
+  ChevronDown,
+  CircleDot,
+  GripVertical,
+  Hash,
+  Heading,
+  Link2,
+  ListChecks,
+  ListTodo,
+  Lock,
+  Minus,
+  Palette as PaletteIcon,
+  PenLine,
+  Table,
+  ToggleRight,
+  Trash2,
+  Type,
+  Upload,
+} from 'lucide-react';
 import type { GeneratorFieldConfig } from '../types';
 import { deriveFieldNaming, isReservedFieldName, uniqueFieldName } from '../parser';
 import type { FormLayoutItem, ModuleDefinition, ModuleLayout } from '../definitions';
@@ -45,6 +68,7 @@ import {
   removeFormItem,
   renameFieldInLayout,
   setFormItemLabel,
+  setFormSpan,
 } from '../runtime/layoutOps';
 import { renderDynamicField } from '../runtime/fieldRenderer';
 import { makeOptionsLoader, makeRelationOptionsLoader } from '../runtime/recordsApi';
@@ -145,18 +169,48 @@ function presetForKind(kind: PaletteKind): FieldFormPreset {
   }
 }
 
+/** Ikon per jenis komponen palet (lucide-react). */
+const PALETTE_ICONS: Record<PaletteKind, typeof Type> = {
+  text: Type,
+  number: Hash,
+  currency: Banknote,
+  textarea: AlignLeft,
+  password: Lock,
+  select: ChevronDown,
+  multiselect: ListChecks,
+  radio: CircleDot,
+  checkbox: CheckSquare,
+  checkboxgroup: ListTodo,
+  date: Calendar,
+  daterange: CalendarRange,
+  switch: ToggleRight,
+  upload: Upload,
+  color: PaletteIcon,
+  editor: PenLine,
+  array: Table,
+  relation: Link2,
+  section: Heading,
+  divider: Minus,
+};
+
 function PaletteItem({ kind, label, hint }: { kind: PaletteKind; label: string; hint: string }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `palette:${kind}` });
+  const Icon = PALETTE_ICONS[kind];
   return (
     <div
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className={`cursor-grab rounded-lg border border-border bg-surface px-2 py-1.5 hover:border-primary ${isDragging ? 'opacity-50' : ''}`}
+      className={`flex cursor-grab items-center gap-2 rounded-lg border border-border bg-surface px-2 py-1.5 hover:border-primary ${isDragging ? 'opacity-50' : ''}`}
       title={hint}
     >
-      <p className="text-xs font-medium text-foreground">+ {label}</p>
-      <p className="truncate text-xs text-muted-foreground">{hint}</p>
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+        <Icon className="h-4 w-4" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <p className="text-xs font-medium text-foreground">{label}</p>
+        <p className="truncate text-xs text-muted-foreground">{hint}</p>
+      </span>
     </div>
   );
 }
@@ -274,12 +328,14 @@ function FieldCanvasCard({
   field,
   selected,
   onSelect,
+  onResize,
   previewDef,
 }: {
   item: FormLayoutItem;
   field: GeneratorFieldConfig;
   selected: boolean;
   onSelect: () => void;
+  onResize: (span: number) => void;
   previewDef: ModuleDefinition;
 }) {
   const { t } = useTranslation();
@@ -300,6 +356,7 @@ function FieldCanvasCard({
         role="button"
         tabIndex={0}
         data-testid={`canvas-card-${item.field}`}
+        data-canvas-card
         onClick={onSelect}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') onSelect();
@@ -330,6 +387,7 @@ function FieldCanvasCard({
                   : f.source === 'relation'
                     ? makeRelationOptionsLoader(f)
                     : undefined,
+              span: item.colSpan,
             })}
           </div>
           {/* Konten pratinjau non-interaktif: lapisan ini menangkap klik (termasuk
@@ -348,6 +406,7 @@ function FieldCanvasCard({
             />
           )}
         </div>
+        <ResizeHandle span={item.colSpan} onResize={onResize} label={field.label} />
       </div>
     </div>
   );
@@ -357,10 +416,12 @@ function DecoCanvasCard({
   item,
   selected,
   onSelect,
+  onResize,
 }: {
   item: FormLayoutItem;
   selected: boolean;
   onSelect: () => void;
+  onResize: (span: number) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.field,
@@ -377,6 +438,7 @@ function DecoCanvasCard({
         role="button"
         tabIndex={0}
         data-testid={`canvas-card-${item.field}`}
+        data-canvas-card
         onClick={onSelect}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') onSelect();
@@ -406,14 +468,16 @@ function DecoCanvasCard({
             </div>
           )}
         </div>
+        <ResizeHandle span={item.colSpan} onResize={onResize} label={item.label?.trim() || kind} />
       </div>
     </div>
   );
 }
 
 /**
- * Isi drawer kartu layout (section/divider): judul + lebar ditahan lokal,
- * di-commit hanya lewat Apply. Diremount per item via key.
+ * Isi drawer kartu layout (section): judul ditahan lokal, di-commit hanya
+ * lewat Apply. Divider tak punya properti (lebar ikut grid kanvas).
+ * Diremount per item via key.
  */
 function LayoutItemDrawerContent({
   kind,
@@ -899,6 +963,7 @@ function FormBuilderCanvas({
                             item={item}
                             selected={selectedId === item.field}
                             onSelect={() => setSelectedId(item.field)}
+                            onResize={(span) => onChange(setFormSpan(effective, item.field, span))}
                           />
                         );
                       }
@@ -909,6 +974,7 @@ function FormBuilderCanvas({
                           field={field}
                           selected={selectedId === item.field}
                           onSelect={() => setSelectedId(item.field)}
+                          onResize={(span) => onChange(setFormSpan(effective, item.field, span))}
                           previewDef={previewDef}
                         />
                       );

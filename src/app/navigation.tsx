@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { NavItemType } from '../shared/types/navigation';
-import { LayoutDashboard, Database, Settings, SlidersHorizontal, Users, CircleDivide } from 'lucide-react';
+import { LayoutDashboard, Database, Settings, SlidersHorizontal, Users } from 'lucide-react';
 import { useDynamicDefinitions } from '../modules/generator/runtime/hooks';
 import { buildDynamicNavItems } from '../modules/generator/runtime/dynamicNav';
 

@@ -321,6 +321,20 @@ expectIn(relHook, "import { loadCategoryOptions } from '../api'", 'relation-hook
 const relForm = relProbe.find((f) => f.path.endsWith('Form.tsx')).content;
 expectIn(relForm, "import { loadCategoryOptions } from '../api'", 'relation-form-import');
 expectIn(relForm, 'loadOptions={loadCategoryOptions}', 'relation-form-loadoptions');
+// --- Fase J: wording empty state kustom dari props tabel ---
+const emptyProbe = mg.generateModule({
+  ...probeConfig,
+  tableProps: {
+    emptyStateTitle: 'Belum ada "data"',
+    filteredEmptyStateTitle: 'Tak cocok',
+  },
+});
+const emptyPage = emptyProbe.find((f) => f.path.endsWith('ListPage.tsx')).content;
+expectIn(emptyPage, 'emptyStateTitle="Belum ada \\"data\\""', 'empty-title-baked');
+expectIn(emptyPage, 'emptyStateDescription={EMPTY_STATE.description}', 'empty-desc-fallback');
+expectIn(emptyPage, 'filteredEmptyStateTitle="Tak cocok"', 'empty-filtered-baked');
+const defaultPage = defaultProbe.find((f) => f.path.endsWith('ListPage.tsx')).content;
+expectIn(defaultPage, 'emptyStateTitle={EMPTY_STATE.title}', 'empty-title-default');
 const translatedConfig = {
   ...probeConfig,
   i18n: { id: { 'i18nprobe.fields.nama.label': 'Nama (ID)', 'field.nama.label': 'SKIP', 'other.x': 'SKIP' } },
@@ -626,6 +640,16 @@ expectEq(
   JSON.stringify(['nama', 'created_by', 'created_date', 'status']),
   'normalize-appends-system',
 );
+// Field baru default di kiri (bukan kanan).
+const normedFresh = nl.normalizeLayout(
+  { form: [], table: { order: ['a'], hidden: [], props: {} } },
+  ['a', 'b'],
+);
+expectEq(
+  JSON.stringify(normedFresh.table.order),
+  JSON.stringify(['b', 'a', 'created_by', 'created_date', 'status']),
+  'normalize-fresh-left',
+);
 // Detail: posisi baris sistem hasil drag dipertahankan + bisa dipindah.
 const normedDetail = nl.normalizeLayout(
   { form: [], table: { order: ['nama'], hidden: [] }, detail: { order: ['created_date', 'nama'], hidden: [] } },
@@ -652,6 +676,16 @@ expectEq(
   JSON.stringify(['required', 'min:1']),
   'rules-prune-number',
 );
+
+// --- Fase I: default layout vertikal saat span sempit (<=6) ---
+expectEq(cp.resolveFormItemLayout(undefined, 6), 'vertical', 'layout-narrow');
+expectEq(cp.resolveFormItemLayout(undefined, 7), 'horizontal', 'layout-wide');
+expectEq(cp.resolveFormItemLayout(undefined, undefined), 'horizontal', 'layout-no-span');
+expectEq(cp.resolveFormItemLayout('horizontal', 6), 'horizontal', 'layout-explicit-wins');
+const narrowSnip = fg.formItemSnippet(ctx, F('nama', 'Nama', { type: 'textField' }), { span: 6 });
+expectIn(narrowSnip, 'layout="vertical"', 'snippet-narrow-vertical');
+const wideSnip = fg.formItemSnippet(ctx, F('nama', 'Nama', { type: 'textField' }), { span: 12 });
+expectIn(wideSnip, 'layout="horizontal"', 'snippet-wide-horizontal');
 
 console.log(fail === 0 ? 'EMISSION PASS' : `EMISSION FAIL (${fail})`);
 process.exit(fail === 0 ? 0 : 1);

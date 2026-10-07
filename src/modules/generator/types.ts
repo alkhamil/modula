@@ -330,6 +330,14 @@ export interface TableDisplayProps {
    * view info, edit warning, delete danger, restore success).
    */
   actionIconColor?: Partial<Record<RowActionKind, RowActionColor>>;
+  /** Judul kustom saat tabel belum ada data (kosong = bawaan). */
+  emptyStateTitle?: string;
+  /** Deskripsi kustom saat tabel belum ada data (kosong = bawaan). */
+  emptyStateDescription?: string;
+  /** Judul kustom saat filter tak cocok (kosong = bawaan). */
+  filteredEmptyStateTitle?: string;
+  /** Deskripsi kustom saat filter tak cocok (kosong = bawaan). */
+  filteredEmptyStateDescription?: string;
 }
 
 /** Aksi baris tabel yang ikonnya bisa diatur (lihat/ubah/hapus/restore). */

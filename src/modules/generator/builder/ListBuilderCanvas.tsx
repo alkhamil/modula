@@ -33,6 +33,7 @@ import {
   useToast,
 } from '../../../shared/components/ui';
 import Table, { type Column } from '../../../shared/components/ui/Table';
+import { listEmptyState } from '../../../shared/constants';
 import { Download, Settings, Plus, Upload } from 'lucide-react';
 import type { DeleteMode, ModuleDefinition, ModuleLayout } from '../definitions';
 import { SYSTEM_TABLE_COLUMNS } from '../definitions';
@@ -536,14 +537,20 @@ function TableDrawerContent({
   onToggleFeature,
   displayProps,
   onPatchProps,
+  singularLabel,
 }: {
   features: Record<FeatureKey, boolean>;
   onToggleFeature: (key: FeatureKey) => void;
   displayProps: TableDisplayProps | undefined;
   onPatchProps: (patch: Partial<TableDisplayProps>) => void;
+  /** Label singular modul untuk default wording (prefill tampilan saja). */
+  singularLabel: string;
 }) {
   const { t } = useTranslation();
   const props = displayProps ?? {};
+  // Prefill = default efektif saat ini; props tetap unset (fallback + i18n
+  // terjaga) sampai pengguna benar-benar mengetik.
+  const fallbackEmpty = listEmptyState(singularLabel);
   return (
     <div className="flex flex-col stack-gap">
       <Card size="sm" title={t('list.buttonsCard')}>
@@ -605,6 +612,41 @@ function TableDrawerContent({
           />
           <p className="text-xs text-muted-foreground">
             {t('list.pageSizeNote')}
+          </p>
+        </div>
+      </Card>
+      <Card size="sm" title={t('list.emptyCard')} collapsible>
+        <div className="flex flex-col field-gap">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-foreground">{t('list.emptyCustomTitle')}</label>
+            <TextField size="sm"
+              value={props.emptyStateTitle ?? fallbackEmpty.title}
+              onChange={(e) => onPatchProps({ emptyStateTitle: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-foreground">{t('list.emptyCustomDesc')}</label>
+            <TextField size="sm"
+              value={props.emptyStateDescription ?? fallbackEmpty.description}
+              onChange={(e) => onPatchProps({ emptyStateDescription: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-foreground">{t('list.filteredCustomTitle')}</label>
+            <TextField size="sm"
+              value={props.filteredEmptyStateTitle ?? t('table.filteredTitle')}
+              onChange={(e) => onPatchProps({ filteredEmptyStateTitle: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-foreground">{t('list.filteredCustomDesc')}</label>
+            <TextField size="sm"
+              value={props.filteredEmptyStateDescription ?? t('table.filteredDesc')}
+              onChange={(e) => onPatchProps({ filteredEmptyStateDescription: e.target.value })}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {t('list.emptyHint')}
           </p>
         </div>
       </Card>
@@ -1001,8 +1043,10 @@ function ListBuilderCanvas({
               stickyAction={displayProps?.stickyAction}
               isEmptyState={sampleRows.length === 0 && !isFilterActive}
               isFilteredEmptyState={isFilterActive && filteredRows.length === 0}
-              emptyStateTitle={t('list.emptyTitle')}
-              emptyStateDescription={t('list.emptyDesc')}
+              emptyStateTitle={displayProps?.emptyStateTitle?.trim() || t('list.emptyTitle')}
+              emptyStateDescription={displayProps?.emptyStateDescription?.trim() || t('list.emptyDesc')}
+              filteredEmptyStateTitle={displayProps?.filteredEmptyStateTitle?.trim() || undefined}
+              filteredEmptyStateDescription={displayProps?.filteredEmptyStateDescription?.trim() || undefined}
             />
             </div>
           </SortableContext>
@@ -1065,6 +1109,7 @@ function ListBuilderCanvas({
             onToggleFeature={toggleFeature}
             displayProps={displayProps}
             onPatchProps={patchTableProps}
+            singularLabel={def.singularLabel}
           />
         )}
       </Drawer>

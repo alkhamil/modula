@@ -3,6 +3,19 @@ import type { TemplateContext } from '../../engine/context';
 export function listPageTemplate(ctx: TemplateContext): string {
   const { names, features } = ctx;
   const base = ctx.config.permissionKey;
+  // Wording empty state kustom dari kanvas List (bake literal; kosong = bawaan).
+  const emptyProps = ctx.config.tableProps;
+  const emptyLine = (prop: string, value: string | undefined): string =>
+    value?.trim() ? `          ${prop}=${JSON.stringify(value.trim())}\n` : '';
+  const emptyTitleLine =
+    emptyLine('emptyStateTitle', emptyProps?.emptyStateTitle) ||
+    '          emptyStateTitle={EMPTY_STATE.title}\n';
+  const emptyDescLine =
+    emptyLine('emptyStateDescription', emptyProps?.emptyStateDescription) ||
+    '          emptyStateDescription={EMPTY_STATE.description}\n';
+  const filteredEmptyLines =
+    emptyLine('filteredEmptyStateTitle', emptyProps?.filteredEmptyStateTitle) +
+    emptyLine('filteredEmptyStateDescription', emptyProps?.filteredEmptyStateDescription);
   const withCreate = features.create;
   const withView = features.detail;
   const withEdit = features.edit;
@@ -120,9 +133,7 @@ ${withView ? `          onView={canView ? (item) => navigate(\`/${names.routeBas
           isRestoring={isRestoring}
 ` : ''}          isEmptyState={isEmptyState}
           isFilteredEmptyState={isFilteredEmptyState}
-          emptyStateTitle={EMPTY_STATE.title}
-          emptyStateDescription={EMPTY_STATE.description}
-          loading={isLoading}
+${emptyTitleLine}${emptyDescLine}${filteredEmptyLines}          loading={isLoading}
           error={error}
           onRetry={refresh}
         />

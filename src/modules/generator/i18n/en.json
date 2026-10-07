@@ -71,7 +71,8 @@
       "reset": "Reset",
       "dragHint": "Drag to move",
       "selectField": "Select field {{label}}",
-      "cardHint": "Click to edit properties"
+      "cardHint": "Click to edit properties",
+      "resizeHandle": "Resize {{label}} (drag to change width)"
     },
     "previewAction": "Preview: action {{label}} is active."
   },
@@ -371,7 +372,13 @@
     "interactCard": "Display & Interaction",
     "widthCard": "Width",
     "actionHint": "Click to edit row actions",
-    "actionVisibilityHint": "Actions appear when the feature is enabled and the user has its permission."
+    "actionVisibilityHint": "Actions appear when the feature is enabled and the user has its permission.",
+    "emptyCard": "Empty state",
+    "emptyHint": "Leave blank to use the default wording.",
+    "emptyCustomTitle": "No-data title",
+    "emptyCustomDesc": "No-data description",
+    "filteredCustomTitle": "No-match title",
+    "filteredCustomDesc": "No-match description"
   },
   "menuIcon": {
     "title": "Menu Icon",

@@ -137,7 +137,7 @@ function DynamicForm({
           if (!field) return null;
           return (
             <div key={field.name} className={colSpanClass(item.colSpan)}>
-              {renderDynamicField(field, { def, testPrefix, optionsOf, loaderOf })}
+              {renderDynamicField(field, { def, testPrefix, optionsOf, loaderOf, span: item.colSpan })}
             </div>
           );
         })}

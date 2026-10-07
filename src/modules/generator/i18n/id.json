@@ -71,7 +71,8 @@
       "reset": "Reset",
       "dragHint": "Geser untuk memindahkan",
       "selectField": "Pilih field {{label}}",
-      "cardHint": "Klik untuk atur properti"
+      "cardHint": "Klik untuk atur properti",
+      "resizeHandle": "Ubah lebar {{label}} (seret untuk mengubah lebar)"
     },
     "previewAction": "Pratinjau: aksi {{label}} aktif."
   },
@@ -371,7 +372,13 @@
     "interactCard": "Tampil & Interaksi",
     "widthCard": "Lebar",
     "actionHint": "Klik untuk atur aksi baris",
-    "actionVisibilityHint": "Aksi tampil bila fitur aktif dan user punya permission-nya."
+    "actionVisibilityHint": "Aksi tampil bila fitur aktif dan user punya permission-nya.",
+    "emptyCard": "Empty state",
+    "emptyHint": "Kosongkan untuk memakai wording bawaan.",
+    "emptyCustomTitle": "Judul saat kosong",
+    "emptyCustomDesc": "Deskripsi saat kosong",
+    "filteredCustomTitle": "Judul saat filter tak cocok",
+    "filteredCustomDesc": "Deskripsi saat filter tak cocok"
   },
   "menuIcon": {
     "title": "Ikon Menu",

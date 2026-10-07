@@ -31,6 +31,8 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
   const canBulkUpload = def.features.bulkUpload && can(permissions.bulkUpload);
   const testPrefix = definitionTestId(def.key);
   const emptyState = listEmptyState(def.singularLabel);
+  // Wording kustom dari props tabel (kanvas List); kosong = bawaan.
+  const customEmpty = def.layout?.table?.props;
   const [bulkOpen, setBulkOpen] = useState(false);
 
   const {
@@ -145,8 +147,10 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
           isRestoring={isRestoring}
           isEmptyState={isEmptyState}
           isFilteredEmptyState={isFilteredEmptyState}
-          emptyStateTitle={emptyState.title}
-          emptyStateDescription={emptyState.description}
+          emptyStateTitle={customEmpty?.emptyStateTitle?.trim() || emptyState.title}
+          emptyStateDescription={customEmpty?.emptyStateDescription?.trim() || emptyState.description}
+          filteredEmptyStateTitle={customEmpty?.filteredEmptyStateTitle?.trim() || undefined}
+          filteredEmptyStateDescription={customEmpty?.filteredEmptyStateDescription?.trim() || undefined}
           loading={isLoading}
           error={error}
           onRetry={refresh}
