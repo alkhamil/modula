@@ -13,7 +13,6 @@ import {
   mockFilterLine,
   mockLoadOptionsFn,
   mockOptionsConst,
-  mockRecordValue,
   mockRelationOptionsFn,
   mockRelationOptionsImport,
   optionMapping,
@@ -246,13 +245,11 @@ export function mockTemplate(ctx: TemplateContext): string {
     ...loadableSubModels(fields),
   ]
     .filter((f) => f.isRelationOptions)
-    .map(mockRelationOptionsImport)
+    .map((f) => mockRelationOptionsImport(f, ctx.names.dir))
     .join('\n');
   const loadFns = loadModels
     .map((f) => (f.isRelationOptions ? mockRelationOptionsFn(f) : mockLoadOptionsFn(f)))
     .join('\n\n');
-
-  const recordFields = fields.map((f) => `  ${f.name}: ${mockRecordValue(f)},`).join('\n');
 
   const stringFields = fields.filter((f) => f.valueType === 'string');
   const arrayFields = fields.filter((f) => f.valueType === 'stringArray');
@@ -330,13 +327,8 @@ ${fields.map((f) => `  ${f.name}: ${tsDataType(f)};`).join('\n')}
   created_date: string;
 }
 
-const mock${names.entity}Records: Mock${names.entity}Record[] = Array.from({ length: 14 }, (_, i) => ({
-  id: i + 1,
-${recordFields}
-  status: i % 4 === 3 ? 'inactive' : 'active',
-  created_by: 'System',
-  created_date: \`2024-0\${(i % 9) + 1}-\${10 + (i % 9)} 09:00\`,
-}));
+// Mock data sengaja kosong: isi lewat Create / Bulk Upload.
+const mock${names.entity}Records: Mock${names.entity}Record[] = [];
 
 function toListItem(record: Mock${names.entity}Record): ${names.listItem} {
   return {

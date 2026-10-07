@@ -1,0 +1,30 @@
+{
+  "vendor": {
+    "label": "Vendor",
+    "labelPlural": "Vendors",
+    "parentLabel": "Master Data",
+    "breadcrumbs": {
+      "list": "Vendors",
+      "create": "Create",
+      "detail": "Detail",
+      "edit": "Edit"
+    },
+    "fields": {
+      "region": {
+        "label": "Region",
+        "placeholder": "Select region"
+      },
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter name"
+      }
+    },
+    "toast": {
+      "created": "Vendor created successfully.",
+      "updated": "Vendor updated successfully.",
+      "deleted": "Vendor deleted successfully",
+      "restored": "Vendor restored successfully",
+      "notFound": "Vendor not found"
+    }
+  }
+}

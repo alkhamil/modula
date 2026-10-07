@@ -41,14 +41,14 @@ ${iconList.length > 0 ? `import { ${iconList.join(', ')} } from 'lucide-react';\
 ${needAuth ? `import { useAuth } from '${names.sharedPrefix}app/providers';\n` : ''}import { use${names.entity}List, use${names.entity}ListFilter${withExport ? `, use${names.entity}Export` : ''} } from '../hooks';
 import { ${names.entity}Table${withBulk ? `, ${names.entity}BulkUploadDialog` : ''} } from '../components';
 ${needAuth ? `import { ${names.entity}Permissions } from '../permissions';\n` : ''}import { listEmptyState } from '${names.sharedPrefix}shared/constants';
-import { t } from 'i18next';
 import '${names.sharedPrefix}shared/i18n';
-
-const EMPTY_STATE = listEmptyState(t('${base}.label'));
 
 function ${names.entity}ListPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // EMPTY_STATE di dalam komponen: t() modul dievaluasi saat render,
+  // setelah addModuleLocales terdaftar (konstanta level-modul membeku jadi key mentah).
+  const EMPTY_STATE = listEmptyState(t('${base}.label'));
 ${needAuth ? '  const { can } = useAuth();\n' : ''}${needView ? `  const canView = can(${names.entity}Permissions.view);\n` : ''}${needCreate ? `  const canCreate = can(${names.entity}Permissions.create);\n` : ''}${needUpdate ? `  const canUpdate = can(${names.entity}Permissions.update);\n` : ''}${needDelete ? `  const canDelete = can(${names.entity}Permissions.delete);\n` : ''}${withExport ? `  const canExport = can(${names.entity}Permissions.export);\n` : ''}${withBulk ? `  const canBulkUpload = can(${names.entity}Permissions.bulkUpload);\n` : ''}${withBulk ? '  const [bulkOpen, setBulkOpen] = useState(false);\n' : ''}${withExport ? `  const { exportData, isExporting } = use${names.entity}Export();\n` : ''}
   const {
     filterFields,

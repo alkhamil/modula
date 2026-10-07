@@ -182,15 +182,15 @@ export function resolveNavIconName(iconName: string): string {
   return iconName;
 }
 
-/** Pastikan `import { <name> } from 'lucide-react'` ada di `navigation.tsx`. */
+/** Pastikan `import { <name> }` dari lucide-react ada di `navigation.tsx` (terima single/double quote). */
 export function ensureLucideImport(source: string, name: string): string {
-  const importRe = /import\s*\{([^}]*)\}\s*from\s*'lucide-react'/;
+  const importRe = /import\s*\{([^}]*)\}\s*from\s*['"]lucide-react['"]/;
   const match = importRe.exec(source);
   if (!match) return `import { ${name} } from 'lucide-react';\n${source}`;
   const members = match[1] as string;
   if (members.split(',').map((part) => part.trim()).includes(name)) return source;
   const updated = match[0].replace(/\{([^}]*)\}/, (_, inner: string) => {
-    const trimmed = (inner as string).trim();
+    const trimmed = (inner as string).trim().replace(/,\s*$/, '');
     return `{ ${trimmed === '' ? name : `${trimmed}, ${name}`} }`;
   });
   return source.replace(match[0], updated);
@@ -307,7 +307,31 @@ export function unregisterModuleNav(
       }
     }
   }
+  // Bersihkan import ikon modul bila tak dipakai lagi (hindari unused import).
+  next = pruneLucideImport(next, resolveNavIconName(reg.iconName));
   return { source: next, removed: 1 };
+}
+
+/**
+ * Hapus satu nama dari import lucide bila tak ada pemakaian JSX
+ * (`<Nama .../>) tersisa; statement kosong ikut dibuang.
+ */
+export function pruneLucideImport(source: string, name: string): string {
+  const importRe = /import\s*\{([^}]*)\}\s*from\s*['"]lucide-react['"]/;
+  const match = importRe.exec(source);
+  if (!match) return source;
+  if (new RegExp(`<${name}(?=[\\s/>])`).test(source)) return source;
+  const members = match[1].split(',').map((part) => part.trim()).filter(Boolean);
+  const kept = members.filter((member) => member !== name);
+  if (kept.length === members.length) return source;
+  if (kept.length === 0) {
+    const lineStart = source.lastIndexOf('\n', match.index - 1) + 1;
+    let end = match.index + match[0].length;
+    if (source[end] === ';') end++;
+    if (source[end] === '\n') end++;
+    return source.slice(0, lineStart) + source.slice(end);
+  }
+  return source.replace(match[0], match[0].replace(match[1], ` ${kept.join(', ')} `));
 }
 
 export function registerModuleNav(

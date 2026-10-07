@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { t as tStatic } from 'i18next';
 import '../../../../shared/i18n';
 import { Card, Button, FilterToolbar, Dialog } from '../../../../shared/components/ui';
 
@@ -12,11 +11,11 @@ import { useAuth } from '../../../../app/providers';
 import { listEmptyState } from '../../../../shared/constants';
 import { Info, Plus, Download, Upload } from 'lucide-react';
 
-const EMPTY_STATE = listEmptyState(tStatic('user.label'));
-
 function UserList() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // EMPTY_STATE di dalam komponen agar t() dievaluasi setelah locale terdaftar.
+  const EMPTY_STATE = listEmptyState(t('user.label'));
   const { can } = useAuth();
   const canView = can(UserPermissions.view);
   const canCreate = can(UserPermissions.create);

@@ -1,0 +1,30 @@
+{
+  "price": {
+    "label": "Harga",
+    "labelPlural": "Harga",
+    "parentLabel": "Master Data",
+    "breadcrumbs": {
+      "list": "Harga",
+      "create": "Buat",
+      "detail": "Ubah",
+      "edit": "Detail"
+    },
+    "fields": {
+      "product": {
+        "label": "Produk",
+        "placeholder": "Pilih produk"
+      },
+      "price": {
+        "label": "Harga",
+        "placeholder": "Masukan harga"
+      }
+    },
+    "toast": {
+      "created": "Harga berhasil dibuat.",
+      "updated": "Harga berhasil diubah.",
+      "deleted": "Harga berhasil dihapus.",
+      "restored": "Harga berhasil dipulihkan.",
+      "notFound": "Harga tidak ditemukan"
+    }
+  }
+}

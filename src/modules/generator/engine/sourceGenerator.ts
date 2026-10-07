@@ -1,4 +1,4 @@
-import { resolveRelationTarget, toKebabCase, toPascalCase, toPluralKebab } from '../naming';
+import { relativeModulePath, resolveRelationTarget, toKebabCase, toPascalCase, toPluralKebab } from '../naming';
 import type { FieldModel, TemplateContext } from './context';
 
 /** Endpoint default untuk options: `/api/v1/{plural}/{field}s`, atau override dari config api. */
@@ -28,12 +28,18 @@ export function loadLabelHelper(field: FieldModel): string {
 
 /**
  * Baris import mock target untuk loader relasi. Target wajib sudah
- * publish-ke-repo sebelumnya (import statis).
+ * publish-ke-repo sebelumnya (import statis). Path dihitung relatif dari
+ * direktori modul konsumen (`consumerDir`, mis. `ctx.names.dir`) agar benar
+ * untuk modul ber-parent (nested).
  */
-export function mockRelationOptionsImport(field: FieldModel): string {
+export function mockRelationOptionsImport(field: FieldModel, consumerDir?: string): string {
   const target = resolveRelationTarget(field.config.relation);
-  const importPath = target?.mockImportPath ?? `../../${toKebabCase(field.name)}/api/mock`;
-  const mockFn = target?.mockListFn ?? `mockGet${toPascalCase(toPluralKebab(toKebabCase(field.name)))}`;
+  const fallbackSegs = toKebabCase(field.name);
+  const targetDir = target?.targetDir ?? `src/modules/${fallbackSegs}`;
+  const importPath = consumerDir
+    ? relativeModulePath(`${consumerDir.replace(/\/$/, '')}/api/mock.ts`, `${targetDir}/api/mock`)
+    : (target?.mockImportPath ?? `../../${fallbackSegs}/api/mock`);
+  const mockFn = target?.mockListFn ?? `mockGet${toPascalCase(toPluralKebab(fallbackSegs))}`;
   return `import { ${mockFn} } from '${importPath}';`;
 }
 

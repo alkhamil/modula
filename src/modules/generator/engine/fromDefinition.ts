@@ -13,10 +13,9 @@ function sanitizeWidths(widths: Record<string, number> | undefined): Record<stri
 /**
  * Definisi → config generator file. Round-trip aman: `routeBase`/`apiPlural`
  * diturunkan ulang deterministik dari fungsi naming yang sama.
- * Batasan: susunan detail + source `relation` tidak dikenal template file —
- * field relation
- * di-generate sebagai select biasa (source `none`), termasuk sub-field
- * kolom array. `menuIcon` (nama ikon lucide) dipakai registrasi nav.
+ * `source: 'relation'` diteruskan apa adanya — template file mengenal relasi
+ * (loader mock/service + RelationLabel), kecuali sub-field kolom array yang
+ * tetap di-coerce ke `none`. `menuIcon` (nama ikon lucide) dipakai registrasi nav.
  * Murni & Node-safe.
  */
 /** Sanitasi satu item layout form kanvas (span 1..12, kind/label valid). */
@@ -48,11 +47,10 @@ export function definitionToConfig(def: ModuleDefinition): GeneratorConfig {
     tableProps: def.layout.table.props ? { ...def.layout.table.props } : undefined,
     tableWidths: sanitizeWidths(def.layout.table.widths),
     fields: def.fields.map((field) => {
-      const top = field.source === 'relation' ? { ...field, source: 'none' as const } : field;
-      if (top.type !== 'formArrayField' || !top.subFields) return top;
+      if (field.type !== 'formArrayField' || !field.subFields) return field;
       return {
-        ...top,
-        subFields: top.subFields.map((sub) =>
+        ...field,
+        subFields: field.subFields.map((sub) =>
           sub.source === 'relation' ? { ...sub, source: 'none' as const } : sub,
         ),
       };

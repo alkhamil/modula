@@ -70,6 +70,8 @@ export function normalizeParentPath(parentName: string | null): string | null {
 export interface ResolvedRelationTarget {
   /** Path import mock target dari file `api/` modul, mis. `../../catalogue/category/api/mock`. */
   mockImportPath: string;
+  /** Direktori modul target, mis. `src/modules/catalogue/category`. */
+  targetDir: string;
   /** `apiPlural` target (tersimpan wizard atau turunan jamak naif). */
   apiPlural: string;
   /** Nama fungsi list mock target, mis. `mockGetCategories`. */
@@ -77,8 +79,26 @@ export interface ResolvedRelationTarget {
 }
 
 /**
+ * Path import relatif POSIX antar dua file (tanpa domain/prefix aneh).
+ * `relativeModulePath('src/modules/a/api/mock.ts',
+ * 'src/modules/b/api/mock')` → `'../../b/api/mock'`.
+ */
+export function relativeModulePath(fromFile: string, toFile: string): string {
+  const from = fromFile.split('/').filter(Boolean);
+  from.pop();
+  const to = toFile.split('/').filter(Boolean);
+  const file = to.pop() as string;
+  let common = 0;
+  while (common < from.length && common < to.length && from[common] === to[common]) common++;
+  const ups = from.length - common;
+  const rel = [...Array<string>(ups).fill('..'), ...to.slice(common), file].join('/');
+  return rel.startsWith('.') ? rel : `./${rel}`;
+}
+
+/**
  * Resolve target relasi dari `definitionKey` (`catalogue/category`).
- * Semua modul 2 level di bawah `src/modules/` sehingga prefix selalu `../../`.
+ * `mockImportPath` memakai asumsi modul sedalam 1 level; untuk modul
+ * ber-parent pakai `relativeModulePath(names.dir + '/api/mock.ts', dir)`.
  */
 export function resolveRelationTarget(
   relation: RelationConfig | undefined,
@@ -94,6 +114,7 @@ export function resolveRelationTarget(
   const apiPlural = relation?.apiPlural?.trim() || toPluralKebab(last);
   return {
     mockImportPath: `../../${segs.join('/')}/api/mock`,
+    targetDir: `src/modules/${segs.join('/')}`,
     apiPlural,
     mockListFn: `mockGet${toPascalCase(apiPlural)}`,
   };

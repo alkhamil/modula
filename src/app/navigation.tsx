@@ -1,67 +1,91 @@
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import type { NavItemType } from '../shared/types/navigation';
-import { LayoutDashboard, Database, Settings, SlidersHorizontal, Users } from 'lucide-react';
-import { useDynamicDefinitions } from '../modules/generator/runtime/hooks';
-import { buildDynamicNavItems } from '../modules/generator/runtime/dynamicNav';
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import type { NavItemType } from "../shared/types/navigation";
+import { LayoutDashboard,
+  Database,
+  Settings,
+  SlidersHorizontal,
+  Users } from "lucide-react";
+import { useDynamicDefinitions } from "../modules/generator/runtime/hooks";
+import { buildDynamicNavItems } from "../modules/generator/runtime/dynamicNav";
 
 export const navItems: NavItemType[] = [
   {
-    label: 'Dashboard',
-    labelKey: 'nav.dashboard',
-    path: '/',
+    label: "Dashboard",
+    labelKey: "nav.dashboard",
+    path: "/",
     icon: <LayoutDashboard className="h-5 w-5" />,
   },
   {
-    label: 'Generator',
-    labelKey: 'nav.generator',
-    path: '/generator',
+    label: "Generator",
+    labelKey: "nav.generator",
+    path: "/generator",
     icon: <Settings className="h-5 w-5" />,
   },
   {
-    label: 'Component',
-    labelKey: 'nav.components',
+    label: "Component",
+    labelKey: "nav.components",
     icon: <Database className="h-5 w-5" />,
     children: [
-      { label: 'Typography', labelKey: 'nav.typography', path: '/components/typography' },
-      { label: 'Colors', labelKey: 'nav.colors', path: '/components/colors' },
-      { label: 'UI', labelKey: 'nav.ui', path: '/components/ui' },
+      {
+        label: "Typography",
+        labelKey: "nav.typography",
+        path: "/components/typography",
+      },
+      { label: "Colors", labelKey: "nav.colors", path: "/components/colors" },
+      { label: "UI", labelKey: "nav.ui", path: "/components/ui" },
     ],
   },
   {
-    label: 'User Management',
-    labelKey: 'user.navGroup',
+    label: "User Management",
+    labelKey: "user.navGroup",
     icon: <Users className="h-5 w-5" />,
     children: [
       {
-        label: 'Users',
-        labelKey: 'user.labelPlural',
-        path: '/user-management/user',
-        permissionKey: 'master-user.view',
+        label: "Users",
+        labelKey: "user.labelPlural",
+        path: "/user-management/user",
+        permissionKey: "master-user.view",
       },
       {
-        label: 'Roles',
-        labelKey: 'role.labelPlural',
-        path: '/user-management/role',
-        permissionKey: 'master-role.view',
+        label: "Roles",
+        labelKey: "role.labelPlural",
+        path: "/user-management/role",
+        permissionKey: "master-role.view",
       },
     ],
   },
+  {
+    label: "Settings",
+    labelKey: "settings.title",
+    path: "/settings",
+    icon: <SlidersHorizontal className="h-5 w-5" />,
+    permissionKey: "settings.view",
+  },
+        // __GENERATOR_PARENT master-data__
         {
-      label: 'Settings',
-      labelKey: 'settings.title',
-      path: '/settings',
-      icon: <SlidersHorizontal className="h-5 w-5" />,
-      permissionKey: 'settings.view',
-    },
-                                                                                                                                                // __GENERATOR_NAV_ITEMS__
+          label: 'Master Data',
+          labelKey: 'region.parentLabel',
+          icon: <Database className="h-5 w-5" />,
+          children: [
+            { label: 'Regions', labelKey: 'region.labelPlural', path: '/master-data/regions', permissionKey: 'region.view' },
+          
+            { label: 'Vendors', labelKey: 'vendor.labelPlural', path: '/master-data/vendors', permissionKey: 'vendor.view' },
+              { label: 'Categories', labelKey: 'category.labelPlural', path: '/master-data/categories', permissionKey: 'category.view' },
+                { label: 'Products', labelKey: 'product.labelPlural', path: '/master-data/products', permissionKey: 'product.view' },
+                  { label: 'Prices', labelKey: 'price.labelPlural', path: '/master-data/prices', permissionKey: 'price.view' },],
+        },
+        // __GENERATOR_NAV_ITEMS__
 ];
 
 /** Item nav dari definisi published (flat untuk root, group per parent). */
 export function useDynamicNavItems(): NavItemType[] {
   const { i18n } = useTranslation();
-  const { data } = useDynamicDefinitions('published');
-  return useMemo(() => (data ? buildDynamicNavItems(data) : []), [data, i18n.language]);
+  const { data } = useDynamicDefinitions("published");
+  return useMemo(
+    () => (data ? buildDynamicNavItems(data) : []),
+    [data, i18n.language],
+  );
 }
 
 /**
@@ -85,7 +109,9 @@ export function mergeNavItems(
   }
   for (const dyn of dynamicItems) {
     if (dyn.children) {
-      const group = merged.find((item) => item.label === dyn.label && item.children);
+      const group = merged.find(
+        (item) => item.label === dyn.label && item.children,
+      );
       if (!group) {
         merged.push(dyn);
         for (const child of dyn.children) usedPaths.add(child.path);

@@ -1,4 +1,5 @@
 import type { ModuleDefinition } from '../definitions';
+import type { ModuleRegistration } from '../types';
 import { definitionToConfig } from '../engine/fromDefinition';
 import { buildRegistration } from '../engine/registration';
 import { WriteEndpointUnavailableError } from './writeToRepo';
@@ -18,12 +19,20 @@ export interface DeleteFromRepoResult {
  * `WriteEndpointUnavailableError` (pemanggil sebaiknya mengabaikannya —
  * hapus definisi mock tetap jalan).
  */
+/**
+ * Direktori repo dari registrasi: moduleImportPath = `../modules/<dir>`
+ * (relatif dari src/app) → `src/modules/<dir>`.
+ */
+export function moduleDirForRegistration(registration: ModuleRegistration): string {
+  return `src/${registration.moduleImportPath.replace(/^\.\.\//, '')}`;
+}
+
 export async function deleteModuleFromRepo(
   def: ModuleDefinition,
 ): Promise<DeleteFromRepoResult> {
   const config = definitionToConfig(def);
   const registration = buildRegistration(config);
-  const moduleDir = `src/modules/${registration.moduleImportPath.replace(/^\.\.\//, '')}`;
+  const moduleDir = moduleDirForRegistration(registration);
   let res: Response;
   try {
     res = await fetch(DELETE_ENDPOINT, {

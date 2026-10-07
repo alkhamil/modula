@@ -161,6 +161,17 @@ expectIn(fg.arrayColumnsSnippet(arrayStaticModel), "'baru': 'Baru'", 'array-sub-
 const relTarget = naming.resolveRelationTarget({ definitionKey: 'catalogue/category', labelField: 'name', valueField: 'id' });
 expectEq(relTarget?.mockListFn, 'mockGetCategories', 'relation-mock-fn');
 expectEq(relTarget?.mockImportPath, '../../catalogue/category/api/mock', 'relation-import-path');
+expectEq(relTarget?.targetDir, 'src/modules/catalogue/category', 'relation-target-dir');
+expectEq(
+  naming.relativeModulePath('src/modules/store-test/api/mock.ts', 'src/modules/master-data/region/api/mock'),
+  '../../master-data/region/api/mock',
+  'relation-path-flat',
+);
+expectEq(
+  naming.relativeModulePath('src/modules/master-data/vendor/api/mock.ts', 'src/modules/master-data/region/api/mock'),
+  '../../region/api/mock',
+  'relation-path-nested',
+);
 const relField = {
   ...base,
   name: 'category',
@@ -174,6 +185,11 @@ expectIn(fg.tableColumnSnippet(relField), '<RelationLabel loader={loadCategoryOp
 expectIn(fg.detailRowSnippet(relField), '<RelationLabel loader={loadCategoryOptions} value={item.category} />', 'detail-relation-label');
 expectEq(fg.relationLoaders([relField]).join(','), 'loadCategoryOptions', 'relation-loaders');
 expectIn(sg.mockRelationOptionsFn(relField), 'mockGetCategories({ search: search || undefined', 'relation-mock-loader');
+expectIn(
+  sg.mockRelationOptionsImport(relField, 'src/modules/master-data/vendor/'),
+  "from '../../../catalogue/category/api/mock'",
+  'relation-import-nested-consumer',
+);
 expectEq(fg.tsDataType(arrayModel), 'ItemsRow[]', 'tsDataType-array');
 expectEq(fg.tsFormType(arrayModel), 'ItemsRow[]', 'tsFormType-array');
 expectEq(fg.formDefaultValue(arrayModel), '[]', 'formDefault-array');
@@ -335,6 +351,78 @@ expectIn(emptyPage, 'emptyStateDescription={EMPTY_STATE.description}', 'empty-de
 expectIn(emptyPage, 'filteredEmptyStateTitle="Tak cocok"', 'empty-filtered-baked');
 const defaultPage = defaultProbe.find((f) => f.path.endsWith('ListPage.tsx')).content;
 expectIn(defaultPage, 'emptyStateTitle={EMPTY_STATE.title}', 'empty-title-default');
+// EMPTY_STATE di dalam komponen (regresi: key mentah `region.label` karena
+// t() level-modul dievaluasi sebelum addModuleLocales).
+const listPageFile = emitted.find((f) => f.path.endsWith('ListPage.tsx')).content;
+expectEq(
+  listPageFile.indexOf('function I18nProbeListPage()') < listPageFile.indexOf('const EMPTY_STATE'),
+  true,
+  'empty-state-in-component',
+);
+// --- Fase K: ikon ganda, mock kosong, path hapus ---
+const mreg = jiti(`${ROOT}/vite-plugin/moduleRegistration.ts`);
+const dblSrc = 'import { LayoutDashboard, Database } from "lucide-react";\nconst x = 1;\n';
+expectEq(mreg.ensureLucideImport(dblSrc, 'Database'), dblSrc, 'lucide-no-dup-doublequote');
+expectIn(
+  mreg.ensureLucideImport('import { LayoutDashboard } from \'lucide-react\';\n', 'Database'),
+  '{ LayoutDashboard, Database }',
+  'lucide-add-missing',
+);
+expectEq(
+  mreg.ensureLucideImport('import {\n  LayoutDashboard,\n  Users,\n} from "lucide-react";\n', 'Map'),
+  'import { LayoutDashboard,\n  Users, Map } from "lucide-react";\n',
+  'lucide-trailing-comma',
+);
+expectEq(
+  mreg.pruneLucideImport('import { Users, MapPin } from "lucide-react";\nconst a = 1;\n', 'MapPin'),
+  'import { Users } from "lucide-react";\nconst a = 1;\n',
+  'lucide-prune-unused',
+);
+expectEq(
+  mreg.pruneLucideImport('import { MapPin } from "lucide-react";\nconst a = <MapPin />;\n', 'MapPin'),
+  'import { MapPin } from "lucide-react";\nconst a = <MapPin />;\n',
+  'lucide-prune-keeps-used',
+);
+const mockFile = emitted.find((f) => f.path.endsWith('api/mock.ts')).content;
+expectIn(mockFile, 'MockI18nProbeRecord[] = [];', 'mock-empty-records');
+expectEq(mockFile.includes('Array.from'), false, 'mock-no-seed-array');
+// --- Fase L: jalur wizard (definisi → config → generate) mempertahankan relasi ---
+const fdWiz = jiti(`${ROOT}/src/modules/generator/engine/fromDefinition.ts`);
+const wizDef = {
+  key: 'master-data/product',
+  parent: 'master-data',
+  label: 'Products',
+  singularLabel: 'Product',
+  routeBase: 'master-data/products',
+  apiPlural: 'products',
+  permissionKey: 'product',
+  moduleType: 'crud',
+  features: { list: true, detail: true, create: true, edit: true, delete: true, bulkUpload: true, export: true },
+  deleteMode: 'soft',
+  status: 'published',
+  fields: [
+    { name: 'category', label: 'Category', type: 'selectField', rules: ['required'], source: 'relation', relation: { definitionKey: 'master-data/category', labelField: 'name', valueField: 'id' }, sortable: true, filterable: true, filterCriteria: 'optionExact' },
+    { name: 'name', label: 'Name', type: 'textField', rules: [], source: 'none', sortable: true, filterable: true, filterCriteria: 'contains' },
+  ],
+  layout: { form: [], table: { order: [], hidden: [] } },
+};
+const wizConfig = fdWiz.definitionToConfig(wizDef);
+expectEq(JSON.stringify(wizConfig.fields.map((f) => f.source)), JSON.stringify(['relation', 'none']), 'wizard-keeps-relation');
+const wizOut = mg.generateModule(wizConfig);
+const wizMock = wizOut.find((f) => f.path.endsWith('api/mock.ts')).content;
+expectIn(wizMock, 'export async function loadCategoryOptions', 'wizard-relation-loader');
+expectIn(wizMock, "from '../../category/api/mock'", 'wizard-relation-import');
+for (const f of wizOut) {
+  const stripped = f.content.replace(/loadCategoryOptions|CategoryOption|categoryLoadOptions|mockLoadCategoryOptions|useCategoryOptionsQuery|getCategoryOptions|CategoryOptions/g, '');
+  expectEq(/categoryOptions/.test(stripped), false, `wizard-no-dangle:${f.path.split('/').pop()}`);
+}
+const delApi = jiti(`${ROOT}/src/modules/generator/api/deleteFromRepo.ts`);
+const regForDelete = reg.buildRegistration(probeConfig);
+expectEq(
+  delApi.moduleDirForRegistration(regForDelete),
+  'src/modules/i18n-probe',
+  'delete-module-dir',
+);
 const translatedConfig = {
   ...probeConfig,
   i18n: { id: { 'i18nprobe.fields.nama.label': 'Nama (ID)', 'field.nama.label': 'SKIP', 'other.x': 'SKIP' } },

@@ -483,11 +483,13 @@ function LayoutItemDrawerContent({
   kind,
   label,
   onApply,
+  onClose,
   applyRequestRef,
 }: {
   kind: string;
   label: string;
   onApply: (label: string) => void;
+  onClose: () => void;
   applyRequestRef: { current: (() => void) | null };
 }) {
   const { t } = useTranslation();
@@ -495,7 +497,10 @@ function LayoutItemDrawerContent({
 
   // Daftarkan Apply ke tombol footer (closure segar tiap render; bersih saat unmount).
   useEffect(() => {
-    applyRequestRef.current = () => onApply(draftLabel);
+    applyRequestRef.current = () => {
+      onApply(draftLabel);
+      onClose();
+    };
     return () => {
       applyRequestRef.current = null;
     };
@@ -525,6 +530,7 @@ function FieldDrawerContent({
   existingNames,
   onApply,
   onRename,
+  onClose,
   applyRequestRef,
 }: {
   field: GeneratorFieldConfig;
@@ -532,6 +538,7 @@ function FieldDrawerContent({
   existingNames: string[];
   onApply: (config: GeneratorFieldConfig) => void;
   onRename: (oldName: string, next: GeneratorFieldConfig) => void;
+  onClose: () => void;
   applyRequestRef: { current: (() => void) | null };
 }) {
   const { t } = useTranslation();
@@ -566,13 +573,14 @@ function FieldDrawerContent({
     validateName();
   }
 
-  /** Commit draft ke kanvas (config + rename). Drawer tetap terbuka. */
+  /** Commit draft ke kanvas (config + rename), lalu tutup drawer. */
   function handleApply(): void {
     if (validateName() !== null) return;
     const pending = form.name.trim();
     const config = { ...buildFieldConfig(form), name: pending || field.name };
     if (pending && pending !== field.name) onRename(field.name, config);
     else onApply({ ...config, name: field.name });
+    onClose();
   }
 
   // Daftarkan Apply ke tombol footer (closure segar tiap render; bersih saat unmount).
@@ -1014,6 +1022,7 @@ function FormBuilderCanvas({
             existingNames={fields.filter((f) => f !== selectedField).map((f) => f.name)}
             onApply={handlePanelApply}
             onRename={handleRename}
+            onClose={() => setSelectedId(null)}
             applyRequestRef={applyRequestRef}
           />
         )}
@@ -1025,6 +1034,7 @@ function FormBuilderCanvas({
             onApply={(label) => {
               onChange(setFormItemLabel(effective, selectedItem.field, label));
             }}
+            onClose={() => setSelectedId(null)}
             applyRequestRef={applyRequestRef}
           />
         )}
