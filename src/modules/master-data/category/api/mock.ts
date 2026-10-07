@@ -51,7 +51,6 @@ export async function loadRegionOptions(
   });
 }
 
-
 interface MockCategoryRecord {
   id: number;
   name: string;

@@ -5,8 +5,8 @@ import type {
   BulkUploadResult,
   CreateCategoryPayload,
   GetCategoriesParams,
-  RegionOption,
   CategoryListItem,
+  RegionOption,
 } from '../types';
 import type { ApiDetail, ApiList, ApiResponse } from '../../../../shared/types';
 
@@ -44,6 +44,14 @@ export async function deleteCategory(id: string): Promise<{ message: string }> {
   return { message: res.data.response_schema.response_message };
 }
 
+export async function restoreCategory(id: string): Promise<CategoryMutationResult> {
+  const res = await api.patch<ApiResponse<ApiDetail<Category>>>(`/api/v1/categories/${id}/restore`);
+  return {
+    message: res.data.response_schema.response_message,
+    data: res.data.response_output!.detail,
+  };
+}
+
 export async function loadRegionOptions(
   search = '',
   page = 1,
@@ -57,14 +65,6 @@ export async function loadRegionOptions(
     label: String(r['name'] ?? ''),
     value: String(r['id'] ?? ''),
   }));
-}
-
-export async function restoreCategory(id: string): Promise<CategoryMutationResult> {
-  const res = await api.patch<ApiResponse<ApiDetail<Category>>>(`/api/v1/categories/${id}/restore`);
-  return {
-    message: res.data.response_schema.response_message,
-    data: res.data.response_output!.detail,
-  };
 }
 
 export async function exportCategories(params?: GetCategoriesParams): Promise<Blob> {

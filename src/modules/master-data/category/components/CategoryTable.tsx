@@ -1,9 +1,10 @@
 import { t } from 'i18next';
 import '../../../../shared/i18n';
 import type { CategoryListItem } from '../types';
-import { Table, Badge, RowActionButton, RelationLabel } from '../../../../shared/components/ui';
-import { formatDateTime } from '../../../../shared/utils';
+import { Table, Badge, RowActionButton } from '../../../../shared/components/ui';
+import { RelationLabel } from '../../../../shared/components/ui';
 import { loadRegionOptions } from '../api';
+import { formatDateTime } from '../../../../shared/utils';
 
 interface Props {
   testId?: string;
@@ -48,13 +49,13 @@ function CategoryTable({
   ...rest
 }: Props) {
   const columns = [
-    { key: 'name', header: t('category.fields.name.label'), sortable: true, width: 266 },
-    { key: 'region', header: t('category.fields.region.label'), sortable: true, render: (row: CategoryListItem) => <RelationLabel loader={loadRegionOptions} value={row.region} /> },
-    { key: 'created_by', header: t('table.createdBy'), width: 352 },
+    { key: 'name', header: t('category.fields.name.label'), sortable: true, width: 186 },
+    { key: 'region', header: t('category.fields.region.label'), sortable: true, width: 153, render: (row: CategoryListItem) => <RelationLabel loader={loadRegionOptions} value={row.region} /> },
+    { key: 'created_by', header: t('table.createdBy'), width: 138 },
     {
       key: 'created_date',
       header: t('table.createdDate'),
-      width: 245,
+      width: 159,
       render: (row: CategoryListItem) => formatDateTime(row.created_date),
     },
     {
@@ -78,9 +79,6 @@ function CategoryTable({
       data={data}
       rowKey={(r) => String(r.id)}
       fixedLayout={true}
-      stickyHeader
-      stickyAction
-      actionPosition="right"
       renderAction={(row) => (
         <div className="flex justify-evenly w-full gap-1">
           {onView && (
