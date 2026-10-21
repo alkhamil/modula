@@ -49,7 +49,7 @@ src/
     ├── utils/          (format, filterNavItems, submitError, excel)
     ├── types/          (navigation, form, api)
     └── components/
-        ├── layout/     (AppShell, Sidebar, PageHeader, AvatarUser, PageContent)
+        ├── layout/     (AppShell, SideNavbar, PageHeader, Profile, PageContent)
         ├── ui/         (Button, Table, Dialog, Form*, Toast, dsb)
         └── icons/      (SVG, warna via token thema / currentColor)
 ```
@@ -76,7 +76,7 @@ Response login membawa permission list user; guard membaca permission key:
 
 - `RequireAuth`: belum login → redirect `/login`.
 - `PermissionGate`: route dengan `handle.requiredPermission` → 403 bila key tidak dimiliki.
-- Sidebar menyembunyikan menu tanpa `permissionKey` yang cocok; `'*'` = wildcard penuh.
+- SideNavbar menyembunyikan menu tanpa `permissionKey` yang cocok; `'*'` = wildcard penuh.
 
 | Username | Password  | Role   |
 | -------- | --------- | ------ |

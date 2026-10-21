@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Button, Card, TextField } from '../../../shared/components/ui';
+import { Button, Card, InputField } from '../../../shared/components/ui';
 import { ThemeSettingsPanel } from '../../../shared/theme';
 import { useAppSettings } from '../store';
 import { BRAND_ICONS, BrandIcon } from '../brandIcons';
@@ -18,7 +18,7 @@ function SettingsPage() {
             <label className="mb-1 block text-sm font-medium text-foreground">
               {t('settings.appName')}
             </label>
-            <TextField
+            <InputField
               data-testid="settings-app-name"
               value={appName}
               maxLength={40}

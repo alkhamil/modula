@@ -1,8 +1,8 @@
 import { isValidElement, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, TriangleAlert } from 'lucide-react';
+import { AltArrowLeft, AltArrowRight, DangerTriangle } from '../icons';
 import { formatNumber } from '../../utils';
-import SelectField from './fields/SelectField';
+import Select from './fields/Select';
 import Button from './Button';
 import Tooltip from './Tooltip';
 
@@ -136,7 +136,7 @@ function Pagination({
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 py-4">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <SelectField
+        <Select
           clearable={false}
           value={String(pageSize)}
           onChange={(val) => onPageSizeChange(Number(val))}
@@ -153,7 +153,7 @@ function Pagination({
           disabled={page <= 1}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-primary transition-colors hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed border border-transparent hover:border-primary"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <AltArrowLeft className="h-4 w-4" />
         </button>
 
         {pages.map((p, i) =>
@@ -189,7 +189,7 @@ function Pagination({
           disabled={page >= totalPages}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-primary transition-colors hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed border border-transparent hover:border-primary"
         >
-          <ChevronRight className="h-4 w-4" />
+          <AltArrowRight className="h-4 w-4" />
         </button>
       </div>
     </div>
@@ -238,7 +238,7 @@ function renderCellValue(value: unknown): ReactNode {
 /** Bungkus isi sel; tampilkan Tooltip berisi teks penuh hanya saat ter-truncate. */
 function TruncatedCell({ children }: { children: ReactNode }) {
   const [truncated, setTruncated] = useState(false);
-  // Elemen (SelectField, Badge, tombol, custom render): render apa adanya
+  // Elemen (Select, Badge, tombol, custom render): render apa adanya
   // seperti sebelum tooltip ada — wrapper inline-flex + truncate mencekik
   // layout kontrol (mis. Select w-full menyusut selebar intrinsik).
   if (typeof children !== 'string' && typeof children !== 'number') {
@@ -560,7 +560,7 @@ function Table<T>({
                 <tr>
                   <td colSpan={totalColumns} className="px-5 py-12">
                     <div className="sticky left-1/2 w-max -translate-x-1/2 flex flex-col gap-2 items-center justify-center text-center">
-                      <TriangleAlert className="h-12 w-12 shrink-0 text-danger" />
+                      <DangerTriangle className="h-12 w-12 shrink-0 text-danger" />
                       <p className="text-lg font-semibold text-foreground">{errorTitle}</p>
                       {errorDescription && (
                         <p className="text-sm text-muted-foreground">{errorDescription}</p>

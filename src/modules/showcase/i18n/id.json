@@ -1,0 +1,526 @@
+{
+  "docs": {
+    "nav": {
+      "allComponents": "Semua komponen",
+      "onThisPage": "Pada halaman ini",
+      "componentList": "Daftar komponen",
+      "searchLabel": "Cari komponen",
+      "searchPlaceholder": "Cari komponen…",
+      "noResults": "Tidak ada komponen yang cocok."
+    },
+    "index": {
+      "title": "Komponen",
+      "subtitle": "Dokumentasi komponen UI yang mengikuti Figma WDS: properti, state, token, dan behavior."
+    },
+    "header": {
+      "openFigma": "Buka di Figma WDS"
+    },
+    "notFound": {
+      "message": "Komponen “{{slug}}” tidak ada.",
+      "viewAll": "Lihat semua komponen"
+    },
+    "sections": {
+      "playground": {
+        "title": "Playground",
+        "hint": "Ubah props lewat kontrol; preview dan kode ikut berubah."
+      },
+      "figma": {
+        "title": "Properti Figma → props",
+        "hint": "Pemetaan properti komponen dan mode variable di Figma WDS ke props komponen ini."
+      },
+      "examples": {
+        "title": "Contoh"
+      },
+      "states": {
+        "title": "State",
+        "hint": "State dipaksa lewat {{attr}} hanya untuk dokumentasi; di aplikasi state berasal dari interaksi (hover, tekan, fokus keyboard, disabled)."
+      },
+      "props": {
+        "title": "Props"
+      },
+      "tokens": {
+        "title": "Token desain",
+        "hint": "Sumber: {{file}}. Nilai adalah nilai live pada tema aktif."
+      },
+      "behavior": {
+        "title": "Behavior"
+      },
+      "accessibility": {
+        "title": "Aksesibilitas"
+      },
+      "do": "Lakukan",
+      "dont": "Hindari"
+    },
+    "table": {
+      "figma": {
+        "figma": "Figma",
+        "values": "Nilai",
+        "props": "Props",
+        "notes": "Catatan"
+      },
+      "props": {
+        "prop": "Prop",
+        "type": "Tipe",
+        "default": "Default",
+        "description": "Deskripsi"
+      },
+      "tokens": {
+        "variable": "CSS variable",
+        "value": "Nilai",
+        "usage": "Dipakai untuk"
+      }
+    },
+    "playground": {
+      "preview": "Preview",
+      "background": "Latar preview",
+      "controls": "Kontrol",
+      "controlsLabel": "Kontrol props",
+      "reset": "Reset",
+      "backgrounds": {
+        "white": "Putih",
+        "gray": "Abu",
+        "dots": "Pola"
+      }
+    },
+    "code": {
+      "copy": "Salin",
+      "copied": "Tersalin",
+      "readOnly": "Kode contoh (hanya baca)"
+    },
+    "tabs": {
+      "preview": "Preview",
+      "code": "Kode"
+    },
+    "categories": {
+      "actions": "Aksi",
+      "forms": "Form"
+    },
+    "button": {
+      "summary": "Tombol aksi WDS. Hierarchy menentukan penekanan visual (primary → text), gaya destruktif dipakai untuk aksi berbahaya, dan state (hover, pressed, fokus, disabled) serta ukuran datang dari token desain.",
+      "figma": {
+        "label": {
+          "values": "teks bebas",
+          "note": "Default Figma: “Button CTA”."
+        },
+        "destructive": {
+          "note": "Gaya merah untuk hierarchy mana pun; variant=\"danger\" mengaktifkannya otomatis."
+        },
+        "hierarchy": {
+          "note": "Pintasan lama: variant primary/secondary/danger dipetakan ke hierarchy (+ destructive)."
+        },
+        "size": {
+          "note": "md = tinggi 44px, padding 12/16, radius 8."
+        },
+        "shape": {
+          "note": "box memakai token radius ukuran; rounded berbentuk pil."
+        },
+        "icons": {
+          "note": "both = leading + trailing; only = iconOnly (padding.all, lebar minimum 44)."
+        },
+        "states": {
+          "note": ":hover, :active, :focus-visible, :disabled; tidak ada props."
+        },
+        "focus": {
+          "values": "stroke 1px di luar, jarak 2px",
+          "note": "Hanya tampil untuk fokus keyboard."
+        }
+      },
+      "examples": {
+        "hierarchy": {
+          "title": "Hierarchy",
+          "description": "Satu aksi utama per area; sisanya secondary atau lebih rendah."
+        },
+        "destructive": {
+          "title": "Destructive",
+          "description": "Untuk aksi yang menghapus data atau tak bisa dibatalkan."
+        },
+        "sizes": {
+          "title": "Ukuran"
+        },
+        "shapes": {
+          "title": "Bentuk"
+        },
+        "icons": {
+          "title": "Ikon",
+          "description": "Mode “Show icons” di Figma: leading, trailing, both, dan only."
+        }
+      },
+      "matrices": {
+        "hierarchyStates": "Hierarchy × state",
+        "destructiveStates": "Destructive × state"
+      },
+      "props": {
+        "hierarchy": "Penekanan visual (mode Button hierarchy).",
+        "destructive": "Gaya destruktif untuk hierarchy mana pun.",
+        "size": "Ukuran dari token Size (padding, radius, font, ikon).",
+        "shape": "Radius token (box) atau pil (rounded).",
+        "leadingIcon": "Ikon sebelum label.",
+        "trailingIcon": "Ikon setelah label.",
+        "iconOnly": "Hanya ikon (children diabaikan). Wajib beri aria-label.",
+        "variant": "Pintasan lama. danger = primary + destructive; custom = tanpa warna WDS (warna dari className).",
+        "iconLegacy": "Pintasan lama untuk satu ikon.",
+        "disabled": "Menonaktifkan tombol (state disabled WDS).",
+        "testId": "Dipetakan ke data-testid.",
+        "rest": "onClick, type, aria-*, dst. diteruskan ke <button>."
+      },
+      "tokens": {
+        "--wds-bg-brand": "Latar primary (default).",
+        "--wds-bg-brand-hover": "Latar primary saat hover.",
+        "--wds-bg-brand-pressed-strong": "Latar primary saat ditekan.",
+        "--wds-bg-danger": "Latar destructive primary.",
+        "--wds-text-on-brand": "Warna teks di atas brand.",
+        "--wds-stroke-brand": "Border secondary.",
+        "--wds-stroke-focus": "Warna cincin fokus.",
+        "--wds-bg-disabled": "Latar saat disabled.",
+        "--wds-text-disabled": "Teks saat disabled.",
+        "--wds-sz-padding-left": "Padding horizontal (ikut ukuran).",
+        "--wds-sz-padding-top": "Padding vertikal (ikut ukuran).",
+        "--wds-sz-radius-all": "Radius bentuk box.",
+        "--wds-sz-gap": "Jarak ikon–label.",
+        "--wds-sz-icon-size": "Ukuran ikon.",
+        "--wds-sz-text-label-font-size": "Ukuran teks label.",
+        "--wds-sz-width": "Lebar minimum tombol.",
+        "--wds-sz-focus-stroke": "Tebal cincin fokus."
+      },
+      "behavior": [
+        "Hover, pressed, fokus, dan disabled berasal dari token state WDS (Button states): :hover, :active, :focus-visible, :disabled.",
+        "Cincin fokus hanya muncul untuk fokus keyboard (:focus-visible): stroke 1px di luar tombol dengan jarak 2px.",
+        "Disabled: kursor not-allowed, tidak bisa difokus atau diklik, warna dari token disabled.",
+        "Lebar minimum mengikuti token Size (44px pada md); lebar mengikuti isi (hug).",
+        "Label memakai Inter Medium (500) sesuai node Figma.",
+        "`type` tidak diset otomatis: di dalam <form>, tombol bertipe submit. Pakai type=\"button\" untuk aksi biasa.",
+        "Warna brand ikut pilihan warna primary di Settings (state hover/pressed diturunkan)."
+      ],
+      "accessibility": [
+        "Tombol ikon saja (iconOnly) wajib memiliki aria-label.",
+        "Gunakan elemen <button> asli sehingga Enter dan Spasi bekerja bawaan browser.",
+        "Cincin fokus tetap terlihat di semua hierarchy; jangan menghapus outline lewat className.",
+        "Pastikan kontras label terhadap latar sesuai token (teks on-brand di atas bg brand)."
+      ],
+      "guidelines": {
+        "do": [
+          "Satu tombol primary per area/aksi utama.",
+          "Gunakan label berupa kata kerja yang jelas (Simpan, Hapus).",
+          "Pakai destructive untuk aksi yang menghapus data."
+        ],
+        "dont": [
+          "Jangan menumpuk beberapa tombol primary berdampingan.",
+          "Jangan memakai variant=\"custom\" untuk meniru hierarchy yang sudah ada.",
+          "Jangan menaruh teks panjang; tombol tidak dirancang untuk beberapa baris."
+        ]
+      }
+    },
+    "checkbox": {
+      "summary": "Checkbox WDS untuk opsi yang berdiri sendiri. Dua gaya (outline, solid), lima ukuran, state campuran, baris hint, serta state error / disabled / fokus dari token desain.",
+      "figma": {
+        "label": {
+          "values": "teks bebas",
+          "note": "Default Figma: “Remember me”."
+        },
+        "supporting": {
+          "values": "teks bebas",
+          "note": "Tampil di bawah label; pesan error menggantikannya."
+        },
+        "style": {
+          "note": "Outline: border dan tanda biru, tanpa isi. Solid: terisi warna info dengan tanda putih."
+        },
+        "states": {
+          "note": "Diturunkan dari props dan interaksi; fokus ortogonal (cincin di sekeliling kontrol)."
+        },
+        "size": {
+          "note": "Kontrol 16/20/24/28/32px; jarak 8/10/12/12/16px."
+        },
+        "types": {
+          "note": "Icon only = tanpa label (kosongkan prop label)."
+        },
+        "modes": {
+          "note": "Mode Hint menurunkan kontrol 2px agar sejajar baris label."
+        },
+        "focus": {
+          "values": "stroke 1px di luar, jarak 2px",
+          "note": "Hanya tampil untuk fokus keyboard."
+        },
+        "tick": {
+          "note": "Sama dengan prop value; tidak ada prop tambahan."
+        }
+      },
+      "examples": {
+        "sizes": {
+          "title": "Ukuran"
+        },
+        "hint": {
+          "title": "Hint",
+          "description": "Dengan dan tanpa teks pendukung."
+        },
+        "appearance": {
+          "title": "Style",
+          "description": "Outline berborder dan bertanda biru; Solid terisi."
+        }
+      },
+      "matrices": {
+        "states": "Style × state"
+      },
+      "props": {
+        "value": "State saat ini (controlled).",
+        "onChange": "Dipanggil dengan nilai baru.",
+        "label": "Label di samping kontrol; kosongkan untuk kontrol ikon saja.",
+        "hint": "Teks pendukung di bawah label (digantikan pesan error).",
+        "appearance": "Figma Style: outline (default) atau solid (terisi).",
+        "size": "Ukuran dari token Size (kotak, jarak, teks).",
+        "indeterminate": "State campuran (strip) — didahulukan dari checked.",
+        "disabled": "State disabled (disabled-off / disabled-on, opasitas 40%).",
+        "error": "Pesan error: state error + teks di slot hint.",
+        "className": "Class pada pembungkus luar.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Border saat tidak dipilih.",
+        "--wds-stroke-info": "Border saat dipilih.",
+        "--wds-bg-info": "Isi gaya solid (dan track toggle) saat dipilih.",
+        "--wds-bg-subtle-3": "Track toggle saat mati.",
+        "--wds-icons-on-brand": "Warna tanda di atas isi solid (centang, titik, thumb).",
+        "--wds-stroke-danger": "Border pada state error.",
+        "--wds-text-secondary": "Teks label.",
+        "--wds-text-tertiary": "Teks hint / pendukung.",
+        "--wds-sz-selection-controls-width": "Ukuran kontrol (ikut size).",
+        "--wds-sz-selection-controls-stroke": "Tebal border.",
+        "--wds-sz-selection-controls-gap": "Jarak kontrol–teks.",
+        "--wds-sz-selection-controls-radius-all": "Radius sudut (checkbox).",
+        "--wds-stroke-focus": "Warna cincin fokus."
+      },
+      "behavior": [
+        "Klik kotak atau label untuk mengubah; Spasi mengubah saat terfokus.",
+        "`indeterminate` menampilkan strip dan didahulukan dari `checked` (mis. “pilih semua” dengan pilihan sebagian).",
+        "Disabled mempertahankan tampilan terpilih/tidak dengan opasitas 40% (disabled-on / disabled-off).",
+        "State error berlaku untuk kotak yang belum dipilih; kotak terpilih tetap terisi dan hanya border yang merah.",
+        "Pesan error menggantikan hint di bawah label dan memakai warna danger.",
+        "Ukuran mengikuti token Size (16–32px); cincin fokus berupa stroke 1px dengan jarak 2px, hanya untuk fokus keyboard."
+      ],
+      "accessibility": [
+        "Gunakan label sungguhan (prop label) agar kontrol punya nama aksesibel; kontrol ikon saja perlu aria-label pada konteksnya.",
+        "Pertahankan input native: ia menyediakan keyboard, fokus, dan semantik form (kotak visual hanya dekorasi).",
+        "Error diumumkan lewat role=\"alert\" di slot hint; kontrol tidak valid memakai aria-invalid.",
+        "Jangan hanya mengandalkan warna: tanda (centang, titik, posisi thumb) juga menunjukkan state."
+      ],
+      "guidelines": {
+        "do": [
+          "Pakai checkbox untuk opsi ya/tidak yang berdiri sendiri dan daftar multi-pilih.",
+          "Pakai radio untuk satu pilihan di antara beberapa opsi.",
+          "Pakai toggle untuk pengaturan yang langsung berlaku."
+        ],
+        "dont": [
+          "Jangan pakai checkbox/radio di tempat yang diharapkan berefek langsung seperti toggle.",
+          "Jangan pakai toggle di form yang butuh langkah Simpan.",
+          "Jangan memakai label panjang; cukup satu atau dua baris."
+        ]
+      }
+    },
+    "toggle": {
+      "summary": "Toggle WDS untuk pengaturan yang langsung berlaku. Lima ukuran, label dinamis atau statis, baris hint, serta state error / disabled / fokus dari token desain.",
+      "figma": {
+        "label": {
+          "values": "teks bebas",
+          "note": "Default Figma: “Remember me”."
+        },
+        "supporting": {
+          "values": "teks bebas",
+          "note": "Tampil di bawah label; pesan error menggantikannya."
+        },
+        "style": {
+          "note": "Outline: border dan tanda biru, tanpa isi. Solid: terisi warna info dengan tanda putih."
+        },
+        "states": {
+          "note": "Diturunkan dari props dan interaksi; fokus ortogonal (cincin di sekeliling kontrol)."
+        },
+        "size": {
+          "note": "Kontrol 16/20/24/28/32px; jarak 8/10/12/12/16px."
+        },
+        "types": {
+          "note": "Icon only = tanpa label (kosongkan prop label)."
+        },
+        "modes": {
+          "note": "Mode Hint menurunkan kontrol 2px agar sejajar baris label."
+        },
+        "focus": {
+          "values": "stroke 1px di luar, jarak 2px",
+          "note": "Hanya tampil untuk fokus keyboard."
+        },
+        "tick": {
+          "note": "Sama dengan prop value; tidak ada prop tambahan."
+        }
+      },
+      "examples": {
+        "sizes": {
+          "title": "Ukuran"
+        },
+        "hint": {
+          "title": "Hint",
+          "description": "Dengan dan tanpa teks pendukung."
+        }
+      },
+      "matrices": {
+        "states": "State"
+      },
+      "props": {
+        "value": "State saat ini (controlled).",
+        "onChange": "Dipanggil dengan nilai baru.",
+        "label": "Label: `switchLabel` (statis) atau `checkedLabel` / `uncheckedLabel` (mengikuti nilai).",
+        "hint": "Teks pendukung di bawah label (digantikan pesan error).",
+        "appearance": "Figma Style: outline (default) atau solid (terisi).",
+        "size": "Ukuran dari token Size (kotak, jarak, teks).",
+        "indeterminate": "State campuran (strip) — didahulukan dari checked.",
+        "disabled": "State disabled (disabled-off / disabled-on, opasitas 40%).",
+        "error": "Pesan error: state error + teks di slot hint.",
+        "className": "Class pada pembungkus luar.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Border saat tidak dipilih.",
+        "--wds-stroke-info": "Border saat dipilih.",
+        "--wds-bg-info": "Isi gaya solid (dan track toggle) saat dipilih.",
+        "--wds-bg-subtle-3": "Track toggle saat mati.",
+        "--wds-icons-on-brand": "Warna tanda di atas isi solid (centang, titik, thumb).",
+        "--wds-stroke-danger": "Border pada state error.",
+        "--wds-text-secondary": "Teks label.",
+        "--wds-text-tertiary": "Teks hint / pendukung.",
+        "--wds-sz-selection-controls-width": "Ukuran kontrol (ikut size).",
+        "--wds-sz-selection-controls-stroke": "Tebal border.",
+        "--wds-sz-selection-controls-gap": "Jarak kontrol–teks.",
+        "--wds-sz-selection-controls-radius-all": "Radius sudut (checkbox).",
+        "--wds-stroke-focus": "Warna cincin fokus."
+      },
+      "behavior": [
+        "Klik track atau label untuk mengganti; Spasi mengubah saat terfokus (role=\"switch\").",
+        "Track 1,8× tinggi dan thumb 0,8× (Figma 43,2×24 dan 19,2px pada md).",
+        "`checkedLabel` / `uncheckedLabel` mengganti label mengikuti nilai; `switchLabel` label statis.",
+        "Disabled mempertahankan tampilan on/off dengan opasitas 40%. Figma mengosongkan isi state off, jadi isi track tak terpilih dipertahankan agar thumb tetap terlihat.",
+        "Pesan error menggantikan hint di bawah label dan memakai warna danger.",
+        "Cincin fokus berupa stroke 1px dengan jarak 2px, hanya untuk fokus keyboard."
+      ],
+      "accessibility": [
+        "Gunakan label sungguhan (prop label) agar kontrol punya nama aksesibel; kontrol ikon saja perlu aria-label pada konteksnya.",
+        "Pertahankan input native: ia menyediakan keyboard, fokus, dan semantik form (kotak visual hanya dekorasi).",
+        "Error diumumkan lewat role=\"alert\" di slot hint; kontrol tidak valid memakai aria-invalid.",
+        "Jangan hanya mengandalkan warna: tanda (centang, titik, posisi thumb) juga menunjukkan state."
+      ],
+      "guidelines": {
+        "do": [
+          "Pakai checkbox untuk opsi ya/tidak yang berdiri sendiri dan daftar multi-pilih.",
+          "Pakai radio untuk satu pilihan di antara beberapa opsi.",
+          "Pakai toggle untuk pengaturan yang langsung berlaku."
+        ],
+        "dont": [
+          "Jangan pakai checkbox/radio di tempat yang diharapkan berefek langsung seperti toggle.",
+          "Jangan pakai toggle di form yang butuh langkah Simpan.",
+          "Jangan memakai label panjang; cukup satu atau dua baris."
+        ]
+      }
+    },
+    "radio-button": {
+      "summary": "RadioButton WDS untuk satu pilihan. Dua gaya (outline, solid), lima ukuran, baris hint, serta state error / disabled / fokus dari token desain.",
+      "figma": {
+        "label": {
+          "values": "teks bebas",
+          "note": "Default Figma: “Remember me”."
+        },
+        "supporting": {
+          "values": "teks bebas",
+          "note": "Tampil di bawah label; pesan error menggantikannya."
+        },
+        "style": {
+          "note": "Outline: border dan tanda biru, tanpa isi. Solid: terisi warna info dengan tanda putih."
+        },
+        "states": {
+          "note": "Diturunkan dari props dan interaksi; fokus ortogonal (cincin di sekeliling kontrol)."
+        },
+        "size": {
+          "note": "Kontrol 16/20/24/28/32px; jarak 8/10/12/12/16px."
+        },
+        "types": {
+          "note": "Icon only = tanpa label (kosongkan prop label)."
+        },
+        "modes": {
+          "note": "Mode Hint menurunkan kontrol 2px agar sejajar baris label."
+        },
+        "focus": {
+          "values": "stroke 1px di luar, jarak 2px",
+          "note": "Hanya tampil untuk fokus keyboard."
+        },
+        "tick": {
+          "note": "Sama dengan prop value; tidak ada prop tambahan."
+        }
+      },
+      "examples": {
+        "sizes": {
+          "title": "Ukuran"
+        },
+        "hint": {
+          "title": "Hint",
+          "description": "Dengan dan tanpa teks pendukung."
+        },
+        "appearance": {
+          "title": "Style",
+          "description": "Outline berborder dan bertanda biru; Solid terisi."
+        }
+      },
+      "matrices": {
+        "states": "Style × state"
+      },
+      "props": {
+        "value": "Apakah opsi ini terpilih.",
+        "onChange": "Dipanggil dengan nilai baru.",
+        "label": "Label di samping kontrol; kosongkan untuk kontrol ikon saja.",
+        "hint": "Teks pendukung di bawah label (digantikan pesan error).",
+        "appearance": "Figma Style: outline (default) atau solid (terisi).",
+        "size": "Ukuran dari token Size (kotak, jarak, teks).",
+        "indeterminate": "State campuran (strip) — didahulukan dari checked.",
+        "disabled": "State disabled (disabled-off / disabled-on, opasitas 40%).",
+        "error": "Pesan error: state error + teks di slot hint.",
+        "className": "Class pada pembungkus luar.",
+        "testId": "Dipetakan ke data-testid.",
+        "radioValue": "Nilai native opsi ini."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Border saat tidak dipilih.",
+        "--wds-stroke-info": "Border saat dipilih.",
+        "--wds-bg-info": "Isi gaya solid (dan track toggle) saat dipilih.",
+        "--wds-bg-subtle-3": "Track toggle saat mati.",
+        "--wds-icons-on-brand": "Warna tanda di atas isi solid (centang, titik, thumb).",
+        "--wds-stroke-danger": "Border pada state error.",
+        "--wds-text-secondary": "Teks label.",
+        "--wds-text-tertiary": "Teks hint / pendukung.",
+        "--wds-sz-selection-controls-width": "Ukuran kontrol (ikut size).",
+        "--wds-sz-selection-controls-stroke": "Tebal border.",
+        "--wds-sz-selection-controls-gap": "Jarak kontrol–teks.",
+        "--wds-sz-selection-controls-radius-all": "Radius sudut (checkbox).",
+        "--wds-stroke-focus": "Warna cincin fokus."
+      },
+      "behavior": [
+        "Klik kontrol atau label memilih opsi; tombol panah berpindah dalam grup radio native.",
+        "RadioButton tidak bisa dibatalkan dengan klik ulang.",
+        "Gunakan RadioButtonGroup untuk sekumpulan opsi: satu pesan error di bawah grup.",
+        "Outline menampilkan titik berwarna 12px; Solid menampilkan lingkaran terisi dengan titik putih 8px.",
+        "Disabled mempertahankan tampilan terpilih/tidak dengan opasitas 40%.",
+        "Cincin fokus berupa stroke 1px dengan jarak 2px, hanya untuk fokus keyboard."
+      ],
+      "accessibility": [
+        "Gunakan label sungguhan (prop label) agar kontrol punya nama aksesibel; kontrol ikon saja perlu aria-label pada konteksnya.",
+        "Pertahankan input native: ia menyediakan keyboard, fokus, dan semantik form (kotak visual hanya dekorasi).",
+        "Error diumumkan lewat role=\"alert\" di slot hint; kontrol tidak valid memakai aria-invalid.",
+        "Jangan hanya mengandalkan warna: tanda (centang, titik, posisi thumb) juga menunjukkan state."
+      ],
+      "guidelines": {
+        "do": [
+          "Pakai checkbox untuk opsi ya/tidak yang berdiri sendiri dan daftar multi-pilih.",
+          "Pakai radio untuk satu pilihan di antara beberapa opsi.",
+          "Pakai toggle untuk pengaturan yang langsung berlaku."
+        ],
+        "dont": [
+          "Jangan pakai checkbox/radio di tempat yang diharapkan berefek langsung seperti toggle.",
+          "Jangan pakai toggle di form yang butuh langkah Simpan.",
+          "Jangan memakai label panjang; cukup satu atau dua baris."
+        ]
+      }
+    }
+  }
+}

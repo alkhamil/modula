@@ -141,7 +141,7 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig, label: string = fie
   return rules;
 }
 
-/** Batas maxLength prop TextField (string non-number saja). */
+/** Batas maxLength prop InputField (string non-number saja). */
 export function maxLengthOf(field: GeneratorFieldConfig): number | null {
   if (fieldTypeRegistry[field.type].formType !== 'string') return null;
   for (const raw of field.rules) {

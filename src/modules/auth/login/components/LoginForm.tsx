@@ -5,7 +5,7 @@ import {
   Button,
   Card,
   PasswordField,
-  TextField,
+  InputField,
 } from '../../../../shared/components/ui';
 
 interface LoginFormProps {
@@ -37,7 +37,7 @@ function LoginForm({
         {error && <Alert variant="error" message={error} />}
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground">{t('auth.username')}</label>
-          <TextField
+          <InputField
             value={username}
             onChange={(e) => onUsernameChange(e.target.value)}
             placeholder="admin"

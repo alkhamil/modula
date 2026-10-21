@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, TextField } from '../../../shared/components/ui';
+import { Alert, InputField } from '../../../shared/components/ui';
 import type { GeneratorConfig, ModuleI18nDict } from '../types';
 import { buildModuleLocales, flattenLocale, mergeLocales, unflattenLocale } from '../engine/i18nGenerator';
 
@@ -99,7 +99,7 @@ function TranslationStep({ config, i18n, onI18nChange }: TranslationStepProps) {
       <Alert variant="info" message={t('translation.manualNote')} />
       <div className="flex flex-wrap items-end gap-2">
         <div className="w-72">
-          <TextField
+          <InputField
             data-testid="translation-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -121,7 +121,7 @@ function TranslationStep({ config, i18n, onI18nChange }: TranslationStepProps) {
                 <span className="font-mono text-xs text-muted-foreground">{key}</span>
                 <span className="text-xs text-foreground">{enFlat[key]}</span>
               </div>
-              <TextField
+              <InputField
                 data-testid={`translation-field-${key}`}
                 value={storedId[key] ?? ''}
                 onChange={(e) => handleInput(key, e.target.value)}

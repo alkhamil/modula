@@ -1,4 +1,4 @@
-import { Settings } from 'lucide-react';
+import { Settings } from '../../shared/components/icons';
 import type { ModuleNavEntry } from '../../shared/types/navigation';
 
 export const generatorNav: ModuleNavEntry = {

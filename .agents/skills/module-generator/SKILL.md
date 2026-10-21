@@ -21,7 +21,7 @@ dibuat di Form Canvas via palet (validasi minimal 1 field di langkah
 kanvas). Draft autosave ke localStorage tiap langkah (`builder/draft.ts`);
 **Simpan sebagai Draft** atau **Publish**. Translation = preview
 `en.json` otomatis (`buildModuleLocales`) + editor manual per key
-(`TextField` + pencarian) untuk bahasa `id`; terisi disimpan ke
+(`InputField` + pencarian) untuk bahasa `id`; terisi disimpan ke
 draft/definisi (`i18n.id`, key dot `"<base>..."`), kosong = fallback `en`;
 dipakai Generate-to-repo untuk `i18n/id.json`. Review (langkah akhir)
 tanpa editor translasi.
@@ -71,14 +71,16 @@ dicegah `mergeNavItems` (statis menang, anak grup digabung per path).
   `entityPlural`, `routeBase` (parent + plural, mis.
   `mater-data/companies`), `apiPlural` flat (`companies`).
 - `type: 'crud'` — registry di `registry/moduleTypes.ts`.
-- `menuIcon?: {name}` — satu ikon menu (nama komponen `lucide-react`,
-  mis. `Users`; validasi pola `MENU_ICON_NAME_RE`). Mapping otomatis:
+- `menuIcon?: {name}` — satu ikon menu (nama ikon WDS PascalCase, mis.
+  `UsersGroupRounded`; divalidasi ke `shared/components/icons/names.ts`).
+  Nama lucide lama di definisi tersimpan dipetakan `cleanMenuIcon`
+  (`definitions/normalize.ts`), yang tak dikenal dibuang. Mapping otomatis:
   menempel di menu modul bila root, di grup parent bila ber-parent
   (grup = definisi pertama urut label yang mengaturnya). Diatur lewat
-  popup `IconPickerDialog` (listing + pencarian ikon lucide, baris Ikon
+  popup `IconPickerDialog` (listing + pencarian ikon WDS, baris Ikon
   menu di Module Info, langkah Config); render via `ModuleMenuIcon`
-  (fallback `Database`), dipakai juga di nav statis hasil Generate
-  (nama dicek ke map `icons`, import lucide dikelola otomatis).
+  (`WdsIcon`, fallback `Database`), dipakai juga di `navigation.tsx` hasil
+  Generate (`<WdsIcon name="…" />`).
 - `permissionKey` — wajib, single value tanpa titik (mis. `region`;
   regex `^[a-z][a-z0-9_]*$`, maks 100 char). Runtime menurunkan
   `{base}.view/.create/.update/.delete/.bulk_upload/.export`.
@@ -146,7 +148,7 @@ dicegah `mergeNavItems` (statis menang, anak grup digabung per path).
   Data dipakai memvalidasi tampilan List/Detail.
 - **List Canvas** (`builder/ListBuilderCanvas.tsx`): cerminan halaman
   list asli tanpa tab — Card judul + tombol Create/Bulk/Export (demo
-  toast), `FilterToolbar` fungsional (search + filter drawer ke data
+  toast), `TableToolbar` fungsional (search + filter drawer ke data
   contoh via `filtering.ts`), tabel sungguhan (kolom sistem Created
   By/Created Date/Status ikut bisa diseret + klik header Aksi membuka
   drawer aksi baris; kolom aksi bisa kiri/kanan via
@@ -175,7 +177,7 @@ dicegah `mergeNavItems` (statis menang, anak grup digabung per path).
 - State antar langkah = `ModuleLayout` apa adanya; mutasi via
   `runtime/layoutOps.ts` (termasuk `setTableWidth`, `moveDetail`,
   `toggleDetail`).
-- Jangan ubah `PageHeader`/`Sidebar`; kanvas hidup di dalam
+- Jangan ubah `PageHeader`/`SideNavbar`; kanvas hidup di dalam
   `PageContent` wizard saja.
 
 ## Render runtime (routes/nav dinamis)
@@ -268,7 +270,7 @@ dicegah `mergeNavItems` (statis menang, anak grup digabung per path).
 - `EditorField` — TipTap (`@tiptap/react` + starter-kit) bertema
   design system; toolbar Bold/Italic/daftar/kutipan; nilai HTML.
   Sel tabel/detail memakai `stripHtml` (shared/utils).
-- `FileUploadField` — state initial → progress simulasi (mock-only)
+- `FileUpload` — state initial → progress simulasi (mock-only)
   → uploaded (nama + ukuran + hapus per file); `multiple` menambah
   (append) dan menampilkan daftar; testid `data-testid` mengikuti
   pola field lain.

@@ -1,7 +1,27 @@
 import type { RouteObject } from 'react-router';
-import { TypographyPage, ColorsPage, UiPage } from './index';
+import { TypographyPage, ColorsPage, UiPage, ComponentsIndexPage, ComponentDocPage } from './index';
 
 export const showcaseRoutes: RouteObject[] = [
+  {
+    path: 'components',
+    element: <ComponentsIndexPage />,
+    handle: {
+      breadcrumb: [
+        { label: 'Component', labelKey: 'nav.components' },
+        { label: 'Docs', labelKey: 'nav.docs' },
+      ],
+    },
+  },
+  {
+    path: 'components/:slug',
+    element: <ComponentDocPage />,
+    handle: {
+      breadcrumb: [
+        { label: 'Component', labelKey: 'nav.components' },
+        { label: 'Docs', labelKey: 'nav.docs', path: '/components' },
+      ],
+    },
+  },
   {
     path: 'components/typography',
     element: <TypographyPage />,

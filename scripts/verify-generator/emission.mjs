@@ -448,25 +448,27 @@ expectIn(parentNavCode, "labelKey: 'childmod.parentLabel'", 'reg-parent-key');
 expectIn(parentNavCode, "label: 'Master Data'", 'reg-parent-fallback');
 // Tanpa parent: tidak ada key parentLabel.
 expectEq('parentLabel' in enJson.i18nprobe, false, 'locale-no-parent');
-// Ikon nav: nama lucide dari config dipakai di snippet; default Database.
-const iconConfig = { ...probeConfig, menuIcon: { name: 'Users' } };
+// Ikon nav: nama ikon WDS dari config dipakai di navigation.tsx; default Database.
+const iconConfig = { ...probeConfig, menuIcon: { name: 'UsersGroupRounded' } };
 const iconReg = reg.buildRegistration(iconConfig);
-expectEq(iconReg.iconName, 'Users', 'reg-icon-name');
+expectEq(iconReg.iconName, 'UsersGroupRounded', 'reg-icon-name');
 const iconNavCode = mg.generateModule(iconConfig).find((f) => f.path.endsWith('/navigation.tsx')).content;
-expectIn(iconNavCode, "import { Users } from 'lucide-react';", 'reg-icon-import');
-expectIn(iconNavCode, '<Users className="h-5 w-5" />', 'reg-icon-code');
+expectIn(iconNavCode, "import { WdsIcon } from '../../shared/components/icons';", 'reg-icon-import');
+expectIn(iconNavCode, '<WdsIcon name="UsersGroupRounded" className="h-5 w-5" />', 'reg-icon-code');
 const noIconReg = reg.buildRegistration(probeConfig);
 expectEq(noIconReg.iconName, 'Database', 'reg-icon-default');
-// Registrasi (vite-plugin): validasi ikon + sisip/hapus satu import & satu entri.
+// Nama ikon tak dikenal (mis. nama lucide lama / injeksi) jatuh ke Database.
+const badIconReg = reg.buildRegistration({ ...probeConfig, menuIcon: { name: 'x;evil()' } });
+expectEq(badIconReg.iconName, 'Database', 'reg-icon-evil');
+const unknownIconReg = reg.buildRegistration({ ...probeConfig, menuIcon: { name: 'NotAnIcon' } });
+expectEq(unknownIconReg.iconName, 'Database', 'reg-icon-unknown');
+// Definisi lama dengan nama lucide dipetakan ke WDS; nama asing dibuang.
+const norm = jiti(`${ROOT}/src/modules/generator/definitions/normalize.ts`);
+expectEq(norm.cleanMenuIcon({ name: 'Users' })?.name, 'UsersGroupRounded', 'icon-legacy-map');
+expectEq(norm.cleanMenuIcon({ name: 'Database' })?.name, 'Database', 'icon-wds-kept');
+expectEq(norm.cleanMenuIcon({ name: 'NotAnIcon' }), undefined, 'icon-unknown-dropped');
+// Registrasi (vite-plugin): sisip/hapus satu import & satu entri.
 const mr = jiti(`${ROOT}/vite-plugin/moduleRegistration.ts`);
-expectEq(mr.resolveNavIconName('Users'), 'Users', 'icon-known');
-expectEq(mr.resolveNavIconName('NotAnIcon'), 'Database', 'icon-unknown');
-expectEq(mr.resolveNavIconName('x;evil()'), 'Database', 'icon-evil');
-const badIconNav = "import { NotAnIcon } from 'lucide-react';\nicon: <NotAnIcon className=\"h-5 w-5\" />,\n";
-const fixedIconNav = mr.sanitizeModuleNavIcon(badIconNav);
-expectIn(fixedIconNav, "import { Database } from 'lucide-react';", 'sanitize-icon-import');
-expectIn(fixedIconNav, '<Database className="h-5 w-5" />', 'sanitize-icon-jsx');
-expectEq(mr.sanitizeModuleNavIcon(iconNavCode), iconNavCode, 'sanitize-icon-known-kept');
 
 const hostReg = reg.buildRegistration({ ...probeConfig, moduleName: 'Probe', permissionKey: 'probe' });
 const hostRouter = `import a from 'a';
@@ -549,12 +551,12 @@ const iconDef = {
   moduleType: 'crud',
   permissionKey: 'region',
   features: {},
-  menuIcon: { name: 'Users' },
+  menuIcon: { name: 'UsersGroupRounded' },
   fields: [],
   layout: { table: { order: [], hidden: [] } },
 };
 const iconCfg = fd.definitionToConfig(iconDef);
-expectEq(iconCfg.menuIcon?.name, 'Users', 'fromdef-menuicon');
+expectEq(iconCfg.menuIcon?.name, 'UsersGroupRounded', 'fromdef-menuicon');
 // definitionToConfig mempertahankan layout form kanvas (regresi section/grid hilang saat publish ulang).
 const layoutDef = {
   ...iconDef,
@@ -572,7 +574,7 @@ expectEq(layoutCfg.formLayout?.[0]?.kind, 'section', 'fromdef-formlayout-section
 expectEq(layoutCfg.formLayout?.[1]?.colSpan, 6, 'fromdef-formlayout-span');
 const rg = jiti(`${ROOT}/src/modules/generator/engine/registration.ts`);
 const menuReg = rg.buildRegistration(iconCfg);
-expectEq(menuReg.iconName, 'Users', 'registration-iconname');
+expectEq(menuReg.iconName, 'UsersGroupRounded', 'registration-iconname');
 
 // setTableProps: patch size/warna ikon aksi kanvas tersimpan (regresi dropdown kartu Ikon aksi).
 const ops = jiti(`${ROOT}/src/modules/generator/runtime/layoutOps.ts`);

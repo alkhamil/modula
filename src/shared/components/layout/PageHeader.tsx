@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { NavLink } from 'react-router';
-import { Menu } from 'lucide-react';
+import { HamburgerMenu } from '../icons';
 
 export interface BreadcrumbItem {
   label: string;
@@ -14,7 +14,7 @@ interface PageHeaderProps {
   breadcrumb?: BreadcrumbItem[];
   actions?: ReactNode;
   onMenuToggle?: () => void;
-  /** Konten sisi kanan (mis. `<AvatarUser />`). */
+  /** Konten sisi kanan (mis. `<Profile />`). */
   children?: ReactNode;
   testId?: string;
 }
@@ -34,7 +34,7 @@ function PageHeader({
     >
       {onMenuToggle && (
         <button onClick={onMenuToggle} className="mr-4 md:hidden" aria-label="Toggle menu">
-          <Menu className="h-6 w-6" />
+          <HamburgerMenu className="h-6 w-6" />
         </button>
       )}
 

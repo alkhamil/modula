@@ -39,7 +39,7 @@ Aturan arah: modul memakai shared/library, tidak sebaliknya.
 ### Base code vs library UI
 
 - Base (ikut tiap project baru): `FormGroup`, `FormItem`, `FormArray` — mesin form. `FormGroup` hanya membungkus React Hook Form (`FormProvider` + `<form>`), `FormItem` mengikat field via `Controller`, `FormArray` mengatur `useFieldArray` (append/remove). Tanpa visual khas design system.
-- Library UI (versioned, dari design system): input visual (`TextField`, `Select`, ...), layout, dan token thema. Form modul selalu disusun sebagai `FormGroup` > `FormItem`/`FormArray` > komponen library.
+- Library UI (versioned, dari design system): input visual (`InputField`, `Select`, ...), layout, dan token thema. Form modul selalu disusun sebagai `FormGroup` > `FormItem`/`FormArray` > komponen library.
 
 ## 5. Contoh 1 — modul parent tunggal
 

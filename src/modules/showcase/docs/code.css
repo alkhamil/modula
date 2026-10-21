@@ -1,0 +1,22 @@
+/*
+ * Palet highlight kode dokumentasi — dari token WDS (primitif), ikut mode terang/gelap.
+ */
+:root {
+  --code-keyword: var(--wds-primary-500);
+  --code-attr: var(--wds-info-600);
+  --code-string: var(--wds-success-600);
+  --code-number: var(--wds-warning-600);
+  --code-comment: var(--wds-neutral-500);
+  --code-punct: var(--wds-neutral-600);
+  --code-type: var(--wds-secondary-600);
+}
+
+:root[data-theme='dark'] {
+  --code-keyword: var(--wds-primary-300);
+  --code-attr: var(--wds-info-300);
+  --code-string: var(--wds-success-300);
+  --code-number: var(--wds-warning-300);
+  --code-comment: var(--wds-neutral-400);
+  --code-punct: var(--wds-neutral-300);
+  --code-type: var(--wds-secondary-300);
+}

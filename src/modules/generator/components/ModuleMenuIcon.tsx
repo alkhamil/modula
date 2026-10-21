@@ -1,27 +1,22 @@
-import { Database, icons } from 'lucide-react';
+import { WdsIcon } from '../../../shared/components/icons';
+import { isWdsIcon, WDS_ICON_NAMES } from '../../../shared/components/icons/names';
 
 const FALLBACK_NAME = 'Database';
 
-/** Daftar nama ikon lucide-react yang bisa dipilih (diurut abjad). */
-export const LUCIDE_ICON_NAMES: readonly string[] = Object.keys(icons).sort((a, b) =>
-  a.localeCompare(b),
-);
+/** Daftar nama ikon WDS yang bisa dipilih (diurut abjad). */
+export const MENU_ICON_NAMES: readonly string[] = WDS_ICON_NAMES;
 
 /** Cek nama ikon dikenal (untuk sanitasi sebelum emit kode). */
-export function isKnownLucideIcon(name: string): boolean {
-  return Object.hasOwn(icons, name);
-}
+export const isKnownMenuIcon = isWdsIcon;
 
 interface ModuleMenuIconProps {
   name?: string | null;
   className?: string;
 }
 
-/** Ikon menu modul dari nama lucide; fallback `Database` bila tak dikenal. */
+/** Ikon menu modul dari nama WDS; fallback `Database` bila tak dikenal. */
 function ModuleMenuIcon({ name, className }: ModuleMenuIconProps) {
-  const key = name?.trim() ?? '';
-  const Known = (isKnownLucideIcon(key) ? icons[key as keyof typeof icons] : Database) as typeof Database;
-  return <Known className={className} />;
+  return <WdsIcon name={name} fallback={FALLBACK_NAME} className={className} />;
 }
 
 export default ModuleMenuIcon;

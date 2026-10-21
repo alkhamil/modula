@@ -4,7 +4,7 @@ import { RowActionButton, Table } from '../../../shared/components/ui';
 import type { Column } from '../../../shared/components/ui/Table';
 import type { ModuleDefinition } from '../definitions';
 import type { GeneratorFieldConfig } from '../types';
-import type { LoadOptionsFn } from '../../../shared/components/ui/fields/SelectField';
+import type { LoadOptionsFn } from '../../../shared/components/ui/fields/Select';
 import { definitionTestId, type DynamicListItem } from './types';
 import { columnRenderForType, staticOptionsOf, systemTableColumn } from './cellRender';
 import { useDynamicOptions } from './hooks';

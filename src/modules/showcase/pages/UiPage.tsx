@@ -5,7 +5,7 @@ import {
   Button,
   DetailCard,
   Dialog,
-  FilterToolbar,
+  TableToolbar,
   FormGroup,
   FormItem,
   FormSkeleton,
@@ -13,22 +13,22 @@ import {
   Table,
   Tooltip,
   useToast,
-  TextField,
-  TextAreaField,
+  InputField,
+  Textarea,
   PasswordField,
-  SelectField,
-  SelectMultipleField,
-  RadioGroupField,
-  RadioButtonField,
-  CheckboxField,
-  CheckboxGroupField,
-  SwitchField,
-  DatePickerField,
-  DateRangeField,
-  FileUploadField,
+  Select,
+  SelectMultiple,
+  RadioButtonGroup,
+  RadioButton,
+  Checkbox,
+  CheckboxGroup,
+  Toggle,
+  DatePicker,
+  DateRangePicker,
+  FileUpload,
   type Column,
 } from '../../../shared/components/ui';
-import { Pencil, Plus, Eye } from 'lucide-react';
+import { AddCircle, Eye, Pen } from '../../../shared/components/icons';
 import DocSection from '../components/DocSection';
 
 interface User {
@@ -149,7 +149,7 @@ function UiPage() {
           <Button variant="secondary">Secondary</Button>
           <Button size="sm">Kecil</Button>
           <Button size="lg">Besar</Button>
-          <Button icon={<Plus />}>Dengan ikon</Button>
+          <Button icon={<AddCircle />}>Dengan ikon</Button>
           <Button disabled>Disabled</Button>
         </div>
       </DocSection>
@@ -173,10 +173,10 @@ function UiPage() {
       </DocSection>
 
       <DocSection
-        title="Table + FilterToolbar"
-        description="Table generik dengan sortir, paging, aksi baris, dan state kosong/loading/error. FilterToolbar menyediakan pencarian + filter drawer."
+        title="Table + TableToolbar"
+        description="Table generik dengan sortir, paging, aksi baris, dan state kosong/loading/error. TableToolbar menyediakan pencarian + filter drawer."
       >
-        <FilterToolbar
+        <TableToolbar
           searchValue={search}
           onSearchChange={(v) => {
             setSearch(v);
@@ -235,7 +235,7 @@ function UiPage() {
                   className="rounded p-1 text-muted-foreground hover:bg-muted"
                   onClick={() => showToast({ variant: 'success', message: `Edit ${u.name}` })}
                 >
-                  <Pencil className="h-4 w-4" />
+                  <Pen className="h-4 w-4" />
                 </button>
               </>
             )}
@@ -269,15 +269,15 @@ function UiPage() {
           <div className="flex flex-col stack-gap">
             <FormItem
               name="name"
-              component={TextField}
-              label="TextField"
+              component={InputField}
+              label="InputField"
               rules={{ required: 'Name wajib diisi' }}
               placeholder="Full name"
             />
             <FormItem
               name="description"
-              component={TextAreaField}
-              label="TextAreaField"
+              component={Textarea}
+              label="Textarea"
               placeholder="Deskripsi panjang"
             />
             <FormItem
@@ -288,43 +288,43 @@ function UiPage() {
             />
             <FormItem
               name="role"
-              component={SelectField}
-              label="SelectField"
+              component={Select}
+              label="Select"
               options={ROLE_OPTIONS}
               placeholder="Select role"
             />
             <FormItem
               name="tags"
-              component={SelectMultipleField}
-              label="SelectMultipleField"
+              component={SelectMultiple}
+              label="SelectMultiple"
               options={ROLE_OPTIONS}
               placeholder="Select multiple"
             />
             <FormItem
               name="gender"
-              component={RadioGroupField}
-              label="RadioGroupField"
+              component={RadioButtonGroup}
+              label="RadioButtonGroup"
               options={GENDER_OPTIONS}
             />
-            <FormItem name="birthDate" component={DatePickerField} label="DatePickerField" />
-            <FormItem name="period" component={DateRangeField} label="DateRangeField" />
+            <FormItem name="birthDate" component={DatePicker} label="DatePicker" />
+            <FormItem name="period" component={DateRangePicker} label="DateRangePicker" />
             <FormItem
               name="newsletter"
-              component={SwitchField}
+              component={Toggle}
               checkedLabel="Ya, kirim newsletter"
               uncheckedLabel="Tidak"
             />
-            <FormItem name="agree" component={CheckboxField} checkboxLabel="CheckboxField: saya setuju" />
+            <FormItem name="agree" component={Checkbox} checkboxLabel="Checkbox: saya setuju" />
             <FormItem
               name="interests"
-              component={CheckboxGroupField}
-              label="CheckboxGroupField"
+              component={CheckboxGroup}
+              label="CheckboxGroup"
               options={INTEREST_OPTIONS}
             />
             <FormItem
               name="avatar"
-              component={FileUploadField}
-              label="FileUploadField"
+              component={FileUpload}
+              label="FileUpload"
               accept=".png,.jpg,.pdf"
             />
             <div>
@@ -335,8 +335,8 @@ function UiPage() {
       </DocSection>
 
       <DocSection
-        title="RadioButtonField"
-        description="Satu tombol radio presentasional (dipakai internal oleh RadioGroupField). Dikelola controlled manual."
+        title="RadioButton"
+        description="Satu tombol radio presentasional (dipakai internal oleh RadioButtonGroup). Dikelola controlled manual."
       >
         <div className="flex items-center gap-4">
           {[
@@ -344,7 +344,7 @@ function UiPage() {
             { label: 'Opsi B', value: 'b' },
           ].map((opt) => (
             <label key={opt.value} className="flex cursor-pointer items-center gap-2 text-sm">
-              <RadioButtonField
+              <RadioButton
                 value={opt.value}
                 checked={singleRadio === opt.value}
                 onChange={setSingleRadio}

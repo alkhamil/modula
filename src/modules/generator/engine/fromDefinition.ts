@@ -15,7 +15,7 @@ function sanitizeWidths(widths: Record<string, number> | undefined): Record<stri
  * diturunkan ulang deterministik dari fungsi naming yang sama.
  * `source: 'relation'` diteruskan apa adanya — template file mengenal relasi
  * (loader mock/service + RelationLabel), kecuali sub-field kolom array yang
- * tetap di-coerce ke `none`. `menuIcon` (nama ikon lucide) dipakai registrasi nav.
+ * tetap di-coerce ke `none`. `menuIcon` (nama ikon WDS) dipakai registrasi nav.
  * Murni & Node-safe.
  */
 /** Sanitasi satu item layout form kanvas (span 1..12, kind/label valid). */

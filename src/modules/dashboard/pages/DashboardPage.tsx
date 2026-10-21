@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { Alert, Badge, Button, Card } from '../../../shared/components/ui';
-import { ChevronRight, CircleCheck, Database, Settings, Pencil } from 'lucide-react';
+import { AltArrowRight, CheckCircle, Database, Pen, Settings } from '../../../shared/components/icons';
 import { useDynamicDefinitions } from '../../generator/runtime/hooks';
 
 const STACK = [
@@ -99,14 +99,14 @@ function DashboardPage() {
         />
         <StatCard
           testId="dashboard-stat-published"
-          icon={<CircleCheck className="h-5 w-5" />}
+          icon={<CheckCircle className="h-5 w-5" />}
           iconClass="bg-success/10 text-success"
           value={published.length}
           label={t('dashboard.statPublished')}
         />
         <StatCard
           testId="dashboard-stat-draft"
-          icon={<Pencil className="h-4 w-4" />}
+          icon={<Pen className="h-4 w-4" />}
           iconClass="bg-warning/10 text-warning"
           value={drafts.length}
           label={t('dashboard.statDraft')}
@@ -166,7 +166,7 @@ function DashboardPage() {
                     </code>
                   </span>
                   <Badge variant="success">Live</Badge>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <AltArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
                 </button>
               </li>
             ))}

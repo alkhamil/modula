@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, SelectField, TextField } from '../../../shared/components/ui';
+import { Button, Select, InputField } from '../../../shared/components/ui';
 import ModuleMenuIcon from './ModuleMenuIcon';
 import type { MenuIcon, ModuleType } from '../types';
 import { moduleTypeOptions } from '../registry';
@@ -67,7 +67,7 @@ function ModuleInfoStep({
     <div className="flex flex-col stack-gap">
       <div>
         <label className="mb-1 block text-sm font-medium text-foreground">Module name</label>
-        <TextField
+        <InputField
           value={value.moduleName}
           onChange={(e) => handleModuleNameChange(e.target.value)}
           placeholder="Region"
@@ -77,7 +77,7 @@ function ModuleInfoStep({
       </div>
       <div>
         <label className="mb-1 block text-sm font-medium text-foreground">Parent module</label>
-        <SelectField
+        <Select
           value={value.parentName}
           onChange={(next) => onChange({ ...value, parentName: next })}
           options={options}
@@ -94,7 +94,7 @@ function ModuleInfoStep({
           <label className="mb-1 block text-sm font-medium text-foreground">
             {t('config.newParentName')}
           </label>
-          <TextField
+          <InputField
             value={value.newParentName}
             onChange={(e) => onChange({ ...value, newParentName: e.target.value })}
             placeholder="administration"
@@ -109,7 +109,7 @@ function ModuleInfoStep({
       <div className="grid grid-cols-1 gap-x-4 stack-gap md:grid-cols-2">
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground">Module type</label>
-          <SelectField
+          <Select
             value={value.type}
             onChange={(next) => onChange({ ...value, type: next as ModuleType })}
             options={moduleTypeOptions}
@@ -120,7 +120,7 @@ function ModuleInfoStep({
           <label className="mb-1 block text-sm font-medium text-foreground">
             Permission key <span className="text-danger">*</span>
           </label>
-          <TextField
+          <InputField
             value={value.permissionKey}
             onChange={(e) => {
               setPermissionTouched(true);

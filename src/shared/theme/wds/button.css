@@ -1,0 +1,62 @@
+/*
+ * Dasar komponen Button WDS (layout/tipografi dari token Size per `data-wds-size`;
+ * warna per hierarchy/state ada di `button.generated.css`; tanpa hierarchy
+ * (variant="custom") semua variabel punya fallback netral).
+ * Di @layer components supaya utility Tailwind (`className`) tetap bisa menimpa.
+ */
+@layer components {
+  .wds-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--wds-sz-gap);
+    padding: var(--wds-sz-padding-top) var(--wds-sz-padding-right) var(--wds-sz-padding-bottom)
+      var(--wds-sz-padding-left);
+    border-style: solid;
+    border-color: var(--btn-stroke, transparent);
+    border-width: var(--btn-stroke-width, 0);
+    border-radius: var(--wds-sz-radius-all);
+    background-color: var(--btn-bg, transparent);
+    color: var(--btn-fg, inherit);
+    box-shadow: var(--btn-shadow, none);
+    font-family: var(--wds-sz-text-label-font-family);
+    /* Node Figma Button memakai Medium (500); token text.label bawaan Regular. */
+    font-weight: var(--wds-font-weight-medium);
+    font-size: var(--wds-sz-text-label-font-size);
+    line-height: var(--wds-sz-text-label-line-height);
+    min-width: var(--wds-sz-width);
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .wds-btn[data-shape='rounded'] {
+    border-radius: var(--wds-sz-radius-rounded);
+  }
+
+  /* Mode "Show icons = only": padding.all, lebar minimum dari token `width`. */
+  .wds-btn[data-icon-only='true'] {
+    padding: var(--wds-sz-padding-all);
+  }
+
+  .wds-btn > svg {
+    flex-shrink: 0;
+    width: var(--wds-sz-icon-size);
+    height: var(--wds-sz-icon-size);
+    color: var(--btn-icon, currentColor);
+  }
+
+  .wds-btn:disabled {
+    cursor: not-allowed;
+  }
+
+  /* Cincin fokus (Figma "Focus indicator"): stroke token `focus.stroke` di luar, jarak 2px. */
+  .wds-btn:focus-visible,
+  .wds-btn[data-wds-state='focused'] {
+    outline: var(--wds-sz-focus-stroke) solid var(--wds-stroke-focus);
+    outline-offset: 2px;
+  }
+}

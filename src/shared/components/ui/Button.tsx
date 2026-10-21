@@ -1,9 +1,25 @@
 import { type ButtonHTMLAttributes, type ReactNode } from 'react';
 
+/** Hierarchy tombol WDS (token koleksi "Button hierarchy"). */
+export type ButtonHierarchy = 'primary' | 'secondary' | 'tertiary' | 'text' | 'tonal' | 'elevated';
 type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'custom';
 
 interface ButtonBaseProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
-  size?: 'sm' | 'md' | 'lg';
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  /** Hierarchy WDS; bila diisi menimpa pemetaan dari `variant`. */
+  hierarchy?: ButtonHierarchy;
+  /** Gaya destruktif (merah) untuk hierarchy mana pun; `variant="danger"` otomatis true. */
+  destructive?: boolean;
+  /** Bentuk: `box` (radius token) atau `rounded` (pill). */
+  shape?: 'box' | 'rounded';
+  /** Tombol ikon saja (Figma "Show icons": only): isi lewat `leadingIcon`/`icon`, `children` diabaikan. */
+  iconOnly?: boolean;
+  /** Ikon sebelum label (Figma "Show icons": leading). */
+  leadingIcon?: ReactNode;
+  /** Ikon setelah label (Figma "Show icons": trailing; keduanya = both). */
+  trailingIcon?: ReactNode;
+  /** Pintasan lama: satu ikon, posisi lewat `iconPosition` (ekuivalen `leadingIcon`/`trailingIcon`). */
   icon?: ReactNode;
   iconPosition?: 'left' | 'right';
   children?: ReactNode;
@@ -14,30 +30,28 @@ type ButtonProps =
   | (ButtonBaseProps & { variant?: Exclude<ButtonVariant, 'custom'>; className?: string })
   | (ButtonBaseProps & { variant: 'custom'; className: string });
 
-const variantStyles: Record<string, string> = {
-  primary:
-    'border border-transparent bg-primary text-primary-foreground hover:bg-primary/85 active:bg-primary/75',
-  secondary:
-    'border border-primary text-primary bg-background hover:bg-primary/10 active:bg-primary/15',
-  danger: 'border border-transparent bg-danger text-white hover:bg-danger/85 active:bg-danger/75',
-  custom: '',
+/** `variant` lama → hierarchy WDS (+ destructive untuk `danger`). */
+const VARIANT_MAP: Record<Exclude<ButtonVariant, 'custom'>, { hierarchy: ButtonHierarchy; destructive: boolean }> = {
+  primary: { hierarchy: 'primary', destructive: false },
+  secondary: { hierarchy: 'secondary', destructive: false },
+  danger: { hierarchy: 'primary', destructive: true },
 };
 
-const sizeStyles: Record<string, string> = {
-  sm: 'gap-1.5 rounded-lg px-3 py-1.5 text-xs',
-  md: 'gap-2 rounded-lg px-4 py-2.5 text-sm',
-  lg: 'gap-2.5 rounded-xl px-5 py-3 text-base',
-};
-
-const iconSizeStyles: Record<string, string> = {
-  sm: '[&>svg]:h-4 [&>svg]:w-4',
-  md: '[&>svg]:h-4 [&>svg]:w-4',
-  lg: '[&>svg]:h-5 [&>svg]:w-5',
-};
-
+/**
+ * Button WDS. Warna/state (hover, pressed, focus, disabled) dan ukuran datang dari
+ * token (`tokens/tokens.json` → `theme/wds/*.generated.css`); komponen hanya
+ * menetapkan atribut data. `variant="custom"` melewati warna WDS (hanya layout/ukuran),
+ * warna dari `className`.
+ */
 function Button({
   variant = 'primary',
+  hierarchy,
+  destructive,
+  shape = 'box',
+  iconOnly = false,
   size = 'md',
+  leadingIcon,
+  trailingIcon,
   icon,
   iconPosition = 'left',
   children,
@@ -46,24 +60,26 @@ function Button({
   testId,
   ...rest
 }: ButtonProps) {
+  const mapped = variant === 'custom' ? null : VARIANT_MAP[variant];
+  const resolvedHierarchy = hierarchy ?? mapped?.hierarchy;
+  const isDestructive = destructive ?? mapped?.destructive ?? false;
+  const leading = leadingIcon ?? (icon && iconPosition === 'left' ? icon : undefined);
+  const trailing = trailingIcon ?? (icon && iconPosition === 'right' ? icon : undefined);
   return (
     <button
       data-testid={testId}
-      className={[
-        'inline-flex items-center justify-center font-medium transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
-        variantStyles[variant],
-        sizeStyles[size],
-        iconSizeStyles[size],
-        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
-        className,
-      ].join(' ')}
+      data-wds-size={size}
+      data-hierarchy={resolvedHierarchy}
+      data-destructive={resolvedHierarchy ? String(isDestructive) : undefined}
+      data-shape={shape}
+      data-icon-only={iconOnly ? 'true' : undefined}
+      className={['wds-btn', className].filter(Boolean).join(' ')}
       disabled={disabled}
       {...rest}
     >
-      {icon && iconPosition === 'left' && icon}
-      {children}
-      {icon && iconPosition === 'right' && icon}
+      {iconOnly ? (leading ?? trailing) : leading}
+      {!iconOnly && children}
+      {!iconOnly && trailing}
     </button>
   );
 }

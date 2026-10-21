@@ -1,4 +1,4 @@
-import { Users } from 'lucide-react';
+import { UsersGroupRounded } from '../../../shared/components/icons';
 import type { ModuleNavEntry } from '../../../shared/types/navigation';
 
 export const userNav: ModuleNavEntry = {
@@ -6,9 +6,9 @@ export const userNav: ModuleNavEntry = {
     key: 'user-management',
     label: 'User Management',
     labelKey: 'user.navGroup',
-    icon: <Users className="h-5 w-5" />,
+    icon: <UsersGroupRounded className="h-5 w-5" />,
   },
-  icon: <Users className="h-5 w-5" />,
+  icon: <UsersGroupRounded className="h-5 w-5" />,
   item: {
     label: 'Users',
     labelKey: 'user.labelPlural',

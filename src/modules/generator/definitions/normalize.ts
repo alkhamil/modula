@@ -1,3 +1,4 @@
+import { isWdsIcon } from '../../../shared/components/icons/names';
 import type { GeneratorConfig, MenuIcon, ModuleI18nDict, ModuleLanguage } from '../types';
 import { MENU_ICON_NAME_RE } from '../types';
 import { normalizeConfig } from '../parser';
@@ -254,19 +255,76 @@ export function configToDefinition(
   };
 }
 
-/** Normalisasi definisi penuh (dipakai wizard publish & validasi seed). */
 /**
- * Bersihkan ikon menu lama/asing ke bentuk `{ name }` lucide (atau undefined).
- * Murni & Node-safe.
+ * Nama ikon lucide lama (definisi tersimpan sebelum migrasi ke WDS) →
+ * nama ikon WDS. Nama lucide yang tak ada di sini dan bukan nama WDS
+ * dibuang (jatuh ke ikon default saat render).
+ */
+const LEGACY_MENU_ICONS: Readonly<Record<string, string>> = {
+  Pencil: 'Pen',
+  CircleAlert: 'DangerCircle',
+  Trash2: 'TrashBinTrash',
+  Trash: 'TrashBinTrash',
+  Plus: 'AddCircle',
+  X: 'CloseCircle',
+  TriangleAlert: 'DangerTriangle',
+  RotateCcw: 'Restart',
+  CircleX: 'CloseCircle',
+  CircleCheck: 'CheckCircle',
+  Users: 'UsersGroupRounded',
+  User: 'UserRounded',
+  Search: 'Magnifer',
+  SlidersHorizontal: 'Tuning2',
+  Menu: 'HamburgerMenu',
+  LogOut: 'Logout2',
+  Link2: 'LinkMinimalistic',
+  LayoutDashboard: 'Widget',
+  Funnel: 'Filter',
+  Filter: 'Filter',
+  Globe: 'Global',
+  Zap: 'Bolt',
+  Hexagon: 'Planet',
+  Table: 'Widget2',
+  Folder: 'Folder',
+  Package: 'Box',
+  ShoppingCart: 'Cart',
+  Store: 'Shop',
+  Building: 'Buildings',
+  Building2: 'Buildings2',
+  Home: 'Home',
+  Tag: 'Tag',
+  Truck: 'Delivery',
+  CreditCard: 'Card',
+  Wallet: 'Wallet',
+  MapPin: 'MapPoint',
+  Map: 'Map',
+  Bell: 'Bell',
+  Mail: 'Letter',
+  Phone: 'Phone',
+  Star: 'Star',
+  Heart: 'Heart',
+  Clock: 'ClockCircle',
+  ChartBar: 'ChartSquare',
+  FileText: 'FileText',
+  ShieldCheck: 'ShieldCheck',
+};
+
+/**
+ * Bersihkan ikon menu lama/asing ke bentuk `{ name }` WDS (atau undefined).
+ * Nama lucide lama dipetakan; nama yang tak dikenal dibuang. Murni & Node-safe.
  */
 export function cleanMenuIcon(raw: unknown): MenuIcon | undefined {
   if (!raw || typeof raw !== 'object') return undefined;
   const name = (raw as Record<string, unknown>).name;
   if (typeof name !== 'string') return undefined;
   const trimmed = name.trim();
-  return MENU_ICON_NAME_RE.test(trimmed) ? { name: trimmed } : undefined;
+  if (!MENU_ICON_NAME_RE.test(trimmed)) return undefined;
+  if (isWdsIcon(trimmed)) return { name: trimmed };
+  const legacy = LEGACY_MENU_ICONS[trimmed];
+  return legacy && isWdsIcon(legacy) ? { name: legacy } : undefined;
 }
 
+/** Normalisasi definisi penuh (dipakai wizard publish & validasi seed). */
 export function normalizeDefinition(def: ModuleDefinition): ModuleDefinition {
   const asConfig: GeneratorConfig = {
     parentName: def.parent,

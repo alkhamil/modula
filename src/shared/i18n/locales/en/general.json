@@ -32,7 +32,8 @@
     "components": "Component",
     "typography": "Typography",
     "colors": "Colors",
-    "ui": "UI"
+    "ui": "UI",
+    "docs": "Docs"
   },
   "auth": {
     "profile": "Profile",

@@ -1,4 +1,4 @@
-import { Database } from 'lucide-react';
+import { Database } from '../../shared/components/icons';
 import type { ModuleNavEntry } from '../../shared/types/navigation';
 
 const parent: ModuleNavEntry['parent'] = {
@@ -10,6 +10,7 @@ const parent: ModuleNavEntry['parent'] = {
 
 /** Tiga halaman showcase berbagi satu group menu "Component". */
 export const showcaseNav: ModuleNavEntry[] = [
+  { parent, icon: parent.icon, item: { label: 'Docs', labelKey: 'nav.docs', path: '/components' } },
   { parent, icon: parent.icon, item: { label: 'Typography', labelKey: 'nav.typography', path: '/components/typography' } },
   { parent, icon: parent.icon, item: { label: 'Colors', labelKey: 'nav.colors', path: '/components/colors' } },
   { parent, icon: parent.icon, item: { label: 'UI', labelKey: 'nav.ui', path: '/components/ui' } },

@@ -5,7 +5,7 @@ import {
   Button,
   FormGroup,
   FormItem,
-  TextField,
+  InputField,
   NavigationGuard,
 } from '../../../../shared/components/ui';
 import type { FormValues } from '../hooks';
@@ -94,7 +94,7 @@ function RoleForm({
                   testId="role-name"
                   label={t('role.fields.name.label')}
                   name="name"
-                  component={TextField}
+                  component={InputField}
                   rules={getNameRules(t)}
                   maxLength={100}
                   layout="horizontal"

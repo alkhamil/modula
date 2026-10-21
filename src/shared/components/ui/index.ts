@@ -13,7 +13,7 @@ export { default as FormGroup } from './FormGroup';
 export { default as FormItem } from './FormItem';
 export { default as FormArray } from './FormArray';
 export { default as FormDefaultValuesWatcher } from './FormDefaultValuesWatcher';
-export { default as FilterToolbar } from './FilterToolbar';
+export { default as TableToolbar } from './TableToolbar';
 export { default as Dialog } from './Dialog';
 export { default as Drawer } from './Drawer';
 export { default as LoadingOverlay } from './LoadingOverlay';
@@ -25,24 +25,24 @@ export type { AlertVariant } from './Alert';
 export { default as ToastProvider } from './toast/Toast';
 export { useToast } from './toast/toast-context';
 export type { ToastVariant, ShowToastParams } from './toast/toast-context';
-export type { FilterField } from './FilterToolbar';
+export type { FilterField } from './TableToolbar';
 export { default as Tooltip } from './Tooltip';
 export { default as SvgIcon } from './SvgIcon';
 export { default as NavigationGuard } from './NavigationGuard';
 export {
-  TextField,
-  SelectField,
-  SelectMultipleField,
-  CheckboxField,
-  RadioButtonField,
-  DatePickerField,
-  DateRangeField,
-  TextAreaField,
-  SwitchField,
-  FileUploadField,
+  InputField,
+  Select,
+  SelectMultiple,
+  Checkbox,
+  RadioButton,
+  DatePicker,
+  DateRangePicker,
+  Textarea,
+  Toggle,
+  FileUpload,
   PasswordField,
-  RadioGroupField,
-  CheckboxGroupField,
+  RadioButtonGroup,
+  CheckboxGroup,
   ColorField,
   EditorField,
   FormArrayField,

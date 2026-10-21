@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Card, Dialog, useToast } from '../../../shared/components/ui';
 import { downloadBlob } from '../../../shared/utils';
-import { ChevronLeft, ChevronRight, Check, CircleDot, Circle } from 'lucide-react';
+import { AltArrowLeft, AltArrowRight, Check, ClockCircle, Record } from '../../../shared/components/icons';
 import type { FeatureKey, GeneratorConfig, GeneratorFieldConfig, MenuIcon } from '../types';
 import { normalizeModuleName } from '../parser';
 import type { DeleteMode, ModuleDefinition, ModuleLayout } from '../definitions';
@@ -75,9 +75,9 @@ function StepIndicator({ step }: { step: number }) {
             {state === 'done' ? (
               <Check className="h-7 w-7 text-success" />
             ) : state === 'current' ? (
-              <CircleDot className="h-7 w-7 text-primary" />
+              <Record className="h-7 w-7 text-primary" />
             ) : (
-              <Circle className="h-7 w-7 text-muted-foreground" />
+              <ClockCircle className="h-7 w-7 text-muted-foreground" />
             )}
             <span
               className={`text-sm ${state === 'current' ? 'font-semibold text-foreground' : state === 'done' ? 'text-foreground' : 'text-muted-foreground'}`}
@@ -484,7 +484,7 @@ function GeneratorPage() {
                   variant="secondary"
                   onClick={handleBack}
                   disabled={step === 0}
-                  icon={<ChevronLeft className="h-4 w-4" />}
+                  icon={<AltArrowLeft className="h-4 w-4" />}
                 >
                   {t('common.back')}
                 </Button>
@@ -498,7 +498,7 @@ function GeneratorPage() {
                     type="button"
                     onClick={handleNext}
                     iconPosition="right"
-                    icon={<ChevronRight className="h-4 w-4" />}
+                    icon={<AltArrowRight className="h-4 w-4" />}
                   >
                     {t('common.next')}
                   </Button>

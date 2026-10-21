@@ -6,9 +6,9 @@ import {
   Button,
   FormGroup,
   FormItem,
-  SelectField,
-  SwitchField,
-  TextField,
+  Select,
+  Toggle,
+  InputField,
   PasswordField,
   NavigationGuard,
 } from '../../../../shared/components/ui';
@@ -101,7 +101,7 @@ function UserForm({ defaultValues, user, onSubmit, onCancel, isEdit = false }: U
                   testId="user-name"
                   label={t('user.fields.name.label')}
                   name="name"
-                  component={TextField}
+                  component={InputField}
                   rules={getNameRules(t)}
                   layout="horizontal"
                   placeholder={t('user.fields.name.placeholder')}
@@ -112,7 +112,7 @@ function UserForm({ defaultValues, user, onSubmit, onCancel, isEdit = false }: U
                   testId="user-role"
                   label={t('user.fields.role.label')}
                   name="role_id"
-                  component={SelectField}
+                  component={Select}
                   rules={getRoleIdRules(t)}
                   layout="horizontal"
                   placeholder={t('user.fields.role.placeholder')}
@@ -128,7 +128,7 @@ function UserForm({ defaultValues, user, onSubmit, onCancel, isEdit = false }: U
                   testId="user-username"
                   label={t('user.fields.username.label')}
                   name="username"
-                  component={TextField}
+                  component={InputField}
                   rules={getUsernameRules(t)}
                   layout="horizontal"
                   placeholder={t('user.fields.username.placeholder')}
@@ -139,7 +139,7 @@ function UserForm({ defaultValues, user, onSubmit, onCancel, isEdit = false }: U
                   testId="user-email"
                   label={t('user.fields.email.label')}
                   name="email"
-                  component={TextField}
+                  component={InputField}
                   rules={getEmailRules(t)}
                   layout="horizontal"
                   placeholder={t('user.fields.email.placeholder')}
@@ -161,7 +161,7 @@ function UserForm({ defaultValues, user, onSubmit, onCancel, isEdit = false }: U
                   testId="user-status"
                   label={t('user.fields.status.label')}
                   name="status"
-                  component={SwitchField}
+                  component={Toggle}
                   layout="horizontal"
                   showCheckedLabels={false}
                   switchLabel={t('common.active')}

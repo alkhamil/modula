@@ -1,3 +1,5 @@
+import { wdsPrimitives, wdsSemantic } from './wds.generated';
+
 export type ThemeName = 'light' | 'dark';
 
 /** Satu-satunya sumber kebenaran token thema. Nilai di sini yang dipakai seluruh shared components. */
@@ -48,47 +50,38 @@ const spacing = {
   | 'fieldGap'
 >;
 
+/**
+ * Token legacy (`bg-primary`, `text-muted-foreground`, ...) diturunkan dari
+ * token semantic WDS (`tokens/tokens.json` → `wds.generated.ts`), jadi seluruh
+ * app ikut palet WDS dan mode light/dark-nya.
+ */
+function fromWds(mode: ThemeName): ThemeTokens {
+  const s = wdsSemantic[mode];
+  return {
+    primary: s['bg.brand'],
+    primaryForeground: s['text.on-brand'],
+    secondary: mode === 'light' ? wdsPrimitives['secondary.500'] : wdsPrimitives['secondary.400'],
+    secondaryForeground: s['text.on-brand'],
+    success: s['bg.success'],
+    warning: s['bg.warning'],
+    danger: s['bg.danger'],
+    info: s['bg.info'],
+    background: s['bg.page'],
+    surface: s['bg.subtle'],
+    muted: s['bg.subtle-2'],
+    border: s['stroke.default'],
+    foreground: s['text.primary'],
+    mutedForeground: s['text.tertiary'],
+    radiusSm: '0.125rem',
+    radiusMd: '0.25rem',
+    radiusLg: '0.5rem',
+    ...spacing,
+  };
+}
+
 export const themes: Record<ThemeName, ThemeTokens> = {
-  light: {
-    primary: '#2563eb',
-    primaryForeground: '#ffffff',
-    secondary: '#0f766e',
-    secondaryForeground: '#ffffff',
-    success: '#15803d',
-    warning: '#b45309',
-    danger: '#dc2626',
-    info: '#0284c7',
-    background: '#ffffff',
-    surface: '#f1f5f9',
-    muted: '#e2e8f0',
-    border: '#cbd5e1',
-    foreground: '#0f172a',
-    mutedForeground: '#64748b',
-    radiusSm: '0.125rem',
-    radiusMd: '0.25rem',
-    radiusLg: '0.5rem',
-    ...spacing,
-  },
-  dark: {
-    primary: '#3b82f6',
-    primaryForeground: '#0f172a',
-    secondary: '#2dd4bf',
-    secondaryForeground: '#0f172a',
-    success: '#4ade80',
-    warning: '#fbbf24',
-    danger: '#f87171',
-    info: '#38bdf8',
-    background: '#0f172a',
-    surface: '#1e293b',
-    muted: '#334155',
-    border: '#475569',
-    foreground: '#f1f5f9',
-    mutedForeground: '#94a3b8',
-    radiusSm: '0.125rem',
-    radiusMd: '0.25rem',
-    radiusLg: '0.5rem',
-    ...spacing,
-  },
+  light: fromWds('light'),
+  dark: fromWds('dark'),
 };
 
 /** Override pengguna via panel thema — diterapkan di atas token thema aktif. */
@@ -125,6 +118,47 @@ export function getContrastForeground(hex: string): string {
   return luminance > 0.45 ? '#0f172a' : '#ffffff';
 }
 
+const BRAND_VARS = [
+  '--wds-bg-brand',
+  '--wds-bg-brand-hover',
+  '--wds-bg-brand-pressed',
+  '--wds-bg-brand-pressed-strong',
+  '--wds-bg-brand-subtle',
+  '--wds-text-brand',
+  '--wds-text-on-brand',
+  '--wds-icons-brand',
+  '--wds-icons-on-brand',
+  '--wds-stroke-brand',
+  '--wds-stroke-focus',
+] as const;
+
+/**
+ * Warna primary pilihan pengguna juga diterapkan ke token brand WDS agar komponen
+ * WDS (Button, dst.) ikut berubah; state hover/pressed diturunkan dari warna itu.
+ */
+function applyBrandOverride(root: HTMLElement, primary: string | undefined): void {
+  if (!primary) {
+    BRAND_VARS.forEach((name) => root.style.removeProperty(name));
+    return;
+  }
+  const onBrand = getContrastForeground(primary);
+  const mix = (pct: number, base: string) => `color-mix(in srgb, ${primary} ${pct}%, ${base})`;
+  const values: Record<(typeof BRAND_VARS)[number], string> = {
+    '--wds-bg-brand': primary,
+    '--wds-bg-brand-hover': mix(88, 'black'),
+    '--wds-bg-brand-pressed': mix(80, 'black'),
+    '--wds-bg-brand-pressed-strong': mix(72, 'black'),
+    '--wds-bg-brand-subtle': mix(10, 'white'),
+    '--wds-text-brand': primary,
+    '--wds-text-on-brand': onBrand,
+    '--wds-icons-brand': primary,
+    '--wds-icons-on-brand': onBrand,
+    '--wds-stroke-brand': primary,
+    '--wds-stroke-focus': primary,
+  };
+  BRAND_VARS.forEach((name) => root.style.setProperty(name, values[name]));
+}
+
 /** Terapkan thema: set `data-theme` + CSS variables dari token, lalu simpan pilihan. */
 export function applyTheme(name: ThemeName, overrides: ThemeOverrides = {}): void {
   const root = document.documentElement;
@@ -139,6 +173,7 @@ export function applyTheme(name: ThemeName, overrides: ThemeOverrides = {}): voi
   (Object.keys(tokens) as (keyof ThemeTokens)[]).forEach((key) => {
     root.style.setProperty(toVarName(key), tokens[key]);
   });
+  applyBrandOverride(root, overrides.primary);
   localStorage.setItem(STORAGE_KEY, name);
   localStorage.setItem(OVERRIDES_KEY, JSON.stringify(overrides));
 }

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Download seluruh icon pack WDS dari Figma sebagai SVG.
+"""Download icon pack WDS dari Figma sebagai SVG (hanya Outline + Bold Duotone).
 
 Scope (dari canvas node 806:721 di file WDS - Variable):
-  5 styles x 1261 ikon = 6305 SVG dalam 37 kategori.
+  2 styles x 1261 ikon = 2522 SVG dalam 37 kategori.
 
 Pemakaian:
   export FIGMA_API_TOKEN="<token>"
   python3 scripts/download-wds-icons.py
 
 Output:
-  public/icons/wds/<style>/<kategori>/<ikon>.svg + manifest.json
+  src/assets/icons/wds/<style>/<kategori>/<ikon>.svg + manifest.json
 
 Hanya memakai stdlib (urllib). File yang sudah ada dilewati (resume aman).
 """
@@ -25,15 +25,12 @@ import urllib.request
 
 FILE_KEY = "ThLaTINM5dmzPW4AsB8dnF"
 CANVAS_ID = "806:721"
-OUT_ROOT = os.path.join("public", "icons", "wds")
+OUT_ROOT = os.path.join("src", "assets", "icons", "wds")
 BATCH_SIZE = 150
 WORKERS = 12
 
 STYLE_SLUGS = {
-    "Bold": "bold",
     "Bold Duotone": "bold-duotone",
-    "Broken": "broken",
-    "Line Duotone": "line-duotone",
     "Outline": "outline",
 }
 

@@ -4,7 +4,7 @@ import type { UserListItem } from '../types';
 import { Table, Badge } from '../../../../shared/components/ui';
 
 import { formatDateTime } from '../../../../shared/utils';
-import { Eye, Pencil, Trash2, RotateCcw } from 'lucide-react';
+import { Eye, Pen, Restart, TrashBinTrash } from '../../../../shared/components/icons';
 
 interface Props {
   testId?: string;
@@ -105,7 +105,7 @@ function UserTable({
               title={`Edit ${user.name}`}
               onClick={() => onEdit(user)}
             >
-              <Pencil className="h-4 w-4 text-warning" />
+              <Pen className="h-4 w-4 text-warning" />
             </button>
           )}
           {user.status === 'active' && onDelete && (
@@ -116,7 +116,7 @@ function UserTable({
               onClick={() => onDelete(user)}
               disabled={isDeleting}
             >
-              <Trash2 className="h-4 w-4 text-danger" />
+              <TrashBinTrash className="h-4 w-4 text-danger" />
             </button>
           )}
           {user.status === 'inactive' && onRestore && (
@@ -127,7 +127,7 @@ function UserTable({
               onClick={() => onRestore(user)}
               disabled={isRestoring}
             >
-              <RotateCcw className="h-4 w-4 text-success" />
+              <Restart className="h-4 w-4 text-success" />
             </button>
           )}
         </div>

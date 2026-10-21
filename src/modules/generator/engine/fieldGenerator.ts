@@ -176,14 +176,14 @@ export function formItemSnippet(
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={TextAreaField}${maxLengthProp}${rowsProp}${sizeOpt(props?.textarea?.size)}
+                  component={Textarea}${maxLengthProp}${rowsProp}${sizeOpt(props?.textarea?.size)}
                   placeholder="${placeholderText('Enter')}"
                 />`;
     case 'numberField':
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={TextField}
+                  component={InputField}
                   currency${sizeOpt(props?.text?.size)}${boolOpt('clearable', props?.text?.clearable)}${strOpt('prepend', props?.text?.prefix)}${strOpt('append', props?.text?.suffix)}
                   placeholder="${placeholderText('Enter')}"
                 />`;
@@ -191,7 +191,7 @@ export function formItemSnippet(
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={TextField}
+                  component={InputField}
                   currency${sizeOpt(props?.text?.size)}${boolOpt('clearable', props?.text?.clearable)}${strOpt('prepend', props?.text?.prefix?.trim() || 'Rp')}${strOpt('append', props?.text?.suffix)}
                   placeholder="${placeholderText('Enter')}"
                 />`;
@@ -199,7 +199,7 @@ export function formItemSnippet(
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={DatePickerField}${sizeOpt(props?.date?.size)}${boolOpt('showTime', props?.date?.showTime)}${boolOpt('clearable', props?.date?.clearable)}${dateOpt('minDate', props?.date?.minDate)}${dateOpt('maxDate', props?.date?.maxDate)}
+                  component={DatePicker}${sizeOpt(props?.date?.size)}${boolOpt('showTime', props?.date?.showTime)}${boolOpt('clearable', props?.date?.clearable)}${dateOpt('minDate', props?.date?.minDate)}${dateOpt('maxDate', props?.date?.maxDate)}
                   placeholder="${placeholderText('Select')}"
                 />`;
     case 'passwordField':
@@ -213,7 +213,7 @@ export function formItemSnippet(
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={DateRangeField}${sizeOpt(props?.dateRange?.size)}${dateOpt('maxDate', props?.dateRange?.maxDate)}${numOpt('maxRangeDays', props?.dateRange?.maxRangeDays)}
+                  component={DateRangePicker}${sizeOpt(props?.dateRange?.size)}${dateOpt('maxDate', props?.dateRange?.maxDate)}${numOpt('maxRangeDays', props?.dateRange?.maxRangeDays)}
                   placeholder="${placeholderText('Select')}"
                 />`;
     case 'selectField': {
@@ -233,7 +233,7 @@ export function formItemSnippet(
         return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={SelectField}
+                  component={Select}
                   placeholder="${placeholderText('Select')}"${searchable}${paginate}${selectExtra}${boolOpt('clearable', selectProps?.clearable)}${numOpt('pageSize', selectProps?.pageSize)}
                   loadOptions={${field.loadOptionsFn}}
                 />`;
@@ -241,7 +241,7 @@ export function formItemSnippet(
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={SelectField}
+                  component={Select}
                   placeholder="${placeholderText('Select')}"
                   options={${optionsVar}}${boolDefault('clearable', selectProps?.clearable, false)}${searchable}${selectExtra}
                 />`;
@@ -266,7 +266,7 @@ export function formItemSnippet(
         return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={SelectMultipleField}
+                  component={SelectMultiple}
                   placeholder="${placeholderText('Select')}"${searchable}${paginate}${multiExtra}${numOpt('pageSize', multiProps?.pageSize)}
                   loadOptions={${field.loadOptionsFn}}
                 />`;
@@ -274,7 +274,7 @@ export function formItemSnippet(
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={SelectMultipleField}
+                  component={SelectMultiple}
                   placeholder="${placeholderText('Select')}"
                   options={${optionsVar}}${searchable}${multiExtra}
                 />`;
@@ -283,33 +283,33 @@ export function formItemSnippet(
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={RadioGroupField}
+                  component={RadioButtonGroup}
                   options={${optionsVar}}${sizeOpt(props?.radio?.size)}
                 />`;
     case 'checkboxField':
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={CheckboxField}${sizeOpt(props?.checkbox?.size)}${boolOpt('indeterminate', props?.checkbox?.indeterminate)}
+                  component={Checkbox}${sizeOpt(props?.checkbox?.size)}${boolOpt('indeterminate', props?.checkbox?.indeterminate)}
                 />`;
     case 'checkboxGroupField':
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={CheckboxGroupField}
+                  component={CheckboxGroup}
                   options={${optionsVar}}${sizeOpt(props?.checkboxGroup?.size)}
                 />`;
     case 'switchField':
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={SwitchField}${sizeOpt(props?.switch?.size)}${boolDefault('showCheckedLabels', props?.switch?.showCheckedLabels, false)}${strOpt('checkedLabel', props?.switch?.checkedLabel)}${strOpt('uncheckedLabel', props?.switch?.uncheckedLabel)}
+                  component={Toggle}${sizeOpt(props?.switch?.size)}${boolDefault('showCheckedLabels', props?.switch?.showCheckedLabels, false)}${strOpt('checkedLabel', props?.switch?.checkedLabel)}${strOpt('uncheckedLabel', props?.switch?.uncheckedLabel)}
                 />`;
     case 'fileUploadField':
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={FileUploadField}${acceptProp}${sizeOpt(props?.upload?.size)}${boolOpt('multiple', props?.upload?.multiple)}
+                  component={FileUpload}${acceptProp}${sizeOpt(props?.upload?.size)}${boolOpt('multiple', props?.upload?.multiple)}
                 />`;
     case 'colorField':
       return `<FormItem
@@ -342,7 +342,7 @@ export function formItemSnippet(
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={TextField}${maxLengthProp}${sizeOpt(props?.text?.size)}${boolOpt('clearable', props?.text?.clearable)}${strOpt('prepend', props?.text?.prefix)}${strOpt('append', props?.text?.suffix)}
+                  component={InputField}${maxLengthProp}${sizeOpt(props?.text?.size)}${boolOpt('clearable', props?.text?.clearable)}${strOpt('prepend', props?.text?.prefix)}${strOpt('append', props?.text?.suffix)}
                   placeholder="${placeholderText('Enter')}"
                 />`;
     }
@@ -484,7 +484,7 @@ export function filterParamKeys(field: FieldModel): string[] {
   return [field.name];
 }
 
-/** Blok FilterToolbar per kriteria (numberRange → dua blok). */
+/** Blok TableToolbar per kriteria (numberRange → dua blok). */
 export function filterFieldSnippet(field: FieldModel, labelKey?: string): string {
   const criteria = field.filterCriteria;
   const label = labelKey ? `t('${labelKey}')` : `'${field.label}'`;

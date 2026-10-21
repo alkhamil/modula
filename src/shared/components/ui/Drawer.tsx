@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { CloseCircle } from '../icons';
 
 interface DrawerProps {
   open: boolean;
@@ -146,7 +146,7 @@ function Drawer({
               aria-label={t('common.close')}
               className="flex cursor-pointer items-center rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              <X className="h-5 w-5" />
+              <CloseCircle className="h-5 w-5" />
             </button>
           </div>
         )}

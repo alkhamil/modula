@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { AltArrowLeft, AltArrowRight } from '../../../icons';
 
 export type PickerView = 'date' | 'month' | 'year';
 
@@ -67,7 +67,7 @@ function DatePickerHeader({
         onClick={() => onNavigate(-1)}
         aria-label="Previous"
       >
-        <ChevronLeft />
+        <AltArrowLeft />
       </button>
       {view === 'year' ? (
         <span className="text-sm font-semibold text-foreground">{label}</span>
@@ -88,7 +88,7 @@ function DatePickerHeader({
         onClick={() => onNavigate(1)}
         aria-label="Next"
       >
-        <ChevronRight />
+        <AltArrowRight />
       </button>
     </div>
   );

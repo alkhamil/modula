@@ -9,7 +9,7 @@ import {
   type Path,
   type UseFormReturn,
 } from 'react-hook-form';
-import { Info } from 'lucide-react';
+import { InfoCircle } from '../icons';
 import Tooltip from './Tooltip';
 
 type LabelFontWeight = 'light' | 'normal' | 'medium' | 'semibold' | 'bold';
@@ -83,7 +83,7 @@ function FormItem<TForm extends FieldValues, TComponent extends React.ElementTyp
         {isRequired && <span className="ml-0.5 text-danger">*</span>}
         {labelTooltip && (
           <Tooltip content={labelTooltip}>
-            <Info className="ml-1 h-3.5 w-3.5 cursor-pointer" />
+            <InfoCircle className="ml-1 h-3.5 w-3.5 cursor-pointer" />
           </Tooltip>
         )}
       </>

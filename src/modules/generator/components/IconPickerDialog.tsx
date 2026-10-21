@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Dialog, TextField } from '../../../shared/components/ui';
-import ModuleMenuIcon, { LUCIDE_ICON_NAMES } from './ModuleMenuIcon';
+import { Button, Dialog, InputField } from '../../../shared/components/ui';
+import ModuleMenuIcon, { MENU_ICON_NAMES } from './ModuleMenuIcon';
 
 interface IconPickerDialogProps {
   open: boolean;
@@ -22,8 +22,8 @@ function IconPickerDialog({ open, initial, onClose, onSave }: IconPickerDialogPr
   const matches = useMemo(
     () =>
       query === ''
-        ? LUCIDE_ICON_NAMES
-        : LUCIDE_ICON_NAMES.filter((name) => name.toLowerCase().includes(query)),
+        ? MENU_ICON_NAMES
+        : MENU_ICON_NAMES.filter((name) => name.toLowerCase().includes(query)),
     [query],
   );
   const shown = matches.slice(0, MAX_SHOWN);
@@ -72,7 +72,7 @@ function IconPickerDialog({ open, initial, onClose, onSave }: IconPickerDialogPr
             )}
           </span>
           <div className="min-w-0 flex-1">
-            <TextField
+            <InputField
               data-testid="menu-icon-search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

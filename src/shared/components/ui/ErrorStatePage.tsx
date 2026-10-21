@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { CircleX, Search, TriangleAlert } from 'lucide-react';
+import { CloseCircle, DangerTriangle, Magnifer } from '../icons';
 import Button from './Button';
 
 export type ErrorStateType = '403' | '404' | '500';
@@ -11,7 +11,7 @@ interface ErrorStateConfig {
   testId: string;
   /** Tone medallion ikon. */
   tone: string;
-  icon: typeof CircleX;
+  icon: typeof CloseCircle;
   /** Aksi primer kontekstual. */
   primaryKey: string;
 }
@@ -22,7 +22,7 @@ const ERROR_STATE_CONFIG: Record<ErrorStateType, ErrorStateConfig> = {
     subtitleKey: 'error.forbiddenSubtitle',
     testId: 'forbidden-page',
     tone: 'bg-warning/15 text-warning',
-    icon: TriangleAlert,
+    icon: DangerTriangle,
     primaryKey: 'error.toDashboard',
   },
   '404': {
@@ -30,7 +30,7 @@ const ERROR_STATE_CONFIG: Record<ErrorStateType, ErrorStateConfig> = {
     subtitleKey: 'error.notFoundSubtitle',
     testId: 'not-found-page',
     tone: 'bg-info/15 text-info',
-    icon: Search,
+    icon: Magnifer,
     primaryKey: 'error.toDashboard',
   },
   '500': {
@@ -38,7 +38,7 @@ const ERROR_STATE_CONFIG: Record<ErrorStateType, ErrorStateConfig> = {
     subtitleKey: 'error.systemSubtitle',
     testId: 'error-page',
     tone: 'bg-danger/15 text-danger',
-    icon: CircleX,
+    icon: CloseCircle,
     primaryKey: 'error.retry',
   },
 };

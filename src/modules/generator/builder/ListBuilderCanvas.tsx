@@ -25,16 +25,16 @@ import {
   Button,
   Card,
   Drawer,
-  FilterToolbar,
+  TableToolbar,
   RowActionButton,
-  SelectField,
-  SwitchField,
-  TextField,
+  Select,
+  Toggle,
+  InputField,
   useToast,
 } from '../../../shared/components/ui';
 import Table, { type Column } from '../../../shared/components/ui/Table';
 import { listEmptyState } from '../../../shared/constants';
-import { Download, Settings, Plus, Upload } from 'lucide-react';
+import { AddCircle, Download, Settings, Upload } from '../../../shared/components/icons';
 import type { DeleteMode, ModuleDefinition, ModuleLayout } from '../definitions';
 import { SYSTEM_TABLE_COLUMNS } from '../definitions';
 import type {
@@ -80,7 +80,7 @@ function WidthInput({ value, onCommit }: { value: number | undefined; onCommit: 
   const [draft, setDraft] = useState(value === undefined ? '' : String(value));
   return (
     <div className="w-24" title={t('list.widthTitle')}>
-      <TextField
+      <InputField
         value={draft}
         onChange={(e) => setDraft(e.target.value.replace(/[^0-9]/g, ''))}
         onBlur={() => onCommit(draft === '' ? 0 : Number(draft))}
@@ -112,7 +112,7 @@ function SwitchRow({
         <p className="text-xs font-medium text-foreground">{label}</p>
         <p className="text-xs text-muted-foreground">{desc}</p>
       </div>
-      <SwitchField value={value} onChange={onChange} size="sm" disabled={disabled} />
+      <Toggle value={value} onChange={onChange} size="sm" disabled={disabled} />
     </div>
   );
 }
@@ -284,7 +284,7 @@ function ColumnDrawerContent({
               <label className="mb-1 block text-xs font-medium text-foreground">
                 {t('field.filterCriteria')}
               </label>
-              <SelectField size="sm"
+              <Select size="sm"
                 value={field.filterCriteria ?? defaultCriteria(field.type)}
                 onChange={(next) => onCriteria(next as FilterCriteria)}
                 options={criteriaForFieldType(field.type).map((name) => ({
@@ -415,7 +415,7 @@ function ActionColorRow({
   return (
     <div>
       <label className="mb-1 block text-sm font-medium text-foreground">{label}</label>
-      <SelectField size="sm"
+      <Select size="sm"
         value={value}
         onChange={(next) => onChange(next as RowActionColor)}
         options={ACTION_COLOR_OPTIONS.map((opt) => ({ label: t(opt.labelKey), value: opt.value }))}
@@ -466,7 +466,7 @@ function ActionDrawerContent({
           />
           <div>
             <label className="mb-1 block text-sm font-medium text-foreground">{t('list.deleteMode')}</label>
-            <SelectField size="sm"
+            <Select size="sm"
               value={deleteMode}
               onChange={(value) => onDeleteModeChange(value as DeleteMode)}
               options={[
@@ -482,7 +482,7 @@ function ActionDrawerContent({
         <div className="flex flex-col field-gap">
           <div>
             <label className="mb-1 block text-sm font-medium text-foreground">{t('list.actionIconSize')}</label>
-            <SelectField size="sm"
+            <Select size="sm"
               value={String(displayProps?.actionIconSize ?? 16)}
               onChange={(value) => onPatchProps({ actionIconSize: Number(value) })}
               options={['14', '16', '18', '20', '24'].map((px) => ({ label: `${px} px`, value: px }))}
@@ -514,7 +514,7 @@ function ActionDrawerContent({
       <Card size="sm" title={t('list.actionColCard')}>
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground">{t('list.actionPosition')}</label>
-          <SelectField size="sm"
+          <Select size="sm"
             value={displayProps?.actionPosition ?? 'right'}
             onChange={(value) =>
               onPatchProps({ actionPosition: value as 'left' | 'right' })
@@ -619,28 +619,28 @@ function TableDrawerContent({
         <div className="flex flex-col field-gap">
           <div>
             <label className="mb-1 block text-xs font-medium text-foreground">{t('list.emptyCustomTitle')}</label>
-            <TextField size="sm"
+            <InputField size="sm"
               value={props.emptyStateTitle ?? fallbackEmpty.title}
               onChange={(e) => onPatchProps({ emptyStateTitle: e.target.value })}
             />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-foreground">{t('list.emptyCustomDesc')}</label>
-            <TextField size="sm"
+            <InputField size="sm"
               value={props.emptyStateDescription ?? fallbackEmpty.description}
               onChange={(e) => onPatchProps({ emptyStateDescription: e.target.value })}
             />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-foreground">{t('list.filteredCustomTitle')}</label>
-            <TextField size="sm"
+            <InputField size="sm"
               value={props.filteredEmptyStateTitle ?? t('table.filteredTitle')}
               onChange={(e) => onPatchProps({ filteredEmptyStateTitle: e.target.value })}
             />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-foreground">{t('list.filteredCustomDesc')}</label>
-            <TextField size="sm"
+            <InputField size="sm"
               value={props.filteredEmptyStateDescription ?? t('table.filteredDesc')}
               onChange={(e) => onPatchProps({ filteredEmptyStateDescription: e.target.value })}
             />
@@ -896,7 +896,7 @@ function ListBuilderCanvas({
             )}
             {features.create && (
               <Button
-                icon={<Plus className="h-4 w-4" />}
+                icon={<AddCircle className="h-4 w-4" />}
                 onClick={() => previewAction(t('list.actCreate'))}
               >
                 {t('list.createTitle', { singular: def.singularLabel })}
@@ -906,7 +906,7 @@ function ListBuilderCanvas({
         }
       >
         <div className="mb-4">
-          <FilterToolbar
+          <TableToolbar
             testId="list-canvas-filter"
             searchValue={searchQuery}
             onSearchChange={(value) => {

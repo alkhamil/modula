@@ -67,7 +67,7 @@ export function mockRelationOptionsFn(field: FieldModel): string {
 }`;
 }
 
-/** Base list + fungsi load mock paginated/searchable untuk SelectField `loadOptions`. */
+/** Base list + fungsi load mock paginated/searchable untuk Select `loadOptions`. */
 export function mockLoadOptionsFn(field: FieldModel): string {
   const baseItems =
     field.config.options && field.config.options.length > 0

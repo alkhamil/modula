@@ -4,7 +4,7 @@ import { useFormState } from 'react-hook-form';
 import Button from './Button';
 import Dialog from './Dialog';
 import { useConfirmNavigation } from '../../hooks';
-import { Info } from 'lucide-react';
+import { InfoCircle } from '../icons';
 
 interface NavigationGuardProps {
   submitted: boolean;
@@ -46,7 +46,7 @@ function NavigationGuard({
       hideCloseButton
     >
       <div className="flex items-start gap-4">
-        <Info className="h-12 w-12 shrink-0 text-warning" />
+        <InfoCircle className="h-12 w-12 shrink-0 text-warning" />
         <div>
           <p className="text-base font-medium text-foreground">{resolvedTitle}</p>
           <p className="mt-1 text-sm font-normal text-muted-foreground">{resolvedDescription}</p>

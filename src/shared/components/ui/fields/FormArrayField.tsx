@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Button from '../Button';
 import Dialog from '../Dialog';
 import Table, { type Column } from '../Table';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { AddCircle, Pen, TrashBinTrash } from '../../icons';
 
 export interface ArrayEditorApi<T> {
   /** Baris yang diedit, atau null saat tambah baru. */
@@ -110,7 +110,7 @@ export default function FormArrayField<T extends Record<string, unknown>>({
           className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
           title={t('array.editRow')}
         >
-          <Pencil className="h-4 w-4" />
+          <Pen className="h-4 w-4" />
         </button>
         {!(lockFirstRow && (index ?? 0) === 0) && (
           <button
@@ -121,7 +121,7 @@ export default function FormArrayField<T extends Record<string, unknown>>({
             className="rounded p-1 text-danger hover:bg-danger/10 disabled:cursor-not-allowed disabled:opacity-50"
             title={t('array.deleteRow')}
           >
-            <Trash2 className="h-4 w-4" />
+            <TrashBinTrash className="h-4 w-4" />
           </button>
         )}
       </div>
@@ -144,7 +144,7 @@ export default function FormArrayField<T extends Record<string, unknown>>({
             onClick={handleAdd}
             data-testid={resolvedTestId ? `${resolvedTestId}-add-button` : undefined}
           >
-            <Plus className="h-4 w-4" />
+            <AddCircle className="h-4 w-4" />
             {resolvedAddLabel}
           </Button>
         </div>
@@ -159,7 +159,7 @@ export default function FormArrayField<T extends Record<string, unknown>>({
               onClick={handleAdd}
               data-testid={resolvedTestId ? `${resolvedTestId}-add-button` : undefined}
             >
-              <Plus className="h-4 w-4" />
+              <AddCircle className="h-4 w-4" />
               {resolvedAddLabel}
             </Button>
           </div>

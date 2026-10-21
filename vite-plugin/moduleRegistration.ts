@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module';
 import type { ModuleRegistration } from '../src/modules/generator/types.ts';
 
 export const ROUTER_IMPORTS_ANCHOR = '// __GENERATOR_IMPORTS__';
@@ -141,43 +140,4 @@ export function unregisterModuleNav(
     new RegExp(`^\\s*${escapeRe(reg.navExport)}\\s*,\\s*$`),
   );
   return { source: entry.source, removed: entry.removed };
-}
-
-/** Daftar nama ikon lucide bila pustaka bisa dimuat di Node; null = tak bisa dicek. */
-function knownIconNames(): Set<string> | null {
-  try {
-    const require = createRequire(import.meta.url);
-    const mod = require('lucide-react') as { icons?: Record<string, unknown> };
-    if (!mod || typeof mod.icons !== 'object' || mod.icons === null) return null;
-    return new Set(Object.keys(mod.icons));
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Ikon final untuk nav: nama dari engine bila dikenal lucide, `Database`
- * bila tidak (engine sudah menjamin bentuk identifier aman).
- */
-export function resolveNavIconName(iconName: string): string {
-  if (!/^[A-Z][A-Za-z0-9]{0,39}$/.test(iconName)) return 'Database';
-  const known = knownIconNames();
-  if (known !== null && !known.has(iconName)) return 'Database';
-  return iconName;
-}
-
-/**
- * Pastikan `navigation.tsx` modul hanya memakai ikon lucide yang ada: nama
- * tak dikenal diganti `Database` (import + semua JSX). Isi lain tak disentuh.
- */
-export function sanitizeModuleNavIcon(content: string): string {
-  const match = /import\s*\{\s*([A-Za-z0-9]+)\s*\}\s*from\s*'lucide-react';/.exec(content);
-  if (!match) return content;
-  const name = match[1] as string;
-  const resolved = resolveNavIconName(name);
-  if (resolved === name) return content;
-  return content
-    .replace(match[0], `import { ${resolved} } from 'lucide-react';`)
-    .split(`<${name} `)
-    .join(`<${resolved} `);
 }

@@ -4,7 +4,7 @@
 - Stack: React (Vite / Next.js), TypeScript, Shadcn/Tailwind, Zustand, React Hook Form.
 - Layout Standard (JANGAN DIUBAH):
     - `PageHeader`: Judul, breadcrumb, action button
-    - `Sidebar`: Menu dinamis dari config
+    - `SideNavbar`: Menu dinamis dari config
     - `PageContent`: Satu-satunya area yang boleh di-edit oleh Builder. Semua canvas drag-drop hanya di dalam sini.
 - Struktur Module Saat Ini: `/modules/[moduleName]/pages/`, `components/`, `hooks/`, `services/`
 
@@ -64,4 +64,4 @@ Struktur `api.contract.json`:
 3.  Buat `FormBuilderCanvas` dan `FormRenderer`
 4.  Buat `ListBuilderCanvas` dan `ListRenderer`
 5.  Buat fungsi `generateContract()` yang menghasilkan `api.contract.json` dari semua schema.
-6.  Jangan ubah `PageHeader` dan `Sidebar`.
+6.  Jangan ubah `PageHeader` dan `SideNavbar`.

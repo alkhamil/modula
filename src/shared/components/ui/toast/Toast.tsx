@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CircleCheck, CircleX, TriangleAlert, Info } from 'lucide-react';
+import { CheckCircle, CloseCircle, DangerTriangle, InfoCircle } from '../../icons';
 import { ToastContext, type ToastVariant, type ShowToastParams } from './toast-context';
 
 interface ToastItemData {
@@ -15,31 +15,31 @@ interface ToastItemData {
 
 const variantConfig: Record<
   ToastVariant,
-  { bg: string; text: string; border: string; Icon: typeof CircleCheck }
+  { bg: string; text: string; border: string; Icon: typeof CheckCircle }
 > = {
   success: {
     bg: 'bg-success',
     text: 'text-white',
     border: 'border-success',
-    Icon: CircleCheck,
+    Icon: CheckCircle,
   },
   error: {
     bg: 'bg-danger',
     text: 'text-white',
     border: 'border-danger',
-    Icon: CircleX,
+    Icon: CloseCircle,
   },
   warning: {
     bg: 'bg-warning',
     text: 'text-white',
     border: 'border-warning',
-    Icon: TriangleAlert,
+    Icon: DangerTriangle,
   },
   info: {
     bg: 'bg-info',
     text: 'text-white',
     border: 'border-info',
-    Icon: Info,
+    Icon: InfoCircle,
   },
 };
 
@@ -88,7 +88,7 @@ function ToastItem({ item, onClose }: { item: ToastItemData; onClose: (id: numbe
           onClick={() => onClose(item.id)}
           className="shrink-0 cursor-pointer rounded-full p-0.5 transition-opacity hover:opacity-70"
         >
-          <X className="h-4 w-4" />
+          <CloseCircle className="h-4 w-4" />
         </button>
       )}
     </div>

@@ -1,4 +1,13 @@
 @import 'tailwindcss';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import './shared/theme/wds/tokens.generated.css';
+@import './shared/theme/wds/button.css';
+@import './shared/theme/wds/button.generated.css';
+@import './shared/theme/wds/selection.css';
+@import './shared/theme/wds/selection.generated.css';
 
 /*
  * Token warna/radius Tailwind dipetakan ke CSS variables (--theme-*)
@@ -28,23 +37,24 @@
 
 /*
  * Fallback sebelum JS menerapkan thema (anti-flash).
- * Sumber kebenaran tetap src/shared/theme/theme.ts (thema light).
+ * Sumber kebenaran tetap src/shared/theme/theme.ts (thema light), yang diturunkan
+ * dari token WDS (tokens/tokens.json → wds/tokens.generated.css).
  */
 :root {
-  --theme-primary: #2563eb;
-  --theme-primary-foreground: #ffffff;
-  --theme-secondary: #0f766e;
-  --theme-secondary-foreground: #ffffff;
-  --theme-success: #15803d;
-  --theme-warning: #b45309;
-  --theme-danger: #dc2626;
-  --theme-info: #0284c7;
-  --theme-background: #ffffff;
-  --theme-surface: #f1f5f9;
-  --theme-muted: #e2e8f0;
-  --theme-border: #cbd5e1;
-  --theme-foreground: #0f172a;
-  --theme-muted-foreground: #64748b;
+  --theme-primary: var(--wds-bg-brand);
+  --theme-primary-foreground: var(--wds-text-on-brand);
+  --theme-secondary: var(--wds-secondary-500);
+  --theme-secondary-foreground: var(--wds-text-on-brand);
+  --theme-success: var(--wds-bg-success);
+  --theme-warning: var(--wds-bg-warning);
+  --theme-danger: var(--wds-bg-danger);
+  --theme-info: var(--wds-bg-info);
+  --theme-background: var(--wds-bg-page);
+  --theme-surface: var(--wds-bg-subtle);
+  --theme-muted: var(--wds-bg-subtle-2);
+  --theme-border: var(--wds-stroke-default);
+  --theme-foreground: var(--wds-text-primary);
+  --theme-muted-foreground: var(--wds-text-tertiary);
   --theme-radius-sm: 0.125rem;
   --theme-radius-md: 0.25rem;
   --theme-radius-lg: 0.5rem;
@@ -87,6 +97,7 @@
 body {
   background-color: var(--theme-background);
   color: var(--theme-foreground);
+  font-family: var(--wds-font-family-body);
 }
 
 .table-scroll {

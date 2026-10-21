@@ -1,5 +1,5 @@
 /**
- * Logika list runtime: FilterToolbar fields + filter/sort/paginate mock.
+ * Logika list runtime: TableToolbar fields + filter/sort/paginate mock.
  * Meniru 1:1 template generate (`filterFieldSnippet`, `mockFilterLine`,
  * `filter<EntityPlural>Records`, `sort<EntityPlural>`, `paginate`).
  * Murni & Node-safe (tipe UI diimpor type-only).
@@ -9,12 +9,12 @@ import '../../../shared/i18n';
 import type { FilterField } from '../../../shared/components/ui';
 import type { ModuleDefinition } from '../definitions';
 import { moduleFieldLabel } from './moduleI18n';
-import type { LoadOptionsFn } from '../../../shared/components/ui/fields/SelectField';
+import type { LoadOptionsFn } from '../../../shared/components/ui/fields/Select';
 import type { GeneratorFieldConfig } from '../types';
 import { fieldTypeRegistry } from '../registry';
 import type { DynamicListItem } from './types';
 
-/** Bangun FilterToolbar fields dari definisi (status sistem + field filterable). */
+/** Bangun TableToolbar fields dari definisi (status sistem + field filterable). */
 export function buildFilterFields(
   fields: GeneratorFieldConfig[],
   loadOptionsFor: (field: GeneratorFieldConfig) => LoadOptionsFn | undefined,

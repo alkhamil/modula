@@ -23,10 +23,10 @@ import {
   Button,
   Card,
   Drawer,
-  SwitchField,
-  TextField,
+  Toggle,
+  InputField,
 } from '../../../shared/components/ui';
-import { Settings } from 'lucide-react';
+import { Settings } from '../../../shared/components/icons';
 import { capitalize } from '../../../shared/utils';
 import type { ModuleDefinition, ModuleLayout } from '../definitions';
 import { SYSTEM_TABLE_COLUMNS } from '../definitions';
@@ -74,7 +74,7 @@ function SwitchRow({
         <p className="text-xs font-medium text-foreground">{label}</p>
         <p className="text-xs text-muted-foreground">{desc}</p>
       </div>
-      <SwitchField value={value} onChange={onChange} size="sm" disabled={disabled} />
+      <Toggle value={value} onChange={onChange} size="sm" disabled={disabled} />
     </div>
   );
 }
@@ -302,7 +302,7 @@ function DetailCardDrawerContent({
         <div className="flex flex-col field-gap">
           <div>
             <label className="mb-1 block text-xs font-medium text-foreground">{t('detail.cardTitle')}</label>
-            <TextField
+            <InputField
               size="sm"
               value={card?.title ?? ''}
               onChange={(e) => onPatchCard({ title: e.target.value })}

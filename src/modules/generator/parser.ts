@@ -1,7 +1,7 @@
 import { t } from 'i18next';
 import '../../shared/i18n';
 import type { GeneratorConfig, GeneratorFieldConfig } from './types';
-import { MENU_ICON_NAME_RE } from './types';
+import { isWdsIcon } from '../../shared/components/icons/names';
 import { pruneComponentProps } from './componentProps';
 import { toCamelCase, toPascalCase } from './naming';
 import {
@@ -311,9 +311,9 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
     }
   });
 
-  // Ikon menu: nama komponen lucide-react (keberadaan ikon dicek saat render/register).
+  // Ikon menu: nama ikon WDS (PascalCase, mis. `Database`).
   if (config.menuIcon) {
-    if (!MENU_ICON_NAME_RE.test(config.menuIcon.name.trim())) {
+    if (!isWdsIcon(config.menuIcon.name.trim())) {
       issues.push({ path: 'menuIcon.name', message: t('configValidate.iconNameRequired') });
     }
   }

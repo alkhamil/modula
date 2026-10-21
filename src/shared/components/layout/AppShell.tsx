@@ -1,9 +1,9 @@
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useMatches } from 'react-router';
-import Sidebar from './Sidebar';
+import SideNavbar from './SideNavbar';
 import PageHeader, { type BreadcrumbItem } from './PageHeader';
-import AvatarUser, { type AvatarUserData } from './AvatarUser';
+import Profile, { type AvatarUserData } from './Profile';
 import PageContent from './PageContent';
 import { type NavItemType } from '../../types/navigation';
 import { filterNavItems, resolveNavLabel } from '../../utils';
@@ -97,7 +97,7 @@ function AppShell({
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar
+      <SideNavbar
         items={allNavItems}
         permissions={permissions}
         collapsed={sidebarCollapsed}
@@ -122,7 +122,7 @@ function AppShell({
         >
           <div className="flex items-center gap-2">
             {headerExtra}
-            <AvatarUser user={user} onLogout={onLogout} settingsPath={settingsPath} />
+            <Profile user={user} onLogout={onLogout} settingsPath={settingsPath} />
           </div>
         </PageHeader>
         <PageContent>

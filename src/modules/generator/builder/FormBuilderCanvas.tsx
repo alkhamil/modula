@@ -31,32 +31,10 @@ import {
   Dialog,
   Drawer,
   FormGroup,
-  TextField,
+  InputField,
 } from '../../../shared/components/ui';
-import {
-  AlignLeft,
-  Banknote,
-  Calendar,
-  CalendarRange,
-  CheckSquare,
-  ChevronDown,
-  CircleDot,
-  GripVertical,
-  Hash,
-  Heading,
-  Link2,
-  ListChecks,
-  ListTodo,
-  Lock,
-  Minus,
-  Palette as PaletteIcon,
-  PenLine,
-  Table,
-  ToggleRight,
-  Trash2,
-  Type,
-  Upload,
-} from 'lucide-react';
+import { AltArrowDown, Calendar, CalendarDate, CheckSquare, Checklist, ChecklistMinimalistic, Dollar, Hashtag, LinkMinimalistic, Lock, MenuDotsVertical, Minus, Palette as PaletteIcon, Pen2, Power, Record, Text, TextBold, TextField as TextFieldIcon, TrashBinTrash, Upload, Widget2 } from '../../../shared/components/icons';
+import type { IconComponent } from '../../../shared/components/icons';
 import type { GeneratorFieldConfig } from '../types';
 import { deriveFieldNaming, isReservedFieldName, uniqueFieldName } from '../parser';
 import type { FormLayoutItem, ModuleDefinition, ModuleLayout } from '../definitions';
@@ -143,7 +121,7 @@ function presetForKind(kind: PaletteKind): FieldFormPreset {
     case 'multiselect':
       return { type: 'selectMultipleField', source: 'mockStatic', label: 'Multi Select' };
     case 'radio':
-      return { type: 'radioGroupField', source: 'mockStatic', label: 'Radio' };
+      return { type: 'radioGroupField', source: 'mockStatic', label: 'RadioButton' };
     case 'checkbox':
       return { type: 'checkboxField', label: 'Checkbox' };
     case 'checkboxgroup':
@@ -169,27 +147,27 @@ function presetForKind(kind: PaletteKind): FieldFormPreset {
   }
 }
 
-/** Ikon per jenis komponen palet (lucide-react). */
-const PALETTE_ICONS: Record<PaletteKind, typeof Type> = {
-  text: Type,
-  number: Hash,
-  currency: Banknote,
-  textarea: AlignLeft,
+/** Ikon per jenis komponen palet (WDS). */
+const PALETTE_ICONS: Record<PaletteKind, IconComponent> = {
+  text: TextFieldIcon,
+  number: Hashtag,
+  currency: Dollar,
+  textarea: Text,
   password: Lock,
-  select: ChevronDown,
-  multiselect: ListChecks,
-  radio: CircleDot,
+  select: AltArrowDown,
+  multiselect: Checklist,
+  radio: Record,
   checkbox: CheckSquare,
-  checkboxgroup: ListTodo,
+  checkboxgroup: ChecklistMinimalistic,
   date: Calendar,
-  daterange: CalendarRange,
-  switch: ToggleRight,
+  daterange: CalendarDate,
+  switch: Power,
   upload: Upload,
   color: PaletteIcon,
-  editor: PenLine,
-  array: Table,
-  relation: Link2,
-  section: Heading,
+  editor: Pen2,
+  array: Widget2,
+  relation: LinkMinimalistic,
+  section: TextBold,
   divider: Minus,
 };
 
@@ -321,7 +299,7 @@ function ResizeHandle({
       onClick={(e) => e.stopPropagation()}
       className="flex w-3 shrink-0 cursor-ew-resize items-center justify-center rounded-r-lg text-transparent hover:bg-primary/20 hover:text-primary"
     >
-      <GripVertical className="h-4 w-4" />
+      <MenuDotsVertical className="h-4 w-4" />
     </span>
   );
 }
@@ -386,7 +364,7 @@ function FieldCanvasCard({
           className="flex w-8 shrink-0 cursor-grab items-center justify-center rounded-l-lg border-r border-border text-muted-foreground hover:bg-muted hover:text-foreground"
           title={t('builder.form.dragHint')}
         >
-          <GripVertical className="h-4 w-4" />
+          <MenuDotsVertical className="h-4 w-4" />
         </span>
         <div className="relative min-w-0 flex-1 p-3">
           <div className={interactivePreview ? '' : 'pointer-events-none'}>
@@ -474,7 +452,7 @@ function DecoCanvasCard({
           className="flex w-8 shrink-0 cursor-grab items-center justify-center rounded-l-lg border-r border-border text-muted-foreground hover:bg-muted hover:text-foreground"
           title={t('builder.form.dragHint')}
         >
-          <GripVertical className="h-4 w-4" />
+          <MenuDotsVertical className="h-4 w-4" />
         </span>
         <div className="min-w-0 flex-1 p-3">
           {kind === 'section' ? (
@@ -529,7 +507,7 @@ function LayoutItemDrawerContent({
   return (
     <div className="flex flex-col stack-gap">
       <Card title={t('builder.form.sectionTitle')} size="sm">
-        <TextField
+        <InputField
           value={draftLabel}
           onChange={(e) => setDraftLabel(e.target.value)}
         />
@@ -923,7 +901,7 @@ function FormBuilderCanvas({
               <div className="xl:sticky xl:top-0 xl:z-10 xl:bg-background/95 xl:py-1 xl:backdrop-blur">
                 <p className="mb-2 text-sm font-medium text-foreground">{t('builder.form.palette')}</p>
                 <div className="mb-2">
-                  <TextField
+                  <InputField
                     size="sm"
                     value={paletteQuery}
                     onChange={(e) => setPaletteQuery(e.target.value)}
@@ -986,7 +964,7 @@ function FormBuilderCanvas({
                   variant="danger"
                   onClick={() => setShowResetConfirm(true)}
                   disabled={formItems.length === 0}
-                  icon={<Trash2 className="h-4 w-4" />}
+                  icon={<TrashBinTrash className="h-4 w-4" />}
                   testId="canvas-reset"
                   title={t('builder.form.resetTitle')}
                 >
@@ -1058,7 +1036,7 @@ function FormBuilderCanvas({
               variant="danger"
               onClick={handleDeleteSelected}
               testId="property-delete"
-              icon={<Trash2 className="h-4 w-4" />}
+              icon={<TrashBinTrash className="h-4 w-4" />}
               title={t('common.delete')}
               aria-label={t('common.delete')}
             />
@@ -1113,7 +1091,7 @@ function FormBuilderCanvas({
             <Button variant="secondary" onClick={() => setShowResetConfirm(false)}>
               Batal
             </Button>
-            <Button variant="danger" onClick={handleResetAll} icon={<Trash2 className="h-4 w-4" />}>{t('builder.form.resetConfirm')}</Button>
+            <Button variant="danger" onClick={handleResetAll} icon={<TrashBinTrash className="h-4 w-4" />}>{t('builder.form.resetConfirm')}</Button>
           </>
         }
       >

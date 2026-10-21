@@ -58,12 +58,18 @@ Muse Code reads this file as project rules when it runs in this directory.
 
 ## Core Rules
 
-- Thema: `src/shared/theme/theme.ts` satu-satunya sumber kebenaran token;
+- Thema: `src/shared/theme/theme.ts` satu-satunya sumber kebenaran token
+  (diturunkan dari token WDS `tokens/tokens.json` via `npm run tokens:build`);
   dilarang hardcode warna/hex di komponen — pakai utility token
   (`bg-primary`, `text-muted-foreground`, `border-border`) atau
   `var(--theme-*)`.
 - Spacing: class semantik `.page-padding`, `.section-gap`, `.stack-gap`,
   `.field-gap`; angka Tailwind hanya untuk penyimpangan khusus.
+- Nama komponen UI = nama komponen di Figma WDS (Button, Checkbox, Radio Button →
+  `RadioButton`, Toggle, Input Field → `InputField`, Textarea, Select, Date Picker →
+  `DatePicker`, File Upload → `FileUpload`, Table Toolbar → `TableToolbar`, Side Navbar →
+  `SideNavbar`, Profile, dst.); komponen tanpa padanan WDS (mis. `FormItem`, `ColorField`)
+  dibiarkan. Variasi grup diturunkan dari namanya (`CheckboxGroup`, `RadioButtonGroup`).
 - File JSX berekstensi `.tsx`; komponen shared mendukung `testId`;
   `shared` tidak import dari `modules`.
 - Modul CRUD baru dibuat via wizard `/generator` (publish Draft/Publish),

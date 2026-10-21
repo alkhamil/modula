@@ -1,5 +1,5 @@
 import { type ReactNode, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { AltArrowDown } from '../icons';
 
 interface CardProps {
   children: ReactNode;
@@ -59,7 +59,7 @@ function Card({
               <h3 className={`${compact ? 'text-sm' : 'text-lg'} font-semibold text-foreground`}>{title}</h3>
               <div>
                 {toggleIcon ?? (
-                  <ChevronDown
+                  <AltArrowDown
                     className={`h-4 w-4 text-muted-foreground transition-transform ${open ? 'rotate-270' : 'rotate-90'}`}
                   />
                 )}

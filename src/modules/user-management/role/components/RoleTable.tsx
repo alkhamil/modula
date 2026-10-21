@@ -4,7 +4,7 @@ import type { RoleListItem } from '../types';
 import { Table, Badge } from '../../../../shared/components/ui';
 
 import { formatDateTime } from '../../../../shared/utils';
-import { Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+import { Eye, Pen, Restart, TrashBinTrash } from '../../../../shared/components/icons';
 
 interface Props {
   testId?: string;
@@ -106,7 +106,7 @@ function RoleTable({
               title={`Edit ${role.name}`}
               onClick={() => onEdit(role)}
             >
-              <Pencil className="h-4 w-4 text-warning" />
+              <Pen className="h-4 w-4 text-warning" />
             </button>
           )}
           {role.status === 'active' && onDelete && (
@@ -117,7 +117,7 @@ function RoleTable({
               onClick={() => onDelete(role)}
               disabled={isDeleting}
             >
-              <Trash2 className="h-4 w-4 text-danger" />
+              <TrashBinTrash className="h-4 w-4 text-danger" />
             </button>
           )}
           {role.status === 'inactive' && onRestore && (
@@ -128,7 +128,7 @@ function RoleTable({
               onClick={() => onRestore(role)}
               disabled={isRestoring}
             >
-              <RotateCcw className="h-4 w-4 text-success" />
+              <Restart className="h-4 w-4 text-success" />
             </button>
           )}
         </div>

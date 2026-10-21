@@ -1,0 +1,526 @@
+{
+  "docs": {
+    "nav": {
+      "allComponents": "All components",
+      "onThisPage": "On this page",
+      "componentList": "Component list",
+      "searchLabel": "Search components",
+      "searchPlaceholder": "Search components…",
+      "noResults": "No matching components."
+    },
+    "index": {
+      "title": "Components",
+      "subtitle": "UI component documentation that follows Figma WDS: properties, states, tokens, and behavior."
+    },
+    "header": {
+      "openFigma": "Open in Figma WDS"
+    },
+    "notFound": {
+      "message": "Component “{{slug}}” does not exist.",
+      "viewAll": "View all components"
+    },
+    "sections": {
+      "playground": {
+        "title": "Playground",
+        "hint": "Change props with the controls; the preview and code update together."
+      },
+      "figma": {
+        "title": "Figma properties → props",
+        "hint": "How the Figma WDS component properties and variable modes map to this component's props."
+      },
+      "examples": {
+        "title": "Examples"
+      },
+      "states": {
+        "title": "States",
+        "hint": "States are forced with {{attr}} for documentation only; in the app, states come from interaction (hover, press, keyboard focus, disabled)."
+      },
+      "props": {
+        "title": "Props"
+      },
+      "tokens": {
+        "title": "Design tokens",
+        "hint": "Source: {{file}}. Values are live for the active theme."
+      },
+      "behavior": {
+        "title": "Behavior"
+      },
+      "accessibility": {
+        "title": "Accessibility"
+      },
+      "do": "Do",
+      "dont": "Don't"
+    },
+    "table": {
+      "figma": {
+        "figma": "Figma",
+        "values": "Values",
+        "props": "Props",
+        "notes": "Notes"
+      },
+      "props": {
+        "prop": "Prop",
+        "type": "Type",
+        "default": "Default",
+        "description": "Description"
+      },
+      "tokens": {
+        "variable": "CSS variable",
+        "value": "Value",
+        "usage": "Used for"
+      }
+    },
+    "playground": {
+      "preview": "Preview",
+      "background": "Preview background",
+      "controls": "Controls",
+      "controlsLabel": "Props controls",
+      "reset": "Reset",
+      "backgrounds": {
+        "white": "White",
+        "gray": "Gray",
+        "dots": "Dots"
+      }
+    },
+    "code": {
+      "copy": "Copy",
+      "copied": "Copied",
+      "readOnly": "Example code (read only)"
+    },
+    "tabs": {
+      "preview": "Preview",
+      "code": "Code"
+    },
+    "categories": {
+      "actions": "Actions",
+      "forms": "Forms"
+    },
+    "button": {
+      "summary": "WDS action button. Hierarchy sets visual emphasis (primary → text), the destructive style is for dangerous actions, and states (hover, pressed, focus, disabled) and sizes come from design tokens.",
+      "figma": {
+        "label": {
+          "values": "free text",
+          "note": "Figma default: “Button CTA”."
+        },
+        "destructive": {
+          "note": "Red style for any hierarchy; variant=\"danger\" turns it on automatically."
+        },
+        "hierarchy": {
+          "note": "Legacy shortcut: variant primary/secondary/danger maps to a hierarchy (+ destructive)."
+        },
+        "size": {
+          "note": "md = 44px high, padding 12/16, radius 8."
+        },
+        "shape": {
+          "note": "box uses the size radius token; rounded is a pill."
+        },
+        "icons": {
+          "note": "both = leading + trailing; only = iconOnly (padding.all, minimum width 44)."
+        },
+        "states": {
+          "note": ":hover, :active, :focus-visible, :disabled; no props."
+        },
+        "focus": {
+          "values": "1px stroke outside, 2px gap",
+          "note": "Shown for keyboard focus only."
+        }
+      },
+      "examples": {
+        "hierarchy": {
+          "title": "Hierarchy",
+          "description": "One primary action per area; the rest secondary or lower."
+        },
+        "destructive": {
+          "title": "Destructive",
+          "description": "For actions that delete data or cannot be undone."
+        },
+        "sizes": {
+          "title": "Sizes"
+        },
+        "shapes": {
+          "title": "Shapes"
+        },
+        "icons": {
+          "title": "Icons",
+          "description": "The Figma “Show icons” modes: leading, trailing, both, and only."
+        }
+      },
+      "matrices": {
+        "hierarchyStates": "Hierarchy × state",
+        "destructiveStates": "Destructive × state"
+      },
+      "props": {
+        "hierarchy": "Visual emphasis (Button hierarchy mode).",
+        "destructive": "Destructive style for any hierarchy.",
+        "size": "Size from the Size tokens (padding, radius, font, icon).",
+        "shape": "Token radius (box) or pill (rounded).",
+        "leadingIcon": "Icon before the label.",
+        "trailingIcon": "Icon after the label.",
+        "iconOnly": "Icon only (children are ignored). Always set aria-label.",
+        "variant": "Legacy shortcut. danger = primary + destructive; custom = no WDS colors (colors come from className).",
+        "iconLegacy": "Legacy shortcut for a single icon.",
+        "disabled": "Disables the button (WDS disabled state).",
+        "testId": "Mapped to data-testid.",
+        "rest": "onClick, type, aria-*, etc. are passed to the <button>."
+      },
+      "tokens": {
+        "--wds-bg-brand": "Primary background (default).",
+        "--wds-bg-brand-hover": "Primary background on hover.",
+        "--wds-bg-brand-pressed-strong": "Primary background while pressed.",
+        "--wds-bg-danger": "Destructive primary background.",
+        "--wds-text-on-brand": "Text color on top of brand.",
+        "--wds-stroke-brand": "Secondary border.",
+        "--wds-stroke-focus": "Focus ring color.",
+        "--wds-bg-disabled": "Background when disabled.",
+        "--wds-text-disabled": "Text when disabled.",
+        "--wds-sz-padding-left": "Horizontal padding (follows size).",
+        "--wds-sz-padding-top": "Vertical padding (follows size).",
+        "--wds-sz-radius-all": "Radius of the box shape.",
+        "--wds-sz-gap": "Icon–label gap.",
+        "--wds-sz-icon-size": "Icon size.",
+        "--wds-sz-text-label-font-size": "Label text size.",
+        "--wds-sz-width": "Minimum button width.",
+        "--wds-sz-focus-stroke": "Focus ring thickness."
+      },
+      "behavior": [
+        "Hover, pressed, focus, and disabled come from the WDS state tokens (Button states): :hover, :active, :focus-visible, :disabled.",
+        "The focus ring only appears for keyboard focus (:focus-visible): a 1px stroke outside the button with a 2px gap.",
+        "Disabled: not-allowed cursor, cannot be focused or clicked, colors from the disabled tokens.",
+        "Minimum width follows the Size token (44px at md); width hugs the content.",
+        "The label uses Inter Medium (500), matching the Figma node.",
+        "`type` is not set automatically: inside a <form> the button is a submit button. Use type=\"button\" for regular actions.",
+        "The brand color follows the primary color chosen in Settings (hover/pressed are derived)."
+      ],
+      "accessibility": [
+        "Icon-only buttons (iconOnly) must have an aria-label.",
+        "Use the real <button> element so Enter and Space work natively.",
+        "The focus ring stays visible in every hierarchy; do not remove the outline through className.",
+        "Make sure label contrast follows the tokens (on-brand text over the brand background)."
+      ],
+      "guidelines": {
+        "do": [
+          "One primary button per area/main action.",
+          "Use clear verb labels (Save, Delete).",
+          "Use destructive for actions that delete data."
+        ],
+        "dont": [
+          "Do not place several primary buttons side by side.",
+          "Do not use variant=\"custom\" to imitate an existing hierarchy.",
+          "Do not put long text in a button; it is not designed for multiple lines."
+        ]
+      }
+    },
+    "checkbox": {
+      "summary": "WDS checkbox for independent options. Two styles (outline, solid), five sizes, a mixed state, a hint line, and error / disabled / focus states from the design tokens.",
+      "figma": {
+        "label": {
+          "values": "free text",
+          "note": "Figma default: “Remember me”."
+        },
+        "supporting": {
+          "values": "free text",
+          "note": "Shown under the label; the error message takes its place."
+        },
+        "style": {
+          "note": "Outline: blue border and mark, no fill. Solid: filled with the info color and a white mark."
+        },
+        "states": {
+          "note": "Derived from props and interaction; focus is orthogonal (a ring around the control)."
+        },
+        "size": {
+          "note": "Control 16/20/24/28/32px; gap 8/10/12/12/16px."
+        },
+        "types": {
+          "note": "Icon only = no label (omit the label prop)."
+        },
+        "modes": {
+          "note": "Hint mode lowers the control 2px to align with the label line."
+        },
+        "focus": {
+          "values": "1px stroke outside, 2px gap",
+          "note": "Shown for keyboard focus only."
+        },
+        "tick": {
+          "note": "Equals the value prop; no extra prop."
+        }
+      },
+      "examples": {
+        "sizes": {
+          "title": "Sizes"
+        },
+        "hint": {
+          "title": "Hint",
+          "description": "With and without supporting text."
+        },
+        "appearance": {
+          "title": "Style",
+          "description": "Outline has a blue border and mark; Solid is filled."
+        }
+      },
+      "matrices": {
+        "states": "Style × state"
+      },
+      "props": {
+        "value": "Current state (controlled).",
+        "onChange": "Called with the new value.",
+        "label": "Label next to the control; omit it for an icon-only control.",
+        "hint": "Supporting text under the label (replaced by the error message).",
+        "appearance": "Figma Style: outline (default) or solid (filled).",
+        "size": "Size from the Size tokens (box, gap, text).",
+        "indeterminate": "Mixed state (dash) — takes precedence over checked.",
+        "disabled": "Disabled state (disabled-off / disabled-on, 40% opacity).",
+        "error": "Error message: error state + text in the hint slot.",
+        "className": "Class on the outer wrapper.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Border when unselected.",
+        "--wds-stroke-info": "Border when selected.",
+        "--wds-bg-info": "Fill of the solid style (and toggle track) when selected.",
+        "--wds-bg-subtle-3": "Toggle track when off.",
+        "--wds-icons-on-brand": "Mark color on solid fill (check, dot, thumb).",
+        "--wds-stroke-danger": "Border in the error state.",
+        "--wds-text-secondary": "Label text.",
+        "--wds-text-tertiary": "Hint / supporting text.",
+        "--wds-sz-selection-controls-width": "Control size (follows size).",
+        "--wds-sz-selection-controls-stroke": "Border thickness.",
+        "--wds-sz-selection-controls-gap": "Gap between control and text.",
+        "--wds-sz-selection-controls-radius-all": "Corner radius (checkbox).",
+        "--wds-stroke-focus": "Focus ring color."
+      },
+      "behavior": [
+        "Click the box or the label to toggle; Space toggles when focused.",
+        "`indeterminate` shows a dash and takes precedence over `checked` (e.g. “select all” with partial selection).",
+        "Disabled keeps the selected/unselected look at 40% opacity (disabled-on / disabled-off).",
+        "The error state applies to unselected boxes; a selected box keeps its fill and only the border turns red.",
+        "The error message replaces the hint under the label and uses the danger color.",
+        "Sizes follow the Size tokens (16–32px); the focus ring is a 1px stroke 2px outside, shown for keyboard focus only."
+      ],
+      "accessibility": [
+        "Use a real label (the label prop) so the control has an accessible name; icon-only controls need aria-label on the wrapper context.",
+        "Keep the native input: it provides keyboard, focus, and form semantics (the visible box is decorative).",
+        "Errors are announced via role=\"alert\" in the hint slot; invalid controls set aria-invalid.",
+        "Do not rely on color alone: the mark (check, dot, thumb position) also shows the state."
+      ],
+      "guidelines": {
+        "do": [
+          "Use a checkbox for independent yes/no options and multi-select lists.",
+          "Use radio for one choice among a few options.",
+          "Use a toggle for settings that apply immediately."
+        ],
+        "dont": [
+          "Do not use a checkbox/radio where a toggle’s immediate effect is expected.",
+          "Do not use a toggle in forms that need a Save step.",
+          "Do not use long label text; keep it to one or two lines."
+        ]
+      }
+    },
+    "toggle": {
+      "summary": "WDS toggle for settings that take effect immediately. Five sizes, a dynamic or static label, a hint line, and error / disabled / focus states from the design tokens.",
+      "figma": {
+        "label": {
+          "values": "free text",
+          "note": "Figma default: “Remember me”."
+        },
+        "supporting": {
+          "values": "free text",
+          "note": "Shown under the label; the error message takes its place."
+        },
+        "style": {
+          "note": "Outline: blue border and mark, no fill. Solid: filled with the info color and a white mark."
+        },
+        "states": {
+          "note": "Derived from props and interaction; focus is orthogonal (a ring around the control)."
+        },
+        "size": {
+          "note": "Control 16/20/24/28/32px; gap 8/10/12/12/16px."
+        },
+        "types": {
+          "note": "Icon only = no label (omit the label prop)."
+        },
+        "modes": {
+          "note": "Hint mode lowers the control 2px to align with the label line."
+        },
+        "focus": {
+          "values": "1px stroke outside, 2px gap",
+          "note": "Shown for keyboard focus only."
+        },
+        "tick": {
+          "note": "Equals the value prop; no extra prop."
+        }
+      },
+      "examples": {
+        "sizes": {
+          "title": "Sizes"
+        },
+        "hint": {
+          "title": "Hint",
+          "description": "With and without supporting text."
+        }
+      },
+      "matrices": {
+        "states": "State"
+      },
+      "props": {
+        "value": "Current state (controlled).",
+        "onChange": "Called with the new value.",
+        "label": "Label: `switchLabel` (static) or `checkedLabel` / `uncheckedLabel` (follow the value).",
+        "hint": "Supporting text under the label (replaced by the error message).",
+        "appearance": "Figma Style: outline (default) or solid (filled).",
+        "size": "Size from the Size tokens (box, gap, text).",
+        "indeterminate": "Mixed state (dash) — takes precedence over checked.",
+        "disabled": "Disabled state (disabled-off / disabled-on, 40% opacity).",
+        "error": "Error message: error state + text in the hint slot.",
+        "className": "Class on the outer wrapper.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Border when unselected.",
+        "--wds-stroke-info": "Border when selected.",
+        "--wds-bg-info": "Fill of the solid style (and toggle track) when selected.",
+        "--wds-bg-subtle-3": "Toggle track when off.",
+        "--wds-icons-on-brand": "Mark color on solid fill (check, dot, thumb).",
+        "--wds-stroke-danger": "Border in the error state.",
+        "--wds-text-secondary": "Label text.",
+        "--wds-text-tertiary": "Hint / supporting text.",
+        "--wds-sz-selection-controls-width": "Control size (follows size).",
+        "--wds-sz-selection-controls-stroke": "Border thickness.",
+        "--wds-sz-selection-controls-gap": "Gap between control and text.",
+        "--wds-sz-selection-controls-radius-all": "Corner radius (checkbox).",
+        "--wds-stroke-focus": "Focus ring color."
+      },
+      "behavior": [
+        "Click the track or the label to switch; Space toggles when focused (role=\"switch\").",
+        "Track is 1.8× the height and the thumb 0.8× (Figma 43.2×24 and 19.2px at md).",
+        "`checkedLabel` / `uncheckedLabel` swap the label with the value; `switchLabel` is a static label.",
+        "Disabled keeps the on/off look at 40% opacity. Figma leaves the off-state fill empty, so the unselected track fill is kept to keep the thumb visible.",
+        "The error message replaces the hint under the label and uses the danger color.",
+        "The focus ring is a 1px stroke 2px outside, shown for keyboard focus only."
+      ],
+      "accessibility": [
+        "Use a real label (the label prop) so the control has an accessible name; icon-only controls need aria-label on the wrapper context.",
+        "Keep the native input: it provides keyboard, focus, and form semantics (the visible box is decorative).",
+        "Errors are announced via role=\"alert\" in the hint slot; invalid controls set aria-invalid.",
+        "Do not rely on color alone: the mark (check, dot, thumb position) also shows the state."
+      ],
+      "guidelines": {
+        "do": [
+          "Use a checkbox for independent yes/no options and multi-select lists.",
+          "Use radio for one choice among a few options.",
+          "Use a toggle for settings that apply immediately."
+        ],
+        "dont": [
+          "Do not use a checkbox/radio where a toggle’s immediate effect is expected.",
+          "Do not use a toggle in forms that need a Save step.",
+          "Do not use long label text; keep it to one or two lines."
+        ]
+      }
+    },
+    "radio-button": {
+      "summary": "WDS radio for a single choice. Two styles (outline, solid), five sizes, a hint line, and error / disabled / focus states from the design tokens.",
+      "figma": {
+        "label": {
+          "values": "free text",
+          "note": "Figma default: “Remember me”."
+        },
+        "supporting": {
+          "values": "free text",
+          "note": "Shown under the label; the error message takes its place."
+        },
+        "style": {
+          "note": "Outline: blue border and mark, no fill. Solid: filled with the info color and a white mark."
+        },
+        "states": {
+          "note": "Derived from props and interaction; focus is orthogonal (a ring around the control)."
+        },
+        "size": {
+          "note": "Control 16/20/24/28/32px; gap 8/10/12/12/16px."
+        },
+        "types": {
+          "note": "Icon only = no label (omit the label prop)."
+        },
+        "modes": {
+          "note": "Hint mode lowers the control 2px to align with the label line."
+        },
+        "focus": {
+          "values": "1px stroke outside, 2px gap",
+          "note": "Shown for keyboard focus only."
+        },
+        "tick": {
+          "note": "Equals the value prop; no extra prop."
+        }
+      },
+      "examples": {
+        "sizes": {
+          "title": "Sizes"
+        },
+        "hint": {
+          "title": "Hint",
+          "description": "With and without supporting text."
+        },
+        "appearance": {
+          "title": "Style",
+          "description": "Outline has a blue border and mark; Solid is filled."
+        }
+      },
+      "matrices": {
+        "states": "Style × state"
+      },
+      "props": {
+        "value": "Whether this option is selected.",
+        "onChange": "Called with the new value.",
+        "label": "Label next to the control; omit it for an icon-only control.",
+        "hint": "Supporting text under the label (replaced by the error message).",
+        "appearance": "Figma Style: outline (default) or solid (filled).",
+        "size": "Size from the Size tokens (box, gap, text).",
+        "indeterminate": "Mixed state (dash) — takes precedence over checked.",
+        "disabled": "Disabled state (disabled-off / disabled-on, 40% opacity).",
+        "error": "Error message: error state + text in the hint slot.",
+        "className": "Class on the outer wrapper.",
+        "testId": "Mapped to data-testid.",
+        "radioValue": "Native value of this option."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Border when unselected.",
+        "--wds-stroke-info": "Border when selected.",
+        "--wds-bg-info": "Fill of the solid style (and toggle track) when selected.",
+        "--wds-bg-subtle-3": "Toggle track when off.",
+        "--wds-icons-on-brand": "Mark color on solid fill (check, dot, thumb).",
+        "--wds-stroke-danger": "Border in the error state.",
+        "--wds-text-secondary": "Label text.",
+        "--wds-text-tertiary": "Hint / supporting text.",
+        "--wds-sz-selection-controls-width": "Control size (follows size).",
+        "--wds-sz-selection-controls-stroke": "Border thickness.",
+        "--wds-sz-selection-controls-gap": "Gap between control and text.",
+        "--wds-sz-selection-controls-radius-all": "Corner radius (checkbox).",
+        "--wds-stroke-focus": "Focus ring color."
+      },
+      "behavior": [
+        "Clicking the control or the label selects the option; arrow keys move within a native radio group.",
+        "A radio cannot be unselected by clicking it again.",
+        "Use RadioButtonGroup for sets of options: one shared error message under the group.",
+        "Outline shows a 12px colored dot; Solid shows a filled circle with an 8px white dot.",
+        "Disabled keeps the selected/unselected look at 40% opacity.",
+        "The focus ring is a 1px stroke 2px outside, shown for keyboard focus only."
+      ],
+      "accessibility": [
+        "Use a real label (the label prop) so the control has an accessible name; icon-only controls need aria-label on the wrapper context.",
+        "Keep the native input: it provides keyboard, focus, and form semantics (the visible box is decorative).",
+        "Errors are announced via role=\"alert\" in the hint slot; invalid controls set aria-invalid.",
+        "Do not rely on color alone: the mark (check, dot, thumb position) also shows the state."
+      ],
+      "guidelines": {
+        "do": [
+          "Use a checkbox for independent yes/no options and multi-select lists.",
+          "Use radio for one choice among a few options.",
+          "Use a toggle for settings that apply immediately."
+        ],
+        "dont": [
+          "Do not use a checkbox/radio where a toggle’s immediate effect is expected.",
+          "Do not use a toggle in forms that need a Save step.",
+          "Do not use long label text; keep it to one or two lines."
+        ]
+      }
+    }
+  }
+}

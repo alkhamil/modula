@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Dialog, Table, useToast } from '../../../shared/components/ui';
-import { Trash2 } from 'lucide-react';
+import { TrashBinTrash } from '../../../shared/components/icons';
 import type { ModuleDefinition } from '../definitions';
 import { relationDependentsOf } from '../definitions';
 import { deleteDefinition, deleteModuleRecords } from '../runtime';
@@ -154,7 +154,7 @@ function ModulesTab({ definitions, isLoading, onEdit, onDeleted }: ModulesTabPro
             <Button size="sm" variant="secondary" onClick={() => setGenerateTarget(def)}>
               {t('modules.generate')}
             </Button>
-            <Button size="sm" variant="danger" onClick={() => setDeleteTarget(def)} icon={<Trash2 className="h-4 w-4" />}>
+            <Button size="sm" variant="danger" onClick={() => setDeleteTarget(def)} icon={<TrashBinTrash className="h-4 w-4" />}>
               {t('common.delete')}
             </Button>
           </div>
@@ -173,7 +173,7 @@ function ModulesTab({ definitions, isLoading, onEdit, onDeleted }: ModulesTabPro
             <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
               {t('common.cancel')}
             </Button>
-            <Button variant="danger" disabled={isDeleting} onClick={() => void handleDelete()} icon={<Trash2 className="h-4 w-4" />}>
+            <Button variant="danger" disabled={isDeleting} onClick={() => void handleDelete()} icon={<TrashBinTrash className="h-4 w-4" />}>
               {isDeleting ? t('modules.deleting') : t('modules.deleteModule')}
             </Button>
           </>

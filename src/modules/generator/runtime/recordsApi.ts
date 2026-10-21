@@ -1,6 +1,6 @@
 /** Mock records generik: seed JSON + persist localStorage (mock-only, tanpa BE). */
 import type { ApiList } from '../../../shared/types';
-import type { LoadOptionsFn } from '../../../shared/components/ui/fields/SelectField';
+import type { LoadOptionsFn } from '../../../shared/components/ui/fields/Select';
 import { XLSX_MIME, buildWorkbook, readWorkbookRows } from '../../../shared/utils';
 import type { GeneratorFieldConfig } from '../types';
 import type { ModuleDefinition } from '../definitions';

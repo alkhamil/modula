@@ -3,21 +3,21 @@ import type { ReactNode } from 'react';
 import { FormGroup, FormItem } from '../../../shared/components/ui';
 import type { Column } from '../../../shared/components/ui/Table';
 import {
-  CheckboxField,
-  CheckboxGroupField,
+  Checkbox,
+  CheckboxGroup,
   ColorField,
-  DatePickerField,
-  DateRangeField,
+  DatePicker,
+  DateRangePicker,
   EditorField,
-  FileUploadField,
+  FileUpload,
   FormArrayField,
   PasswordField,
-  RadioGroupField,
-  SelectField,
-  SelectMultipleField,
-  SwitchField,
-  TextAreaField,
-  TextField,
+  RadioButtonGroup,
+  Select,
+  SelectMultiple,
+  Toggle,
+  Textarea,
+  InputField,
 } from '../../../shared/components/ui/fields';
 import type { GeneratorFieldConfig } from '../types';
 import type { ModuleDefinition } from '../definitions';
@@ -26,7 +26,7 @@ import { parseConfigDate, resolveFormItemLayout } from '../componentProps';
 import type { DynamicOption } from './types';
 import { columnRenderForType, staticOptionsOf } from './cellRender';
 import { fieldRulesToRHF, maxLengthOf, rowFormValues, rowPayloadValues } from './validation';
-import type { LoadOptionsFn } from '../../../shared/components/ui/fields/SelectField';
+import type { LoadOptionsFn } from '../../../shared/components/ui/fields/Select';
 
 export interface FieldRenderContext {
   def?: Pick<ModuleDefinition, 'i18n'>;
@@ -66,7 +66,7 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={TextField}
+          component={InputField}
           currency
           placeholder={placeholderFor('Enter')}
           {...(p?.size ? { size: p.size } : {})}
@@ -83,7 +83,7 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={TextField}
+          component={InputField}
           currency
           placeholder={placeholderFor('Enter')}
           prepend={p?.prefix?.trim() || 'Rp'}
@@ -99,7 +99,7 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={TextAreaField}
+          component={Textarea}
           placeholder={placeholderFor('Enter')}
           {...(p?.size ? { size: p.size } : {})}
           {...(field.rows && field.rows > 0 ? { rows: field.rows } : {})}
@@ -129,7 +129,7 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={DatePickerField}
+          component={DatePicker}
           placeholder={placeholderFor('Select')}
           {...(p?.size ? { size: p.size } : {})}
           {...(p?.showTime !== undefined ? { showTime: p.showTime } : {})}
@@ -146,7 +146,7 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={DateRangeField}
+          component={DateRangePicker}
           placeholder={placeholderFor('Select')}
           {...(p?.size ? { size: p.size } : {})}
           {...(maxDate ? { maxDate } : {})}
@@ -162,7 +162,7 @@ export function renderDynamicField(
           <FormItem
             label={label}
             {...common}
-            component={SelectField}
+            component={Select}
             placeholder={placeholderFor('Select')}
             searchable={p?.searchable ?? true}
             paginateOnScroll={p?.paginateOnScroll ?? true}
@@ -182,7 +182,7 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={SelectField}
+          component={Select}
           placeholder={placeholderFor('Select')}
           options={ctx.optionsOf(field)}
           clearable={p?.clearable ?? false}
@@ -204,7 +204,7 @@ export function renderDynamicField(
           <FormItem
             label={label}
             {...common}
-            component={SelectMultipleField}
+            component={SelectMultiple}
             placeholder={placeholderFor('Select')}
             searchable={p?.searchable ?? true}
             paginateOnScroll={p?.paginateOnScroll ?? true}
@@ -226,7 +226,7 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={SelectMultipleField}
+          component={SelectMultiple}
           placeholder={placeholderFor('Select')}
           options={ctx.optionsOf(field)}
           searchable={p?.searchable ?? true}
@@ -248,7 +248,7 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={RadioGroupField}
+          component={RadioButtonGroup}
           options={ctx.optionsOf(field)}
           {...(p?.size ? { size: p.size } : {})}
         />
@@ -260,7 +260,7 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={CheckboxField}
+          component={Checkbox}
           {...(p?.size ? { size: p.size } : {})}
           {...(p?.indeterminate !== undefined ? { indeterminate: p.indeterminate } : {})}
         />
@@ -272,7 +272,7 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={CheckboxGroupField}
+          component={CheckboxGroup}
           options={ctx.optionsOf(field)}
           {...(p?.size ? { size: p.size } : {})}
         />
@@ -284,7 +284,7 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={SwitchField}
+          component={Toggle}
           showCheckedLabels={p?.showCheckedLabels ?? false}
           {...(p?.size ? { size: p.size } : {})}
           {...(p?.checkedLabel?.trim() ? { checkedLabel: p.checkedLabel.trim() } : {})}
@@ -298,7 +298,7 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={FileUploadField}
+          component={FileUpload}
           {...(p?.size ? { size: p.size } : {})}
           {...(p?.multiple !== undefined ? { multiple: p.multiple } : {})}
           {...(field.accept?.trim() ? { accept: field.accept.trim() } : {})}
@@ -384,7 +384,7 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={TextField}
+          component={InputField}
           {...(maxLength !== null ? { maxLength } : {})}
           placeholder={placeholderFor('Enter')}
           {...(p?.size ? { size: p.size } : {})}

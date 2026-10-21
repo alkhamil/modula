@@ -1,4 +1,4 @@
-import { Database } from 'lucide-react';
+import { Database } from '../../../shared/components/icons';
 import ModuleMenuIcon from '../components/ModuleMenuIcon';
 import type { NavItemType } from '../../../shared/types/navigation';
 import type { MenuIcon, ModuleDefinition } from '../definitions';

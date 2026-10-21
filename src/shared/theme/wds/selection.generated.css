@@ -1,0 +1,212 @@
+/* GENERATED oleh scripts/build-wds-tokens.mjs — jangan edit manual (npm run tokens:build). */
+
+@layer components {
+
+.wds-sc[data-kind="checkbox"] {
+  --sc-text: var(--wds-text-secondary);
+  --sc-hint: var(--wds-text-tertiary);
+  --sc-border-error: var(--wds-stroke-danger);
+}
+
+.wds-sc[data-kind="checkbox"][data-appearance="outline"][data-state="default"] {
+  --sc-border: var(--wds-stroke-default);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="checkbox"][data-appearance="solid"][data-state="default"] {
+  --sc-border: var(--wds-stroke-default);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="checkbox"][data-appearance="outline"][data-state="selected"] {
+  --sc-border: var(--wds-stroke-info);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-stroke-info);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="checkbox"][data-appearance="solid"][data-state="selected"] {
+  --sc-border: var(--wds-stroke-info);
+  --sc-fill: var(--wds-bg-info);
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="checkbox"][data-appearance="outline"][data-state="indeterminate"] {
+  --sc-border: var(--wds-stroke-info);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-stroke-info);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="checkbox"][data-appearance="solid"][data-state="indeterminate"] {
+  --sc-border: var(--wds-stroke-info);
+  --sc-fill: var(--wds-bg-info);
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="checkbox"][data-appearance="outline"][data-state="disabled-off"] {
+  --sc-border: var(--wds-stroke-default);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 0.4;
+}
+
+.wds-sc[data-kind="checkbox"][data-appearance="solid"][data-state="disabled-off"] {
+  --sc-border: var(--wds-stroke-default);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 0.4;
+}
+
+.wds-sc[data-kind="checkbox"][data-appearance="outline"][data-state="disabled-on"] {
+  --sc-border: var(--wds-stroke-info);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-stroke-info);
+  --sc-opacity: 0.4;
+}
+
+.wds-sc[data-kind="checkbox"][data-appearance="solid"][data-state="disabled-on"] {
+  --sc-border: var(--wds-stroke-info);
+  --sc-fill: var(--wds-bg-info);
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 0.4;
+}
+
+.wds-sc[data-kind="checkbox"][data-appearance="outline"][data-state="error"] {
+  --sc-border: var(--wds-stroke-danger);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="checkbox"][data-appearance="solid"][data-state="error"] {
+  --sc-border: var(--wds-stroke-danger);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="radio"] {
+  --sc-text: var(--wds-text-secondary);
+  --sc-hint: var(--wds-text-tertiary);
+  --sc-border-error: var(--wds-stroke-danger);
+}
+
+.wds-sc[data-kind="radio"][data-appearance="outline"][data-state="default"] {
+  --sc-border: var(--wds-stroke-default);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="radio"][data-appearance="solid"][data-state="default"] {
+  --sc-border: var(--wds-stroke-default);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="radio"][data-appearance="outline"][data-state="selected"] {
+  --sc-border: var(--wds-stroke-info);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-stroke-info);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="radio"][data-appearance="solid"][data-state="selected"] {
+  --sc-border: var(--wds-stroke-info);
+  --sc-fill: var(--wds-bg-info);
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="radio"][data-appearance="outline"][data-state="disabled-off"] {
+  --sc-border: var(--wds-stroke-default);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 0.4;
+}
+
+.wds-sc[data-kind="radio"][data-appearance="solid"][data-state="disabled-off"] {
+  --sc-border: var(--wds-stroke-default);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 0.4;
+}
+
+.wds-sc[data-kind="radio"][data-appearance="outline"][data-state="disabled-on"] {
+  --sc-border: var(--wds-stroke-info);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-stroke-info);
+  --sc-opacity: 0.4;
+}
+
+.wds-sc[data-kind="radio"][data-appearance="solid"][data-state="disabled-on"] {
+  --sc-border: var(--wds-stroke-info);
+  --sc-fill: var(--wds-bg-info);
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 0.4;
+}
+
+.wds-sc[data-kind="radio"][data-appearance="outline"][data-state="error"] {
+  --sc-border: var(--wds-stroke-danger);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="radio"][data-appearance="solid"][data-state="error"] {
+  --sc-border: var(--wds-stroke-danger);
+  --sc-fill: transparent;
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="toggle"] {
+  --sc-text: var(--wds-text-secondary);
+  --sc-hint: var(--wds-text-tertiary);
+  --sc-border-error: var(--wds-stroke-danger);
+}
+
+.wds-sc[data-kind="toggle"][data-state="default"] {
+  --sc-border: var(--wds-stroke-default);
+  --sc-fill: var(--wds-bg-subtle-3);
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="toggle"][data-state="selected"] {
+  --sc-border: var(--wds-stroke-info);
+  --sc-fill: var(--wds-bg-info);
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+.wds-sc[data-kind="toggle"][data-state="disabled-off"] {
+  --sc-border: var(--wds-stroke-default);
+  --sc-fill: var(--wds-bg-subtle-3);
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 0.4;
+}
+
+.wds-sc[data-kind="toggle"][data-state="disabled-on"] {
+  --sc-border: var(--wds-stroke-info);
+  --sc-fill: var(--wds-bg-info);
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 0.4;
+}
+
+.wds-sc[data-kind="toggle"][data-state="error"] {
+  --sc-border: var(--wds-stroke-danger);
+  --sc-fill: var(--wds-bg-subtle-3);
+  --sc-mark: var(--wds-icons-on-brand);
+  --sc-opacity: 1;
+}
+
+}

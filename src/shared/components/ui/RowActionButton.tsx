@@ -1,4 +1,4 @@
-import { Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+import { Eye, Pen, Restart, TrashBinTrash } from '../icons';
 
 export type RowActionKind = 'view' | 'edit' | 'delete' | 'restore';
 
@@ -7,9 +7,9 @@ export type RowActionColor = 'default' | 'info' | 'warning' | 'danger' | 'succes
 
 const ACTION_ICONS = {
   view: Eye,
-  edit: Pencil,
-  delete: Trash2,
-  restore: RotateCcw,
+  edit: Pen,
+  delete: TrashBinTrash,
+  restore: Restart,
 } as const;
 
 const DEFAULT_ICON_COLORS: Record<RowActionKind, string> = {

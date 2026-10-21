@@ -1,24 +1,15 @@
-import {
-  Aperture,
-  Box,
-  Command,
-  Database,
-  Globe,
-  Hexagon,
-  Layers,
-  Zap,
-  type LucideIcon,
-} from 'lucide-react';
+import { Bolt, Box, Camera, Command, Database, Global, Layers, Planet } from '../../shared/components/icons';
+import type { IconComponent } from '../../shared/components/icons';
 
-/** Ikon brand yang bisa dipilih untuk sidebar. */
-export const BRAND_ICONS: { name: string; Icon: LucideIcon }[] = [
+/** Ikon brand yang bisa dipilih untuk sidebar (nama = kunci tersimpan di pengaturan). */
+export const BRAND_ICONS: { name: string; Icon: IconComponent }[] = [
   { name: 'Box', Icon: Box },
   { name: 'Command', Icon: Command },
   { name: 'Layers', Icon: Layers },
-  { name: 'Hexagon', Icon: Hexagon },
-  { name: 'Aperture', Icon: Aperture },
-  { name: 'Globe', Icon: Globe },
-  { name: 'Zap', Icon: Zap },
+  { name: 'Hexagon', Icon: Planet },
+  { name: 'Aperture', Icon: Camera },
+  { name: 'Globe', Icon: Global },
+  { name: 'Zap', Icon: Bolt },
   { name: 'Database', Icon: Database },
 ];
 

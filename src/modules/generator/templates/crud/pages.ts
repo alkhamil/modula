@@ -24,8 +24,8 @@ export function listPageTemplate(ctx: TemplateContext): string {
   const withExport = features.export;
   const hasActions = withCreate || withBulk || withExport;
   const iconList = [
-    withCreate ? 'Plus' : '',
-    withDelete ? 'Info' : '',
+    withCreate ? 'AddCircle' : '',
+    withDelete ? 'InfoCircle' : '',
     withExport ? 'Download' : '',
     withBulk ? 'Upload' : '',
   ].filter(Boolean);
@@ -36,8 +36,8 @@ export function listPageTemplate(ctx: TemplateContext): string {
   const needAuth = needView || needCreate || needUpdate || needDelete || withExport || withBulk;
 
   return `${withBulk ? `import { useState } from 'react';\n` : ''}import { useTranslation } from 'react-i18next';\nimport { useNavigate } from 'react-router';
-import { Card${hasActions ? ', Button' : ''}, FilterToolbar${withDelete ? ', Dialog' : ''} } from '${names.sharedPrefix}shared/components/ui';
-${iconList.length > 0 ? `import { ${iconList.join(', ')} } from 'lucide-react';\n` : ''}
+import { Card${hasActions ? ', Button' : ''}, TableToolbar${withDelete ? ', Dialog' : ''} } from '${names.sharedPrefix}shared/components/ui';
+${iconList.length > 0 ? `import { ${iconList.join(', ')} } from '${names.sharedPrefix}shared/components/icons';\n` : ''}
 ${needAuth ? `import { useAuth } from '${names.sharedPrefix}app/providers';\n` : ''}import { use${names.entity}List, use${names.entity}ListFilter${withExport ? `, use${names.entity}Export` : ''} } from '../hooks';
 import { ${names.entity}Table${withBulk ? `, ${names.entity}BulkUploadDialog` : ''} } from '../components';
 ${needAuth ? `import { ${names.entity}Permissions } from '../permissions';\n` : ''}import { listEmptyState } from '${names.sharedPrefix}shared/constants';
@@ -98,13 +98,13 @@ ${
   withCreate || withBulk || withExport
     ? `        actions={
           <div className="flex flex-wrap items-center gap-2">
-${withExport ? `            {canExport && (\n              <Button\n                data-testid="${names.testId}-export-button"\n                variant="secondary"\n                icon={<Download />}\n                onClick={() => exportData(queryParams)}\n                disabled={isExporting}\n              >\n                {isExporting ? t('runtime.exporting') : t('common.export')}\n              </Button>\n            )}\n` : ''}${withBulk ? `            {canBulkUpload && (\n              <Button\n                data-testid="${names.testId}-bulk-upload-button"\n                variant="secondary"\n                icon={<Upload />}\n                onClick={() => setBulkOpen(true)}\n              >\n                {t('common.bulkUpload')}\n              </Button>\n            )}\n` : ''}${withCreate ? `            {canCreate && (\n              <Button\n                data-testid="${names.testId}-create-button"\n                icon={<Plus />}\n                onClick={() => navigate('/${names.routeBase}/create')}\n              >\n                {t('runtime.createTitle', { singular: t('${base}.label') })}\n              </Button>\n            )}\n` : ''}          </div>
+${withExport ? `            {canExport && (\n              <Button\n                data-testid="${names.testId}-export-button"\n                variant="secondary"\n                icon={<Download />}\n                onClick={() => exportData(queryParams)}\n                disabled={isExporting}\n              >\n                {isExporting ? t('runtime.exporting') : t('common.export')}\n              </Button>\n            )}\n` : ''}${withBulk ? `            {canBulkUpload && (\n              <Button\n                data-testid="${names.testId}-bulk-upload-button"\n                variant="secondary"\n                icon={<Upload />}\n                onClick={() => setBulkOpen(true)}\n              >\n                {t('common.bulkUpload')}\n              </Button>\n            )}\n` : ''}${withCreate ? `            {canCreate && (\n              <Button\n                data-testid="${names.testId}-create-button"\n                icon={<AddCircle />}\n                onClick={() => navigate('/${names.routeBase}/create')}\n              >\n                {t('runtime.createTitle', { singular: t('${base}.label') })}\n              </Button>\n            )}\n` : ''}          </div>
         }
 `
     : ''
 }      >
         <div className="mb-4">
-          <FilterToolbar
+          <TableToolbar
             testId="${names.testId}-filter"
             searchValue={searchQuery}
             onSearchChange={handleSearchChange}
@@ -148,7 +148,7 @@ ${withBulk ? `      <${names.entity}BulkUploadDialog open={bulkOpen} onClose={()
         closeOnBackdropClick
       >
         <div className="flex items-start gap-4">
-          <Info className="h-12 w-12 shrink-0" />
+          <InfoCircle className="h-12 w-12 shrink-0" />
           <div>
             <p className="text-base font-medium text-foreground">{t('runtime.deleteTitle')}</p>
             <p className="mt-1 text-sm font-normal text-muted-foreground">{t('runtime.deleteSoft')}</p>
@@ -185,7 +185,7 @@ ${withBulk ? `      <${names.entity}BulkUploadDialog open={bulkOpen} onClose={()
         closeOnBackdropClick
       >
         <div className="flex items-start gap-4">
-          <Info className="h-12 w-12 shrink-0" />
+          <InfoCircle className="h-12 w-12 shrink-0" />
           <div>
             <p className="text-base font-medium text-foreground">{t('runtime.restoreTitle')}</p>
             <p className="mt-1 text-sm font-normal text-muted-foreground">{t('runtime.restoreDesc')}</p>
@@ -249,7 +249,7 @@ export function viewPageTemplate(ctx: TemplateContext): string {
   const base = ctx.config.permissionKey;
   return `import { useParams, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, Pencil } from 'lucide-react';
+import { AltArrowLeft, Pen } from '${names.sharedPrefix}shared/components/icons';
 import { Button, DetailCard } from '${names.sharedPrefix}shared/components/ui';
 ${features.edit ? `import { useAuth } from '${names.sharedPrefix}app/providers';\n` : ''}import { use${names.entity}Form } from '../hooks';
 ${features.edit ? `import { ${names.entity}Permissions } from '../permissions';\n` : ''}
@@ -272,7 +272,7 @@ ${features.edit ? '  const { can } = useAuth();\n' : ''}  const { queryStatus, q
                 type="button"
                 data-testid="${names.testId}-back-button"
                 variant="secondary"
-                icon={<ChevronLeft className="h-4 w-4" />}
+                icon={<AltArrowLeft className="h-4 w-4" />}
                 onClick={() => navigate(-1)}
               >
                 {t('common.back')}
@@ -284,7 +284,7 @@ ${
                   type="button"
                   data-testid="${names.testId}-edit-button"
                   variant="secondary"
-                  icon={<Pencil className="h-4 w-4" />}
+                  icon={<Pen className="h-4 w-4" />}
                   onClick={() => navigate(\`/${names.routeBase}/\${${names.paramId}}/edit\`)}
                 >
                   {t('common.edit')}

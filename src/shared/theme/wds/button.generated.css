@@ -1,0 +1,503 @@
+/* GENERATED oleh scripts/build-wds-tokens.mjs — jangan edit manual (npm run tokens:build). */
+
+@layer components {
+
+.wds-btn[data-hierarchy="primary"] {
+  --btn-stroke-width: var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0);
+  --btn-shadow: 0 0px 0px rgba(0, 0, 0, 0);
+}
+
+.wds-btn[data-hierarchy="primary"] {
+  --btn-bg: var(--wds-bg-brand);
+  --btn-fg: var(--wds-text-on-brand);
+  --btn-icon: var(--wds-icons-on-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="primary"]:hover:not(:disabled),
+.wds-btn[data-hierarchy="primary"][data-wds-state="hover"] {
+  --btn-bg: var(--wds-bg-brand-hover);
+  --btn-fg: var(--wds-text-on-brand);
+  --btn-icon: var(--wds-icons-on-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="primary"]:active:not(:disabled),
+.wds-btn[data-hierarchy="primary"][data-wds-state="pressed"] {
+  --btn-bg: var(--wds-bg-brand-pressed-strong);
+  --btn-fg: var(--wds-text-on-brand);
+  --btn-icon: var(--wds-icons-on-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="primary"]:disabled,
+.wds-btn[data-hierarchy="primary"][data-wds-state="disabled"] {
+  --btn-bg: var(--wds-bg-disabled);
+  --btn-fg: var(--wds-text-disabled);
+  --btn-icon: var(--wds-icons-disabled);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="primary"]:focus-visible,
+.wds-btn[data-hierarchy="primary"][data-wds-state="focused"] {
+  --btn-bg: var(--wds-bg-brand);
+  --btn-fg: var(--wds-text-on-brand);
+  --btn-icon: var(--wds-icons-on-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="primary"][data-destructive="true"] {
+  --btn-bg: var(--wds-bg-danger);
+  --btn-fg: var(--wds-text-on-brand);
+  --btn-icon: var(--wds-icons-on-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="primary"][data-destructive="true"]:hover:not(:disabled),
+.wds-btn[data-hierarchy="primary"][data-destructive="true"][data-wds-state="hover"] {
+  --btn-bg: var(--wds-bg-danger-hover);
+  --btn-fg: var(--wds-text-on-brand);
+  --btn-icon: var(--wds-icons-on-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="primary"][data-destructive="true"]:active:not(:disabled),
+.wds-btn[data-hierarchy="primary"][data-destructive="true"][data-wds-state="pressed"] {
+  --btn-bg: var(--wds-bg-danger-pressed);
+  --btn-fg: var(--wds-text-on-brand);
+  --btn-icon: var(--wds-icons-on-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="primary"][data-destructive="true"]:disabled,
+.wds-btn[data-hierarchy="primary"][data-destructive="true"][data-wds-state="disabled"] {
+  --btn-bg: var(--wds-bg-danger-subtle);
+  --btn-fg: var(--wds-text-danger-disabled);
+  --btn-icon: var(--wds-icons-danger-disabled);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="primary"][data-destructive="true"]:focus-visible,
+.wds-btn[data-hierarchy="primary"][data-destructive="true"][data-wds-state="focused"] {
+  --btn-bg: var(--wds-bg-danger);
+  --btn-fg: var(--wds-text-on-brand);
+  --btn-icon: var(--wds-icons-on-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="secondary"] {
+  --btn-stroke-width: var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1);
+  --btn-shadow: 0 0px 0px rgba(0, 0, 0, 0);
+}
+
+.wds-btn[data-hierarchy="secondary"] {
+  --btn-bg: var(--wds-bg-surface);
+  --btn-fg: var(--wds-text-brand);
+  --btn-icon: var(--wds-icons-brand);
+  --btn-stroke: var(--wds-stroke-brand);
+}
+
+.wds-btn[data-hierarchy="secondary"]:hover:not(:disabled),
+.wds-btn[data-hierarchy="secondary"][data-wds-state="hover"] {
+  --btn-bg: var(--wds-bg-hover);
+  --btn-fg: var(--wds-text-brand);
+  --btn-icon: var(--wds-icons-brand);
+  --btn-stroke: var(--wds-stroke-brand);
+}
+
+.wds-btn[data-hierarchy="secondary"]:active:not(:disabled),
+.wds-btn[data-hierarchy="secondary"][data-wds-state="pressed"] {
+  --btn-bg: var(--wds-bg-pressed-strong);
+  --btn-fg: var(--wds-text-brand);
+  --btn-icon: var(--wds-icons-brand);
+  --btn-stroke: var(--wds-stroke-brand);
+}
+
+.wds-btn[data-hierarchy="secondary"]:disabled,
+.wds-btn[data-hierarchy="secondary"][data-wds-state="disabled"] {
+  --btn-bg: var(--wds-bg-disabled);
+  --btn-fg: var(--wds-text-disabled);
+  --btn-icon: var(--wds-icons-disabled);
+  --btn-stroke: var(--wds-stroke-disabled);
+}
+
+.wds-btn[data-hierarchy="secondary"]:focus-visible,
+.wds-btn[data-hierarchy="secondary"][data-wds-state="focused"] {
+  --btn-bg: var(--wds-bg-surface);
+  --btn-fg: var(--wds-text-brand);
+  --btn-icon: var(--wds-icons-brand);
+  --btn-stroke: var(--wds-stroke-brand);
+}
+
+.wds-btn[data-hierarchy="secondary"][data-destructive="true"] {
+  --btn-bg: var(--wds-bg-surface);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: var(--wds-stroke-danger);
+}
+
+.wds-btn[data-hierarchy="secondary"][data-destructive="true"]:hover:not(:disabled),
+.wds-btn[data-hierarchy="secondary"][data-destructive="true"][data-wds-state="hover"] {
+  --btn-bg: var(--wds-bg-danger-subtle);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: var(--wds-stroke-danger);
+}
+
+.wds-btn[data-hierarchy="secondary"][data-destructive="true"]:active:not(:disabled),
+.wds-btn[data-hierarchy="secondary"][data-destructive="true"][data-wds-state="pressed"] {
+  --btn-bg: var(--wds-bg-danger-subtle-hover);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: var(--wds-stroke-danger);
+}
+
+.wds-btn[data-hierarchy="secondary"][data-destructive="true"]:disabled,
+.wds-btn[data-hierarchy="secondary"][data-destructive="true"][data-wds-state="disabled"] {
+  --btn-bg: var(--wds-bg-surface);
+  --btn-fg: var(--wds-text-danger-disabled);
+  --btn-icon: var(--wds-icons-danger-disabled);
+  --btn-stroke: var(--wds-stroke-danger-disabled);
+}
+
+.wds-btn[data-hierarchy="secondary"][data-destructive="true"]:focus-visible,
+.wds-btn[data-hierarchy="secondary"][data-destructive="true"][data-wds-state="focused"] {
+  --btn-bg: var(--wds-bg-surface);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: var(--wds-stroke-danger);
+}
+
+.wds-btn[data-hierarchy="tertiary"] {
+  --btn-stroke-width: var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1);
+  --btn-shadow: 0 0px 0px rgba(0, 0, 0, 0);
+}
+
+.wds-btn[data-hierarchy="tertiary"] {
+  --btn-bg: var(--wds-bg-surface);
+  --btn-fg: var(--wds-text-secondary);
+  --btn-icon: var(--wds-icons-secondary);
+  --btn-stroke: var(--wds-stroke-default);
+}
+
+.wds-btn[data-hierarchy="tertiary"]:hover:not(:disabled),
+.wds-btn[data-hierarchy="tertiary"][data-wds-state="hover"] {
+  --btn-bg: var(--wds-bg-hover);
+  --btn-fg: var(--wds-text-secondary);
+  --btn-icon: var(--wds-icons-secondary);
+  --btn-stroke: var(--wds-stroke-default);
+}
+
+.wds-btn[data-hierarchy="tertiary"]:active:not(:disabled),
+.wds-btn[data-hierarchy="tertiary"][data-wds-state="pressed"] {
+  --btn-bg: var(--wds-bg-pressed-strong);
+  --btn-fg: var(--wds-text-secondary);
+  --btn-icon: var(--wds-icons-secondary);
+  --btn-stroke: var(--wds-stroke-default);
+}
+
+.wds-btn[data-hierarchy="tertiary"]:disabled,
+.wds-btn[data-hierarchy="tertiary"][data-wds-state="disabled"] {
+  --btn-bg: var(--wds-bg-surface);
+  --btn-fg: var(--wds-text-disabled);
+  --btn-icon: var(--wds-icons-disabled);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tertiary"]:focus-visible,
+.wds-btn[data-hierarchy="tertiary"][data-wds-state="focused"] {
+  --btn-bg: var(--wds-bg-surface);
+  --btn-fg: var(--wds-text-secondary);
+  --btn-icon: var(--wds-icons-secondary);
+  --btn-stroke: var(--wds-stroke-default);
+}
+
+.wds-btn[data-hierarchy="tertiary"][data-destructive="true"] {
+  --btn-bg: var(--wds-bg-surface);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tertiary"][data-destructive="true"]:hover:not(:disabled),
+.wds-btn[data-hierarchy="tertiary"][data-destructive="true"][data-wds-state="hover"] {
+  --btn-bg: var(--wds-bg-danger-subtle);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tertiary"][data-destructive="true"]:active:not(:disabled),
+.wds-btn[data-hierarchy="tertiary"][data-destructive="true"][data-wds-state="pressed"] {
+  --btn-bg: var(--wds-bg-danger-subtle-hover);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tertiary"][data-destructive="true"]:disabled,
+.wds-btn[data-hierarchy="tertiary"][data-destructive="true"][data-wds-state="disabled"] {
+  --btn-bg: var(--wds-bg-danger-subtle);
+  --btn-fg: var(--wds-text-danger-disabled);
+  --btn-icon: var(--wds-icons-danger-disabled);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tertiary"][data-destructive="true"]:focus-visible,
+.wds-btn[data-hierarchy="tertiary"][data-destructive="true"][data-wds-state="focused"] {
+  --btn-bg: var(--wds-bg-surface);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="text"] {
+  --btn-stroke-width: var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0);
+  --btn-shadow: 0 0px 0px rgba(0, 0, 0, 0);
+}
+
+.wds-btn[data-hierarchy="text"] {
+  --btn-bg: transparent;
+  --btn-fg: var(--wds-text-secondary);
+  --btn-icon: var(--wds-icons-secondary);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="text"]:hover:not(:disabled),
+.wds-btn[data-hierarchy="text"][data-wds-state="hover"] {
+  --btn-bg: var(--wds-bg-hover);
+  --btn-fg: var(--wds-text-secondary);
+  --btn-icon: var(--wds-icons-secondary);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="text"]:active:not(:disabled),
+.wds-btn[data-hierarchy="text"][data-wds-state="pressed"] {
+  --btn-bg: var(--wds-bg-pressed-strong);
+  --btn-fg: var(--wds-text-secondary);
+  --btn-icon: var(--wds-icons-secondary);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="text"]:disabled,
+.wds-btn[data-hierarchy="text"][data-wds-state="disabled"] {
+  --btn-bg: transparent;
+  --btn-fg: var(--wds-text-disabled);
+  --btn-icon: var(--wds-icons-disabled);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="text"]:focus-visible,
+.wds-btn[data-hierarchy="text"][data-wds-state="focused"] {
+  --btn-bg: transparent;
+  --btn-fg: var(--wds-text-secondary);
+  --btn-icon: var(--wds-icons-secondary);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="text"][data-destructive="true"] {
+  --btn-bg: transparent;
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="text"][data-destructive="true"]:hover:not(:disabled),
+.wds-btn[data-hierarchy="text"][data-destructive="true"][data-wds-state="hover"] {
+  --btn-bg: var(--wds-bg-danger-subtle);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="text"][data-destructive="true"]:active:not(:disabled),
+.wds-btn[data-hierarchy="text"][data-destructive="true"][data-wds-state="pressed"] {
+  --btn-bg: var(--wds-bg-danger-subtle-hover);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="text"][data-destructive="true"]:disabled,
+.wds-btn[data-hierarchy="text"][data-destructive="true"][data-wds-state="disabled"] {
+  --btn-bg: transparent;
+  --btn-fg: var(--wds-text-danger-disabled);
+  --btn-icon: var(--wds-icons-danger-disabled);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="text"][data-destructive="true"]:focus-visible,
+.wds-btn[data-hierarchy="text"][data-destructive="true"][data-wds-state="focused"] {
+  --btn-bg: transparent;
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tonal"] {
+  --btn-stroke-width: var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0);
+  --btn-shadow: 0 0px 0px rgba(0, 0, 0, 0);
+}
+
+.wds-btn[data-hierarchy="tonal"] {
+  --btn-bg: var(--wds-bg-brand-subtle);
+  --btn-fg: var(--wds-text-brand);
+  --btn-icon: var(--wds-icons-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tonal"]:hover:not(:disabled),
+.wds-btn[data-hierarchy="tonal"][data-wds-state="hover"] {
+  --btn-bg: var(--wds-bg-brand-subtle-hover);
+  --btn-fg: var(--wds-text-brand);
+  --btn-icon: var(--wds-icons-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tonal"]:active:not(:disabled),
+.wds-btn[data-hierarchy="tonal"][data-wds-state="pressed"] {
+  --btn-bg: var(--wds-bg-brand-subtle-pressed);
+  --btn-fg: var(--wds-text-brand);
+  --btn-icon: var(--wds-icons-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tonal"]:disabled,
+.wds-btn[data-hierarchy="tonal"][data-wds-state="disabled"] {
+  --btn-bg: var(--wds-bg-disabled);
+  --btn-fg: var(--wds-text-disabled);
+  --btn-icon: var(--wds-icons-disabled);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tonal"]:focus-visible,
+.wds-btn[data-hierarchy="tonal"][data-wds-state="focused"] {
+  --btn-bg: var(--wds-bg-brand-subtle);
+  --btn-fg: var(--wds-text-brand);
+  --btn-icon: var(--wds-icons-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tonal"][data-destructive="true"] {
+  --btn-bg: var(--wds-bg-danger-subtle);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tonal"][data-destructive="true"]:hover:not(:disabled),
+.wds-btn[data-hierarchy="tonal"][data-destructive="true"][data-wds-state="hover"] {
+  --btn-bg: var(--wds-bg-danger-subtle-hover);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tonal"][data-destructive="true"]:active:not(:disabled),
+.wds-btn[data-hierarchy="tonal"][data-destructive="true"][data-wds-state="pressed"] {
+  --btn-bg: var(--wds-bg-danger-subtle-pressed);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tonal"][data-destructive="true"]:disabled,
+.wds-btn[data-hierarchy="tonal"][data-destructive="true"][data-wds-state="disabled"] {
+  --btn-bg: var(--wds-bg-danger-subtle);
+  --btn-fg: var(--wds-text-danger-subtle);
+  --btn-icon: var(--wds-icons-danger-disabled);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="tonal"][data-destructive="true"]:focus-visible,
+.wds-btn[data-hierarchy="tonal"][data-destructive="true"][data-wds-state="focused"] {
+  --btn-bg: var(--wds-bg-danger-subtle);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="elevated"] {
+  --btn-stroke-width: var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0);
+  --btn-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.wds-btn[data-hierarchy="elevated"] {
+  --btn-bg: var(--wds-bg-elevated);
+  --btn-fg: var(--wds-text-brand);
+  --btn-icon: var(--wds-icons-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="elevated"]:hover:not(:disabled),
+.wds-btn[data-hierarchy="elevated"][data-wds-state="hover"] {
+  --btn-bg: var(--wds-bg-hover);
+  --btn-fg: var(--wds-text-brand);
+  --btn-icon: var(--wds-icons-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="elevated"]:active:not(:disabled),
+.wds-btn[data-hierarchy="elevated"][data-wds-state="pressed"] {
+  --btn-bg: var(--wds-bg-pressed-strong);
+  --btn-fg: var(--wds-text-brand);
+  --btn-icon: var(--wds-icons-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="elevated"]:disabled,
+.wds-btn[data-hierarchy="elevated"][data-wds-state="disabled"] {
+  --btn-bg: var(--wds-bg-disabled);
+  --btn-fg: var(--wds-text-disabled);
+  --btn-icon: var(--wds-icons-disabled);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="elevated"]:focus-visible,
+.wds-btn[data-hierarchy="elevated"][data-wds-state="focused"] {
+  --btn-bg: var(--wds-bg-elevated);
+  --btn-fg: var(--wds-text-brand);
+  --btn-icon: var(--wds-icons-brand);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="elevated"][data-destructive="true"] {
+  --btn-bg: var(--wds-bg-elevated);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="elevated"][data-destructive="true"]:hover:not(:disabled),
+.wds-btn[data-hierarchy="elevated"][data-destructive="true"][data-wds-state="hover"] {
+  --btn-bg: var(--wds-bg-danger-subtle);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="elevated"][data-destructive="true"]:active:not(:disabled),
+.wds-btn[data-hierarchy="elevated"][data-destructive="true"][data-wds-state="pressed"] {
+  --btn-bg: var(--wds-bg-danger-subtle-hover);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="elevated"][data-destructive="true"]:disabled,
+.wds-btn[data-hierarchy="elevated"][data-destructive="true"][data-wds-state="disabled"] {
+  --btn-bg: var(--wds-bg-disabled);
+  --btn-fg: var(--wds-text-danger-subtle);
+  --btn-icon: var(--wds-icons-danger-disabled);
+  --btn-stroke: transparent;
+}
+
+.wds-btn[data-hierarchy="elevated"][data-destructive="true"]:focus-visible,
+.wds-btn[data-hierarchy="elevated"][data-destructive="true"][data-wds-state="focused"] {
+  --btn-bg: var(--wds-bg-elevated);
+  --btn-fg: var(--wds-text-danger);
+  --btn-icon: var(--wds-icons-danger);
+  --btn-stroke: transparent;
+}
+
+}

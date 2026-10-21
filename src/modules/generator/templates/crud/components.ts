@@ -295,7 +295,7 @@ export function formTemplate(ctx: TemplateContext): string {
 
   return `${arrayFields.length > 0 ? `import { t } from 'i18next';\nimport '${names.sharedPrefix}shared/i18n';\n` : ''}import { useCallback, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft } from 'lucide-react';
+import { AltArrowLeft } from '${names.sharedPrefix}shared/components/icons';
 import {
   Card,
   Button,
@@ -372,7 +372,7 @@ ${optionsFields.length > 0 ? '' : ''}}: ${names.entity}FormProps) {
           data-testid="${names.testId}-back-button"
           type="button"
           variant="secondary"
-          icon={<ChevronLeft className="h-4 w-4" />}
+          icon={<AltArrowLeft className="h-4 w-4" />}
           onClick={onCancel}
         >
           {t('common.back')}
@@ -445,7 +445,7 @@ import {
   Alert,
   Button,
   Dialog,
-  FileUploadField,
+  FileUpload,
 } from '${names.sharedPrefix}shared/components/ui';
 import { downloadBlob, mapSubmitError } from '${names.sharedPrefix}shared/utils';
 import type { BulkUploadResult } from '../types';
@@ -531,7 +531,7 @@ function ${names.entity}BulkUploadDialog({ open, onClose }: ${names.entity}BulkU
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground">{t('bulk.fileUpload')}</label>
-          <FileUploadField
+          <FileUpload
             value={file}
             onChange={(next) => {
               setFile(next);

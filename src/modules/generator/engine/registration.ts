@@ -1,5 +1,5 @@
 import type { GeneratorConfig, ModuleRegistration } from '../types';
-import { MENU_ICON_NAME_RE } from '../types';
+import { isWdsIcon } from '../../../shared/components/icons/names';
 import { normalizeConfig } from '../parser';
 import { buildContext, type TemplateContext } from './context';
 import { normalizeParentPath, prettifyParent } from '../naming';
@@ -52,10 +52,10 @@ export function modulePages(ctx: TemplateContext): ModulePage[] {
   return pages;
 }
 
-/** Nama ikon lucide menu: dari config bila identifier valid, selain itu `Database`. */
+/** Nama ikon WDS menu: dari config bila dikenal, selain itu `Database`. */
 export function menuIconName(config: GeneratorConfig): string {
-  const rawIcon = config.menuIcon?.name.trim() ?? '';
-  return MENU_ICON_NAME_RE.test(rawIcon) ? rawIcon : 'Database';
+  const raw = config.menuIcon?.name.trim() ?? '';
+  return isWdsIcon(raw) ? raw : 'Database';
 }
 
 export function buildRegistration(raw: GeneratorConfig): ModuleRegistration {

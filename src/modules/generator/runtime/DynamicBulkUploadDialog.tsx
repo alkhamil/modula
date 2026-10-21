@@ -5,7 +5,7 @@ import {
   Alert,
   Button,
   Dialog,
-  FileUploadField,
+  FileUpload,
 } from '../../../shared/components/ui';
 import { downloadBlob, mapSubmitError } from '../../../shared/utils';
 import type { ModuleDefinition } from '../definitions';
@@ -96,7 +96,7 @@ function DynamicBulkUploadDialog({ def, open, onClose }: DynamicBulkUploadDialog
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground">{t('bulk.fileUpload')}</label>
-          <FileUploadField
+          <FileUpload
             value={file}
             onChange={(next) => {
               setFile(next);

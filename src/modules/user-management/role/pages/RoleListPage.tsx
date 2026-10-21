@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import '../../../../shared/i18n';
-import { Card, Button, FilterToolbar, Dialog } from '../../../../shared/components/ui';
+import { Card, Button, TableToolbar, Dialog } from '../../../../shared/components/ui';
 
 import { useRoleList, useRoleListFilter, useRoleExport } from '../hooks';
 import { RoleTable, RoleBulkUploadDialog } from '../components';
 import { RolePermissions } from '../permissions';
 import { useAuth } from '../../../../app/providers';
 import { listEmptyState } from '../../../../shared/constants';
-import { Info, Plus, Download, Upload } from 'lucide-react';
+import { AddCircle, Download, InfoCircle, Upload } from '../../../../shared/components/icons';
 
 function RoleList() {
   const { t } = useTranslation();
@@ -95,7 +95,7 @@ function RoleList() {
             {canCreate && (
               <Button
                 data-testid="role-create-button"
-                icon={<Plus className="h-4 w-4" />}
+                icon={<AddCircle className="h-4 w-4" />}
                 onClick={() => navigate('/user-management/role/create')}
               >
                 {t('runtime.createTitle', { singular: t('role.label') })}
@@ -105,7 +105,7 @@ function RoleList() {
         }
       >
         <div className="mb-4">
-          <FilterToolbar
+          <TableToolbar
             testId="role-filter"
             searchValue={searchQuery}
             onSearchChange={handleSearchChange}
@@ -164,7 +164,7 @@ function RoleList() {
         closeOnBackdropClick
       >
         <div className="flex items-start gap-4">
-          <Info className="h-12 w-12 shrink-0 text-warning" />
+          <InfoCircle className="h-12 w-12 shrink-0 text-warning" />
           <div>
             <p className="text-base font-medium text-foreground">{t('runtime.deleteTitle')}</p>
             <p className="mt-1 text-sm font-normal text-muted-foreground">{t('runtime.deleteSoft')}</p>
@@ -201,7 +201,7 @@ function RoleList() {
         closeOnBackdropClick
       >
         <div className="flex items-start gap-4">
-          <Info className="h-12 w-12 shrink-0 text-success" />
+          <InfoCircle className="h-12 w-12 shrink-0 text-success" />
           <div>
             <p className="text-base font-medium text-foreground">{t('runtime.restoreTitle')}</p>
             <p className="mt-1 text-sm font-normal text-muted-foreground">{t('runtime.restoreDesc')}</p>

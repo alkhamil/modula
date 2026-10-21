@@ -1,0 +1,169 @@
+/*
+ * Dasar Checkbox / RadioButton / Toggle WDS (selection controls). Ukuran, jarak, dan tipografi dari
+ * token Size (`--wds-sz-selection-controls-*`, per `data-wds-size`); warna per state & style dari
+ * `selection.generated.css` (`--sc-*`). Di @layer components agar utility Tailwind bisa menimpa.
+ */
+@layer components {
+  .wds-sc {
+    --sc-pad-top: var(--wds-sz-selection-controls-padding-top);
+    display: inline-flex;
+    align-items: flex-start;
+    gap: var(--wds-sz-selection-controls-gap);
+    cursor: pointer;
+    opacity: var(--sc-opacity, 1);
+  }
+
+  .wds-sc[data-has-hint='true'] {
+    /* Mode "Hint" (Checkbox/RadioButton/Toggle modes): ikon turun supaya sejajar baris label. */
+    --sc-pad-top: calc(var(--wds-sz-selection-controls-padding-top) + var(--wds-padding-2));
+  }
+
+  .wds-sc[data-disabled='true'] {
+    cursor: not-allowed;
+  }
+
+  .wds-sc__control {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    padding-top: var(--sc-pad-top);
+  }
+
+  .wds-sc__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+  }
+
+  /* Border digambar dengan inset shadow supaya area konten = ukuran penuh (ikon pas 24×24). */
+  .wds-sc__box {
+    position: relative;
+    box-sizing: border-box;
+    display: block;
+    width: var(--wds-sz-selection-controls-width);
+    height: var(--wds-sz-selection-controls-height);
+    border-radius: var(--wds-sz-selection-controls-radius-all);
+    background-color: var(--sc-fill, transparent);
+    box-shadow: inset 0 0 0 var(--wds-sz-selection-controls-stroke) var(--sc-border, var(--wds-stroke-default));
+    transition:
+      background-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .wds-sc[data-error='true'] .wds-sc__box {
+    box-shadow: inset 0 0 0 var(--wds-sz-selection-controls-stroke) var(--sc-border-error);
+  }
+
+  .wds-sc[data-kind='radio'] .wds-sc__box,
+  .wds-sc[data-kind='toggle'] .wds-sc__box {
+    border-radius: var(--wds-sz-selection-controls-radius-rounded);
+  }
+
+  /* Toggle: track 1.8× tinggi, thumb 0.8× tinggi (Figma 43.2×24, thumb 19.2). */
+  .wds-sc[data-kind='toggle'] .wds-sc__box {
+    width: calc(var(--wds-sz-selection-controls-height) * 1.8);
+  }
+
+  .wds-sc__thumb {
+    position: absolute;
+    top: 50%;
+    left: calc(var(--wds-sz-selection-controls-height) * 0.1);
+    width: calc(var(--wds-sz-selection-controls-height) * 0.8);
+    height: calc(var(--wds-sz-selection-controls-height) * 0.8);
+    border-radius: 9999px;
+    background-color: var(--sc-mark);
+    transform: translateY(-50%);
+    transition: transform 150ms ease;
+  }
+
+  .wds-sc[data-checked='true'] .wds-sc__thumb {
+    transform: translate(calc(var(--wds-sz-selection-controls-height) * 0.8), -50%);
+  }
+
+  /* RadioButton: Outline = titik 0.5× berwarna; Solid = titik putih 0.333×. */
+  .wds-sc__dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: none;
+    width: calc(var(--wds-sz-selection-controls-height) * 0.5);
+    height: calc(var(--wds-sz-selection-controls-height) * 0.5);
+    border-radius: 9999px;
+    background-color: var(--sc-mark);
+    transform: translate(-50%, -50%);
+  }
+
+  .wds-sc[data-appearance='solid'] .wds-sc__dot {
+    width: calc(var(--wds-sz-selection-controls-height) / 3);
+    height: calc(var(--wds-sz-selection-controls-height) / 3);
+  }
+
+  .wds-sc[data-kind='radio'][data-checked='true'] .wds-sc__dot {
+    display: block;
+  }
+
+  /* Checkbox: tanda centang / strip digambar di grid 24 (path dari Figma). */
+  .wds-sc__mark {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: var(--sc-mark);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .wds-sc__check,
+  .wds-sc__dash {
+    display: none;
+  }
+
+  .wds-sc[data-checked='true'][data-indeterminate='false'] .wds-sc__check {
+    display: inline;
+  }
+
+  .wds-sc[data-indeterminate='true'] .wds-sc__dash {
+    display: inline;
+  }
+
+  .wds-sc__text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--wds-sz-checkbox-supporting-text-gap);
+  }
+
+  .wds-sc__label {
+    color: var(--sc-text);
+    font-family: var(--wds-sz-text-label-font-family);
+    font-weight: var(--wds-font-weight-regular);
+    font-size: var(--wds-sz-text-label-font-size);
+    line-height: var(--wds-sz-text-label-line-height);
+  }
+
+  .wds-sc__hint {
+    color: var(--sc-hint);
+    font-family: var(--wds-sz-text-hint-font-family);
+    font-weight: var(--wds-font-weight-regular);
+    font-size: var(--wds-sz-text-hint-font-size);
+    line-height: var(--wds-sz-text-hint-line-height);
+  }
+
+  /* Pesan error memakai warna danger (token WDS tidak mendefinisikan warna teks error di sini). */
+  .wds-sc__hint[role='alert'] {
+    color: var(--wds-text-danger);
+  }
+
+  /* Cincin fokus (Figma "Focus indicator"): stroke token di luar kotak, jarak 2px. */
+  .wds-sc__input:focus-visible + .wds-sc__box,
+  .wds-sc[data-wds-state='focused'] .wds-sc__box {
+    outline: var(--wds-sz-focus-stroke) solid var(--wds-stroke-focus);
+    outline-offset: 2px;
+  }
+}

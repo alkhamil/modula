@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { Button, Card, Dialog, FilterToolbar } from '../../../shared/components/ui';
-import { Info, Download, Plus, Trash2, Upload } from 'lucide-react';
+import { Button, Card, Dialog, TableToolbar } from '../../../shared/components/ui';
+import { AddCircle, Download, InfoCircle, TrashBinTrash, Upload } from '../../../shared/components/icons';
 import { useAuth } from '../../../app/providers';
 import { listEmptyState } from '../../../shared/constants';
 import type { ModuleDefinition } from '../definitions';
@@ -105,7 +105,7 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
             {canCreate && (
               <Button
                 data-testid={`${testPrefix}-create-button`}
-                icon={<Plus />}
+                icon={<AddCircle />}
                 onClick={() => navigate(`/${def.routeBase}/create`)}
               >
                 {moduleTitle(def, 'create', t('runtime.createTitle', { singular: def.singularLabel }))}
@@ -115,7 +115,7 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
         }
       >
         <div className="mb-4">
-          <FilterToolbar
+          <TableToolbar
             testId={`${testPrefix}-filter`}
             searchValue={searchQuery}
             onSearchChange={handleSearchChange}
@@ -170,7 +170,7 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
         closeOnBackdropClick
       >
         <div className="flex items-start gap-4">
-          <Info className="h-12 w-12 shrink-0 text-warning" />
+          <InfoCircle className="h-12 w-12 shrink-0 text-warning" />
           <div>
             <p className="text-base font-medium text-foreground">
               {t('runtime.deleteTitle')}
@@ -196,7 +196,7 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
             data-testid={`${testPrefix}-${isHardDelete ? 'delete' : 'deactivate'}-confirm`}
             className="w-25"
             variant="danger"
-            icon={<Trash2 className="h-4 w-4" />}
+            icon={<TrashBinTrash className="h-4 w-4" />}
             onClick={handleDelete}
             disabled={isDeleting}
           >
@@ -215,7 +215,7 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
           closeOnBackdropClick
         >
           <div className="flex items-start gap-4">
-            <Info className="h-12 w-12 shrink-0 text-success" />
+            <InfoCircle className="h-12 w-12 shrink-0 text-success" />
             <div>
               <p className="text-base font-medium text-foreground">
                 {t('runtime.restoreTitle')}

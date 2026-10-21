@@ -159,7 +159,7 @@ export interface FormItemPropsConfig {
   labelFontWeight?: 'light' | 'normal' | 'medium' | 'semibold' | 'bold';
 }
 
-/** Props TextField/number (textField, numberField). */
+/** Props InputField/number (textField, numberField). */
 export interface TextFieldPropsConfig {
   size?: FieldSize;
   clearable?: boolean;
@@ -169,7 +169,7 @@ export interface TextFieldPropsConfig {
   suffix?: string;
 }
 
-/** Props TextAreaField (textareaField). */
+/** Props Textarea (textareaField). */
 export interface TextareaPropsConfig {
   size?: FieldSize;
 }
@@ -180,7 +180,7 @@ export interface PasswordPropsConfig {
   defaultVisible?: boolean;
 }
 
-/** Props SelectField (selectField). */
+/** Props Select (selectField). */
 export interface SelectPropsConfig {
   size?: FieldSize;
   /** Default false (opsi statis) / komponen (loader). */
@@ -196,7 +196,7 @@ export interface SelectPropsConfig {
   showValueOnly?: boolean;
 }
 
-/** Props SelectMultipleField (selectMultipleField). */
+/** Props SelectMultiple (selectMultipleField). */
 export interface SelectMultiplePropsConfig {
   size?: FieldSize;
   clearable?: boolean;
@@ -213,7 +213,7 @@ export interface SelectMultiplePropsConfig {
   hideCheckBox?: boolean;
 }
 
-/** Props DatePickerField (dateField). Tanggal sebagai string `YYYY-MM-DD`. */
+/** Props DatePicker (dateField). Tanggal sebagai string `YYYY-MM-DD`. */
 export interface DatePickerPropsConfig {
   size?: FieldSize;
   showTime?: boolean;
@@ -222,7 +222,7 @@ export interface DatePickerPropsConfig {
   maxDate?: string;
 }
 
-/** Props DateRangeField (dateRangeField). */
+/** Props DateRangePicker (dateRangeField). */
 export interface DateRangePropsConfig {
   size?: FieldSize;
   maxDate?: string;
@@ -234,13 +234,13 @@ export interface GroupPropsConfig {
   size?: FieldSize;
 }
 
-/** Props CheckboxField (checkboxField). */
+/** Props Checkbox (checkboxField). */
 export interface CheckboxPropsConfig {
   size?: FieldSize;
   indeterminate?: boolean;
 }
 
-/** Props SwitchField (switchField). */
+/** Props Toggle (switchField). */
 export interface SwitchPropsConfig {
   size?: FieldSize;
   /** Default false (label statis = label field). */
@@ -249,7 +249,7 @@ export interface SwitchPropsConfig {
   uncheckedLabel?: string;
 }
 
-/** Props FileUploadField (fileUploadField). */
+/** Props FileUpload (fileUploadField). */
 export interface UploadPropsConfig {
   size?: FieldSize;
   /** Default false (file tunggal). true = multi-file, nilai `File[]`. */
@@ -401,8 +401,8 @@ export interface GeneratorConfig {
 }
 
 /**
- * Ikon menu dari `lucide-react`: nama komponen PascalCase (mis. `Database`,
- * `Users`). Render fallback ke `Database` bila nama tak dikenal.
+ * Ikon menu dari ikon WDS (`shared/components/icons`): nama PascalCase (mis. `Database`,
+  * `UsersGroupRounded`). Render fallback ke `Database` bila nama tak dikenal.
  */
 export interface MenuIcon {
   name: string;
@@ -443,7 +443,7 @@ export interface ModuleRegistration {
   parentLabel: string | null;
   /** Label modul plural, mis. `Companies`. */
   label: string;
-  /** Nama ikon lucide nav (`Database` bila default; sudah disanitasi identifier). */
+  /** Nama ikon WDS nav (`Database` bila default/tak dikenal). */
   iconName: string;
   permissionView: string;
 }

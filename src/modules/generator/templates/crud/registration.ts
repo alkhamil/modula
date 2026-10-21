@@ -56,16 +56,16 @@ export function navigationTemplate(ctx: TemplateContext): string {
       `    key: '${parentPath}',\n` +
       `    label: '${prettifyParent(parentPath)}',\n` +
       `    labelKey: '${base}.parentLabel',\n` +
-      `    icon: <${icon} className="h-5 w-5" />,\n` +
+      `    icon: <WdsIcon name="${icon}" className="h-5 w-5" />,\n` +
       `  },\n`
     : '';
 
   return (
-    `import { ${icon} } from 'lucide-react';\n` +
+    `import { WdsIcon } from '${srcPrefix(ctx)}shared/components/icons';\n` +
     `import type { ModuleNavEntry } from '${srcPrefix(ctx)}shared/types/navigation';\n\n` +
     `export const ${names.camel}Nav: ModuleNavEntry = {\n` +
     parent +
-    `  icon: <${icon} className="h-5 w-5" />,\n` +
+    `  icon: <WdsIcon name="${icon}" className="h-5 w-5" />,\n` +
     `  item: {\n` +
     `    label: '${label}',\n` +
     `    labelKey: '${base}.labelPlural',\n` +

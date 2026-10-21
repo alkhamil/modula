@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { t } from 'i18next';
 import '../../../../shared/i18n';
-import { CheckboxField } from '../../../../shared/components/ui';
+import { Checkbox } from '../../../../shared/components/ui';
 import { capitalize } from '../../../../shared/utils';
 
 interface PermissionTableProps {
@@ -116,7 +116,7 @@ function PermissionTable({
                   }
                   return (
                     <td key={action} className="border-b border-border px-3 py-2 text-center">
-                      <CheckboxField
+                      <Checkbox
                         testId={`${testId}-${permission}`}
                         value={value.includes(permission)}
                         onChange={(checked) => toggle(permission, checked)}

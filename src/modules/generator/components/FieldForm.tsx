@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next';
 import {
   Button,
   Card,
-  CheckboxField,
+  Checkbox,
   Dialog,
-  SelectField,
-  TextAreaField,
-  TextField,
+  Select,
+  Textarea,
+  InputField,
 } from '../../../shared/components/ui';
-import { Link2, Pencil, Trash2 } from 'lucide-react';
+import { LinkMinimalistic, Pen, TrashBinTrash } from '../../../shared/components/icons';
 import type {
   ApiSourceConfig,
   DataSource,
@@ -406,7 +406,7 @@ function TriState({
   return (
     <div>
       <label className="mb-1 block font-mono text-xs text-muted-foreground">{label}</label>
-      <SelectField size="sm"
+      <Select size="sm"
         value={(value ?? defaultValue) ? 'true' : 'false'}
         onChange={(next) => onChange(next === 'true')}
         options={boolOptions(t)}
@@ -427,7 +427,7 @@ function SizeSelect({
   return (
     <div>
       <label className="mb-1 block font-mono text-xs text-muted-foreground">size</label>
-      <SelectField size="sm"
+      <Select size="sm"
         value={value ?? 'md'}
         onChange={(next) => onChange(next as FieldSize)}
         options={[
@@ -455,7 +455,7 @@ function PropText({
   return (
     <div>
       <label className="mb-1 block font-mono text-xs text-muted-foreground">{label}</label>
-      <TextField size="sm" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
+      <InputField size="sm" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
     </div>
   );
 }
@@ -474,7 +474,7 @@ function PropNumber({
   return (
     <div>
       <label className="mb-1 block font-mono text-xs text-muted-foreground">{label}</label>
-      <TextField size="sm"
+      <InputField size="sm"
         value={value ? String(value) : ''}
         onChange={(e) => {
           const digits = e.target.value.replace(/[^0-9]/g, '');
@@ -573,7 +573,7 @@ function ValidationEditor({
               entry.enabled ? 'border-primary bg-primary/5' : 'border-border'
             }`}
           >
-            <CheckboxField
+            <Checkbox
               size="sm"
               value={entry.enabled}
               onChange={(checked) => setEnabled(ruleName, checked)}
@@ -586,7 +586,7 @@ function ValidationEditor({
             </div>
             {def.needsArg && (
               <div className="w-24 shrink-0">
-                <TextField size="sm"
+                <InputField size="sm"
                   value={entry.arg}
                   onChange={(e) => setArg(ruleName, e.target.value)}
                   placeholder={def.placeholder ?? 'value'}
@@ -647,7 +647,7 @@ function SourceEditor({
     <div className="flex flex-col stack-gap">
       <div>
         <label className="mb-1 block text-xs font-medium text-foreground">{t('field.source')}</label>
-        <SelectField size="sm"
+        <Select size="sm"
           value={source}
           onChange={(next) => onPatch({ source: next as DataSource })}
           options={allowedSources.map((item) => ({
@@ -665,14 +665,14 @@ function SourceEditor({
             {options.map((opt, i) => (
               <div key={i} className="flex items-center gap-2">
                 <div className="flex-1">
-                  <TextField size="sm"
+                  <InputField size="sm"
                     value={opt.label}
                     onChange={(e) => updateOption(i, { label: e.target.value })}
                     placeholder={t('field.label')}
                   />
                 </div>
                 <div className="flex-1">
-                  <TextField size="sm"
+                  <InputField size="sm"
                     value={opt.value}
                     onChange={(e) => updateOption(i, { value: e.target.value })}
                     placeholder={t('field.name')}
@@ -682,7 +682,7 @@ function SourceEditor({
                   variant="danger"
                   size="sm"
                   onClick={() => onPatch({ options: options.filter((_, j) => j !== i) })}
-                  icon={<Trash2 className="h-4 w-4" />}
+                  icon={<TrashBinTrash className="h-4 w-4" />}
                   title={t('common.delete')}
                 >
                   {iconOnlyRemove ? null : t('common.delete')}
@@ -706,7 +706,7 @@ function SourceEditor({
         <div className="flex flex-col field-gap">
           <div>
             <label className="mb-1 block text-xs font-medium text-foreground">{t('field.relationTarget')}</label>
-            <SelectField size="sm"
+            <Select size="sm"
               value={relation.definitionKey}
               onChange={(next) => {
                 const target = definitions.find((d) => d.key === next);
@@ -734,7 +734,7 @@ function SourceEditor({
           <div className="grid grid-cols-2 field-gap">
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{t('field.relationLabelField')}</label>
-              <SelectField size="sm"
+              <Select size="sm"
                 value={relation.labelField}
                 onChange={(next) => onPatch({ relation: { ...relation, labelField: next } })}
                 options={(relationTargetDef?.fields ?? []).map((f) => ({
@@ -747,7 +747,7 @@ function SourceEditor({
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{t('field.relationValueField')}</label>
-              <TextField size="sm"
+              <InputField size="sm"
                 value={relation.valueField}
                 onChange={(e) => onPatch({ relation: { ...relation, valueField: e.target.value } })}
                 placeholder="id"
@@ -764,7 +764,7 @@ function SourceEditor({
         <div className="flex flex-col field-gap">
           <div>
             <label className="mb-1 block text-xs font-medium text-foreground">{t('field.endpoint')}</label>
-            <TextField size="sm"
+            <InputField size="sm"
               value={api.endpoint}
               onChange={(e) => onPatch({ api: { ...api, endpoint: e.target.value } })}
               placeholder="https://api.example.com/suppliers"
@@ -773,21 +773,21 @@ function SourceEditor({
           <div className="grid grid-cols-3 field-gap">
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{t('field.method')}</label>
-              <TextField size="sm"
+              <InputField size="sm"
                 value={api.method}
                 onChange={(e) => onPatch({ api: { ...api, method: e.target.value } })}
               />
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{t('field.relationValueField')}</label>
-              <TextField size="sm"
+              <InputField size="sm"
                 value={api.valueField}
                 onChange={(e) => onPatch({ api: { ...api, valueField: e.target.value } })}
               />
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{t('field.relationLabelField')}</label>
-              <TextField size="sm"
+              <InputField size="sm"
                 value={api.labelField}
                 onChange={(e) => onPatch({ api: { ...api, labelField: e.target.value } })}
               />
@@ -797,7 +797,7 @@ function SourceEditor({
             <label className="mb-1 block text-xs font-medium text-foreground">
               {t('field.apiExample')}
             </label>
-            <TextAreaField size="sm"
+            <Textarea size="sm"
               value={options.map((o) => `${o.label}=${o.value}`).join('\n')}
               onChange={(e) =>
                 onPatch({
@@ -1375,7 +1375,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
           <div className="flex flex-col stack-gap">
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{t('field.label')}</label>
-              <TextField size="sm"
+              <InputField size="sm"
                 value={form.label}
                 onChange={(e) => handleLabelChange(e.target.value)}
                 placeholder="Region Name"
@@ -1390,9 +1390,9 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                   onClick={handleNameToggle}
                   icon={
                     nameCustom ? (
-                      <Link2 className="h-4 w-4" />
+                      <LinkMinimalistic className="h-4 w-4" />
                     ) : (
-                      <Pencil className="h-4 w-4" />
+                      <Pen className="h-4 w-4" />
                     )
                   }
                   testId="field-name-toggle"
@@ -1400,7 +1400,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                   {nameCustom ? t('field.autoName') : t('field.customName')}
                 </Button>
               </div>
-              <TextField size="sm"
+              <InputField size="sm"
                 value={form.name}
                 onChange={(e) => handleCustomName(e.target.value)}
                 onBlur={() => onNameBlur?.()}
@@ -1412,7 +1412,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
 
           <div>
             <label className="mb-1 block text-xs font-medium text-foreground">{t('field.type')}</label>
-            <SelectField size="sm"
+            <Select size="sm"
               value={form.type}
               onChange={(next) => handleTypeChange(next as FieldType)}
               options={fieldTypeOptions}
@@ -1465,7 +1465,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                       e.stopPropagation();
                       patch({ subFields: form.subFields.filter((_, j) => j !== i) });
                     }}
-                    icon={<Trash2 className="h-4 w-4" />}
+                    icon={<TrashBinTrash className="h-4 w-4" />}
                   />
                 </div>
               );
@@ -1515,7 +1515,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               {PLACEHOLDER_TYPES.includes(form.type) && (
                 <div>
                   <label className="mb-1 block text-xs font-medium text-foreground">{t('field.placeholder')}</label>
-                  <TextField size="sm"
+                  <InputField size="sm"
                     value={form.placeholder}
                     onChange={(e) => patch({ placeholder: e.target.value })}
                     placeholder={t('field.placeholderAuto')}
@@ -1528,7 +1528,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                   <label className="mb-1 block text-xs font-medium text-foreground">
                     {t('field.rowsHeight')}
                   </label>
-                  <TextField size="sm"
+                  <InputField size="sm"
                     value={form.rows}
                     onChange={(e) => patch({ rows: e.target.value.replace(/[^0-9]/g, '') })}
                     placeholder={t('field.rowsDefault')}
@@ -1541,7 +1541,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                   <label className="mb-1 block text-xs font-medium text-foreground">
                     {t('field.acceptLabel')}
                   </label>
-                  <TextField size="sm"
+                  <InputField size="sm"
                     value={form.accept}
                     onChange={(e) => patch({ accept: e.target.value })}
                     placeholder=".pdf,.png"
@@ -1551,7 +1551,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               )}
               <div>
                 <label className="mb-1 block text-xs font-medium text-foreground">{t('field.disabled')}</label>
-                <SelectField size="sm"
+                <Select size="sm"
                   value={form.disabled ? 'true' : 'false'}
                   onChange={(next) => patch({ disabled: next === 'true' })}
                   options={[
@@ -1593,7 +1593,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
             <div className="flex flex-col field-gap rounded-lg border border-border px-3 py-2">
               <div>
                 <label className="mb-1 block font-mono text-xs text-muted-foreground">layout</label>
-                <SelectField size="sm"
+                <Select size="sm"
                   value={form.props.formItem?.layout ?? resolveFormItemLayout(undefined, span)}
                   onChange={(next) => patchFormItem({ layout: next })}
                   options={[
@@ -1605,7 +1605,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               </div>
               <div>
                 <label className="mb-1 block font-mono text-xs text-muted-foreground">align</label>
-                <SelectField size="sm"
+                <Select size="sm"
                   value={form.props.formItem?.align ?? 'start'}
                   onChange={(next) => patchFormItem({ align: next })}
                   options={[
@@ -1625,7 +1625,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                 <label className="mb-1 block font-mono text-xs text-muted-foreground">
                   labelFontWeight
                 </label>
-                <SelectField size="sm"
+                <Select size="sm"
                   value={form.props.formItem?.labelFontWeight ?? 'medium'}
                   onChange={(next) => patchFormItem({ labelFontWeight: next })}
                   options={[
@@ -1646,7 +1646,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               <div className="flex flex-col field-gap">
                 <div>
                   <label className="mb-1 block text-xs font-medium text-foreground">{t('field.sortable')}</label>
-                  <SelectField size="sm"
+                  <Select size="sm"
                     value={(form.sortable ?? defaultSortable(form.type)) ? 'true' : 'false'}
                     onChange={(next) => patch({ sortable: next === 'true' })}
                     options={[
@@ -1659,7 +1659,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-foreground">{t('field.filterable')}</label>
-                  <SelectField size="sm"
+                  <Select size="sm"
                     value={(form.filterable ?? defaultFilterable(form.type)) ? 'true' : 'false'}
                     onChange={(next) => patch({ filterable: next === 'true' })}
                     options={[
@@ -1675,7 +1675,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                     <label className="mb-1 block text-xs font-medium text-foreground">
                       {t('field.filterCriteria')}
                     </label>
-                    <SelectField size="sm"
+                    <Select size="sm"
                       value={form.filterCriteria ?? defaultCriteria(form.type)}
                       onChange={(next) => patch({ filterCriteria: next as FilterCriteria })}
                       options={criteriaForFieldType(form.type).map((name) => ({

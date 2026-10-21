@@ -32,7 +32,8 @@
     "components": "Komponen",
     "typography": "Tipografi",
     "colors": "Warna",
-    "ui": "UI"
+    "ui": "UI",
+    "docs": "Dokumentasi"
   },
   "auth": {
     "profile": "Profil",

@@ -20,7 +20,7 @@ const sizeStyles: Record<string, string> = {
 
 const swatchSizes: Record<string, string> = {
   // Tinggi swatch = line-height teks tiap size agar tinggi keseluruhan
-  // ColorField sama dengan TextField (padding + text size sudah identik).
+  // ColorField sama dengan InputField (padding + text size sudah identik).
   sm: 'h-4 w-6',
   md: 'h-5 w-7',
   lg: 'h-6 w-8',

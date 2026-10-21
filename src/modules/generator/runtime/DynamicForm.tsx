@@ -1,7 +1,7 @@
 /** Form generik — field + validasi + grid layout dari definisi modul. */
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft } from 'lucide-react';
+import { AltArrowLeft } from '../../../shared/components/icons';
 import {
   Button,
   Card,
@@ -15,7 +15,7 @@ import type { GeneratorFieldConfig } from '../types';
 import type { ModuleDefinition } from '../definitions';
 import { definitionTestId, type DynamicOption } from './types';
 import { type DynamicFormValues } from './validation';
-import type { LoadOptionsFn } from '../../../shared/components/ui/fields/SelectField';
+import type { LoadOptionsFn } from '../../../shared/components/ui/fields/Select';
 import { colSpanClass } from './grid';
 import { moduleTitle } from './moduleI18n';
 import { renderDynamicField } from './fieldRenderer';
@@ -154,7 +154,7 @@ function DynamicForm({
           type="button"
           data-testid={`${testPrefix}-back-button`}
           variant="secondary"
-          icon={<ChevronLeft className="h-4 w-4" />}
+          icon={<AltArrowLeft className="h-4 w-4" />}
           onClick={onCancel}
         >
           {t('common.back')}
