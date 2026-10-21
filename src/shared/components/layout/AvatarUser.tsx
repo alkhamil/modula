@@ -49,7 +49,7 @@ function AvatarUser({
           }
           setDropdownOpen(!dropdownOpen);
         }}
-        className="flex items-center gap-3 rounded-lg p-1.5"
+        className="flex cursor-pointer items-center gap-3 rounded-lg p-1.5 transition-colors hover:bg-muted"
       >
         <div className="hidden text-right sm:block">
           <p className="text-sm font-medium leading-tight text-foreground">Hi, {firstName}</p>

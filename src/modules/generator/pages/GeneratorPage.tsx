@@ -345,19 +345,23 @@ function GeneratorPage() {
             : t('wizard.draftSaved', { key: saved.definition.key }),
       });
       // Publish langsung tulis source statis ke repo (dev-server).
+      // Di production build ini skipped by-design — tanpa toast.
       if (targetStatus === 'published') {
         const repo = await publishModuleToRepo(saved.definition);
-        showToast(
-          repo.state === 'written'
-            ? {
-                variant: 'success',
-                message: t('wizard.writtenToRepo', {
-                  key: saved.definition.key,
-                  count: repo.count,
-                }),
-              }
-            : { variant: 'warning', message: t('wizard.repoWriteSkipped', { message: repo.message }) },
-        );
+        if (repo.state === 'written') {
+          showToast({
+            variant: 'success',
+            message: t('wizard.writtenToRepo', {
+              key: saved.definition.key,
+              count: repo.count,
+            }),
+          });
+        } else if (repo.reason !== 'build') {
+          showToast({
+            variant: 'warning',
+            message: t('wizard.repoWriteSkipped', { message: repo.message }),
+          });
+        }
       }
     } catch (err) {
       setStepError(err instanceof Error ? err.message : t('wizard.saveFailed'));

@@ -472,6 +472,7 @@ function DetailBuilderCanvas({
       <Drawer
         open={drawerOpen}
         onClose={closeDrawers}
+        closeOnBackdropClick={false}
         title={
           selectedField
             ? t('detail.rowTitle', { label: selectedField.label })

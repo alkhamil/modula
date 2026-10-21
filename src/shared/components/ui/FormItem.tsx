@@ -61,7 +61,7 @@ function FormItem<TForm extends FieldValues, TComponent extends React.ElementTyp
     labelWidth = 'w-64',
     labelTooltip,
     labelFontWeight = 'medium',
-    align = 'center',
+    align = 'start',
     children,
     className = '',
     testId,

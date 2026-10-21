@@ -408,7 +408,9 @@
     "repoDeleted": "Module \"{{key}}\" also removed from repo ({{count}} paths).",
     "repoDeleteFailed": "Repo delete failed: {{message}} Definition and mock records were still deleted.",
     "emptyTitle": "No modules yet",
-    "emptyDesc": "Create your first module via the Builder, then publish."
+    "emptyDesc": "Create your first module via the Builder, then publish.",
+    "deleteCascadeWarning": "The following {{count}} module(s) relate to \"{{key}}\" and will also be deleted (their records and generated repo files included):",
+    "deletedCascade": "Module \"{{key}}\" deleted along with {{count}} related module(s)."
   },
   "review": {
     "module": "Module",

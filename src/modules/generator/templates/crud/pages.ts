@@ -249,6 +249,7 @@ export function viewPageTemplate(ctx: TemplateContext): string {
   const base = ctx.config.permissionKey;
   return `import { useParams, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { ChevronLeft, Pencil } from 'lucide-react';
 import { Button, DetailCard } from '${names.sharedPrefix}shared/components/ui';
 ${features.edit ? `import { useAuth } from '${names.sharedPrefix}app/providers';\n` : ''}import { use${names.entity}Form } from '../hooks';
 ${features.edit ? `import { ${names.entity}Permissions } from '../permissions';\n` : ''}
@@ -264,33 +265,37 @@ ${features.edit ? '  const { can } = useAuth();\n' : ''}  const { queryStatus, q
         testId="${names.testId}-detail-card"
         title={t('runtime.detailTitle', { singular: t('${base}.label') })}
         state={{ status: queryStatus, message: queryMessage, rows: detailRows, errorType }}
-      />
-      {queryStatus !== 'error' && (
-        <div className="flex justify-end gap-4">
-          <Button
-            data-testid="${names.testId}-back-button"
-            className="w-30"
-            variant="secondary"
-            onClick={() => navigate(-1)}
-          >
-            {t('common.back')}
-          </Button>
+        actions={
+          queryStatus !== 'error' ? (
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                data-testid="${names.testId}-back-button"
+                variant="secondary"
+                icon={<ChevronLeft className="h-4 w-4" />}
+                onClick={() => navigate(-1)}
+              >
+                {t('common.back')}
+              </Button>
 ${
   features.edit
-    ? `          {can(${names.entity}Permissions.update) && (
-            <Button
-              data-testid="${names.testId}-edit-button"
-              className="w-30"
-              variant="primary"
-              onClick={() => navigate(\`/${names.routeBase}/\${${names.paramId}}/edit\`)}
-            >
-              {t('common.edit')}
-            </Button>
-          )}
+    ? `              {can(${names.entity}Permissions.update) && (
+                <Button
+                  type="button"
+                  data-testid="${names.testId}-edit-button"
+                  variant="secondary"
+                  icon={<Pencil className="h-4 w-4" />}
+                  onClick={() => navigate(\`/${names.routeBase}/\${${names.paramId}}/edit\`)}
+                >
+                  {t('common.edit')}
+                </Button>
+              )}
 `
     : ''
-}        </div>
-      )}
+}            </div>
+          ) : undefined
+        }
+      />
     </div>
   );
 }

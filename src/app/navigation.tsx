@@ -1,82 +1,29 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import type { NavItemType } from "../shared/types/navigation";
-import { LayoutDashboard,
-  Database,
-  Settings,
-  SlidersHorizontal,
-  Users } from "lucide-react";
+import type { ModuleNav, NavItemType } from "../shared/types/navigation";
+import { buildModuleNavItems } from "../shared/utils/moduleNav";
 import { useDynamicDefinitions } from "../modules/generator/runtime/hooks";
 import { buildDynamicNavItems } from "../modules/generator/runtime/dynamicNav";
+import { dashboardNav } from "../modules/dashboard/navigation";
+import { generatorNav } from "../modules/generator/navigation";
+import { showcaseNav } from "../modules/showcase/navigation";
+import { userNav } from "../modules/user-management/user/navigation";
+import { roleNav } from "../modules/user-management/role/navigation";
+import { settingsNav } from "../modules/settings/navigation";
+// __GENERATOR_NAV_IMPORTS__
 
-export const navItems: NavItemType[] = [
-  {
-    label: "Dashboard",
-    labelKey: "nav.dashboard",
-    path: "/",
-    icon: <LayoutDashboard className="h-5 w-5" />,
-  },
-  {
-    label: "Generator",
-    labelKey: "nav.generator",
-    path: "/generator",
-    icon: <Settings className="h-5 w-5" />,
-  },
-  {
-    label: "Component",
-    labelKey: "nav.components",
-    icon: <Database className="h-5 w-5" />,
-    children: [
-      {
-        label: "Typography",
-        labelKey: "nav.typography",
-        path: "/components/typography",
-      },
-      { label: "Colors", labelKey: "nav.colors", path: "/components/colors" },
-      { label: "UI", labelKey: "nav.ui", path: "/components/ui" },
-    ],
-  },
-  {
-    label: "User Management",
-    labelKey: "user.navGroup",
-    icon: <Users className="h-5 w-5" />,
-    children: [
-      {
-        label: "Users",
-        labelKey: "user.labelPlural",
-        path: "/user-management/user",
-        permissionKey: "master-user.view",
-      },
-      {
-        label: "Roles",
-        labelKey: "role.labelPlural",
-        path: "/user-management/role",
-        permissionKey: "master-role.view",
-      },
-    ],
-  },
-  {
-    label: "Settings",
-    labelKey: "settings.title",
-    path: "/settings",
-    icon: <SlidersHorizontal className="h-5 w-5" />,
-    permissionKey: "settings.view",
-  },
-        // __GENERATOR_PARENT master-data__
-        {
-          label: 'Master Data',
-          labelKey: 'region.parentLabel',
-          icon: <Database className="h-5 w-5" />,
-          children: [
-            { label: 'Regions', labelKey: 'region.labelPlural', path: '/master-data/regions', permissionKey: 'region.view' },
-          
-            { label: 'Vendors', labelKey: 'vendor.labelPlural', path: '/master-data/vendors', permissionKey: 'vendor.view' },
-              { label: 'Categories', labelKey: 'category.labelPlural', path: '/master-data/categories', permissionKey: 'category.view' },
-                { label: 'Products', labelKey: 'product.labelPlural', path: '/master-data/products', permissionKey: 'product.view' },
-                  { label: 'Prices', labelKey: 'price.labelPlural', path: '/master-data/prices', permissionKey: 'price.view' },],
-        },
-                                // __GENERATOR_NAV_ITEMS__
+/** Nav tiap modul (statis + hasil Generate ke repo), urutan = urutan menu. */
+const moduleNavEntries: ModuleNav[] = [
+  dashboardNav,
+  generatorNav,
+  showcaseNav,
+  userNav,
+  roleNav,
+  settingsNav,
+  // __GENERATOR_NAV_ENTRIES__
 ];
+
+export const navItems: NavItemType[] = buildModuleNavItems(moduleNavEntries);
 
 /** Item nav dari definisi published (flat untuk root, group per parent). */
 export function useDynamicNavItems(): NavItemType[] {

@@ -117,7 +117,8 @@ function DynamicTable({
   return (
     <Table<DynamicListItem>
       actionWidth={withActions ? 'w-40' : undefined}
-      actionPosition={displayProps?.actionPosition}
+      actionPosition={displayProps?.actionPosition ?? 'right'}
+      showRowNumber
       testId={testId}
       columns={columns}
       data={data}

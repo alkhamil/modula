@@ -61,14 +61,15 @@ function normalizeOrderList(
     seen.add(name);
     clean.push(name);
   }
-  // Field baru (belum ada di urutan) default di kiri, bukan di kanan.
+  // Field baru (belum ada di urutan) default di kanan mengikuti urutan
+  // form kanvas (append), bukan di kiri.
   const fresh: string[] = [];
   for (const name of fieldNames) {
     if (seen.has(name)) continue;
     seen.add(name);
     fresh.push(name);
   }
-  return { order: [...fresh, ...clean], hidden: (hidden ?? []).filter((name) => seen.has(name)) };
+  return { order: [...clean, ...fresh], hidden: (hidden ?? []).filter((name) => seen.has(name)) };
 }
 
 /** Normalisasi layout: buang ref tak dikenal, lengkapi field yang hilang, rapikan order/span. */
@@ -165,8 +166,10 @@ export function normalizeLayout(
     }
     if (Object.keys(props).length > 0) table.props = props;
   }
+  // Default detail mengikuti urutan tabel kiri-ke-kanan (cermin kanvas
+  // List); tabel sendiri default mengikuti urutan form kanvas.
   const detailOrder = normalizeOrderList(
-    layout.detail?.order ?? fieldNames,
+    layout.detail?.order ?? tableOrder.order,
     layout.detail?.hidden,
     fieldNames,
   );

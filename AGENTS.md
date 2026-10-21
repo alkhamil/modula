@@ -4,7 +4,7 @@ Muse Code reads this file as project rules when it runs in this directory.
 
 ## Project
 
-- Name: generator-module-app
+- Name: modula
 - Stack: React 19 + TypeScript + Vite + Tailwind CSS 4 + TanStack Query +
   React Hook Form + react-router 7. Package manager: npm.
 - Frontend mock-only: tanpa backend, tanpa database. Semua data (definisi
@@ -36,9 +36,9 @@ Muse Code reads this file as project rules when it runs in this directory.
 
 ## Project Layout
 
-- `src/app/` — `navigation.tsx` (nav statis: Dashboard/Generator/Component
-  + `useDynamicNavItems` dari definisi), `router.tsx` (routes statis +
-  `DynamicModuleRoutes` + `preview/:definitionKey`),
+- `src/app/` — `navigation.tsx` (daftar `xNav` tiap modul dari
+  `<modul>/navigation.tsx` + `useDynamicNavItems` dari definisi), `router.tsx`
+  (spread `xRoutes` tiap modul dari `<modul>/routes.tsx` + `DynamicModuleRoutes`),
   `ProtectedAppShell.tsx` (shell + session user).
 - `src/app/providers/` — session auth (`AuthProvider` + `useAuth`) + guard
   (`RequireAuth`, `PermissionGate`), mirror `boilerplate-fe`.

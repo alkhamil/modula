@@ -57,7 +57,7 @@ export function tableTemplate(ctx: TemplateContext): string {
     ...(tableProps?.hideTotalRecords ? ['hideTotalRecords'] : []),
     ...(tableProps?.stickyHeader ? ['stickyHeader'] : []),
     ...(tableProps?.stickyAction ? ['stickyAction'] : []),
-    ...(tableProps?.actionPosition === 'right' ? ['actionPosition="right"'] : []),
+    ...(tableProps?.actionPosition === 'left' ? ['actionPosition="left"'] : []),
   ]
     .map((line) => `      ${line}`)
     .join('\n');
@@ -102,7 +102,7 @@ export function tableTemplate(ctx: TemplateContext): string {
   ];
 
   const tableApiImports = [...tableLabelHelpers, ...tableRelationLoaders];
-  return `import { t } from 'i18next';
+  return `import { useTranslation } from 'react-i18next';
 import '${names.sharedPrefix}shared/i18n';
 import type { ${names.listItem} } from '../types';
 import { Table, Badge, RowActionButton } from '${names.sharedPrefix}shared/components/ui';
@@ -138,6 +138,7 @@ ${withView ? '  onView,\n' : ''}${withEdit ? '  onEdit,\n' : ''}${withDelete ? '
   isFilteredEmptyState,
   ...rest
 }: Props) {
+  const { t } = useTranslation();
   const columns = [
 ${columns}
     { key: 'created_by', header: t('table.createdBy')${widthOf('created_by')} },
@@ -294,6 +295,7 @@ export function formTemplate(ctx: TemplateContext): string {
 
   return `${arrayFields.length > 0 ? `import { t } from 'i18next';\nimport '${names.sharedPrefix}shared/i18n';\n` : ''}import { useCallback, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ChevronLeft } from 'lucide-react';
 import {
   Card,
   Button,
@@ -364,34 +366,46 @@ ${optionsFields.length > 0 ? '' : ''}}: ${names.entity}FormProps) {
   );
 
   return (
-    <Card testId="${names.testId}-form-card" title={isEdit ? t('runtime.editTitle', { singular: t('${base}.label') }) : t('runtime.createTitle', { singular: t('${base}.label') })}>
-      <FormGroup<FormValues>
-        testId="${names.testId}-form"
-        defaultValues={defaultValues}
-        onSubmit={handleFormSubmit}
-      >
-        {(methods) => {
-          setErrorRef.current = methods.setError;
-          methodsRef.current = methods;
+    <div className="flex min-h-full flex-col stack-gap">
+      <div>
+        <Button
+          data-testid="${names.testId}-back-button"
+          type="button"
+          variant="secondary"
+          icon={<ChevronLeft className="h-4 w-4" />}
+          onClick={onCancel}
+        >
+          {t('common.back')}
+        </Button>
+      </div>
+      <Card testId="${names.testId}-form-card" title={isEdit ? t('runtime.editTitle', { singular: t('${base}.label') }) : t('runtime.createTitle', { singular: t('${base}.label') })}>
+        <FormGroup<FormValues>
+          testId="${names.testId}-form"
+          defaultValues={defaultValues}
+          onSubmit={handleFormSubmit}
+        >
+          {(methods) => {
+            setErrorRef.current = methods.setError;
+            methodsRef.current = methods;
 
-          return (
-            <>
-              <FormDefaultValuesWatcher methods={methods} defaultValues={defaultValues} />
+            return (
+              <>
+                <FormDefaultValuesWatcher methods={methods} defaultValues={defaultValues} />
 
-              <div className="grid grid-cols-12 field-gap">
+                <div className="grid grid-cols-12 field-gap">
 ${formItems}
-              </div>
+                </div>
 
-              <div className="-mx-5 mt-6 flex items-center justify-end gap-2 border-t border-border px-5 pt-4">
-                <Button
-                  data-testid="${names.testId}-back-button"
-                  type="button"
-                  variant="secondary"
-                  className="w-30"
-                  onClick={onCancel}
-                >
-                  {t('common.back')}
-                </Button>
+                <div className="-mx-5 mt-6 flex items-center justify-end gap-2 border-t border-border px-5 pt-4">
+                  <Button
+                    data-testid="${names.testId}-cancel-button"
+                    type="button"
+                    variant="secondary"
+                    className="w-30"
+                    onClick={onCancel}
+                  >
+                    {t('common.cancel')}
+                  </Button>
                 <Button
                   data-testid="${names.testId}-submit-button"
                   type="submit"
@@ -406,8 +420,9 @@ ${formItems}
             </>
           );
         }}
-      </FormGroup>
-    </Card>
+        </FormGroup>
+      </Card>
+    </div>
   );
 }
 

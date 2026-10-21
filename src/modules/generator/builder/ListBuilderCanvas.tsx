@@ -515,7 +515,7 @@ function ActionDrawerContent({
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground">{t('list.actionPosition')}</label>
           <SelectField size="sm"
-            value={displayProps?.actionPosition ?? 'left'}
+            value={displayProps?.actionPosition ?? 'right'}
             onChange={(value) =>
               onPatchProps({ actionPosition: value as 'left' | 'right' })
             }
@@ -682,7 +682,7 @@ function ListBuilderCanvas({
   const byName = useMemo(() => new Map(fields.map((field) => [field.name, field])), [fields]);
   const widths = layout.table.widths ?? {};
   const displayProps = layout.table.props;
-  const actionRight = displayProps?.actionPosition === 'right';
+  const actionRight = (displayProps?.actionPosition ?? 'right') === 'right';
   // Urutan campuran field + kolom sistem (definisi lama tanpa kunci sistem
   // mendapatkannya di akhir, cermin fallback runtime).
   const order = useMemo(() => {
@@ -842,7 +842,7 @@ function ListBuilderCanvas({
     actionOpen && withActions
       ? actionRight
         ? '[&_th:last-child]:bg-primary/5 [&_th:last-child]:ring-1 [&_th:last-child]:ring-inset [&_th:last-child]:ring-primary [&_td:last-child]:bg-primary/5'
-        : '[&_th:first-child]:bg-primary/5 [&_th:first-child]:ring-1 [&_th:first-child]:ring-inset [&_th:first-child]:ring-primary [&_td:first-child]:bg-primary/5'
+        : '[&_th:nth-child(2)]:bg-primary/5 [&_th:nth-child(2)]:ring-1 [&_th:nth-child(2)]:ring-inset [&_th:nth-child(2)]:ring-primary [&_td:nth-child(2)]:bg-primary/5'
       : '';
 
   if (fields.length === 0) {
@@ -960,7 +960,8 @@ function ListBuilderCanvas({
               onPageChange={setPage}
               onPageSizeChange={() => {}}
               actionWidth={withActions ? 'w-40' : undefined}
-              actionPosition={displayProps?.actionPosition}
+              actionPosition={displayProps?.actionPosition ?? 'right'}
+              showRowNumber
               actionHeader={
                 withActions ? (
                   <div
@@ -1056,6 +1057,7 @@ function ListBuilderCanvas({
       <Drawer
         open={drawerOpen}
         onClose={closeDrawers}
+        closeOnBackdropClick={false}
         title={
           selectedField
             ? t('list.columnTitle', { label: selectedField.label })

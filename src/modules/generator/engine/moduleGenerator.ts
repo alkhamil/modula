@@ -33,6 +33,8 @@ import {
 import { bulkValidationTemplate, validationTemplate } from '../templates/crud/validation';
 import { permissionsTemplate } from '../templates/crud/permissions';
 import { moduleIndexTemplate, integrationTemplate } from '../templates/crud/moduleIndex';
+import { navigationTemplate, routesTemplate } from '../templates/crud/registration';
+import { modulePages } from './registration';
 import { buildModuleLocales, mergeLocales, unflattenLocale } from './i18nGenerator';
 
 export class GeneratorConfigError extends Error {
@@ -94,6 +96,10 @@ export function generateModule(raw: GeneratorConfig): GeneratedFile[] {
   push('components/index.ts', componentsIndexTemplate(ctx));
   push('permissions.ts', permissionsTemplate(ctx));
   push('index.ts', moduleIndexTemplate(ctx));
+  if (modulePages(ctx).length > 0) {
+    push('routes.tsx', routesTemplate(ctx));
+    push('navigation.tsx', navigationTemplate(ctx));
+  }
   push('INTEGRATION.md', integrationTemplate(ctx));
 
   // Locale modul: `en.json` sumber kebenaran; `id.json` = en yang ditimpa

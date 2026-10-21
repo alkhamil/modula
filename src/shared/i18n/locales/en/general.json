@@ -88,7 +88,8 @@
     "retry": "Try Again",
     "createdBy": "Created By",
     "createdDate": "Created Date",
-    "status": "Status"
+    "status": "Status",
+    "rowNumber": "No"
   },
   "array": {
     "add": "Add",

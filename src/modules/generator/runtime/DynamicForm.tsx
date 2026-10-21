@@ -1,6 +1,7 @@
 /** Form generik — field + validasi + grid layout dari definisi modul. */
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ChevronLeft } from 'lucide-react';
 import {
   Button,
   Card,
@@ -91,6 +92,7 @@ function DynamicForm({
     return (
       <>
         <Button
+          type="button"
           data-testid={`${testPrefix}-cancel-button`}
           className="w-30"
           variant="secondary"
@@ -145,55 +147,77 @@ function DynamicForm({
     );
   }
 
+  function renderBackButton(): ReactNode {
+    return (
+      <div>
+        <Button
+          type="button"
+          data-testid={`${testPrefix}-back-button`}
+          variant="secondary"
+          icon={<ChevronLeft className="h-4 w-4" />}
+          onClick={onCancel}
+        >
+          {t('common.back')}
+        </Button>
+      </div>
+    );
+  }
+
   if (actionsInFooter) {
     return (
-      <FormGroup<DynamicFormValues>
-        testId={`${testPrefix}-form`}
-        defaultValues={defaultValues}
-        onSubmit={handleFormSubmit}
-      >
-        {(methods) => {
-          setErrorRef.current = methods.setError;
-          methodsRef.current = methods;
-          return (
-            <Card
-              testId={`${testPrefix}-form-card`}
-              title={moduleTitle(def, isEdit ? 'edit' : 'create', isEdit ? t('runtime.editTitle', { singular: def.singularLabel }) : t('runtime.createTitle', { singular: def.singularLabel }))}
-              footer={renderActionButtons(methods)}
-            >
-              <FormDefaultValuesWatcher methods={methods} defaultValues={defaultValues} />
-              {renderFields()}
-              <NavigationGuard submitted={submitted} />
-            </Card>
-          );
-        }}
-      </FormGroup>
+      <div className="flex min-h-full flex-col stack-gap">
+        {renderBackButton()}
+        <FormGroup<DynamicFormValues>
+          testId={`${testPrefix}-form`}
+          defaultValues={defaultValues}
+          onSubmit={handleFormSubmit}
+        >
+          {(methods) => {
+            setErrorRef.current = methods.setError;
+            methodsRef.current = methods;
+            return (
+              <Card
+                testId={`${testPrefix}-form-card`}
+                title={moduleTitle(def, isEdit ? 'edit' : 'create', isEdit ? t('runtime.editTitle', { singular: def.singularLabel }) : t('runtime.createTitle', { singular: def.singularLabel }))}
+                footer={renderActionButtons(methods)}
+              >
+                <FormDefaultValuesWatcher methods={methods} defaultValues={defaultValues} />
+                {renderFields()}
+                <NavigationGuard submitted={submitted} />
+              </Card>
+            );
+          }}
+        </FormGroup>
+      </div>
     );
   }
 
   return (
-    <Card testId={`${testPrefix}-form-card`} title={moduleTitle(def, isEdit ? 'edit' : 'create', isEdit ? t('runtime.editTitle', { singular: def.singularLabel }) : t('runtime.createTitle', { singular: def.singularLabel }))}>
-      <FormGroup<DynamicFormValues>
-        testId={`${testPrefix}-form`}
-        defaultValues={defaultValues}
-        onSubmit={handleFormSubmit}
-      >
-        {(methods) => {
-          setErrorRef.current = methods.setError;
-          methodsRef.current = methods;
-          return (
-            <>
-              <FormDefaultValuesWatcher methods={methods} defaultValues={defaultValues} />
-              {renderFields()}
-              <div className="mt-6 flex justify-end gap-4">
-                {renderActionButtons(methods)}
-              </div>
-              <NavigationGuard submitted={submitted} />
-            </>
-          );
-        }}
-      </FormGroup>
-    </Card>
+    <div className="flex min-h-full flex-col stack-gap">
+      {renderBackButton()}
+      <Card testId={`${testPrefix}-form-card`} title={moduleTitle(def, isEdit ? 'edit' : 'create', isEdit ? t('runtime.editTitle', { singular: def.singularLabel }) : t('runtime.createTitle', { singular: def.singularLabel }))}>
+        <FormGroup<DynamicFormValues>
+          testId={`${testPrefix}-form`}
+          defaultValues={defaultValues}
+          onSubmit={handleFormSubmit}
+        >
+          {(methods) => {
+            setErrorRef.current = methods.setError;
+            methodsRef.current = methods;
+            return (
+              <>
+                <FormDefaultValuesWatcher methods={methods} defaultValues={defaultValues} />
+                {renderFields()}
+                <div className="mt-6 flex justify-end gap-4">
+                  {renderActionButtons(methods)}
+                </div>
+                <NavigationGuard submitted={submitted} />
+              </>
+            );
+          }}
+        </FormGroup>
+      </Card>
+    </div>
   );
 }
 

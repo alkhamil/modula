@@ -247,14 +247,21 @@ function CanvasDropGrid({
     <div
       ref={setNodeRef}
       id="form-canvas-drop"
-      className={`relative grid min-h-40 grid-cols-12 field-gap rounded-xl border border-dashed bg-muted/30 p-4 transition-colors ${
+      className={`relative grid grid-cols-12 field-gap rounded-xl border border-dashed bg-muted/30 p-4 transition-all ${
+        activePalette ? 'min-h-[480px]' : 'min-h-40'
+      } ${
         isOver && activePalette ? 'border-primary ring-1 ring-primary' : 'border-border'
       }`}
     >
-      {/* Panduan grid 12 kolom (selaras padding/gap kanvas; non-interaktif). */}
+      {/* Panduan grid 12 kolom bernomor (selaras padding/gap kanvas; non-interaktif). */}
       <div aria-hidden className="pointer-events-none absolute inset-0 grid grid-cols-12 field-gap p-4">
         {Array.from({ length: 12 }).map((_, i) => (
-          <div key={i} className="rounded border border-dashed border-border/60" />
+          <div
+            key={i}
+            className="flex items-start justify-center rounded border border-dashed border-border/60 pt-1 text-[10px] font-medium text-muted-foreground/70"
+          >
+            {i + 1}
+          </div>
         ))}
       </div>
       {children}
@@ -327,6 +334,7 @@ function FieldCanvasCard({
   item,
   field,
   selected,
+  dropBefore,
   onSelect,
   onResize,
   previewDef,
@@ -334,6 +342,8 @@ function FieldCanvasCard({
   item: FormLayoutItem;
   field: GeneratorFieldConfig;
   selected: boolean;
+  /** Seretan sedang di atas kartu ini → tampilkan garis indikator drop. */
+  dropBefore: boolean;
   onSelect: () => void;
   onResize: (span: number) => void;
   previewDef: ModuleDefinition;
@@ -352,6 +362,9 @@ function FieldCanvasCard({
       style={{ transform: CSS.Translate.toString(transform), transition }}
       className={`${colSpanClass(item.colSpan)} ${isDragging ? 'opacity-60' : ''}`}
     >
+      {dropBefore && (
+        <div data-testid={`canvas-drop-line-${item.field}`} className="mb-1 h-1 rounded-full bg-primary" />
+      )}
       <div
         role="button"
         tabIndex={0}
@@ -415,11 +428,14 @@ function FieldCanvasCard({
 function DecoCanvasCard({
   item,
   selected,
+  dropBefore,
   onSelect,
   onResize,
 }: {
   item: FormLayoutItem;
   selected: boolean;
+  /** Seretan sedang di atas kartu ini → tampilkan garis indikator drop. */
+  dropBefore: boolean;
   onSelect: () => void;
   onResize: (span: number) => void;
 }) {
@@ -434,6 +450,9 @@ function DecoCanvasCard({
       style={{ transform: CSS.Translate.toString(transform), transition }}
       className={`${colSpanClass(item.colSpan)} ${isDragging ? 'opacity-60' : ''}`}
     >
+      {dropBefore && (
+        <div data-testid={`canvas-drop-line-${item.field}`} className="mb-1 h-1 rounded-full bg-primary" />
+      )}
       <div
         role="button"
         tabIndex={0}
@@ -528,6 +547,7 @@ function FieldDrawerContent({
   field,
   definitions,
   existingNames,
+  span,
   onApply,
   onRename,
   onClose,
@@ -536,6 +556,7 @@ function FieldDrawerContent({
   field: GeneratorFieldConfig;
   definitions: ModuleDefinition[];
   existingNames: string[];
+  span?: number;
   onApply: (config: GeneratorFieldConfig) => void;
   onRename: (oldName: string, next: GeneratorFieldConfig) => void;
   onClose: () => void;
@@ -599,6 +620,8 @@ function FieldDrawerContent({
         onChange={handleFormChange}
         definitions={definitions}
         onNameBlur={handleNameBlur}
+        lockType
+        span={span}
       />
     </div>
   );
@@ -621,6 +644,10 @@ function FormBuilderCanvas({
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   /** Kind palet yang sedang diseret (ghost overlay); null = drag kanvas/batal. */
   const [activePalette, setActivePalette] = useState<PaletteKind | null>(null);
+  /** Id kartu kanvas yang sedang di-over seretan (garis indikator drop). */
+  const [overId, setOverId] = useState<string | null>(null);
+  /** Id kartu kanvas yang sedang diseret (garis tidak tampil di kartu sendiri). */
+  const [activeSortId, setActiveSortId] = useState<string | null>(null);
   /** Kata kunci pencarian palet komponen. */
   const [paletteQuery, setPaletteQuery] = useState('');
   const { t } = useTranslation();
@@ -713,11 +740,19 @@ function FormBuilderCanvas({
         ? (activeId.slice('palette:'.length) as PaletteKind)
         : null,
     );
+    setActiveSortId(activeId.startsWith('palette:') ? null : activeId);
+    setOverId(null);
+  }
+
+  function handleDragOver(event: { over: { id: string | number } | null }): void {
+    setOverId(event.over ? String(event.over.id) : null);
   }
 
   function handleDragEnd(event: DragEndEvent): void {
     const { active, over } = event;
     setActivePalette(null);
+    setActiveSortId(null);
+    setOverId(null);
     const activeId = String(active.id);
     const isPalette = activeId.startsWith('palette:');
     const paletteKind = isPalette
@@ -862,18 +897,18 @@ function FormBuilderCanvas({
   );
   return (
     <div className="flex flex-col section-gap">
-      <Alert
-        variant="info"
-        message={t('builder.form.hint')}
-      />
-
       <div>
         <DndContext
           sensors={sensors}
           collisionDetection={formCanvasCollision}
           onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
-          onDragCancel={() => setActivePalette(null)}
+          onDragCancel={() => {
+            setActivePalette(null);
+            setActiveSortId(null);
+            setOverId(null);
+          }}
         >
           <DragOverlay dropAnimation={null}>
             {activePalette ? (
@@ -884,16 +919,18 @@ function FormBuilderCanvas({
             ) : null}
           </DragOverlay>
           <div className="grid gap-4 xl:grid-cols-[220px_minmax(0,1fr)]">
-            <div>
-              <p className="mb-2 text-sm font-medium text-foreground">{t('builder.form.palette')}</p>
-              <div className="mb-2">
-                <TextField
-                  size="sm"
-                  value={paletteQuery}
-                  onChange={(e) => setPaletteQuery(e.target.value)}
-                  placeholder={t('builder.form.searchPh')}
-                  data-testid="palette-search"
-                />
+            <div className="min-h-0 xl:sticky xl:top-0 xl:max-h-[calc(100vh-2rem)] xl:overflow-y-auto xl:pb-1 xl:pr-1">
+              <div className="xl:sticky xl:top-0 xl:z-10 xl:bg-background/95 xl:py-1 xl:backdrop-blur">
+                <p className="mb-2 text-sm font-medium text-foreground">{t('builder.form.palette')}</p>
+                <div className="mb-2">
+                  <TextField
+                    size="sm"
+                    value={paletteQuery}
+                    onChange={(e) => setPaletteQuery(e.target.value)}
+                    placeholder={t('builder.form.searchPh')}
+                    data-testid="palette-search"
+                  />
+                </div>
               </div>
               <div className="flex flex-col stack-gap">
                 {visiblePaletteSections.length === 0 && (
@@ -936,9 +973,14 @@ function FormBuilderCanvas({
               </div>
             </div>
 
-            <div>
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <p className="text-sm font-medium text-foreground">{t('builder.form.canvasTitle')}</p>
+            <div className="min-w-0">
+              <div className="sticky top-0 z-10 -mx-1 bg-background/95 px-1 py-2 backdrop-blur">
+                <Alert
+                  variant="info"
+                  message={t('builder.form.hint')}
+                />
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-foreground">{t('builder.form.canvasTitle')}</p>
                 <Button
                   size="sm"
                   variant="danger"
@@ -950,6 +992,7 @@ function FormBuilderCanvas({
                 >
                   {t('builder.form.reset')}
                 </Button>
+                </div>
               </div>
               <SortableContext
                 items={formItems.map((item) => item.field)}
@@ -964,12 +1007,14 @@ function FormBuilderCanvas({
                     )}
                     {formItems.map((item) => {
                       const field = byName.get(item.field);
+                      const dropBefore = overId === item.field && activeSortId !== item.field;
                       if ((item.kind ?? 'field') !== 'field' || !field) {
                         return (
                           <DecoCanvasCard
                             key={item.field}
                             item={item}
                             selected={selectedId === item.field}
+                            dropBefore={dropBefore}
                             onSelect={() => setSelectedId(item.field)}
                             onResize={(span) => onChange(setFormSpan(effective, item.field, span))}
                           />
@@ -981,6 +1026,7 @@ function FormBuilderCanvas({
                           item={item}
                           field={field}
                           selected={selectedId === item.field}
+                          dropBefore={dropBefore}
                           onSelect={() => setSelectedId(item.field)}
                           onResize={(span) => onChange(setFormSpan(effective, item.field, span))}
                           previewDef={previewDef}
@@ -998,20 +1044,33 @@ function FormBuilderCanvas({
       <Drawer
         open={drawerOpen}
         // Tanpa Apply = buang draft; tidak ada commit saat tutup.
+        // Terkunci: klik di luar panel tidak menutup (hindari draft hilang).
         onClose={() => setSelectedId(null)}
         title={t('builder.form.properties')}
         width="md"
         modal={false}
+        closeOnBackdropClick={false}
         testId="property-drawer"
         footer={
-          <Button
-            variant="primary"
-            className="w-full"
-            onClick={() => applyRequestRef.current?.()}
-            testId="property-apply"
-          >
-            {t('common.apply')}
-          </Button>
+          <div className="flex w-full items-center gap-2">
+            <Button
+              type="button"
+              variant="danger"
+              onClick={handleDeleteSelected}
+              testId="property-delete"
+              icon={<Trash2 className="h-4 w-4" />}
+              title={t('common.delete')}
+              aria-label={t('common.delete')}
+            />
+            <Button
+              variant="primary"
+              className="flex-1"
+              onClick={() => applyRequestRef.current?.()}
+              testId="property-apply"
+            >
+              {t('common.apply')}
+            </Button>
+          </div>
         }
       >
         {selectedItem && selectedField && (
@@ -1020,6 +1079,7 @@ function FormBuilderCanvas({
             field={selectedField}
             definitions={definitions}
             existingNames={fields.filter((f) => f !== selectedField).map((f) => f.name)}
+            span={selectedItem.colSpan}
             onApply={handlePanelApply}
             onRename={handleRename}
             onClose={() => setSelectedId(null)}

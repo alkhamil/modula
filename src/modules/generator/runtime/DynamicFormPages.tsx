@@ -1,6 +1,7 @@
 /** Halaman create/edit/detail generik — meniru halaman hasil generate. */
 import { useNavigate, useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { ChevronLeft, Pencil } from 'lucide-react';
 import { Button, Card, DetailCard, ErrorStatePage, FormSkeleton } from '../../../shared/components/ui';
 import { useAuth } from '../../../app/providers';
 import type { ModuleDefinition } from '../definitions';
@@ -80,29 +81,33 @@ export function DynamicDetailPage({ def }: { def: ModuleDefinition }) {
         title={def.layout.detail?.card?.title?.trim() || moduleTitle(def, 'detail', t('runtime.detailTitle', { singular: def.singularLabel }))}
         collapsible={def.layout.detail?.card?.collapsible === true}
         state={{ status: queryStatus, message: queryMessage, rows: detailRows, errorType }}
+        actions={
+          queryStatus !== 'error' ? (
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                data-testid={`${testPrefix}-back-button`}
+                variant="secondary"
+                icon={<ChevronLeft className="h-4 w-4" />}
+                onClick={() => navigate(-1)}
+              >
+                {t('common.back')}
+              </Button>
+              {def.features.edit && can(permissions.update) && (
+                <Button
+                  type="button"
+                  data-testid={`${testPrefix}-edit-button`}
+                  variant="secondary"
+                  icon={<Pencil className="h-4 w-4" />}
+                  onClick={() => navigate(`/${def.routeBase}/${recordId}/edit`)}
+                >
+                  {t('common.edit')}
+                </Button>
+              )}
+            </div>
+          ) : undefined
+        }
       />
-      {queryStatus !== 'error' && (
-        <div className="flex justify-end gap-4">
-          <Button
-            data-testid={`${testPrefix}-back-button`}
-            className="w-30"
-            variant="secondary"
-            onClick={() => navigate(-1)}
-          >
-            {t('common.back')}
-          </Button>
-          {def.features.edit && can(permissions.update) && (
-            <Button
-              data-testid={`${testPrefix}-edit-button`}
-              className="w-30"
-              variant="primary"
-              onClick={() => navigate(`/${def.routeBase}/${recordId}/edit`)}
-            >
-              {t('common.edit')}
-            </Button>
-          )}
-        </div>
-      )}
     </div>
   );
 }

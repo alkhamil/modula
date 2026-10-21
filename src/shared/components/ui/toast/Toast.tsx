@@ -18,26 +18,26 @@ const variantConfig: Record<
   { bg: string; text: string; border: string; Icon: typeof CircleCheck }
 > = {
   success: {
-    bg: 'bg-success/15',
-    text: 'text-success',
+    bg: 'bg-success',
+    text: 'text-white',
     border: 'border-success',
     Icon: CircleCheck,
   },
   error: {
-    bg: 'bg-danger/15',
-    text: 'text-danger',
+    bg: 'bg-danger',
+    text: 'text-white',
     border: 'border-danger',
     Icon: CircleX,
   },
   warning: {
-    bg: 'bg-warning/15',
-    text: 'text-warning',
+    bg: 'bg-warning',
+    text: 'text-white',
     border: 'border-warning',
     Icon: TriangleAlert,
   },
   info: {
-    bg: 'bg-info/15',
-    text: 'text-info',
+    bg: 'bg-info',
+    text: 'text-white',
     border: 'border-info',
     Icon: Info,
   },

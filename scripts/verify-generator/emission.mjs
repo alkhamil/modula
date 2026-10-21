@@ -359,30 +359,7 @@ expectEq(
   true,
   'empty-state-in-component',
 );
-// --- Fase K: ikon ganda, mock kosong, path hapus ---
-const mreg = jiti(`${ROOT}/vite-plugin/moduleRegistration.ts`);
-const dblSrc = 'import { LayoutDashboard, Database } from "lucide-react";\nconst x = 1;\n';
-expectEq(mreg.ensureLucideImport(dblSrc, 'Database'), dblSrc, 'lucide-no-dup-doublequote');
-expectIn(
-  mreg.ensureLucideImport('import { LayoutDashboard } from \'lucide-react\';\n', 'Database'),
-  '{ LayoutDashboard, Database }',
-  'lucide-add-missing',
-);
-expectEq(
-  mreg.ensureLucideImport('import {\n  LayoutDashboard,\n  Users,\n} from "lucide-react";\n', 'Map'),
-  'import { LayoutDashboard,\n  Users, Map } from "lucide-react";\n',
-  'lucide-trailing-comma',
-);
-expectEq(
-  mreg.pruneLucideImport('import { Users, MapPin } from "lucide-react";\nconst a = 1;\n', 'MapPin'),
-  'import { Users } from "lucide-react";\nconst a = 1;\n',
-  'lucide-prune-unused',
-);
-expectEq(
-  mreg.pruneLucideImport('import { MapPin } from "lucide-react";\nconst a = <MapPin />;\n', 'MapPin'),
-  'import { MapPin } from "lucide-react";\nconst a = <MapPin />;\n',
-  'lucide-prune-keeps-used',
-);
+// --- Fase K: mock kosong, path hapus ---
 const mockFile = emitted.find((f) => f.path.endsWith('api/mock.ts')).content;
 expectIn(mockFile, 'MockI18nProbeRecord[] = [];', 'mock-empty-records');
 expectEq(mockFile.includes('Array.from'), false, 'mock-no-seed-array');
@@ -441,12 +418,21 @@ const savedDef = defs.configToDefinition(translatedConfig, { status: 'draft' });
 const roundConfig = definitionToConfig(savedDef);
 expectEq(roundConfig.i18n?.id?.['i18nprobe.fields.nama.label'], 'Nama (ID)', 'i18n-roundtrip');
 
-// Registrasi: breadcrumb + nav memakai labelKey modul (fallback label tetap ada).
+// Registrasi: modul membawa routes.tsx + navigation.tsx sendiri (labelKey modul + fallback label).
 const regOut = reg.buildRegistration(probeConfig);
-const regCode = regOut.routes.map((r) => r.code).join('\n') + '\n' + regOut.navItemCode;
-expectIn(regCode, "labelKey: 'i18nprobe.breadcrumbs.list'", 'reg-crumb-list');
-expectIn(regCode, "labelKey: 'i18nprobe.breadcrumbs.create'", 'reg-crumb-create');
-expectIn(regCode, "labelKey: 'i18nprobe.labelPlural'", 'reg-nav');
+const probeByName = Object.fromEntries(emitted.map((f) => [f.path.split('/').pop(), f.content]));
+const routesCode = probeByName['routes.tsx'];
+const navCode = probeByName['navigation.tsx'];
+expectIn(routesCode, "export const i18nProbeRoutes: RouteObject[] = [", 'reg-routes-export');
+expectIn(routesCode, "labelKey: 'i18nprobe.breadcrumbs.list'", 'reg-crumb-list');
+expectIn(routesCode, "labelKey: 'i18nprobe.breadcrumbs.create'", 'reg-crumb-create');
+expectIn(routesCode, "from './index'", 'reg-routes-import-index');
+expectIn(navCode, 'export const i18nProbeNav: ModuleNavEntry = {', 'reg-nav-export');
+expectIn(navCode, "labelKey: 'i18nprobe.labelPlural'", 'reg-nav');
+expectEq(regOut.routesExport, 'i18nProbeRoutes', 'reg-routes-name');
+expectEq(regOut.navExport, 'i18nProbeNav', 'reg-nav-name');
+expectEq(regOut.routesImportPath, '../modules/i18n-probe/routes', 'reg-routes-path');
+expectEq(regOut.navImportPath, '../modules/i18n-probe/navigation', 'reg-nav-path');
 // Grup parent: label + labelKey parentLabel (satu key per modul anak).
 const parentConfig = { ...probeConfig, parentName: 'Master Data', permissionKey: 'childmod' };
 const parentLocales = mg.generateModule(parentConfig);
@@ -455,135 +441,91 @@ const parentEn = JSON.parse(
 );
 expectEq(parentEn.childmod.parentLabel, 'Master Data', 'locale-parent');
 const parentReg = reg.buildRegistration(parentConfig);
-expectIn(parentReg.navSnippet, "labelKey: 'childmod.parentLabel'", 'reg-parent-key');
-expectIn(parentReg.navSnippet, "label: 'Master Data'", 'reg-parent-fallback');
+const parentNavCode = parentLocales.find((f) => f.path.endsWith('/navigation.tsx')).content;
+expectEq(parentReg.parentPath, 'master-data', 'reg-parent-path');
+expectIn(parentNavCode, "key: 'master-data'", 'reg-parent-nav-key');
+expectIn(parentNavCode, "labelKey: 'childmod.parentLabel'", 'reg-parent-key');
+expectIn(parentNavCode, "label: 'Master Data'", 'reg-parent-fallback');
 // Tanpa parent: tidak ada key parentLabel.
 expectEq('parentLabel' in enJson.i18nprobe, false, 'locale-no-parent');
 // Ikon nav: nama lucide dari config dipakai di snippet; default Database.
 const iconConfig = { ...probeConfig, menuIcon: { name: 'Users' } };
 const iconReg = reg.buildRegistration(iconConfig);
 expectEq(iconReg.iconName, 'Users', 'reg-icon-name');
-expectIn(iconReg.navItemCode, '<Users className="h-5 w-5" />', 'reg-icon-code');
+const iconNavCode = mg.generateModule(iconConfig).find((f) => f.path.endsWith('/navigation.tsx')).content;
+expectIn(iconNavCode, "import { Users } from 'lucide-react';", 'reg-icon-import');
+expectIn(iconNavCode, '<Users className="h-5 w-5" />', 'reg-icon-code');
 const noIconReg = reg.buildRegistration(probeConfig);
 expectEq(noIconReg.iconName, 'Database', 'reg-icon-default');
-// Registrasi nav (vite-plugin): validasi keberadaan ikon + kelola import lucide.
+// Registrasi (vite-plugin): validasi ikon + sisip/hapus satu import & satu entri.
 const mr = jiti(`${ROOT}/vite-plugin/moduleRegistration.ts`);
 expectEq(mr.resolveNavIconName('Users'), 'Users', 'icon-known');
 expectEq(mr.resolveNavIconName('NotAnIcon'), 'Database', 'icon-unknown');
 expectEq(mr.resolveNavIconName('x;evil()'), 'Database', 'icon-evil');
-const navSrc = "import { Database } from 'lucide-react';\nconst x = 1;\n";
-expectIn(mr.ensureLucideImport(navSrc, 'Database'), "import { Database } from 'lucide-react';", 'icon-import-kept');
-expectIn(mr.ensureLucideImport(navSrc, 'Users'), "import { Database, Users } from 'lucide-react';", 'icon-import-added');
-// Publish ulang dgn ikon beda: item flat terupdate, bukan duplikat.
-const flatBase = `${navSrc}const items = [
-  {
-    label: 'Probe',
-    path: '/probes',
-    icon: <Database className="h-5 w-5" />,
-  },
-];
-// __GENERATOR_NAV_ITEMS__
-`;
-const flatReg = { ...iconReg, navPath: '/probes', routes: iconReg.routes };
-const flatOut = mr.registerModuleNav(flatBase, flatReg);
-expectIn(flatOut.source, '<Users className="h-5 w-5" />', 'icon-resync-flat');
-expectEq(flatOut.added, false, 'icon-resync-no-dup');
-const flatSame = mr.registerModuleNav(flatOut.source, flatReg);
-expectEq(flatSame.source, flatOut.source, 'icon-resync-idempotent');
-// Item anak: ikon group parent ikut terupdate.
-const parentBase = `${navSrc}const items = [
-  // __GENERATOR_PARENT master-data__
-  {
-    label: 'Master',
-    icon: <Database className="h-5 w-5" />,
-    children: [
-      { label: 'Probe', path: '/probes', permissionKey: 'probe.view' },
-    ],
-  },
-];
-// __GENERATOR_NAV_ITEMS__
-`;
-const parentOut = mr.registerModuleNav(parentBase, { ...flatReg, parentPath: 'master-data' });
-expectIn(parentOut.source, '<Users className="h-5 w-5" />', 'icon-resync-parent');
-// Unregister: hapus routes + import + item nav, idempoten.
-const fakeReg = {
-  moduleImportPath: '../modules/probe',
-  routes: [{ path: 'probes', code: '' }],
-  navPath: '/probes',
-  parentPath: '',
-};
-const routerSrc = `import {
-  ProbeListPage,
-} from '../modules/probe';
+const badIconNav = "import { NotAnIcon } from 'lucide-react';\nicon: <NotAnIcon className=\"h-5 w-5\" />,\n";
+const fixedIconNav = mr.sanitizeModuleNavIcon(badIconNav);
+expectIn(fixedIconNav, "import { Database } from 'lucide-react';", 'sanitize-icon-import');
+expectIn(fixedIconNav, '<Database className="h-5 w-5" />', 'sanitize-icon-jsx');
+expectEq(mr.sanitizeModuleNavIcon(iconNavCode), iconNavCode, 'sanitize-icon-known-kept');
+
+const hostReg = reg.buildRegistration({ ...probeConfig, moduleName: 'Probe', permissionKey: 'probe' });
+const hostRouter = `import a from 'a';
 // __GENERATOR_IMPORTS__
+
 const r = [
-      {
-        path: 'probes',
-        element: <ProbeListPage />,
-        handle: {
-          breadcrumb: [{ label: 'Probes', labelKey: 'probe.breadcrumbs.list' }],
-          requiredPermission: 'probe.view',
-        },
-      },
-];`;
-const unRoutes = mr.unregisterModuleRoutes(routerSrc, fakeReg);
+              { index: true },
+              // __GENERATOR_ROUTES__
+];
+`;
+const routeOut = mr.registerModuleRoutes(hostRouter, hostReg);
+expectEq(routeOut.addedRoutes, 1, 'reg-route-added');
+expectIn(routeOut.source, `import { probeRoutes } from '../modules/probe/routes';\n// __GENERATOR_IMPORTS__`, 'reg-route-import-line');
+expectIn(routeOut.source, '              ...probeRoutes,\n              // __GENERATOR_ROUTES__', 'reg-route-spread-indent');
+const routeAgain = mr.registerModuleRoutes(routeOut.source, hostReg);
+expectEq(routeAgain.addedRoutes, 0, 'reg-route-idempotent-count');
+expectEq(routeAgain.source, routeOut.source, 'reg-route-idempotent');
+const hostNav = `import a from 'a';
+// __GENERATOR_NAV_IMPORTS__
+
+const entries = [
+  // __GENERATOR_NAV_ENTRIES__
+];
+`;
+const navOut = mr.registerModuleNav(hostNav, hostReg);
+expectEq(navOut.added, true, 'reg-nav-added');
+expectIn(navOut.source, `import { probeNav } from '../modules/probe/navigation';\n// __GENERATOR_NAV_IMPORTS__`, 'reg-nav-import-line');
+expectIn(navOut.source, '  probeNav,\n  // __GENERATOR_NAV_ENTRIES__', 'reg-nav-entry-indent');
+const navAgain = mr.registerModuleNav(navOut.source, hostReg);
+expectEq(navAgain.added, false, 'reg-nav-idempotent-count');
+expectEq(navAgain.source, navOut.source, 'reg-nav-idempotent');
+// Tanpa halaman: tidak ada yang disisipkan.
+expectEq(mr.registerModuleRoutes(hostRouter, { ...hostReg, hasPages: false }).source, hostRouter, 'reg-nopages-routes');
+expectEq(mr.registerModuleNav(hostNav, { ...hostReg, hasPages: false }).source, hostNav, 'reg-nopages-nav');
+// Unregister: kembali persis ke source awal, idempoten, sibling dipertahankan.
+const unRoutes = mr.unregisterModuleRoutes(routeOut.source, hostReg);
 expectEq(unRoutes.removed, 1, 'unreg-route-count');
-expectEq(unRoutes.source.includes("path: 'probes'"), false, 'unreg-route-gone');
-expectEq(unRoutes.source.includes('../modules/probe'), false, 'unreg-import-gone');
-expectEq(unRoutes.source.includes('// __GENERATOR_IMPORTS__'), true, 'unreg-anchor-kept');
-const unRoutesAgain = mr.unregisterModuleRoutes(unRoutes.source, fakeReg);
-expectEq(unRoutesAgain.removed, 0, 'unreg-route-idempotent');
-expectEq(unRoutesAgain.source, unRoutes.source, 'unreg-route-stable');
-const navFlatDel = `${navSrc}const items = [
-  {
-    label: 'Probe',
-    labelKey: 'probe.labelPlural',
-    path: '/probes',
-    icon: <Database className="h-5 w-5" />,
-    permissionKey: 'probe.view',
-  },
-];
-// __GENERATOR_NAV_ITEMS__
-`;
-const unNav = mr.unregisterModuleNav(navFlatDel, fakeReg);
+expectEq(unRoutes.source, hostRouter, 'unreg-route-restores');
+expectEq(mr.unregisterModuleRoutes(unRoutes.source, hostReg).removed, 0, 'unreg-route-idempotent');
+const unNav = mr.unregisterModuleNav(navOut.source, hostReg);
 expectEq(unNav.removed, 1, 'unreg-nav-count');
-expectEq(unNav.source.includes("path: '/probes'"), false, 'unreg-nav-gone');
-expectEq(unNav.source.includes('// __GENERATOR_NAV_ITEMS__'), true, 'unreg-nav-anchor-kept');
-// Anak terakhir grup: grup + marker ikut terhapus; sibling tersisa dipertahankan.
-const navGroupDel = `${navSrc}const items = [
-  // __GENERATOR_PARENT master-data__
-  {
-    label: 'Master',
-    labelKey: 'childmod.parentLabel',
-    icon: <Database className="h-5 w-5" />,
-    children: [
-      { label: 'Probe', labelKey: 'probe.labelPlural', path: '/probes', permissionKey: 'probe.view' },
-    ],
-  },
-];
-// __GENERATOR_NAV_ITEMS__
-`;
-const unGroup = mr.unregisterModuleNav(navGroupDel, { ...fakeReg, parentPath: 'master-data' });
-expectEq(unGroup.removed, 1, 'unreg-group-child');
-expectEq(unGroup.source.includes('__GENERATOR_PARENT master-data__'), false, 'unreg-group-gone');
-const navSiblingDel = `${navSrc}const items = [
-  // __GENERATOR_PARENT master-data__
-  {
-    label: 'Master',
-    labelKey: 'childmod.parentLabel',
-    icon: <Database className="h-5 w-5" />,
-    children: [
-      { label: 'Probe', labelKey: 'probe.labelPlural', path: '/probes', permissionKey: 'probe.view' },
-      { label: 'Other', labelKey: 'other.labelPlural', path: '/others', permissionKey: 'other.view' },
-    ],
-  },
-];
-// __GENERATOR_NAV_ITEMS__
-`;
-const unSibling = mr.unregisterModuleNav(navSiblingDel, { ...fakeReg, parentPath: 'master-data' });
-expectEq(unSibling.removed, 1, 'unreg-sibling-child');
-expectEq(unSibling.source.includes('__GENERATOR_PARENT master-data__'), true, 'unreg-group-kept');
-expectIn(unSibling.source, "path: '/others'", 'unreg-sibling-kept');
+expectEq(unNav.source, hostNav, 'unreg-nav-restores');
+expectEq(mr.unregisterModuleNav(unNav.source, hostReg).removed, 0, 'unreg-nav-idempotent');
+const otherReg = reg.buildRegistration({ ...probeConfig, moduleName: 'Other', permissionKey: 'other' });
+const twoNav = mr.registerModuleNav(navOut.source, otherReg).source;
+const oneNav = mr.unregisterModuleNav(twoNav, hostReg);
+expectIn(oneNav.source, '  otherNav,', 'unreg-sibling-kept');
+expectEq(oneNav.source.includes('probeNav'), false, 'unreg-sibling-target-gone');
+// buildModuleNavItems: flat vs group per parent (satu group untuk modul sama parent).
+const { buildModuleNavItems } = jiti(`${ROOT}/src/shared/utils/moduleNav.ts`);
+const navItems = buildModuleNavItems([
+  { icon: 'i1', item: { label: 'Flat', path: '/flat' } },
+  { parent: { key: 'md', label: 'Master', icon: 'ip' }, icon: 'i2', item: { label: 'A', path: '/a' } },
+  { parent: { key: 'md', label: 'Master', icon: 'ip' }, icon: 'i3', item: { label: 'B', path: '/b' } },
+]);
+expectEq(navItems.length, 2, 'nav-build-count');
+expectEq(navItems[0].path, '/flat', 'nav-build-flat');
+expectEq(navItems[1].children.map((c) => c.path).join(','), '/a,/b', 'nav-build-group-children');
+expectEq(navItems[1].icon, 'ip', 'nav-build-group-icon');
 // Validasi target hapus: dalam src/modules boleh, escape/luar ditolak.
 const mw = jiti(`${ROOT}/vite-plugin/moduleWriter.ts`);
 expectEq(mw.resolveDeleteTarget('/a/b', 'src/modules/probe'), '/a/b/src/modules/probe', 'del-target-ok');
@@ -631,7 +573,7 @@ expectEq(layoutCfg.formLayout?.[1]?.colSpan, 6, 'fromdef-formlayout-span');
 const rg = jiti(`${ROOT}/src/modules/generator/engine/registration.ts`);
 const menuReg = rg.buildRegistration(iconCfg);
 expectEq(menuReg.iconName, 'Users', 'registration-iconname');
-expectIn(menuReg.navItemCode ?? menuReg.navSnippet ?? '', '<Users', 'registration-nav-icon');
+
 // setTableProps: patch size/warna ikon aksi kanvas tersimpan (regresi dropdown kartu Ikon aksi).
 const ops = jiti(`${ROOT}/src/modules/generator/runtime/layoutOps.ts`);
 const baseLayout = { form: [], table: { order: [], hidden: [], props: { dense: true } } };
@@ -728,15 +670,15 @@ expectEq(
   JSON.stringify(['nama', 'created_by', 'created_date', 'status']),
   'normalize-appends-system',
 );
-// Field baru default di kiri (bukan kanan).
+// Field baru default di kanan mengikuti urutan form kanvas (append, bukan kiri).
 const normedFresh = nl.normalizeLayout(
   { form: [], table: { order: ['a'], hidden: [], props: {} } },
   ['a', 'b'],
 );
 expectEq(
   JSON.stringify(normedFresh.table.order),
-  JSON.stringify(['b', 'a', 'created_by', 'created_date', 'status']),
-  'normalize-fresh-left',
+  JSON.stringify(['a', 'b', 'created_by', 'created_date', 'status']),
+  'normalize-fresh-right',
 );
 // Detail: posisi baris sistem hasil drag dipertahankan + bisa dipindah.
 const normedDetail = nl.normalizeLayout(

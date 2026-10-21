@@ -47,8 +47,13 @@ invalidate `dynamic-definitions*`/`dynamic-records*`/`dynamic-record*`).
 permissions, index, INTEGRATION.md) + `buildRegistration(config)` →
 `api/writeToRepo.ts` POST `/__api/write-module` (plugin dev-only
 `vite-plugin/moduleWriter.ts`, hanya di `npm run dev`; konflik → 409 →
-dialog Timpa). Registrasi idempoten via anchor `// __GENERATOR_*__` di
-`router.tsx`/`navigation.tsx` (`vite-plugin/moduleRegistration.ts`).
+dialog Timpa). Tiap modul membawa `routes.tsx` (`xRoutes: RouteObject[]`)
+dan `navigation.tsx` (`xNav: ModuleNavEntry`); registrasi hanya menyisipkan
+satu import + satu entri (`...xRoutes,` / `xNav,`) per file, idempoten via
+anchor `// __GENERATOR_IMPORTS__`/`_ROUTES__`/`_NAV_IMPORTS__`/`_NAV_ENTRIES__`
+di `router.tsx`/`navigation.tsx` (`vite-plugin/moduleRegistration.ts`).
+Nav digabung `buildModuleNavItems` (`shared/utils/moduleNav.ts`): tanpa
+`parent` → item flat, dengan `parent.key` sama → satu group.
 Batasan: tanpa `service.ts` (axios), layout kanvas/relation tak
 ikut template, field relation jadi select biasa. Modul statis menutupi
 versi dinamis di route sama + memakai mock-nya sendiri; duplikat nav

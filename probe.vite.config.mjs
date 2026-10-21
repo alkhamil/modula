@@ -8,7 +8,7 @@ export default {
     outDir: '/tmp/probe-dist',
     emptyOutDir: true,
     rollupOptions: {
-      input: '/Users/nazmudinalkhamil/Documents/Projects/generator-module-app/probe-upload.html',
+      input: '/Users/nazmudinalkhamil/Documents/Projects/modula/probe-upload.html',
       output: {
         entryFileNames: 'probe.js',
         chunkFileNames: 'chunk.js',

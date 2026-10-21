@@ -2,11 +2,11 @@ import type { ModuleDefinition } from '../definitions';
 import { definitionToConfig } from '../engine/fromDefinition';
 import { GeneratorConfigError, generateModule } from '../engine/moduleGenerator';
 import { buildRegistration } from '../engine/registration';
-import { WriteEndpointUnavailableError, writeModuleToRepo } from './writeToRepo';
+import { repoWriteEnabled, WriteEndpointUnavailableError, writeModuleToRepo } from './writeToRepo';
 
 export type PublishToRepoOutcome =
   | { state: 'written'; count: number }
-  | { state: 'skipped'; message: string };
+  | { state: 'skipped'; message: string; reason?: 'build' };
 
 /**
  * Tulis modul yang di-publish langsung ke repo (`src/modules/`) + registrasi
@@ -18,6 +18,15 @@ export type PublishToRepoOutcome =
 export async function publishModuleToRepo(
   def: ModuleDefinition,
 ): Promise<PublishToRepoOutcome> {
+  // Production build (Netlify/preview): repo-write memang tidak tersedia —
+  // skipped by-design, tanpa mencoba fetch.
+  if (!repoWriteEnabled()) {
+    return {
+      state: 'skipped',
+      reason: 'build',
+      message: 'Repo write skipped: production build (dev-only endpoint).',
+    };
+  }
   try {
     const config = definitionToConfig(def);
     const files = generateModule(config);

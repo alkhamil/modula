@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Dialog, Table, useToast } from '../../../shared/components/ui';
 import { Trash2 } from 'lucide-react';
 import type { ModuleDefinition } from '../definitions';
+import { relationDependentsOf } from '../definitions';
 import { deleteDefinition, deleteModuleRecords } from '../runtime';
 import { deleteModuleFromRepo } from '../api/deleteFromRepo';
 import { WriteEndpointUnavailableError } from '../api/writeToRepo';
@@ -26,40 +27,56 @@ function ModulesTab({ definitions, isLoading, onEdit, onDeleted }: ModulesTabPro
   const [generateTarget, setGenerateTarget] = useState<ModuleDefinition | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  /** Modul yang bergantung (relasi) ke target hapus — ikut terhapus cascade,
+   * diurutkan import-terdalam dulu agar folder repo dihapus dari importer ke target. */
+  const deleteCascade = deleteTarget
+    ? [...relationDependentsOf(deleteTarget.key, definitions)].reverse()
+    : [];
+
   async function handleDelete(): Promise<void> {
     if (!deleteTarget) return;
     setIsDeleting(true);
+    const toDelete = [...deleteCascade, deleteTarget];
     try {
-      await deleteDefinition(deleteTarget.key);
-      await deleteModuleRecords(deleteTarget.apiPlural);
+      let repoCount = 0;
+      for (const def of toDelete) {
+        await deleteDefinition(def.key);
+        await deleteModuleRecords(def.apiPlural);
+        // Best-effort: hapus juga file repo hasil generate (hanya ada di dev-server).
+        try {
+          const repo = await deleteModuleFromRepo(def);
+          repoCount += repo.deleted.length + repo.removedRoutes + (repo.removedNav ? 1 : 0);
+        } catch (err) {
+          if (!(err instanceof WriteEndpointUnavailableError)) {
+            showToast({
+              variant: 'warning',
+              message: t('modules.repoDeleteFailed', {
+                message: err instanceof Error ? err.message : t('modules.deleteFailed'),
+              }),
+            });
+          }
+        }
+        // Draft milik modul yang dihapus ikut dibersihkan agar tak termuat lagi.
+        if (isDraftOfModule(loadDraft(), def)) clearDraft();
+        onDeleted?.(def);
+      }
       await queryClient.invalidateQueries({ queryKey: ['dynamic-definitions'] });
       await queryClient.invalidateQueries({ queryKey: ['dynamic-definition'] });
       await queryClient.invalidateQueries({ queryKey: ['dynamic-records'] });
       await queryClient.invalidateQueries({ queryKey: ['dynamic-record'] });
-      showToast({ variant: 'success', message: t('modules.deleted', { key: deleteTarget.key }) });
-      // Best-effort: hapus juga file repo hasil generate (hanya ada di dev-server).
-      try {
-        const repo = await deleteModuleFromRepo(deleteTarget);
-        const count = repo.deleted.length + repo.removedRoutes + (repo.removedNav ? 1 : 0);
-        if (count > 0) {
-          showToast({
-            variant: 'success',
-            message: t('modules.repoDeleted', { key: deleteTarget.key, count }),
-          });
-        }
-      } catch (err) {
-        if (!(err instanceof WriteEndpointUnavailableError)) {
-          showToast({
-            variant: 'warning',
-            message: t('modules.repoDeleteFailed', {
-              message: err instanceof Error ? err.message : t('modules.deleteFailed'),
-            }),
-          });
-        }
+      showToast({
+        variant: 'success',
+        message:
+          deleteCascade.length > 0
+            ? t('modules.deletedCascade', { key: deleteTarget.key, count: deleteCascade.length })
+            : t('modules.deleted', { key: deleteTarget.key }),
+      });
+      if (repoCount > 0) {
+        showToast({
+          variant: 'success',
+          message: t('modules.repoDeleted', { key: deleteTarget.key, count: repoCount }),
+        });
       }
-      // Draft milik modul yang dihapus ikut dibersihkan agar tak termuat lagi.
-      if (isDraftOfModule(loadDraft(), deleteTarget)) clearDraft();
-      onDeleted?.(deleteTarget);
       setDeleteTarget(null);
     } catch (err) {
       showToast({
@@ -162,9 +179,32 @@ function ModulesTab({ definitions, isLoading, onEdit, onDeleted }: ModulesTabPro
           </>
         }
       >
-        <p className="text-sm text-foreground">
-          {t('modules.deleteConfirm', { label: deleteTarget?.label ?? '', key: deleteTarget?.key ?? '' })}
-        </p>
+        <div className="flex flex-col stack-gap">
+          <p className="text-sm text-foreground">
+            {t('modules.deleteConfirm', { label: deleteTarget?.label ?? '', key: deleteTarget?.key ?? '' })}
+          </p>
+          {deleteCascade.length > 0 && (
+            <div className="flex flex-col field-gap" data-testid="modules-delete-cascade">
+              <p className="text-sm font-medium text-danger">
+                {t('modules.deleteCascadeWarning', {
+                  key: deleteTarget?.key ?? '',
+                  count: deleteCascade.length,
+                })}
+              </p>
+              <ul className="flex flex-col field-gap">
+                {deleteCascade.map((def) => (
+                  <li key={def.key} className="text-sm text-foreground">
+                    <span className="font-medium">{def.label}</span>{' '}
+                    <span className="font-mono text-xs text-muted-foreground">{def.key}</span>{' '}
+                    <Badge variant={def.status === 'published' ? 'success' : 'secondary'}>
+                      {def.status === 'published' ? 'Published' : 'Draft'}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </Dialog>
       {generateTarget && (
         <GenerateDialog def={generateTarget} onClose={() => setGenerateTarget(null)} />

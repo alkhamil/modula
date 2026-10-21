@@ -33,8 +33,10 @@ interface TableProps<T> {
   onSort?: (key: string) => void;
   renderAction?: (item: T) => ReactNode;
   actionWidth?: string;
-  /** Posisi kolom aksi: kiri (default) atau kanan. */
+  /** Posisi kolom aksi: kanan (default) atau kiri. */
   actionPosition?: 'left' | 'right';
+  /** Tampilkan kolom nomor urut baris pertama ("No", sadar halaman). */
+  showRowNumber?: boolean;
   /** Label header kolom aksi (default "Action"). */
   actionHeader?: ReactNode;
   /** Sembunyikan seluruh kolom aksi (header + sel). */
@@ -276,7 +278,8 @@ function Table<T>({
   renderAction,
   actionWidth = 'w-16',
   actionHeader,
-  actionPosition = 'left',
+  actionPosition = 'right',
+  showRowNumber = false,
   hideActionColumn = false,
   fixedLayout = false,
   stickyAction = false,
@@ -310,6 +313,8 @@ function Table<T>({
   const actionRight = actionPosition === 'right';
   const { t } = useTranslation();
   const resolvedActionHeader = actionHeader ?? t('table.action');
+  const resolvedRowNumberHeader = t('table.rowNumber', { defaultValue: 'No' });
+  const rowNumberOf = (rowIdx: number): number => (page - 1) * pageSize + rowIdx + 1;
   const resolvedEmptyTitle = emptyStateTitle ?? t('table.emptyTitle');
   const resolvedFilteredTitle = filteredEmptyStateTitle ?? t('table.filteredTitle');
   const resolvedFilteredDesc = filteredEmptyStateDescription ?? t('table.filteredDesc');
@@ -317,7 +322,7 @@ function Table<T>({
 
   const skeletonRows = Array.from({ length: pageSize }, (_, i) => i);
   const showAction = !!renderAction && !hideActionColumn;
-  const totalColumns = columns.length + (showAction ? 1 : 0);
+  const totalColumns = columns.length + (showAction ? 1 : 0) + (showRowNumber ? 1 : 0);
   const emptyState = !loading && !error && data.length === 0;
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -452,6 +457,16 @@ function Table<T>({
           >
             <thead>
               <tr className="bg-surface">
+                {showRowNumber && (
+                  <th
+                    className={bc(
+                      'px-4 py-3 text-center text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-b border-border w-12',
+                      stickyHeader ? 'sticky top-0 z-20 bg-surface' : 'bg-surface',
+                    )}
+                  >
+                    {resolvedRowNumberHeader}
+                  </th>
+                )}
                 {showAction && !actionRight && (
                   <th
                     className={bc(
@@ -512,6 +527,11 @@ function Table<T>({
               {loading ? (
                 skeletonRows.map((rowIdx) => (
                   <tr key={`skeleton-${rowIdx}`}>
+                    {showRowNumber && (
+                      <td className={`w-12 border-b border-border px-4 ${cellPy}`}>
+                        <div className="mx-auto h-4 animate-pulse rounded bg-muted" />
+                      </td>
+                    )}
                     {showAction && !actionRight && (
                       <td
                         className={`${actionWidth} border-b border-border px-4 ${cellPy}`}
@@ -596,6 +616,16 @@ function Table<T>({
                       key={rowKey(item, rowIdx)}
                       className={highlighted ? 'group bg-primary/15' : 'group hover:bg-primary/5'}
                     >
+                      {showRowNumber && (
+                        <td
+                          className={bc(
+                            `w-12 px-4 ${cellPy} text-center text-sm text-muted-foreground whitespace-nowrap`,
+                            isLast ? '' : 'border-b border-border',
+                          )}
+                        >
+                          {rowNumberOf(rowIdx)}
+                        </td>
+                      )}
                       {showAction && !actionRight && (
                         <td
                           className={bc(

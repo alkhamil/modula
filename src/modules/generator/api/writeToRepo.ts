@@ -28,12 +28,22 @@ export class WriteEndpointUnavailableError extends Error {
   }
 }
 
+/**
+ * Repo-write hanya boleh di dev-server: pada production build (Netlify,
+ * `vite build`/`preview`) endpoint tulis tidak pernah ada, jadi jangan
+ * sampai mencoba fetch sama sekali.
+ */
+export function repoWriteEnabled(): boolean {
+  return import.meta.env.DEV;
+}
+
 /** Write generate output directly to `src/modules/` via dev-server + register routes/nav. */
 export async function writeModuleToRepo(
   files: GeneratedFile[],
   overwrite: boolean,
   registration?: ModuleRegistration,
 ): Promise<WriteToRepoResult> {
+  if (!repoWriteEnabled()) throw new WriteEndpointUnavailableError();
   let res: Response;
   try {
     res = await fetch(WRITE_ENDPOINT, {

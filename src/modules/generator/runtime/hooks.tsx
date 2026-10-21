@@ -317,7 +317,13 @@ export function buildDetailRows(
   loaderOf?: (field: GeneratorFieldConfig) => RelationOptionLoader | undefined,
 ): DetailRow[] {
   const byName = new Map(def.fields.map((field) => [field.name, field]));
-  const configured = def.layout.detail?.order ?? def.fields.map((field) => field.name);
+  // Default mengikuti urutan tabel kiri-ke-kanan (cermin kanvas List);
+  // bila tabel kosong, jatuh ke urutan fields.
+  const tableOrder = (def.layout.table?.order ?? []).filter(
+    (name) => byName.has(name) || DETAIL_SYSTEM_ORDER.includes(name),
+  );
+  const configured = def.layout.detail?.order
+    ?? (tableOrder.length > 0 ? tableOrder : def.fields.map((field) => field.name));
   const hidden = new Set(def.layout.detail?.hidden ?? []);
   // Kunci sistem mengikuti posisi di order; yang belum diatur memakai
   // fallback lama (status di depan, created_* di belakang).

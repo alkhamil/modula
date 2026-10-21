@@ -28,3 +28,4 @@ export type {
   ContractModelField,
 } from './contract';
 export { NEW_PARENT_VALUE, parentOptionsFromDefinitions } from './parents';
+export { relationDependentsOf } from './dependents';

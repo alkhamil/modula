@@ -39,43 +39,85 @@ function activeModuleLanguage(): ModuleLanguage {
 
 /**
  * Resolve a per-module translation key. Fallback chain: active language dict
- * → English dict → provided English default.
+ * → English dict → provided English default. Tries each candidate key in
+ * order (legacy `field.*` schema first, then generator `<base>.fields.*`
+ * schema written by the Translation step / Generate-to-repo).
  */
 export function moduleText(
   def: Pick<ModuleDefinition, 'i18n'> | undefined,
   key: string,
   fallback: string,
+  extraKeys: string[] = [],
 ): string {
   const dict = def?.i18n;
   if (!dict) return fallback;
   const lng = activeModuleLanguage();
-  return dict[lng]?.[key] ?? dict.en?.[key] ?? fallback;
+  for (const candidate of [key, ...extraKeys]) {
+    const hit = dict[lng]?.[candidate] ?? dict.en?.[candidate];
+    if (hit !== undefined) return hit;
+  }
+  return fallback;
 }
 
-/** Translated field label (`field.{name}.label`), fallback = stored label. */
+type I18nAwareDef = Pick<ModuleDefinition, 'i18n'> & { permissionKey?: string };
+
+/** Generated-schema key for a field label (`<base>.fields.{name}.label`). */
+export function generatedFieldLabelKey(def: Pick<ModuleDefinition, 'permissionKey'>, name: string): string {
+  return `${def.permissionKey}.fields.${name}.label`;
+}
+
+/** Generated-schema key for a field placeholder (`<base>.fields.{name}.placeholder`). */
+export function generatedFieldPlaceholderKey(def: Pick<ModuleDefinition, 'permissionKey'>, name: string): string {
+  return `${def.permissionKey}.fields.${name}.placeholder`;
+}
+
+/** Translated field label, fallback = stored label. */
 export function moduleFieldLabel(
-  def: Pick<ModuleDefinition, 'i18n'> | undefined,
+  def: I18nAwareDef | undefined,
   field: Pick<GeneratorFieldConfig, 'name' | 'label'>,
 ): string {
-  return moduleText(def, fieldLabelKey(field.name), field.label);
+  return moduleText(def, fieldLabelKey(field.name), field.label, [
+    `${def?.permissionKey ?? ''}.fields.${field.name}.label`,
+  ]);
 }
 
-/** Translated placeholder (`field.{name}.placeholder`), fallback = stored placeholder. */
+/** Translated placeholder, fallback = stored placeholder. */
 export function moduleFieldPlaceholder(
-  def: Pick<ModuleDefinition, 'i18n'> | undefined,
+  def: I18nAwareDef | undefined,
   field: Pick<GeneratorFieldConfig, 'name' | 'placeholder'>,
   fallback: string,
 ): string {
-  return moduleText(def, fieldPlaceholderKey(field.name), field.placeholder?.trim() || fallback);
+  return moduleText(def, fieldPlaceholderKey(field.name), field.placeholder?.trim() || fallback, [
+    `${def?.permissionKey ?? ''}.fields.${field.name}.placeholder`,
+  ]);
 }
 
-/** Translated module title (`title.{kind}`), fallback = composed default. */
+/** Generated-schema title key per kind (`<base>.label` / breadcrumbs). */
+function generatedTitleKeys(
+  def: { permissionKey?: string } | undefined,
+  kind: ModuleTitleKind,
+): string[] {
+  const base = def?.permissionKey ?? '';
+  if (!base) return [];
+  switch (kind) {
+    case 'list':
+      return [`${base}.breadcrumbs.list`, `${base}.labelPlural`];
+    case 'create':
+      return [`${base}.breadcrumbs.create`];
+    case 'edit':
+      return [`${base}.breadcrumbs.edit`];
+    case 'detail':
+      return [`${base}.breadcrumbs.detail`];
+  }
+}
+
+/** Translated module title, fallback = composed default. */
 export function moduleTitle(
-  def: Pick<ModuleDefinition, 'i18n'> | undefined,
+  def: I18nAwareDef | undefined,
   kind: ModuleTitleKind,
   fallback: string,
 ): string {
-  return moduleText(def, moduleTitleKey(kind), fallback);
+  return moduleText(def, moduleTitleKey(kind), fallback, generatedTitleKeys(def, kind));
 }
 
 export interface ModuleI18nEntry {

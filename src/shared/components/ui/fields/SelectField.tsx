@@ -66,9 +66,9 @@ interface SelectFieldProps {
 }
 
 const sizeStyles: Record<string, string> = {
-  sm: 'px-3 py-1.5 text-xs',
-  md: 'pl-4 pr-3 py-2.5 text-sm',
-  lg: 'pl-5 pr-3 py-3 text-base',
+  sm: 'px-3 py-1.5 text-xs min-h-[34px]',
+  md: 'pl-4 pr-3 py-2.5 text-sm min-h-[44px]',
+  lg: 'pl-5 pr-3 py-3 text-base min-h-[52px]',
 };
 
 const iconSizeStyles: Record<string, string> = {
@@ -330,10 +330,10 @@ function SelectField({
   const inputValue = searchable && isOpen ? searchTerm : value ? selectedLabel : '';
 
   const triggerBaseClass = [
-    'flex w-full items-center rounded-lg border transition-colors',
+    'flex w-full items-center rounded-lg border outline-none transition-colors',
     error
-      ? 'border-danger focus-visible:border-danger focus-visible:ring-2 focus-visible:ring-danger/20'
-      : 'border-border focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30',
+      ? 'border-danger focus:border-danger focus:ring-2 focus:ring-danger/20 focus-visible:border-danger focus-visible:ring-2 focus-visible:ring-danger/20 focus-within:border-danger focus-within:ring-2 focus-within:ring-danger/20'
+      : 'border-border focus:border-primary focus:ring-2 focus:ring-primary/30 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30',
     disabled ? 'cursor-not-allowed' : 'bg-background',
   ].join(' ');
 

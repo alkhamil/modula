@@ -77,7 +77,7 @@ function AppShell({
       : parent
         ? resolveNavLabel(parent, t)
         : '');
-  const breadcrumb: BreadcrumbItem[] = isNotFoundRoute
+  const fromHandles: BreadcrumbItem[] = isNotFoundRoute
     ? []
     : matches.flatMap(
         (match) =>
@@ -86,6 +86,14 @@ function AppShell({
         ...item,
         label: item.labelKey ? t(item.labelKey, { defaultValue: item.label }) : item.label,
       }));
+  // Halaman dinamis (useRoutes dalam) tak menyumbang handle breadcrumb —
+  // fallback ke label menu aktif agar breadcrumb tetap tampil.
+  const breadcrumb: BreadcrumbItem[] =
+    fromHandles.length > 0
+      ? fromHandles
+      : parent
+        ? [{ label: resolveNavLabel(parent, t) }]
+        : [];
 
   return (
     <div className="flex h-screen overflow-hidden">

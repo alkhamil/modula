@@ -15,11 +15,11 @@ type ButtonProps =
   | (ButtonBaseProps & { variant: 'custom'; className: string });
 
 const variantStyles: Record<string, string> = {
-  primary: 'bg-primary text-primary-foreground hover:bg-primary/85 active:bg-primary/75',
+  primary:
+    'border border-transparent bg-primary text-primary-foreground hover:bg-primary/85 active:bg-primary/75',
   secondary:
     'border border-primary text-primary bg-background hover:bg-primary/10 active:bg-primary/15',
-  danger:
-    'border border-danger text-danger bg-background hover:bg-danger/10 active:bg-danger/15',
+  danger: 'border border-transparent bg-danger text-white hover:bg-danger/85 active:bg-danger/75',
   custom: '',
 };
 

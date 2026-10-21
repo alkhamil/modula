@@ -408,7 +408,9 @@
     "repoDeleted": "Modul \"{{key}}\" juga dihapus dari repo ({{count}} path).",
     "repoDeleteFailed": "Hapus repo gagal: {{message}} Definisi dan record mock tetap terhapus.",
     "emptyTitle": "Belum ada modul",
-    "emptyDesc": "Buat modul pertama lewat Builder, lalu publish."
+    "emptyDesc": "Buat modul pertama lewat Builder, lalu publish.",
+    "deleteCascadeWarning": "{{count}} modul berikut berelasi ke \"{{key}}\" dan ikut terhapus (beserta record dan file repo hasil generate):",
+    "deletedCascade": "Modul \"{{key}}\" dihapus bersama {{count}} modul yang berelasi."
   },
   "review": {
     "module": "Modul",

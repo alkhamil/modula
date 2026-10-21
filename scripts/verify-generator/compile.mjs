@@ -10,8 +10,22 @@ import { createJiti } from 'jiti';
 
 const ROOT = join(fileURLToPath(new URL('../..', import.meta.url)));
 const TMP_PREFIX = 'src/modules/verifygen-tmp';
+const TARGET_PREFIX = 'src/modules/verifygen-target';
 const jiti = createJiti(import.meta.url);
 const { generateModule } = jiti(`${ROOT}/src/modules/generator/engine/moduleGenerator.ts`);
+
+// Target relasi digenerate juga agar verifikasi self-contained (tidak bergantung
+// pada modul hasil publish-ke-repo yang bisa dihapus user).
+const targetConfig = {
+  parentName: null,
+  moduleName: 'Verifygen Target',
+  type: 'crud',
+  permissionKey: 'verifygentarget',
+  features: { list: true, detail: true, create: true, edit: true, delete: true, bulkUpload: true, export: true },
+  fields: [
+    { name: 'name', label: 'Name', type: 'textField', rules: ['required'], sortable: true, filterable: true, filterCriteria: 'contains', source: 'none' },
+  ],
+};
 
 const config = {
   parentName: null,
@@ -33,7 +47,7 @@ const config = {
   fields: [
     { name: 'itemName', label: 'Item Name', type: 'textField', rules: ['required'], sortable: true, filterable: true, filterCriteria: 'contains', source: 'none' },
     { name: 'seller', label: 'Seller', type: 'selectField', rules: [], sortable: true, filterable: true, filterCriteria: 'optionExact', source: 'mockPagingInfinityScroll' },
-    { name: 'category', label: 'Category', type: 'selectField', rules: [], sortable: false, filterable: true, filterCriteria: 'optionExact', source: 'relation', relation: { definitionKey: 'master-data/category', labelField: 'name', valueField: 'id' } },
+    { name: 'category', label: 'Category', type: 'selectField', rules: [], sortable: false, filterable: true, filterCriteria: 'optionExact', source: 'relation', relation: { definitionKey: 'verifygen-target', labelField: 'name', valueField: 'id' } },
     { name: 'warna', label: 'Warna', type: 'colorField', rules: [], sortable: true, filterable: true, filterCriteria: 'contains', source: 'none', componentProps: { color: { size: 'lg' } } },
     { name: 'deskripsi', label: 'Deskripsi', type: 'editorField', rules: [], sortable: true, filterable: false, filterCriteria: null, source: 'none' },
     { name: 'dokumen', label: 'Dokumen', type: 'fileUploadField', rules: [], sortable: false, filterable: false, filterCriteria: null, source: 'none', componentProps: { upload: { multiple: true } } },
@@ -50,12 +64,13 @@ const config = {
   ],
 };
 
-if (existsSync(join(ROOT, TMP_PREFIX))) {
-  console.log(`COMPILE FAIL: ${TMP_PREFIX} sudah ada — hapus dulu (residu run gagal).`);
+if (existsSync(join(ROOT, TMP_PREFIX)) || existsSync(join(ROOT, TARGET_PREFIX))) {
+  console.log(`COMPILE FAIL: dir tmp sudah ada — hapus dulu (residu run gagal).`);
   process.exit(1);
 }
-const files = generateModule(config);
-const outside = files.filter((f) => !f.path.startsWith(`${TMP_PREFIX}/`));
+const files = [...generateModule(targetConfig), ...generateModule(config)];
+const allowed = (p) => p.startsWith(`${TMP_PREFIX}/`) || p.startsWith(`${TARGET_PREFIX}/`);
+const outside = files.filter((f) => !allowed(f.path));
 if (outside.length > 0 || files.length === 0) {
   console.log('COMPILE FAIL: path hasil generate di luar dir tmp.', outside.map((f) => f.path));
   process.exit(1);
@@ -74,4 +89,5 @@ try {
   process.exitCode = 1;
 } finally {
   rmSync(join(ROOT, TMP_PREFIX), { recursive: true, force: true });
+  rmSync(join(ROOT, TARGET_PREFIX), { recursive: true, force: true });
 }

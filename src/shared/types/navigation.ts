@@ -17,3 +17,25 @@ export interface NavItemType {
   children?: SubItem[];
   permissionKey?: string;
 }
+
+/** Group parent menu (mis. Master Data) untuk modul yang ber-parent. */
+export interface ModuleNavParent {
+  /** Kunci unik group, mis. `master-data` — modul ber-parent sama digabung. */
+  key: string;
+  label: string;
+  labelKey?: string;
+  icon: ReactNode;
+}
+
+/**
+ * Entri nav milik satu modul (diekspor dari `navigation.tsx` modul).
+ * Tanpa `parent` jadi item flat di root; dengan `parent` jadi anak group.
+ */
+export interface ModuleNavEntry {
+  parent?: ModuleNavParent;
+  icon: ReactNode;
+  item: SubItem;
+}
+
+/** Ekspor `navigation.tsx` modul: satu entri, atau beberapa (mis. satu group, banyak halaman). */
+export type ModuleNav = ModuleNavEntry | ModuleNavEntry[];

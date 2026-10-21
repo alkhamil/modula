@@ -6,7 +6,6 @@ import {
   CheckboxField,
   Dialog,
   SelectField,
-  SwitchField,
   TextAreaField,
   TextField,
 } from '../../../shared/components/ui';
@@ -22,7 +21,7 @@ import type {
   GeneratorFieldConfig,
   RelationConfig,
 } from '../types';
-import { pruneComponentProps } from '../componentProps';
+import { pruneComponentProps, resolveFormItemLayout } from '../componentProps';
 import type { ModuleDefinition } from '../definitions';
 import {
   criteriaForFieldType,
@@ -47,8 +46,9 @@ export interface FieldFormValue {
   name: string;
   type: FieldType;
   rules: string[];
-  sortable: boolean;
-  filterable: boolean;
+  /** undefined = ikut default tipe (defaultSortable/defaultFilterable). */
+  sortable: boolean | undefined;
+  filterable: boolean | undefined;
   filterCriteria: FilterCriteria | null;
   source: DataSource;
   options: FieldOption[];
@@ -256,6 +256,12 @@ function draftToRules(draft: Record<ValidationRuleName, RuleDraft>): string[] {
   return rules;
 }
 
+/** Nilai eksplisit yang sama dengan default tipe → undefined (tampil "Default" di select). */
+function normalizeTriDefault(value: boolean | undefined, fallback: boolean): boolean | undefined {
+  const resolved = value ?? fallback;
+  return resolved === fallback ? undefined : resolved;
+}
+
 /** Nilai awal form dari field existing, preset palet, atau kosong. */
 export function initialFormValue(
   field: GeneratorFieldConfig | null,
@@ -268,8 +274,8 @@ export function initialFormValue(
     name: field?.name ?? '',
     type,
     rules: field ? [...field.rules] : [],
-    sortable: field?.sortable ?? defaultSortable(type),
-    filterable: field?.filterable ?? defaultFilterable(type),
+    sortable: normalizeTriDefault(field?.sortable, defaultSortable(type)),
+    filterable: normalizeTriDefault(field?.filterable, defaultFilterable(type)),
     filterCriteria: field?.filterCriteria ?? defaultCriteria(type),
     source,
     options:
@@ -294,6 +300,8 @@ export function initialFormValue(
     },
     placeholder: field?.placeholder ?? '',
     disabled: field?.disabled ?? false,
+    // Samakan dengan default tipe agar UI menampilkan "Default".
+    // (Nilai eksplisit yang sama dengan default dinormalisasi ke undefined.)
     rows: field?.rows ? String(field.rows) : '',
     accept: field?.accept ?? '',
     props: field?.componentProps ? structuredClone(field.componentProps) : {},
@@ -306,6 +314,8 @@ export function initialFormValue(
 /** Form → config field (buang default kosong; muatan source tak relevan ikut di-strip normalize). */
 export function buildFieldConfig(form: FieldFormValue): GeneratorFieldConfig {
   const rows = Number.parseInt(form.rows, 10);
+  const sortable = form.sortable ?? defaultSortable(form.type);
+  const filterable = form.filterable ?? defaultFilterable(form.type);
   const prunedProps = pruneComponentProps(form.type, form.props);
   const relation: RelationConfig = {
     definitionKey: form.relation.definitionKey,
@@ -318,9 +328,9 @@ export function buildFieldConfig(form: FieldFormValue): GeneratorFieldConfig {
     label: form.label.trim(),
     type: form.type,
     rules: [...form.rules],
-    sortable: form.sortable,
-    filterable: form.filterable,
-    filterCriteria: form.filterable ? form.filterCriteria : null,
+    sortable,
+    filterable,
+    filterCriteria: filterable ? form.filterCriteria : null,
     source: form.source,
     ...(form.source === 'mockStatic' || form.source === 'api' ? { options: form.options } : {}),
     ...(form.source === 'api'
@@ -366,23 +376,29 @@ function componentLabel(t: (key: string) => string, type: FieldType): string {
   }
 }
 
-function triStateOptions(t: (key: string) => string): { label: string; value: string }[] {
+function boolOptions(t: (key: string) => string): { label: string; value: string }[] {
   return [
-    { label: t('field.default'), value: '' },
     { label: t('field.yes'), value: 'true' },
     { label: t('field.no'), value: 'false' },
   ];
 }
 
-/** Pilihan boolean 3-status: Default (tak di-set) / Ya / Tidak. */
+/**
+ * Pilihan boolean Ya / Tidak: nilai default (tak di-set) langsung tampil
+ * terpilih sesuai `defaultValue`, tapi tetap tak disimpan sampai pengguna
+ * mengubahnya (prune membuang undefined).
+ */
 function TriState({
   label,
   value,
+  defaultValue = false,
   onChange,
   hint,
 }: {
   label: string;
   value: boolean | undefined;
+  /** Nilai yang tampil terpilih saat `value` tak di-set. */
+  defaultValue?: boolean;
   onChange: (next: boolean | undefined) => void;
   hint?: string;
 }) {
@@ -391,9 +407,9 @@ function TriState({
     <div>
       <label className="mb-1 block font-mono text-xs text-muted-foreground">{label}</label>
       <SelectField size="sm"
-        value={value === undefined ? '' : value ? 'true' : 'false'}
-        onChange={(next) => onChange(next === '' ? undefined : next === 'true')}
-        options={triStateOptions(t)}
+        value={(value ?? defaultValue) ? 'true' : 'false'}
+        onChange={(next) => onChange(next === 'true')}
+        options={boolOptions(t)}
         clearable={false}
       />
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
@@ -408,15 +424,13 @@ function SizeSelect({
   value: FieldSize | undefined;
   onChange: (next: FieldSize | undefined) => void;
 }) {
-  const { t } = useTranslation();
   return (
     <div>
       <label className="mb-1 block font-mono text-xs text-muted-foreground">size</label>
       <SelectField size="sm"
-        value={value ?? ''}
-        onChange={(next) => onChange(next === '' ? undefined : (next as FieldSize))}
+        value={value ?? 'md'}
+        onChange={(next) => onChange(next as FieldSize)}
         options={[
-          { label: t('field.sizeDefault'), value: '' },
           { label: 'sm', value: 'sm' },
           { label: 'md', value: 'md' },
           { label: 'lg', value: 'lg' },
@@ -482,6 +496,10 @@ interface FieldFormProps {
   onNameBlur?: () => void;
   /** Sembunyikan kartu Tabel & Filter (untuk editor sub-field di modal). */
   hideTableFilter?: boolean;
+  /** Kunci pilihan tipe field (drawer properti field yang sudah ada). */
+  lockType?: boolean;
+  /** Span grid kanvas (1–12) — untuk menampilkan default layout yang benar. */
+  span?: number;
 }
 
 /**
@@ -880,7 +898,7 @@ function SubFieldModal({
  * Editor field terkontrol penuh — dipakai dialog tambah/edit maupun panel
  * properti kanvas. Induk remount via key tiap ganti field.
  */
-function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter = false }: FieldFormProps) {
+function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter = false, lockType = false, span }: FieldFormProps) {
   const [subModal, setSubModal] = useState<{ mode: 'create' } | { mode: 'edit'; index: number } | null>(null);
   const { t } = useTranslation();
   const form = value;
@@ -926,8 +944,8 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
   function handleTypeChange(next: FieldType): void {
     patch({
       type: next,
-      sortable: defaultSortable(next),
-      filterable: defaultFilterable(next),
+      sortable: undefined,
+      filterable: undefined,
       filterCriteria: defaultCriteria(next),
       source: dataSourceRegistry[form.source].appliesTo.includes(next) ? form.source : 'none',
       rules: pruneRulesForType(form.rules, next),
@@ -1032,6 +1050,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
             <TriState
               label="clearable"
               value={p.clearable}
+              defaultValue
               onChange={(clearable) => patchTypedProps('date', { clearable })}
               hint={t('field.dateClearable')}
             />
@@ -1081,6 +1100,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
             <TriState
               label="clearable"
               value={p.clearable}
+              defaultValue
               onChange={(clearable) => patchTypedProps('select', { clearable })}
               hint={t('field.selectClearable')}
             />
@@ -1089,37 +1109,6 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               value={p.searchable}
               onChange={(searchable) => patchTypedProps('select', { searchable })}
               hint={t('field.selectSearchable')}
-            />
-            <TriState
-              label="paginateOnScroll"
-              value={p.paginateOnScroll}
-              onChange={(paginateOnScroll) => patchTypedProps('select', { paginateOnScroll })}
-              hint={t('field.selectPaginate')}
-            />
-            <PropNumber
-              label="pageSize"
-              value={p.pageSize}
-              onChange={(pageSize) => patchTypedProps('select', { pageSize })}
-              placeholder="20"
-            />
-            <PropText
-              label="emptyOptionsText"
-              value={p.emptyOptionsText ?? ''}
-              onChange={(emptyOptionsText) => patchTypedProps('select', { emptyOptionsText })}
-              placeholder={t('fields.noOptions')}
-            />
-            <TriState
-              label="showSelectedOptions"
-              value={p.showSelectedOptions}
-              onChange={(showSelectedOptions) =>
-                patchTypedProps('select', { showSelectedOptions })
-              }
-            />
-            <TriState
-              label="showValueOnly"
-              value={p.showValueOnly}
-              onChange={(showValueOnly) => patchTypedProps('select', { showValueOnly })}
-              hint={t('field.selectValueOnly')}
             />
           </>
         );
@@ -1135,6 +1124,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
             <TriState
               label="clearable"
               value={p.clearable}
+              defaultValue
               onChange={(clearable) => patchTypedProps('selectMultiple', { clearable })}
             />
             <TriState
@@ -1142,51 +1132,6 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               value={p.searchable}
               onChange={(searchable) => patchTypedProps('selectMultiple', { searchable })}
               hint={t('field.selectSearchable')}
-            />
-            <TriState
-              label="paginateOnScroll"
-              value={p.paginateOnScroll}
-              onChange={(paginateOnScroll) => patchTypedProps('selectMultiple', { paginateOnScroll })}
-              hint={t('field.selectPaginate')}
-            />
-            <PropNumber
-              label="pageSize"
-              value={p.pageSize}
-              onChange={(pageSize) => patchTypedProps('selectMultiple', { pageSize })}
-              placeholder="20"
-            />
-            <PropText
-              label="emptyOptionsText"
-              value={p.emptyOptionsText ?? ''}
-              onChange={(emptyOptionsText) =>
-                patchTypedProps('selectMultiple', { emptyOptionsText })
-              }
-              placeholder={t('fields.noOptions')}
-            />
-            <TriState
-              label="showSelectedOptions"
-              value={p.showSelectedOptions}
-              onChange={(showSelectedOptions) =>
-                patchTypedProps('selectMultiple', { showSelectedOptions })
-              }
-            />
-            <TriState
-              label="chipsSummary"
-              value={p.chipsSummary}
-              onChange={(chipsSummary) => patchTypedProps('selectMultiple', { chipsSummary })}
-              hint={t('field.multiChips')}
-            />
-            <TriState
-              label="closeOnSelect"
-              value={p.closeOnSelect}
-              onChange={(closeOnSelect) => patchTypedProps('selectMultiple', { closeOnSelect })}
-              hint={t('field.multiCloseOnSelect')}
-            />
-            <TriState
-              label="hideCheckBox"
-              value={p.hideCheckBox}
-              onChange={(hideCheckBox) => patchTypedProps('selectMultiple', { hideCheckBox })}
-              hint={t('field.multiHideCheck')}
             />
           </>
         );
@@ -1231,6 +1176,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
             <TriState
               label="showCheckedLabels"
               value={p.showCheckedLabels}
+              defaultValue
               onChange={(showCheckedLabels) => patchTypedProps('switch', { showCheckedLabels })}
               hint={t('field.switchStatic')}
             />
@@ -1322,6 +1268,106 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
     }
   }
 
+  /** Props teknis (paginate, pageSize, tampilan lanjutan) — tampil di tab Advanced. */
+  function renderAdvancedTypedProps(): ReactNode {
+    switch (form.type) {
+      case 'selectField': {
+        const p = typedProps('select');
+        return (
+          <>
+            <TriState
+              label="paginateOnScroll"
+              value={p.paginateOnScroll}
+              onChange={(paginateOnScroll) => patchTypedProps('select', { paginateOnScroll })}
+              hint={t('field.selectPaginate')}
+            />
+            <PropNumber
+              label="pageSize"
+              value={p.pageSize}
+              onChange={(pageSize) => patchTypedProps('select', { pageSize })}
+              placeholder="20"
+            />
+            <PropText
+              label="emptyOptionsText"
+              value={p.emptyOptionsText ?? ''}
+              onChange={(emptyOptionsText) => patchTypedProps('select', { emptyOptionsText })}
+              placeholder={t('fields.noOptions')}
+            />
+            <TriState
+              label="showSelectedOptions"
+              value={p.showSelectedOptions}
+              defaultValue
+              onChange={(showSelectedOptions) =>
+                patchTypedProps('select', { showSelectedOptions })
+              }
+            />
+            <TriState
+              label="showValueOnly"
+              value={p.showValueOnly}
+              onChange={(showValueOnly) => patchTypedProps('select', { showValueOnly })}
+              hint={t('field.selectValueOnly')}
+            />
+          </>
+        );
+      }
+      case 'selectMultipleField': {
+        const p = typedProps('selectMultiple');
+        return (
+          <>
+            <TriState
+              label="paginateOnScroll"
+              value={p.paginateOnScroll}
+              onChange={(paginateOnScroll) => patchTypedProps('selectMultiple', { paginateOnScroll })}
+              hint={t('field.selectPaginate')}
+            />
+            <PropNumber
+              label="pageSize"
+              value={p.pageSize}
+              onChange={(pageSize) => patchTypedProps('selectMultiple', { pageSize })}
+              placeholder="20"
+            />
+            <PropText
+              label="emptyOptionsText"
+              value={p.emptyOptionsText ?? ''}
+              onChange={(emptyOptionsText) =>
+                patchTypedProps('selectMultiple', { emptyOptionsText })
+              }
+              placeholder={t('fields.noOptions')}
+            />
+            <TriState
+              label="showSelectedOptions"
+              value={p.showSelectedOptions}
+              defaultValue
+              onChange={(showSelectedOptions) =>
+                patchTypedProps('selectMultiple', { showSelectedOptions })
+              }
+            />
+            <TriState
+              label="chipsSummary"
+              value={p.chipsSummary}
+              onChange={(chipsSummary) => patchTypedProps('selectMultiple', { chipsSummary })}
+              hint={t('field.multiChips')}
+            />
+            <TriState
+              label="closeOnSelect"
+              value={p.closeOnSelect}
+              onChange={(closeOnSelect) => patchTypedProps('selectMultiple', { closeOnSelect })}
+              hint={t('field.multiCloseOnSelect')}
+            />
+            <TriState
+              label="hideCheckBox"
+              value={p.hideCheckBox}
+              onChange={(hideCheckBox) => patchTypedProps('selectMultiple', { hideCheckBox })}
+              hint={t('field.multiHideCheck')}
+            />
+          </>
+        );
+      }
+      default:
+        return null;
+    }
+  }
+
   return (
     <div className="flex flex-col stack-gap">
       <Card size="sm" title={t('field.general')} collapsible>
@@ -1371,6 +1417,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               onChange={(next) => handleTypeChange(next as FieldType)}
               options={fieldTypeOptions}
               clearable={false}
+              disabled={lockType}
             />
           </div>
         </div>
@@ -1502,32 +1549,54 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                   />
                 </div>
               )}
-              <div className="flex items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-xs font-medium text-foreground">{t('field.disabled')}</p>
-                  <p className="text-xs text-muted-foreground">{t('field.disabledDesc')}</p>
-                </div>
-                <SwitchField
-                  value={form.disabled}
-                  onChange={(disabled) => patch({ disabled })}
-                  size="sm"
+              <div>
+                <label className="mb-1 block text-xs font-medium text-foreground">{t('field.disabled')}</label>
+                <SelectField size="sm"
+                  value={form.disabled ? 'true' : 'false'}
+                  onChange={(next) => patch({ disabled: next === 'true' })}
+                  options={[
+                    { label: t('field.no'), value: 'false' },
+                    { label: t('field.yes'), value: 'true' },
+                  ]}
+                  clearable={false}
                 />
+                <p className="mt-1 text-xs text-muted-foreground">{t('field.disabledDesc')}</p>
               </div>
             </div>
           </div>
 
+          <div>
+            <label className="mb-1 block text-xs font-medium text-foreground">
+              {t('field.componentProps', { comp: componentLabel(t, form.type) })}
+            </label>
+            <div className="flex flex-col field-gap rounded-lg border border-border px-3 py-2">
+              {renderTypedProps()}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <Card size="sm" title={t('field.advanced', { defaultValue: 'Advanced' })} collapsible>
+        <div className="flex flex-col stack-gap">
+          {renderAdvancedTypedProps() && (
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground">
+                {t('field.advancedProps', { defaultValue: 'Advanced props' })}
+              </label>
+              <div className="flex flex-col field-gap rounded-lg border border-border px-3 py-2">
+                {renderAdvancedTypedProps()}
+              </div>
+            </div>
+          )}
           <div>
             <label className="mb-1 block text-xs font-medium text-foreground">{t('field.formItemProps')}</label>
             <div className="flex flex-col field-gap rounded-lg border border-border px-3 py-2">
               <div>
                 <label className="mb-1 block font-mono text-xs text-muted-foreground">layout</label>
                 <SelectField size="sm"
-                  value={form.props.formItem?.layout ?? ''}
-                  onChange={(next) =>
-                    patchFormItem({ layout: next === '' ? undefined : next })
-                  }
+                  value={form.props.formItem?.layout ?? resolveFormItemLayout(undefined, span)}
+                  onChange={(next) => patchFormItem({ layout: next })}
                   options={[
-                    { label: t('field.defaultHorizontal'), value: '' },
                     { label: 'horizontal', value: 'horizontal' },
                     { label: 'vertical', value: 'vertical' },
                   ]}
@@ -1537,10 +1606,9 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               <div>
                 <label className="mb-1 block font-mono text-xs text-muted-foreground">align</label>
                 <SelectField size="sm"
-                  value={form.props.formItem?.align ?? ''}
-                  onChange={(next) => patchFormItem({ align: next === '' ? undefined : next })}
+                  value={form.props.formItem?.align ?? 'start'}
+                  onChange={(next) => patchFormItem({ align: next })}
                   options={[
-                    { label: t('field.defaultCenter'), value: '' },
                     { label: 'center', value: 'center' },
                     { label: 'start', value: 'start' },
                   ]}
@@ -1558,10 +1626,9 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
                   labelFontWeight
                 </label>
                 <SelectField size="sm"
-                  value={form.props.formItem?.labelFontWeight ?? ''}
-                  onChange={(next) => patchFormItem({ labelFontWeight: next === '' ? undefined : next })}
+                  value={form.props.formItem?.labelFontWeight ?? 'medium'}
+                  onChange={(next) => patchFormItem({ labelFontWeight: next })}
                   options={[
-                    { label: t('field.defaultMedium'), value: '' },
                     { label: 'light', value: 'light' },
                     { label: 'normal', value: 'normal' },
                     { label: 'medium', value: 'medium' },
@@ -1573,68 +1640,62 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               </div>
             </div>
           </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">
-              {t('field.componentProps', { comp: componentLabel(t, form.type) })}
-            </label>
-            <div className="flex flex-col field-gap rounded-lg border border-border px-3 py-2">
-              {renderTypedProps()}
-            </div>
-          </div>
-        </div>
-      </Card>
-
-
-      {!hideTableFilter && (
-      <Card size="sm" title={t('field.tableFilter')} collapsible>
-        <div className="flex flex-col field-gap">
-          <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2">
-            <div className="min-w-0">
-              <p className="text-xs font-medium text-foreground">{t('field.sortable')}</p>
-              <p className="text-xs text-muted-foreground">{t('field.sortableDesc')}</p>
-            </div>
-            <SwitchField
-              value={form.sortable}
-              onChange={(sortable) => patch({ sortable })}
-              size="sm"
-            />
-          </div>
-          <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2">
-            <div className="min-w-0">
-              <p className="text-xs font-medium text-foreground">{t('field.filterable')}</p>
-              <p className="text-xs text-muted-foreground">{t('field.filterableDesc')}</p>
-            </div>
-            <SwitchField
-              value={form.filterable}
-              onChange={(filterable) => patch({ filterable })}
-              size="sm"
-            />
-          </div>
-          {form.filterable && (
-            <div className="rounded-lg border border-border px-3 py-2">
-              <label className="mb-1 block text-xs font-medium text-foreground">
-                {t('field.filterCriteria')}
-              </label>
-              <SelectField size="sm"
-                value={form.filterCriteria ?? defaultCriteria(form.type)}
-                onChange={(next) => patch({ filterCriteria: next as FilterCriteria })}
-                options={criteriaForFieldType(form.type).map((name) => ({
-                  label: t(`registry.filterCriteria.${name}`),
-                  value: name,
-                }))}
-                clearable={false}
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                {
-                  t(`registry.filterCriteria.${form.filterCriteria ?? defaultCriteria(form.type)}Desc`)
-                }
-              </p>
+          {!hideTableFilter && (
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground">{t('field.tableFilter')}</label>
+              <div className="flex flex-col field-gap">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">{t('field.sortable')}</label>
+                  <SelectField size="sm"
+                    value={(form.sortable ?? defaultSortable(form.type)) ? 'true' : 'false'}
+                    onChange={(next) => patch({ sortable: next === 'true' })}
+                    options={[
+                      { label: t('field.yes'), value: 'true' },
+                      { label: t('field.no'), value: 'false' },
+                    ]}
+                    clearable={false}
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">{t('field.sortableDesc')}</p>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">{t('field.filterable')}</label>
+                  <SelectField size="sm"
+                    value={(form.filterable ?? defaultFilterable(form.type)) ? 'true' : 'false'}
+                    onChange={(next) => patch({ filterable: next === 'true' })}
+                    options={[
+                      { label: t('field.yes'), value: 'true' },
+                      { label: t('field.no'), value: 'false' },
+                    ]}
+                    clearable={false}
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">{t('field.filterableDesc')}</p>
+                </div>
+                {(form.filterable ?? defaultFilterable(form.type)) && (
+                  <div className="rounded-lg border border-border px-3 py-2">
+                    <label className="mb-1 block text-xs font-medium text-foreground">
+                      {t('field.filterCriteria')}
+                    </label>
+                    <SelectField size="sm"
+                      value={form.filterCriteria ?? defaultCriteria(form.type)}
+                      onChange={(next) => patch({ filterCriteria: next as FilterCriteria })}
+                      options={criteriaForFieldType(form.type).map((name) => ({
+                        label: t(`registry.filterCriteria.${name}`),
+                        value: name,
+                      }))}
+                      clearable={false}
+                    />
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {
+                        t(`registry.filterCriteria.${form.filterCriteria ?? defaultCriteria(form.type)}Desc`)
+                      }
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
       </Card>
-      )}
 
 
       <Card size="sm" title={t('field.validation')} collapsible>

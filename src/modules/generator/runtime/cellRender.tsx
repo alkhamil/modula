@@ -118,17 +118,17 @@ export function systemTableColumn(
 ): Pick<Column<DynamicListItem>, 'key' | 'header' | 'render' | 'sortable' | 'className'> | null {
   switch (key) {
     case 'created_by':
-      return { key, header: 'Created By' };
+      return { key, header: t('table.createdBy') };
     case 'created_date':
       return {
         key,
-        header: 'Created Date',
+        header: t('table.createdDate'),
         render: (row) => formatDateTime(String(row.created_date ?? '')),
       };
     case 'status':
       return {
         key,
-        header: 'Status',
+        header: t('table.status'),
         sortable: false,
         className: 'w-32',
         render: (row) => (

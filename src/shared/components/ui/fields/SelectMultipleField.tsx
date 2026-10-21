@@ -417,10 +417,10 @@ function SelectMultipleField({
   }
 
   const triggerBaseClass = [
-    'flex w-full min-h-0 items-center gap-1 rounded-lg border text-left transition-colors',
+    'flex w-full items-center rounded-lg border outline-none transition-colors',
     error
-      ? 'border-danger focus-within:border-danger focus-within:ring-2 focus-within:ring-danger/20'
-      : 'border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30',
+      ? 'border-danger focus:border-danger focus:ring-2 focus:ring-danger/20 focus-visible:border-danger focus-visible:ring-2 focus-visible:ring-danger/20 focus-within:border-danger focus-within:ring-2 focus-within:ring-danger/20'
+      : 'border-border focus:border-primary focus:ring-2 focus:ring-primary/30 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30',
     disabled ? 'cursor-not-allowed' : 'bg-background cursor-pointer',
   ].join(' ');
 
@@ -452,7 +452,7 @@ function SelectMultipleField({
         ) : null}
         {value.length > 0 && !searchable && <span className="flex-1" />}
       </div>
-      <span className="flex shrink-0 items-center gap-1 pr-1 text-muted-foreground">
+      <span className="flex shrink-0 items-center text-muted-foreground">
         {loading ? (
           <svg
             className={[iconSizeStyles[size], 'animate-spin'].join(' ')}

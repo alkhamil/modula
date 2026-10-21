@@ -1,6 +1,6 @@
 ---
 name: frontend-conventions
-description: Konvensi frontend generator-module-app — token thema, spacing semantik, layout single-app, shared components, dan auth guard.
+description: Konvensi frontend modula — token thema, spacing semantik, layout single-app, shared components, dan auth guard.
 ---
 
 # Frontend Conventions
@@ -36,8 +36,12 @@ Aturan wajib saat menulis atau mengubah kode frontend di repo ini
 
 - Layout: `AppShell` + `Sidebar` + `PageHeader` + `AvatarUser` + `PageContent`
   di `src/shared/components/layout/`. Tidak ada konsep multi-app/registry.
-- Navigasi statis (Dashboard/Generator/Component) di `src/app/navigation.tsx`
-  + item dinamis dari definisi published (`useDynamicNavItems`); route
+- `src/app/navigation.tsx` + `router.tsx` hanya shell (daftar `moduleNavEntries`,
+  guard, 404, catch-all dinamis); semua modul (dashboard, generator, showcase,
+  user, role, settings) dan hasil Generate ke repo membawa
+  `routes.tsx` (`xRoutes: RouteObject[]`) + `navigation.tsx` (`xNav:
+  ModuleNavEntry`) sendiri — host cukup import lalu `...xRoutes,` /
+  `xNav,` di `router.tsx` / `moduleNavEntries`. Item dinamis dari definisi published (`useDynamicNavItems`); route
   statis + `DynamicModuleRoutes` + `preview/:definitionKey` di
   `src/app/router.tsx`; halaman statis di modulnya masing-masing
   (`auth/login/pages`, `dashboard/pages`, `showcase/pages` — tanpa folder

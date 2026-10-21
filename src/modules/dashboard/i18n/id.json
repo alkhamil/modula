@@ -1,7 +1,7 @@
 {
   "dashboard": {
     "eyebrow": "Platform Modul Dinamis • Mock-Only",
-    "title": "Generator Module App",
+    "title": "Modula",
     "description": "Modul bisnis didefinisikan sebagai data melalui wizard, lalu di-render generik saat runtime. Publish membuat modul langsung live di navigasi + routes tanpa tulis file dan tanpa restart.",
     "openGenerator": "Buka Generator",
     "stack": "Stack",

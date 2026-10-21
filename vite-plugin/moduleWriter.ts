@@ -6,6 +6,7 @@ import type { ModuleRegistration } from '../src/modules/generator/types.ts';
 import {
   registerModuleNav,
   registerModuleRoutes,
+  sanitizeModuleNavIcon,
   unregisterModuleNav,
   unregisterModuleRoutes,
 } from './moduleRegistration.ts';
@@ -150,9 +151,15 @@ export function moduleWriterPlugin(): Plugin {
                 navigation: navOutcome.added,
               };
             }
+            // Ikon nav modul yang tak dikenal lucide diganti `Database` sebelum ditulis.
+            const safeFiles = files.map((file) =>
+              typeof file.path === 'string' && file.path.endsWith('/navigation.tsx')
+                ? { ...file, content: sanitizeModuleNavIcon(file.content) }
+                : file,
+            );
             const outcome = writeGeneratedFiles(
               server.config.root,
-              files,
+              safeFiles,
               overwrite === true,
             );
             if (outcome.existing.length > 0) {

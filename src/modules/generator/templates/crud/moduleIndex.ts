@@ -31,7 +31,6 @@ export function moduleIndexTemplate(ctx: TemplateContext): string {
 export function integrationTemplate(ctx: TemplateContext): string {
   const { names, permissions, features } = ctx;
   const reg = buildRegistration(ctx.config);
-  const routes = reg.routes.map((route) => route.code).join('\n');
   const hasOptions = ctx.hasOptionsSelects || ctx.hasLoadOptionsSelects;
 
   return `# Integrasi modul ${names.entity}
@@ -45,23 +44,26 @@ Jika generate di luar dev-server (copy/download manual), salin folder tersebut k
 
 ## 2. Routes (otomatis)
 
-Sudah didaftarkan otomatis di \`src/app/router.tsx\` saat generate via dev-server.
-Referensi manual bila perlu:
+Modul membawa \`routes.tsx\` sendiri (\`${reg.routesExport}\`). Saat generate via dev-server,
+dua baris ini ditambahkan otomatis ke \`src/app/router.tsx\`. Manual bila perlu:
 
 \`\`\`tsx
-${reg.importBlock}
+import { ${reg.routesExport} } from '${reg.routesImportPath}';
 
 // di dalam children AppShell, sebelum catch-all:
-${routes}
+...${reg.routesExport},
 \`\`\`
 
 ## 3. Navigasi (otomatis)
 
-Sudah ditambahkan otomatis di \`src/app/navigation.tsx\` saat generate via dev-server.
-Referensi manual bila perlu:
+Modul membawa \`navigation.tsx\` sendiri (\`${reg.navExport}\`). Saat generate via dev-server,
+dua baris ini ditambahkan otomatis ke \`src/app/navigation.tsx\`. Manual bila perlu:
 
 \`\`\`tsx
-${reg.navSnippet}
+import { ${reg.navExport} } from '${reg.navImportPath}';
+
+// di dalam moduleNavEntries:
+${reg.navExport},
 \`\`\`
 
 ## 4. Permission keys (otomatis dari base \`${permissions.base}\`)

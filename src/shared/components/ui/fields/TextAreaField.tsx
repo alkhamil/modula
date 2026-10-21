@@ -54,7 +54,7 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
             rows={rows}
             onChange={handleChange}
             className={[
-              'w-full rounded-lg border bg-background outline-none transition-colors placeholder:text-muted-foreground',
+              'w-full rounded-lg border bg-background outline-none transition-colors placeholder:text-muted-foreground resize-y min-h-[88px]',
               'focus-visible:ring-2 focus-visible:ring-primary/30',
               error
                 ? 'border-danger focus-visible:border-danger focus-visible:ring-danger/20'

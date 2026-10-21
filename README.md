@@ -1,4 +1,4 @@
-# generator-module-app
+# modula
 
 React 19 + TypeScript + Vite + Tailwind CSS 4 + TanStack Query.
 Frontend mock-only — tanpa backend, tanpa database.

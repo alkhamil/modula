@@ -417,31 +417,26 @@ export interface GeneratedFile {
   content: string;
 }
 
-/** Satu entri route siap sisip ke `src/app/router.tsx`. */
-export interface RegistrationRoute {
-  /** Mis. `companies` — dipakai untuk cek idempotensi. */
-  path: string;
-  /** Blok kode lengkap siap sisip (indent 6 spasi). */
-  code: string;
-}
-
 /**
- * Data registrasi modul hasil generate ke app shell.
- * Dibangun murni dari config (Node-safe) lalu dikirim ke dev-server
- * untuk disisipkan ke `router.tsx` + `navigation.tsx`.
+ * Data registrasi modul hasil generate ke app shell. Modul membawa
+ * `routes.tsx` + `navigation.tsx` sendiri; host hanya menyisipkan satu
+ * import + satu entri per file ke `router.tsx` / `navigation.tsx`.
  */
 export interface ModuleRegistration {
-  /** Path import modul dari `src/app/`, mis. `../modules/mater-data/company`. */
-  moduleImportPath: string;
-  /** Blok import multi-baris siap sisip (kosong bila tanpa halaman). */
-  importBlock: string;
-  routes: RegistrationRoute[];
-  /** Absolute path nav, mis. `/companies` — untuk cek idempotensi. */
+  /** Folder modul relatif repo tanpa trailing slash, mis. `src/modules/company`. */
+  moduleDir: string;
+  /** Import path `routes.tsx` modul dari `src/app/`, mis. `../modules/company/routes`. */
+  routesImportPath: string;
+  /** Nama ekspor routes, mis. `companyRoutes`. */
+  routesExport: string;
+  /** Import path `navigation.tsx` modul dari `src/app/`. */
+  navImportPath: string;
+  /** Nama ekspor nav entry, mis. `companyNav`. */
+  navExport: string;
+  /** Modul punya halaman (routes + nav) yang perlu didaftarkan. */
+  hasPages: boolean;
+  /** Absolute path nav, mis. `/companies`. */
   navPath: string;
-  /** Item nav siap sisip: flat (root) atau child (ber-parent). */
-  navItemCode: string;
-  /** Snippet INTEGRATION.md: item flat atau blok group utuh + marker. */
-  navSnippet: string;
   /** Parent kebab penuh, mis. `mater-data` (satu level group). */
   parentPath: string | null;
   /** Label group parent, mis. `Mater Data`. */
