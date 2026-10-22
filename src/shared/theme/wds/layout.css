@@ -34,10 +34,32 @@
   }
 
   .wds-sidenav__logo {
+    box-sizing: border-box;
+    flex: 1;
+    padding: var(--wds-padding-8) var(--wds-padding-16);
+    border-radius: var(--wds-radius-8);
+    background-color: var(--wds-bg-brand);
     color: var(--wds-text-on-brand);
-    font-weight: var(--wds-font-weight-bold);
-    font-size: var(--wds-sz-text-title-font-size);
-    line-height: var(--wds-sz-text-title-line-height);
+    font-weight: var(--wds-font-weight-medium);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+    text-align: center;
+  }
+
+  .wds-sidenav__section {
+    margin: var(--wds-sz-side-navbar-others-gap) 0 0;
+    padding-left: var(--wds-sz-side-navbar-label-padding-left);
+    color: var(--wds-text-on-brand);
+    font-size: var(--wds-sz-text-caption-font-size);
+    line-height: var(--wds-sz-text-caption-line-height);
+    text-transform: uppercase;
+  }
+
+  .wds-sidenav__divider {
+    display: block;
+    height: 1px;
+    margin: var(--wds-spacing-8) 0;
+    background-color: var(--wds-bg-brand);
   }
 
   .wds-sidenav__toggle {

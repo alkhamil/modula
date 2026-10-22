@@ -118,13 +118,22 @@ function SideNavbar({
         </div>
 
         <nav className="wds-sidenav__nav">
-          {navItems.map((item) => {
+          {navItems.map((item, index) => {
+            const section = item.section && item.section !== navItems[index - 1]?.section ? item.section : null;
             const hasSubItems = !!(item.children && item.children.length > 0);
             const isExpanded = expandedItems.has(item.label) || isChildActive(item.children);
 
             return (
+              <div key={item.label} className="contents">
+                {section &&
+                  (collapsed ? (
+                    <span className="wds-sidenav__divider" aria-hidden="true" />
+                  ) : (
+                    <p className="wds-sidenav__section">
+                      {item.sectionKey ? t(item.sectionKey, { defaultValue: section }) : section}
+                    </p>
+                  ))}
               <div
-                key={item.label}
                 className="relative"
                 onMouseEnter={(e) => collapsed && handleMouseEnter(item.label, e.currentTarget)}
                 onMouseLeave={() => collapsed && handleMouseLeave()}
@@ -171,6 +180,7 @@ function SideNavbar({
                     ))}
                   </div>
                 )}
+              </div>
               </div>
             );
           })}

@@ -15,6 +15,12 @@ interface CardProps {
   toggleIcon?: ReactNode;
   /** Varian ringkas untuk panel sempit (mis. drawer properti): judul + padding kecil. */
   size?: 'sm' | 'md';
+  /** Teks pendukung di bawah judul (Figma "Description"); mengaktifkan layout WDS tanpa garis header. */
+  description?: ReactNode;
+  /** Media di atas card (Figma "Media"); mengaktifkan layout WDS. */
+  media?: ReactNode;
+  /** Tombol aksi di bawah isi, lebar sama rata (Figma "Actions"); mengaktifkan layout WDS. */
+  bodyActions?: ReactNode;
   /** Style WDS (Card styles): outlined | filled. */
   appearance?: 'outlined' | 'filled';
 }
@@ -24,6 +30,9 @@ function Card({
   title,
   actions,
   footer,
+  description,
+  media,
+  bodyActions,
   className = '',
   testId,
   collapsible = false,
@@ -42,6 +51,31 @@ function Card({
     'data-divider': showDivider || undefined,
     ...(collapsible ? { onClick: () => setOpen((prev) => !prev) } : {}),
   };
+
+  // Layout WDS (Card): media di atas, judul + deskripsi + isi + aksi sama lebar, tanpa garis header.
+  if (media || description || bodyActions) {
+    return (
+      <div
+        data-testid={testId}
+        data-appearance={appearance}
+        data-size={size}
+        data-media={media ? true : undefined}
+        className={`wds-card ${className}`}
+      >
+        {media && <div className="wds-card__media">{media}</div>}
+        <div className="wds-card__content">
+          {(title || description) && (
+            <div className="wds-card__heading">
+              {title && <h3 className="wds-card__title">{title}</h3>}
+              {description && <p className="wds-card__description">{description}</p>}
+            </div>
+          )}
+          {children}
+          {bodyActions && <div className="wds-card__body-actions">{bodyActions}</div>}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

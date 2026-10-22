@@ -28,6 +28,8 @@ interface PaginationProps {
   pageSize?: number;
   onPageChange: (page: number) => void;
   onPageSizeChange?: (size: number) => void;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   /** Style WDS (Pagination styles): square | round. */
   appearance?: 'square' | 'round';
   /** Tombol halaman pertama / terakhir (Figma "first-last"). */
@@ -47,6 +49,7 @@ function Pagination({
   onPageChange,
   onPageSizeChange,
   appearance = 'square',
+  size = 'md',
   showFirstLast = false,
   showLabels = false,
   showRowsPerPage = true,
@@ -59,7 +62,7 @@ function Pagination({
   const atEnd = page >= totalPages;
 
   return (
-    <div data-testid={testId} data-appearance={appearance} className="wds-pagination">
+    <div data-testid={testId} data-appearance={appearance} data-wds-size={size} className="wds-pagination">
       {showRowsPerPage && onPageSizeChange ? (
         <div className="wds-pagination__rows">
           <Select

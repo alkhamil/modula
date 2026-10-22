@@ -965,6 +965,9 @@
         },
         "menu": {
           "note": "Panel: padding 8, radius 12, gap 4; items 44px, radius 8. Highlight = pressed, chosen = selected."
+        },
+        "icons": {
+          "note": "Figma icon configuration: leading, trailing or both."
         }
       },
       "examples": {
@@ -1003,7 +1006,8 @@
         "disabled": "Disabled / read-only states.",
         "optionDisabled": "Options that return true are shown disabled.",
         "multiple": "Extra props used only with `multiple`.",
-        "multipleProps": "Multiple mode: the value becomes an array of values and selected options show as tags."
+        "multipleProps": "Multiple mode: the value becomes an array of values and selected options show as tags.",
+        "icons": "Icon shown at the start of the field and before the chevron."
       },
       "tokens": {
         "--wds-bg-surface": "Field background.",
@@ -1506,7 +1510,8 @@
         "showLabels": "Show Previous / Next labels.",
         "showRowsPerPage": "Show the rows-per-page selector.",
         "pageSizeOptions": "Options of the selector.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens."
       },
       "tokens": {
         "--wds-bg-brand": "Current page background.",
@@ -1588,6 +1593,12 @@
         },
         "actions": {
           "note": "`actions` sits in the header, `footer` is a divider-topped action row."
+        },
+        "description": {
+          "note": "Supporting text under the title."
+        },
+        "media": {
+          "note": "Image or media above the body."
         }
       },
       "examples": {
@@ -1596,6 +1607,9 @@
         },
         "footer": {
           "title": "Footer"
+        },
+        "media": {
+          "title": "Media and actions"
         }
       },
       "props": {
@@ -1605,7 +1619,8 @@
         "appearance": "Figma Card style.",
         "size": "`sm` is a compact variant for narrow panels.",
         "collapsible": "Click the header to collapse; `defaultOpen` and a custom toggle icon.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "media": "Card media, supporting text under the title, and equal-width action buttons (WDS card layout)."
       },
       "tokens": {
         "--wds-bg-surface": "Outlined background.",
@@ -1899,7 +1914,8 @@
       "examples": {},
       "props": {
         "items": "Trail items; the last one is current.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens."
       },
       "tokens": {
         "--wds-text-tertiary": "Link text.",
@@ -1941,7 +1957,8 @@
         "disabled": "Disabled look and no navigation.",
         "icons": "Icon before / after the text.",
         "anchor": "Any anchor attribute (href, target, …).",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens."
       },
       "tokens": {
         "--wds-text-link": "Text.",
@@ -2499,6 +2516,7 @@
         }
       },
       "props": {
+        "size": "Size from the Size tokens.",
         "weight": "Font weight.",
         "required": "Shows the required mark.",
         "trailing": "Icon after the label (e.g. help).",
@@ -2561,6 +2579,7 @@
       },
       "examples": {},
       "props": {
+        "size": "Size from the Size tokens.",
         "trigger": "Element that toggles the menu.",
         "items": "Menu items: value, label, description, icon, state flags, onSelect.",
         "align": "Which edge of the trigger the menu aligns to.",
@@ -2598,6 +2617,7 @@
         }
       },
       "props": {
+        "size": "Size from the Size tokens.",
         "title": "Main and supporting text.",
         "leading": "Elements before and after the text.",
         "selected": "State flags.",
@@ -2630,6 +2650,7 @@
       },
       "examples": {},
       "props": {
+        "size": "Size from the Size tokens.",
         "children": "The trigger.",
         "text": "Heading and supporting text.",
         "content": "Extra body; the action buttons share the width equally.",
@@ -2848,7 +2869,7 @@
       "props": {
         "slides": "Slide content.",
         "defaultIndex": "Initial slide.",
-        "showArrows": "Previous / next buttons.",
+        "showArrows": "Previous / next buttons (Figma shows only the dots).",
         "testId": "Mapped to data-testid."
       },
       "tokens": {
@@ -2937,6 +2958,7 @@
         }
       },
       "props": {
+        "size": "Size from the Size tokens.",
         "message": "Bubble text and timestamp.",
         "type": "Figma Chat message type.",
         "name": "Sender name and avatar (received).",
@@ -2966,6 +2988,7 @@
       },
       "examples": {},
       "props": {
+        "size": "Size from the Size tokens.",
         "value": "Controlled text and change handler.",
         "onSend": "Called on submit with non-empty text.",
         "placeholder": "Placeholder text and disabled state.",

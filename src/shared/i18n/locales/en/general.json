@@ -33,7 +33,8 @@
     "typography": "Typography",
     "colors": "Colors",
     "ui": "UI",
-    "docs": "Docs"
+    "docs": "Docs",
+    "others": "Others"
   },
   "auth": {
     "profile": "Profile",

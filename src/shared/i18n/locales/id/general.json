@@ -33,7 +33,8 @@
     "typography": "Tipografi",
     "colors": "Warna",
     "ui": "UI",
-    "docs": "Dokumentasi"
+    "docs": "Dokumentasi",
+    "others": "Lainnya"
   },
   "auth": {
     "profile": "Profil",

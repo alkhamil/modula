@@ -13,6 +13,7 @@ export const linkDoc: ComponentDoc = {
   baseProps: { appearance: 'default' },
   baseChildren: 'Read the docs',
   controls: [
+    { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
     { prop: 'appearance', kind: 'select', options: ['default', 'underline'] },
     { prop: 'disabled', kind: 'boolean' },
     { prop: 'leadingIcon', kind: 'icon', options: ['InfoCircle', 'Download'] },
@@ -35,6 +36,7 @@ export const linkDoc: ComponentDoc = {
     },
   ],
   props: [
+    { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'appearance', name: 'appearance', type: "'default' | 'underline'", default: "'default'" },
     { id: 'disabled', name: 'disabled', type: 'boolean', default: 'false' },
     { id: 'icons', name: 'leadingIcon · trailingIcon', type: 'ReactNode' },

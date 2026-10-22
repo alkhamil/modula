@@ -6,14 +6,16 @@ interface ImageCarouselProps {
   slides: ReactNode[];
   /** Indeks awal (tidak terkontrol). */
   defaultIndex?: number;
-  /** Tampilkan tombol sebelumnya / berikutnya. */
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  /** Tampilkan tombol sebelumnya / berikutnya (default: tidak, hanya dot). */
   showArrows?: boolean;
   className?: string;
   testId?: string;
 }
 
 /** Image Carousel WDS: slide dengan dot indikator (aktif memanjang) dan tombol navigasi. */
-function ImageCarousel({ slides, defaultIndex = 0, showArrows = true, className = '', testId }: ImageCarouselProps) {
+function ImageCarousel({ slides, defaultIndex = 0, showArrows = false, size = 'md', className = '', testId }: ImageCarouselProps) {
   const [index, setIndex] = useState(Math.min(defaultIndex, Math.max(0, slides.length - 1)));
   const go = (i: number) => setIndex((i + slides.length) % slides.length);
 
@@ -22,6 +24,7 @@ function ImageCarousel({ slides, defaultIndex = 0, showArrows = true, className 
       role="group"
       aria-roledescription="carousel"
       data-testid={testId}
+      data-wds-size={size}
       className={`wds-carousel ${className}`}
     >
       <div className="wds-carousel__viewport" aria-live="polite">

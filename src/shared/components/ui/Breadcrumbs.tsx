@@ -11,15 +11,17 @@ export interface BreadcrumbsItem {
 }
 
 interface BreadcrumbsProps {
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   items: BreadcrumbsItem[];
   className?: string;
   testId?: string;
 }
 
 /** Breadcrumbs WDS: tautan berpisah chevron; item terakhir = halaman saat ini. */
-function Breadcrumbs({ items, className = '', testId }: BreadcrumbsProps) {
+function Breadcrumbs({ items, size = 'md', className = '', testId }: BreadcrumbsProps) {
   return (
-    <nav aria-label="Breadcrumb" data-testid={testId} className={`wds-breadcrumbs ${className}`}>
+    <nav aria-label="Breadcrumb" data-testid={testId} data-wds-size={size} className={`wds-breadcrumbs ${className}`}>
       <ol className="wds-breadcrumbs__list">
         {items.map((item, i) => {
           const current = i === items.length - 1;

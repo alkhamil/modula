@@ -12,6 +12,8 @@ interface PopoverProps {
   content?: ReactNode;
   /** Tombol aksi di bawah isi. */
   actions?: ReactNode;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   placement?: Placement;
   /** Paksa terbuka (mis. dokumentasi). */
   open?: boolean;
@@ -31,6 +33,7 @@ function Popover({
   content,
   actions,
   placement = 'bottom',
+  size = 'md',
   open: forced,
   className = '',
   testId,
@@ -83,6 +86,7 @@ function Popover({
             role="dialog"
             data-testid={testId}
             data-placement={placement}
+            data-wds-size={size}
             className="wds-popover"
             style={{ left: pos?.left ?? 0, top: pos?.top ?? 0, visibility: pos ? 'visible' : 'hidden' }}
             onClick={(e) => e.stopPropagation()}

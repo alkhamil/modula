@@ -11,6 +11,8 @@ interface ChatMessageProps {
   time?: ReactNode;
   /** Tanda terkirim (hanya `sent`). */
   receipt?: boolean;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   testId?: string;
 }
@@ -23,11 +25,12 @@ function ChatMessage({
   message,
   time,
   receipt = false,
+  size = 'md',
   className = '',
   testId,
 }: ChatMessageProps) {
   return (
-    <div data-testid={testId} data-type={type} className={`wds-chat-message ${className}`}>
+    <div data-testid={testId} data-type={type} data-wds-size={size} className={`wds-chat-message ${className}`}>
       {type === 'received' && (avatar ?? <Avatar name={name ?? '?'} size="sm" />)}
       <div className="wds-chat-message__col">
         {type === 'received' && name && <span className="wds-chat-message__name">{name}</span>}

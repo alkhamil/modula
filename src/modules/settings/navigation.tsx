@@ -8,5 +8,7 @@ export const settingsNav: ModuleNavEntry = {
     labelKey: 'settings.title',
     path: '/settings',
     permissionKey: 'settings.view',
+    section: 'Others',
+    sectionKey: 'nav.others',
   },
 };

@@ -23,6 +23,10 @@ interface SingleSelectProps {
   size?: FieldSize;
   /** Style WDS (mode "Select styles"): box (default) atau underline. */
   appearance?: 'box' | 'underline';
+  /** Ikon di awal field (Figma Icon configurations: leading). */
+  leadingIcon?: React.ReactNode;
+  /** Ikon sebelum chevron (Figma Icon configurations: trailing). */
+  trailingIcon?: React.ReactNode;
   disabled?: boolean;
   /** State read-only: tampil seperti disabled tetapi nilainya tetap terbaca. */
   readOnly?: boolean;
@@ -82,6 +86,8 @@ interface SingleSelectProps {
 function SelectSingle({
   size = 'md',
   appearance = 'box',
+  leadingIcon,
+  trailingIcon,
   disabled = false,
   readOnly = false,
   error,
@@ -374,6 +380,7 @@ function SelectSingle({
           <CloseCircle />
         </button>
       ) : null}
+      {trailingIcon && <span className="wds-field__icon">{trailingIcon}</span>}
       <span className="wds-field__icon" onClick={searchable ? undefined : handleToggle} aria-hidden="true">
         {open ? <AltArrowUp /> : <AltArrowDown />}
       </span>
@@ -393,6 +400,7 @@ function SelectSingle({
       <div ref={wrapperRef} className="wds-field__box">
         {searchable ? (
           <div className="wds-field__content">
+            {leadingIcon && <span className="wds-field__icon">{leadingIcon}</span>}
             <input
               ref={searchInputRef}
               type="text"
@@ -412,6 +420,7 @@ function SelectSingle({
           </div>
         ) : (
           <div className="wds-field__content">
+            {leadingIcon && <span className="wds-field__icon">{leadingIcon}</span>}
             <button
               type="button"
               onClick={handleToggle}

@@ -6,6 +6,10 @@ export interface SubItem {
   labelKey?: string;
   path: string;
   permissionKey?: string;
+  /** Judul seksi (mis. "Others") yang tampil di atas item ini bila berbeda dari item sebelumnya. */
+  section?: string;
+  /** General-namespace key for the section; falls back to `section`. */
+  sectionKey?: string;
 }
 
 export interface NavItemType {
@@ -16,6 +20,8 @@ export interface NavItemType {
   icon: ReactNode;
   children?: SubItem[];
   permissionKey?: string;
+  section?: string;
+  sectionKey?: string;
 }
 
 /** Group parent menu (mis. Master Data) untuk modul yang ber-parent. */

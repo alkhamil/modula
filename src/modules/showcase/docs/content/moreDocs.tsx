@@ -117,13 +117,14 @@ export const labelTextDoc: ComponentDoc = {
   codeName: "LabelText",
   baseProps: { weight: 'medium' },
   baseChildren: 'Email address',
-  controls: [{ prop: 'weight', kind: 'select', options: ['regular', 'medium', 'semibold'] }, { prop: 'required', kind: 'boolean' }],
+  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'weight', kind: 'select', options: ['regular', 'medium', 'semibold'] }, { prop: 'required', kind: 'boolean' }],
   figmaMapping: [
     { id: "weight", figma: "Label text (mode)", values: "Regular, Medium, Semi Bold", prop: "weight" },
     { id: "mandatory", figma: "Mandatory (visible)", values: "boolean", prop: "required" },
   ],
   examples: [{ id: 'weights', variants: ['regular', 'medium', 'semibold'].map((w) => ({ label: w, props: { weight: w } })) }],
   props: [
+    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: "weight", name: "weight", type: "'regular' | 'medium' | 'semibold'", default: "'medium'" },
     { id: "required", name: "required", type: "boolean", default: "false" },
     { id: "trailing", name: "trailing", type: "ReactNode" },
@@ -169,13 +170,14 @@ export const dropdownMenuDoc: ComponentDoc = {
   codeName: "DropdownMenu",
   codeExtra: ["trigger={() => <Button>Actions</Button>}", "items={items}"],
   baseProps: { align: 'start' },
-  controls: [{ prop: 'align', kind: 'select', options: ['start', 'end'] }],
+  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'align', kind: 'select', options: ['start', 'end'] }],
   figmaMapping: [
     { id: "styles", figma: "Dropdown styles", values: "default", prop: "— (CSS)" },
     { id: "items", figma: "Menu item states", values: "default, pressed, selected, disabled, destructive", prop: "items[]" },
   ],
   examples: [],
   props: [
+    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: "trigger", name: "trigger", type: "({ open }) => ReactNode" },
     { id: "items", name: "items", type: "MenuEntry[]" },
     { id: "align", name: "align", type: "'start' | 'end'", default: "'start'" },
@@ -195,13 +197,14 @@ export const listItemDoc: ComponentDoc = {
   codeName: "ListItem",
   codeExtra: ["onClick={handleClick}"],
   baseProps: {},
-  controls: [{ prop: 'title', kind: 'text' }, { prop: 'description', kind: 'text' }, { prop: 'selected', kind: 'boolean' }, { prop: 'disabled', kind: 'boolean' }],
+  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'title', kind: 'text' }, { prop: 'description', kind: 'text' }, { prop: 'selected', kind: 'boolean' }, { prop: 'disabled', kind: 'boolean' }],
   figmaMapping: [
     { id: "states", figma: "List item states", values: "default, pressed, selected, disabled", prop: "selected · disabled" },
     { id: "slots", figma: "Leading · trailing", values: "nodes", prop: "leading · trailing" },
   ],
   examples: [{ id: 'states', variants: [{ label: 'default', props: {} }, { label: 'selected', props: { selected: true } }, { label: 'disabled', props: { disabled: true } }] }],
   props: [
+    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: "title", name: "title · description", type: "ReactNode" },
     { id: "leading", name: "leading · trailing", type: "ReactNode" },
     { id: "selected", name: "selected · disabled", type: "boolean", default: "false" },
@@ -220,13 +223,14 @@ export const popoverDoc: ComponentDoc = {
   component: PopoverDemo,
   codeName: "Popover",
   baseProps: { placement: 'bottom' },
-  controls: [{ prop: 'placement', kind: 'select', options: ['bottom', 'top', 'left', 'right'] }, { prop: 'title', kind: 'text' }, { prop: 'description', kind: 'text' }],
+  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'placement', kind: 'select', options: ['bottom', 'top', 'left', 'right'] }, { prop: 'title', kind: 'text' }, { prop: 'description', kind: 'text' }],
   figmaMapping: [
     { id: "styles", figma: "Popover styles", values: "default", prop: "— (CSS)" },
     { id: "slots", figma: "Title · text · actions", values: "slots", prop: "title · description · actions" },
   ],
   examples: [],
   props: [
+    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: "children", name: "children", type: "ReactNode" },
     { id: "text", name: "title · description", type: "ReactNode" },
     { id: "content", name: "content · actions", type: "ReactNode" },
@@ -390,7 +394,7 @@ export const imageCarouselDoc: ComponentDoc = {
   component: ImageCarouselDemo,
   codeName: "ImageCarousel",
   codeExtra: ["slides={slides}"],
-  baseProps: { showArrows: true },
+  baseProps: { showArrows: false },
   controls: [{ prop: 'showArrows', kind: 'boolean' }],
   figmaMapping: [
     { id: "config", figma: "Carousel config", values: "1st–5th active", prop: "defaultIndex" },
@@ -400,7 +404,7 @@ export const imageCarouselDoc: ComponentDoc = {
   props: [
     { id: "slides", name: "slides", type: "ReactNode[]" },
     { id: "defaultIndex", name: "defaultIndex", type: "number", default: "0" },
-    { id: "showArrows", name: "showArrows", type: "boolean", default: "true" },
+    { id: "showArrows", name: "showArrows", type: "boolean", default: "false" },
     { id: 'testId', name: 'testId', type: 'string' },
   ],
   tokens: ["--wds-bg-brand", "--wds-bg-disabled", "--wds-sz-carousel-dot-size", "--wds-sz-carousel-dot-width-current", "--wds-sz-carousel-dot-gap"].map((name) => ({ name })),
@@ -461,13 +465,14 @@ export const chatMessageDoc: ComponentDoc = {
   component: ChatMessageDemo,
   codeName: "ChatMessage",
   baseProps: { type: 'received' },
-  controls: [{ prop: 'type', kind: 'select', options: ['received', 'sent'] }, { prop: 'message', kind: 'text' }, { prop: 'receipt', kind: 'boolean' }],
+  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'type', kind: 'select', options: ['received', 'sent'] }, { prop: 'message', kind: 'text' }, { prop: 'receipt', kind: 'boolean' }],
   figmaMapping: [
     { id: "types", figma: "Chat message types (mode)", values: "received, sent", prop: "type" },
     { id: "meta", figma: "Receipt · name", values: "visible", prop: "receipt · name" },
   ],
   examples: [{ id: 'types', variants: [{ label: 'received', props: { type: 'received' } }, { label: 'sent', props: { type: 'sent', receipt: true } }] }],
   props: [
+    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: "message", name: "message · time", type: "ReactNode" },
     { id: "type", name: "type", type: "'received' | 'sent'", default: "'received'" },
     { id: "name", name: "name · avatar", type: "string · ReactNode" },
@@ -487,12 +492,13 @@ export const chatInputDoc: ComponentDoc = {
   codeName: "ChatInput",
   codeExtra: ["value={text}", "onChange={setText}", "onSend={send}"],
   baseProps: { placeholder: 'Type a message' },
-  controls: [{ prop: 'placeholder', kind: 'text' }, { prop: 'disabled', kind: 'boolean' }],
+  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'placeholder', kind: 'text' }, { prop: 'disabled', kind: 'boolean' }],
   figmaMapping: [
     { id: "styles", figma: "Chat input styles", values: "default", prop: "— (CSS)" },
   ],
   examples: [],
   props: [
+    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: "value", name: "value · onChange", type: "string · (value: string) => void" },
     { id: "onSend", name: "onSend", type: "() => void" },
     { id: "placeholder", name: "placeholder · disabled", type: "string · boolean" },

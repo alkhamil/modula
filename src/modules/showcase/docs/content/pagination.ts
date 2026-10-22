@@ -13,6 +13,7 @@ export const paginationDoc: ComponentDoc = {
   defaults: { appearance: 'square', showRowsPerPage: true },
   baseProps: { appearance: 'square', showRowsPerPage: true },
   controls: [
+    { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
     { prop: 'appearance', kind: 'select', options: ['square', 'round'] },
     { prop: 'showFirstLast', kind: 'boolean' },
     { prop: 'showLabels', kind: 'boolean' },
@@ -34,6 +35,7 @@ export const paginationDoc: ComponentDoc = {
     },
   ],
   props: [
+    { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'page', name: 'page · totalPages', type: 'number' },
     { id: 'onPageChange', name: 'onPageChange', type: '(page: number) => void' },
     { id: 'pageSize', name: 'pageSize · onPageSizeChange', type: 'number · (size: number) => void' },

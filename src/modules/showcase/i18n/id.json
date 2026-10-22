@@ -965,6 +965,9 @@
         },
         "menu": {
           "note": "Panel: padding 8, radius 12, jarak 4; item 44px, radius 8. Sorot = pressed, terpilih = selected."
+        },
+        "icons": {
+          "note": "Konfigurasi ikon Figma: leading, trailing, atau keduanya."
         }
       },
       "examples": {
@@ -1003,7 +1006,8 @@
         "disabled": "State disabled / read-only.",
         "optionDisabled": "Opsi yang mengembalikan true tampil disabled.",
         "multiple": "Props tambahan yang hanya dipakai dengan `multiple`.",
-        "multipleProps": "Mode multiple: nilai menjadi array dan opsi terpilih tampil sebagai tag."
+        "multipleProps": "Mode multiple: nilai menjadi array dan opsi terpilih tampil sebagai tag.",
+        "icons": "Ikon di awal field dan sebelum chevron."
       },
       "tokens": {
         "--wds-bg-surface": "Latar field.",
@@ -1506,7 +1510,8 @@
         "showLabels": "Tampilkan label Previous / Next.",
         "showRowsPerPage": "Tampilkan pemilih baris per halaman.",
         "pageSizeOptions": "Pilihan pada pemilih.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size."
       },
       "tokens": {
         "--wds-bg-brand": "Latar halaman aktif.",
@@ -1588,6 +1593,12 @@
         },
         "actions": {
           "note": "`actions` ada di header, `footer` adalah baris aksi dengan garis di atasnya."
+        },
+        "description": {
+          "note": "Teks pendukung di bawah judul."
+        },
+        "media": {
+          "note": "Gambar atau media di atas isi."
         }
       },
       "examples": {
@@ -1596,6 +1607,9 @@
         },
         "footer": {
           "title": "Footer"
+        },
+        "media": {
+          "title": "Media dan aksi"
         }
       },
       "props": {
@@ -1605,7 +1619,8 @@
         "appearance": "Style Card Figma.",
         "size": "`sm` adalah varian ringkas untuk panel sempit.",
         "collapsible": "Klik header untuk melipat; `defaultOpen` dan ikon toggle kustom.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "media": "Media card, teks pendukung di bawah judul, dan tombol aksi berlebar sama (layout card WDS)."
       },
       "tokens": {
         "--wds-bg-surface": "Latar outlined.",
@@ -1899,7 +1914,8 @@
       "examples": {},
       "props": {
         "items": "Item jejak; yang terakhir adalah saat ini.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size."
       },
       "tokens": {
         "--wds-text-tertiary": "Teks tautan.",
@@ -1941,7 +1957,8 @@
         "disabled": "Tampilan nonaktif dan tanpa navigasi.",
         "icons": "Ikon sebelum / sesudah teks.",
         "anchor": "Atribut anchor apa pun (href, target, …).",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size."
       },
       "tokens": {
         "--wds-text-link": "Teks.",
@@ -2499,6 +2516,7 @@
         }
       },
       "props": {
+        "size": "Ukuran dari token Size.",
         "weight": "Bobot font.",
         "required": "Menampilkan tanda wajib.",
         "trailing": "Ikon setelah label (mis. bantuan).",
@@ -2561,6 +2579,7 @@
       },
       "examples": {},
       "props": {
+        "size": "Ukuran dari token Size.",
         "trigger": "Elemen yang membuka/menutup menu.",
         "items": "Menu item: value, label, description, icon, flag state, onSelect.",
         "align": "Sisi pemicu tempat menu sejajar.",
@@ -2598,6 +2617,7 @@
         }
       },
       "props": {
+        "size": "Ukuran dari token Size.",
         "title": "Teks utama dan pendukung.",
         "leading": "Elemen sebelum dan sesudah teks.",
         "selected": "Flag state.",
@@ -2630,6 +2650,7 @@
       },
       "examples": {},
       "props": {
+        "size": "Ukuran dari token Size.",
         "children": "Pemicunya.",
         "text": "Judul dan teks pendukung.",
         "content": "Isi tambahan; tombol aksi berbagi lebar sama rata.",
@@ -2848,7 +2869,7 @@
       "props": {
         "slides": "Isi slide.",
         "defaultIndex": "Slide awal.",
-        "showArrows": "Tombol sebelumnya / berikutnya.",
+        "showArrows": "Tombol sebelumnya / berikutnya (Figma hanya menampilkan dot).",
         "testId": "Dipetakan ke data-testid."
       },
       "tokens": {
@@ -2937,6 +2958,7 @@
         }
       },
       "props": {
+        "size": "Ukuran dari token Size.",
         "message": "Teks gelembung dan waktu.",
         "type": "Tipe Chat message Figma.",
         "name": "Nama dan avatar pengirim (received).",
@@ -2966,6 +2988,7 @@
       },
       "examples": {},
       "props": {
+        "size": "Ukuran dari token Size.",
         "value": "Teks terkontrol dan handler perubahan.",
         "onSend": "Dipanggil saat submit dengan teks tidak kosong.",
         "placeholder": "Teks placeholder dan state disabled.",

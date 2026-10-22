@@ -7,6 +7,8 @@ interface ListItemProps {
   leading?: ReactNode;
   /** Aksesori di akhir (badge, chevron, tombol). */
   trailing?: ReactNode;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   selected?: boolean;
   disabled?: boolean;
   onClick?: () => void;
@@ -20,6 +22,7 @@ function ListItem({
   description,
   leading,
   trailing,
+  size = 'md',
   selected = false,
   disabled = false,
   onClick,
@@ -38,6 +41,7 @@ function ListItem({
   );
   const common = {
     'data-testid': testId,
+    'data-wds-size': size,
     'data-selected': selected || undefined,
     className: `wds-list-item ${className}`,
   };
