@@ -15,10 +15,14 @@ export const progressDoc: ComponentDoc = {
     { prop: 'value', kind: 'text' },
     { prop: 'appearance', kind: 'select', options: ['default', 'success', 'danger'] },
     { prop: 'showLabel', kind: 'boolean' },
+    { prop: 'indeterminate', kind: 'boolean' },
+    { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
   ],
   figmaMapping: [
     { id: 'styles', figma: 'Progress styles (mode)', values: 'default, success, danger', prop: 'appearance' },
-    { id: 'label', figma: 'Label (visible)', values: 'boolean', prop: 'showLabel' },
+    { id: 'label', figma: 'Show label', values: 'boolean', prop: 'showLabel' },
+    { id: 'mode', figma: 'Mode', values: 'determinate, indeterminate', prop: 'indeterminate' },
+    { id: 'size', figma: 'Size Modes', values: 'xs, sm, md, lg, xl', prop: 'size' },
   ],
   examples: [
     {
@@ -32,6 +36,8 @@ export const progressDoc: ComponentDoc = {
   ],
   props: [
     { id: 'value', name: 'value', type: 'number (0–100)' },
+    { id: 'indeterminate', name: 'indeterminate', type: 'boolean', default: 'false' },
+    { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'appearance', name: 'appearance', type: "'default' | 'success' | 'danger'", default: "'default'" },
     { id: 'showLabel', name: 'showLabel', type: 'boolean', default: 'false' },
     { id: 'aria-label', name: 'aria-label', type: 'string' },

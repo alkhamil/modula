@@ -2,6 +2,7 @@ import { useState, type ComponentProps } from 'react';
 import {
   Accordion,
   Avatar,
+  Badge,
   Banner,
   Breadcrumbs,
   Divider,
@@ -150,24 +151,32 @@ export function SearchBarDemo(props: Partial<ComponentProps<typeof SearchBar>>) 
 }
 
 const STEPS = [
-  { title: 'Account', description: 'Your details' },
-  { title: 'Review', description: 'Check data' },
-  { title: 'Done' },
+  { label: 'Step 1', title: 'Account', badge: <Badge variant="success">Success</Badge> },
+  { label: 'Step 2', title: 'Details', badge: <Badge variant="info">In Progress</Badge> },
+  { label: 'Step 3', title: 'Review', badge: <Badge variant="neutral">Pending</Badge> },
 ];
 
 export function StepperDemo(props: Partial<ComponentProps<typeof Stepper>>) {
   return (
-    <div className="w-[420px] max-w-none">
+    <div className="w-[460px] max-w-none">
       <Stepper current={1} {...props} steps={STEPS} />
     </div>
   );
 }
 
-export function SliderDemo(props: Partial<ComponentProps<typeof Slider>>) {
+export function SliderDemo({
+  range,
+  ...props
+}: { range?: boolean; size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'; disabled?: boolean }) {
   const [value, setValue] = useState(40);
+  const [pair, setPair] = useState<[number, number]>([25, 70]);
   return (
     <div className="w-[min(100%,360px)]">
-      <Slider {...props} value={value} onChange={setValue} aria-label="Volume" />
+      {range ? (
+        <Slider {...props} range value={pair} onChange={setPair} />
+      ) : (
+        <Slider {...props} value={value} onChange={setValue} aria-label="Volume" />
+      )}
     </div>
   );
 }

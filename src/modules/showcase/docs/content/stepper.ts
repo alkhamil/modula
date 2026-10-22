@@ -15,10 +15,13 @@ export const stepperDoc: ComponentDoc = {
   controls: [
     { prop: 'current', kind: 'text' },
     { prop: 'orientation', kind: 'select', options: ['horizontal', 'vertical'] },
+    { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
   ],
   figmaMapping: [
     { id: 'states', figma: 'Step states', values: 'upcoming, current, completed, error', prop: 'current · steps[].status' },
-    { id: 'text', figma: 'Title · supporting text', values: 'free text', prop: 'steps[].title · description' },
+    { id: 'text', figma: 'Label · title · supporting text', values: 'free text', prop: 'steps[].label · title · description' },
+    { id: 'badge', figma: 'Show badge', values: 'boolean + badge', prop: 'steps[].badge' },
+    { id: 'size', figma: 'Size Modes', values: 'xs, sm, md, lg, xl', prop: 'size' },
   ],
   examples: [
     {
@@ -30,8 +33,9 @@ export const stepperDoc: ComponentDoc = {
     },
   ],
   props: [
-    { id: 'steps', name: 'steps', type: 'StepItem[] ({ title, description?, status? })' },
+    { id: 'steps', name: 'steps', type: 'StepItem[] ({ title, label?, description?, badge?, status? })' },
     { id: 'current', name: 'current', type: 'number (0-based)' },
+    { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'orientation', name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'" },
     { id: 'testId', name: 'testId', type: 'string' },
   ],

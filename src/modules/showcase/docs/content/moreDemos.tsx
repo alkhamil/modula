@@ -114,9 +114,9 @@ export function PopoverDemo(props: P<typeof Popover>) {
         actions={
           <>
             <Button hierarchy="secondary" size="sm">
-              Later
+              Cancel
             </Button>
-            <Button size="sm">Invite</Button>
+            <Button size="sm">Apply</Button>
           </>
         }
         {...props}

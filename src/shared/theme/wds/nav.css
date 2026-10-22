@@ -11,8 +11,8 @@
     --tb-icon: var(--wds-icons-tertiary);
     --tb-icon-current: var(--wds-icons-brand);
     --tb-radius: var(--wds-radius-12);
-    --tb-px: var(--wds-padding-20);
-    --tb-py: var(--wds-padding-10);
+    --tb-px: var(--wds-sz-padding-left);
+    --tb-py: var(--wds-sz-padding-top);
     display: flex;
     align-items: center;
     gap: var(--wds-spacing-4);
@@ -29,7 +29,6 @@
 
   .wds-tabs[data-appearance='underline'] {
     --tb-radius: 0;
-    border-bottom: var(--wds-sz-divider-thickness) solid var(--wds-stroke-subtle);
   }
 
   .wds-tabs[data-appearance='segmented'] {
@@ -60,7 +59,7 @@
     display: inline-flex;
     cursor: pointer;
     align-items: center;
-    gap: var(--wds-spacing-8);
+    gap: var(--wds-sz-gap);
     padding: var(--tb-py) var(--tb-px);
     border: 0;
     border-radius: var(--tb-radius);
@@ -96,7 +95,7 @@
     content: '';
     position: absolute;
     right: 0;
-    bottom: calc(var(--wds-sz-divider-thickness) * -1);
+    bottom: 0;
     left: 0;
     height: 2px;
     border-radius: 2px 2px 0 0;

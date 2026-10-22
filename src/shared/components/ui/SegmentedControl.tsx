@@ -11,6 +11,8 @@ interface SegmentedControlProps {
   options: SegmentedOption[];
   value: string;
   onChange: (value: string) => void;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   fullWidth?: boolean;
   className?: string;
   testId?: string;
@@ -22,6 +24,7 @@ function SegmentedControl({
   options,
   value,
   onChange,
+  size = 'md',
   fullWidth = false,
   className = '',
   testId,
@@ -32,6 +35,7 @@ function SegmentedControl({
       role="radiogroup"
       aria-label={ariaLabel}
       data-testid={testId}
+      data-wds-size={size}
       data-full={fullWidth || undefined}
       className={`wds-segmented ${className}`}
     >

@@ -151,7 +151,8 @@
         "value": "Nilai tab terpilih dan handler perubahan.",
         "appearance": "Style Navigation Figma.",
         "fullWidth": "Tab berbagi lebar container sama rata.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size (padding, jarak, teks)."
       },
       "tokens": {
         "--wds-text-tertiary": "Teks tab tidak aktif.",
@@ -2055,7 +2056,13 @@
           "note": "Warna indikator dan label mengikuti style."
         },
         "label": {
-          "note": "Persen tampil di ujung track."
+          "note": "Label persen di ujung track."
+        },
+        "mode": {
+          "note": "Determinate menampilkan nilai; indeterminate beranimasi."
+        },
+        "size": {
+          "note": "Tinggi track mengikuti token Size."
         }
       },
       "examples": {
@@ -2068,7 +2075,9 @@
         "appearance": "Style Progress Figma.",
         "showLabel": "Tampilkan label persen.",
         "aria-label": "Nama yang bisa diakses.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "indeterminate": "Bar bergerak tanpa nilai.",
+        "size": "Ukuran dari token Size (tinggi track)."
       },
       "tokens": {
         "--wds-bg-subtle": "Track.",
@@ -2198,7 +2207,13 @@
           "note": "State mengikuti `current`; isi `status` pada langkah untuk memaksa satu state (mis. error)."
         },
         "text": {
-          "note": "Teks pendukung opsional di bawah judul."
+          "note": "Label kecil opsional di atas judul, plus teks pendukung."
+        },
+        "badge": {
+          "note": "Pil status di bawah teks (mis. Success / In Progress / Pending)."
+        },
+        "size": {
+          "note": "Ukuran mengikuti token Size."
         }
       },
       "examples": {
@@ -2207,10 +2222,11 @@
         }
       },
       "props": {
-        "steps": "Langkah dengan judul, deskripsi opsional, dan status.",
+        "steps": "Langkah dengan judul, label opsional (mis. \"Step 1\"), deskripsi, badge status, dan status.",
         "current": "Indeks langkah saat ini.",
         "orientation": "Arah layout.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size (indikator, jarak, teks)."
       },
       "tokens": {
         "--wds-bg-brand": "Indikator current.",
@@ -2237,7 +2253,10 @@
           "note": "Pressed memakai isi brand pressed dan stroke fokus; disabled meredupkan semuanya."
         },
         "range": {
-          "note": "Atribut range standar."
+          "note": "Satu thumb, atau dua thumb dengan `range`."
+        },
+        "size": {
+          "note": "Track dan thumb mengikuti token Size."
         }
       },
       "examples": {},
@@ -2245,7 +2264,9 @@
         "value": "Nilai terkontrol dan handler perubahan.",
         "range": "Minimum, maksimum, dan step.",
         "disabled": "State disabled.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size (track dan thumb).",
+        "rangeProp": "Dua thumb; `value` menjadi pasangan [min, max]."
       },
       "tokens": {
         "--wds-bg-subtle-3": "Track.",
@@ -2270,7 +2291,7 @@
           "note": "Bintang terisi memakai warna ikon warning; kosong memakai warna disabled."
         },
         "size": {
-          "note": "Ukuran bintang dan jarak dari token Size."
+          "note": "Ukuran bintang mengikuti token Size."
         }
       },
       "examples": {},
@@ -2278,7 +2299,8 @@
         "value": "Rating saat ini.",
         "onChange": "Membuatnya interaktif; klik bintang saat ini menghapusnya.",
         "max": "Jumlah bintang.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size (ukuran bintang)."
       },
       "tokens": {
         "--wds-icons-warning": "Bintang terisi.",
@@ -2301,6 +2323,9 @@
         },
         "items": {
           "note": "Tiap segmen memiliki label dan ikon opsional."
+        },
+        "size": {
+          "note": "Padding dan teks mengikuti token Size."
         }
       },
       "examples": {},
@@ -2308,7 +2333,8 @@
         "options": "Segmen.",
         "value": "Nilai terpilih dan handler perubahan.",
         "fullWidth": "Segmen berbagi lebar sama rata.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size (padding dan teks)."
       },
       "tokens": {
         "--wds-bg-subtle-2": "Track.",
@@ -2606,7 +2632,7 @@
       "props": {
         "children": "Pemicunya.",
         "text": "Judul dan teks pendukung.",
-        "content": "Isi tambahan dan tombol aksi.",
+        "content": "Isi tambahan; tombol aksi berbagi lebar sama rata.",
         "placement": "Sisi yang diinginkan; dijepit dalam viewport.",
         "testId": "Dipetakan ke data-testid."
       },

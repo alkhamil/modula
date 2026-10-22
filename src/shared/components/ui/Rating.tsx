@@ -5,6 +5,8 @@ interface RatingProps {
   /** Tanpa `onChange` komponen hanya-baca. */
   onChange?: (value: number) => void;
   max?: number;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   testId?: string;
   'aria-label'?: string;
@@ -14,7 +16,7 @@ const STAR =
   'M12 2.5l2.94 5.96 6.58.96-4.76 4.64 1.12 6.55L12 17.52l-5.88 3.09 1.12-6.55L2.48 9.42l6.58-.96L12 2.5z';
 
 /** Rating bintang WDS; interaktif bila `onChange` diberikan. */
-function Rating({ value, onChange, max = 5, className = '', testId, 'aria-label': ariaLabel }: RatingProps) {
+function Rating({ value, onChange, max = 5, size = 'md', className = '', testId, 'aria-label': ariaLabel }: RatingProps) {
   const [hover, setHover] = useState<number | null>(null);
   const shown = hover ?? value;
   const interactive = !!onChange;
@@ -23,6 +25,7 @@ function Rating({ value, onChange, max = 5, className = '', testId, 'aria-label'
       role={interactive ? 'radiogroup' : 'img'}
       aria-label={ariaLabel ?? `${value} / ${max}`}
       data-testid={testId}
+      data-wds-size={size}
       className={`wds-rating ${className}`}
       onMouseLeave={() => setHover(null)}
     >

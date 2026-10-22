@@ -345,8 +345,11 @@
 
   .wds-popover__actions {
     display: flex;
-    justify-content: flex-end;
     gap: var(--wds-sz-popover-actions-gap);
+  }
+
+  .wds-popover__actions > * {
+    flex: 1;
   }
 
   /* ---- Toast ---- */

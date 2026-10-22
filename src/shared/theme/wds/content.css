@@ -173,6 +173,28 @@
     transition: width 200ms;
   }
 
+  .wds-progress[data-indeterminate] .wds-progress__bar {
+    width: 40%;
+    animation: wds-progress-slide 1.2s ease-in-out infinite;
+  }
+
+  @keyframes wds-progress-slide {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(250%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wds-progress[data-indeterminate] .wds-progress__bar {
+      animation: none;
+      margin-left: 30%;
+    }
+  }
+
   .wds-progress__label {
     min-width: 2.5em;
     color: var(--pr-text);

@@ -11,15 +11,20 @@ export const segmentedControlDoc: ComponentDoc = {
   codeName: 'SegmentedControl',
   codeExtra: ['options={options}', 'value={value}', 'onChange={setValue}'],
   baseProps: {},
-  controls: [{ prop: 'fullWidth', kind: 'boolean' }],
+  controls: [
+    { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
+    { prop: 'fullWidth', kind: 'boolean' },
+  ],
   figmaMapping: [
     { id: 'styles', figma: 'Segmented control styles (mode)', values: 'default', prop: '— (CSS)' },
     { id: 'items', figma: 'Segments', values: 'label · icon', prop: 'options' },
+    { id: 'size', figma: 'Size Modes', values: 'xs, sm, md, lg, xl', prop: 'size' },
   ],
   examples: [],
   props: [
     { id: 'options', name: 'options', type: 'SegmentedOption[] ({ value, label, icon?, disabled? })' },
     { id: 'value', name: 'value · onChange', type: 'string · (value: string) => void' },
+    { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'fullWidth', name: 'fullWidth', type: 'boolean', default: 'false' },
     { id: 'testId', name: 'testId', type: 'string' },
   ],

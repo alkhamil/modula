@@ -12,15 +12,19 @@ export const ratingDoc: ComponentDoc = {
   codeExtra: ['value={value}', 'onChange={setValue}'],
   codeOmit: ['interactive'],
   baseProps: { interactive: true },
-  controls: [{ prop: 'interactive', kind: 'boolean' }],
+  controls: [
+    { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
+    { prop: 'interactive', kind: 'boolean' },
+  ],
   figmaMapping: [
     { id: 'styles', figma: 'Rating styles (mode)', values: 'default', prop: '— (CSS)' },
-    { id: 'size', figma: 'Star size · gap', values: 'Size tokens', prop: '— (CSS)' },
+    { id: 'size', figma: 'Size Modes', values: 'xs, sm, md, lg, xl', prop: 'size' },
   ],
   examples: [],
   props: [
     { id: 'value', name: 'value', type: 'number' },
     { id: 'onChange', name: 'onChange', type: '(value: number) => void' },
+    { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'max', name: 'max', type: 'number', default: '5' },
     { id: 'testId', name: 'testId', type: 'string' },
   ],

@@ -151,7 +151,8 @@
         "value": "Selected tab value and change handler.",
         "appearance": "Figma Navigation style.",
         "fullWidth": "Tabs share the container width equally.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens (padding, gap, text)."
       },
       "tokens": {
         "--wds-text-tertiary": "Inactive tab text.",
@@ -2055,7 +2056,13 @@
           "note": "The indicator and label color follow the style."
         },
         "label": {
-          "note": "Percent shown at the end of the track."
+          "note": "Percent label at the end of the track."
+        },
+        "mode": {
+          "note": "Determinate shows the value; indeterminate animates."
+        },
+        "size": {
+          "note": "Track height follows the Size tokens."
         }
       },
       "examples": {
@@ -2068,7 +2075,9 @@
         "appearance": "Figma Progress style.",
         "showLabel": "Show the percent label.",
         "aria-label": "Accessible name.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "indeterminate": "Moving bar without a value.",
+        "size": "Size from the Size tokens (track height)."
       },
       "tokens": {
         "--wds-bg-subtle": "Track.",
@@ -2198,7 +2207,13 @@
           "note": "States follow `current`; set `status` on a step to force one (e.g. error)."
         },
         "text": {
-          "note": "Optional supporting text under the title."
+          "note": "Optional small label above the title, plus supporting text."
+        },
+        "badge": {
+          "note": "Status pill under the text (e.g. Success / In Progress / Pending)."
+        },
+        "size": {
+          "note": "Sizes follow the Size tokens."
         }
       },
       "examples": {
@@ -2207,10 +2222,11 @@
         }
       },
       "props": {
-        "steps": "Steps with title, optional description and status.",
+        "steps": "Steps with title, optional label (e.g. \"Step 1\"), description, status badge and status.",
         "current": "Index of the current step.",
         "orientation": "Layout direction.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens (indicator, gaps, text)."
       },
       "tokens": {
         "--wds-bg-brand": "Current indicator.",
@@ -2237,7 +2253,10 @@
           "note": "Pressed uses the pressed brand fill and focus stroke; disabled mutes everything."
         },
         "range": {
-          "note": "Standard range attributes."
+          "note": "Single thumb, or two thumbs with `range`."
+        },
+        "size": {
+          "note": "Track and thumb scale with the Size tokens."
         }
       },
       "examples": {},
@@ -2245,7 +2264,9 @@
         "value": "Controlled value and change handler.",
         "range": "Minimum, maximum and step.",
         "disabled": "Disabled state.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens (track and thumb).",
+        "rangeProp": "Two thumbs; `value` becomes a [min, max] pair."
       },
       "tokens": {
         "--wds-bg-subtle-3": "Track.",
@@ -2270,7 +2291,7 @@
           "note": "Filled stars use the warning icon color; empty ones the disabled color."
         },
         "size": {
-          "note": "Star size and gap come from the Size tokens."
+          "note": "Star size follows the Size tokens."
         }
       },
       "examples": {},
@@ -2278,7 +2299,8 @@
         "value": "Current rating.",
         "onChange": "Makes it interactive; clicking the current star clears it.",
         "max": "Number of stars.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens (star size)."
       },
       "tokens": {
         "--wds-icons-warning": "Filled star.",
@@ -2301,6 +2323,9 @@
         },
         "items": {
           "note": "Each segment has a label and optional icon."
+        },
+        "size": {
+          "note": "Padding and text follow the Size tokens."
         }
       },
       "examples": {},
@@ -2308,7 +2333,8 @@
         "options": "Segments.",
         "value": "Selected value and change handler.",
         "fullWidth": "Segments share the width equally.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens (padding and text)."
       },
       "tokens": {
         "--wds-bg-subtle-2": "Track.",
@@ -2606,7 +2632,7 @@
       "props": {
         "children": "The trigger.",
         "text": "Heading and supporting text.",
-        "content": "Extra body and action buttons.",
+        "content": "Extra body; the action buttons share the width equally.",
         "placement": "Preferred side; clamped to the viewport.",
         "testId": "Mapped to data-testid."
       },

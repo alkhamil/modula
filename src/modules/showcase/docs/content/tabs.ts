@@ -16,6 +16,7 @@ export const tabsDoc: ComponentDoc = {
   baseProps: { appearance: 'underline' },
   controls: [
     { prop: 'appearance', kind: 'select', options: APPEARANCES },
+    { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
     { prop: 'fullWidth', kind: 'boolean' },
   ],
   figmaMapping: [
@@ -28,6 +29,7 @@ export const tabsDoc: ComponentDoc = {
     { id: 'items', name: 'items', type: 'TabItem[] ({ value, label, icon?, badge?, disabled? })' },
     { id: 'value', name: 'value · onChange', type: 'string · (value) => void' },
     { id: 'appearance', name: 'appearance', type: "'default' | 'box' | 'underline' | 'segmented'", default: "'default'" },
+    { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'fullWidth', name: 'fullWidth', type: 'boolean', default: 'false' },
     { id: 'testId', name: 'testId', type: 'string' },
   ],

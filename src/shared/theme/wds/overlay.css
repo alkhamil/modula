@@ -45,22 +45,25 @@
     display: flex;
     min-width: 0;
     flex: 1;
-    flex-direction: column;
-    gap: var(--wds-sz-dialog-heading-and-optional-visual-gap);
+    align-items: flex-start;
+    gap: var(--wds-sz-dialog-header-gap);
   }
 
   .wds-dialog__icon {
     display: inline-flex;
-    width: var(--wds-sz-dialog-icon-size);
-    height: var(--wds-sz-dialog-icon-size);
+    width: var(--wds-sz-featured-icon-container-size);
+    height: var(--wds-sz-featured-icon-container-size);
+    flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    color: var(--wds-icons-primary);
+    border-radius: 9999px;
+    background-color: var(--wds-primary-100);
+    color: var(--wds-primary-500);
   }
 
   .wds-dialog__icon > svg {
-    width: 100%;
-    height: 100%;
+    width: var(--wds-sz-featured-icon-icon-size);
+    height: var(--wds-sz-featured-icon-icon-size);
   }
 
   .wds-dialog__text {

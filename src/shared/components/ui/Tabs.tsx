@@ -15,6 +15,8 @@ interface TabsProps {
   onChange: (value: string) => void;
   /** Style WDS (Navigation styles): default | box | underline | segmented. */
   appearance?: 'default' | 'box' | 'underline' | 'segmented';
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   /** Tab membagi lebar container sama rata. */
   fullWidth?: boolean;
   className?: string;
@@ -28,6 +30,7 @@ function Tabs({
   value,
   onChange,
   appearance = 'default',
+  size = 'md',
   fullWidth = false,
   className = '',
   testId,
@@ -69,6 +72,7 @@ function Tabs({
       aria-label={ariaLabel}
       data-testid={testId}
       data-appearance={appearance}
+      data-wds-size={size}
       data-full={fullWidth || undefined}
       className={`wds-tabs ${className}`}
     >
