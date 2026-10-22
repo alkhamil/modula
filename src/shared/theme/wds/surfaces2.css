@@ -353,4 +353,82 @@
     outline: 1px solid var(--wds-stroke-focus);
     outline-offset: 2px;
   }
+
+  /* ---- Scroll bar (indikator) ---- */
+  .wds-scrollbar {
+    --sb-track: transparent;
+    --sb-bw: 0px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--wds-spacing-2);
+    color: var(--wds-icons-tertiary);
+  }
+
+  .wds-scrollbar[data-orientation='horizontal'] {
+    flex-direction: row;
+  }
+
+  .wds-scrollbar[data-appearance='grey'] {
+    --sb-track: var(--wds-bg-subtle-2);
+  }
+
+  .wds-scrollbar[data-appearance='outline'] {
+    --sb-bw: 1px;
+  }
+
+  .wds-scrollbar__arrow {
+    display: inline-flex;
+    flex-shrink: 0;
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: inherit;
+  }
+
+  .wds-scrollbar__arrow > svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .wds-scrollbar__track {
+    position: relative;
+    box-sizing: border-box;
+    min-height: 0;
+    flex: 1;
+    border: var(--sb-bw) solid var(--wds-stroke-default);
+    border-radius: var(--wds-radius-8);
+    background-color: var(--sb-track);
+    touch-action: none;
+  }
+
+  .wds-scrollbar[data-orientation='vertical'] .wds-scrollbar__track {
+    width: var(--wds-sz-scrollbar-size);
+  }
+
+  .wds-scrollbar[data-orientation='horizontal'] .wds-scrollbar__track {
+    height: var(--wds-sz-scrollbar-size);
+  }
+
+  .wds-scrollbar__track:focus-visible {
+    outline: 1px solid var(--wds-stroke-focus);
+    outline-offset: 2px;
+  }
+
+  .wds-scrollbar__thumb {
+    position: absolute;
+    border-radius: var(--wds-radius-8);
+    background-color: var(--wds-stroke-default);
+  }
+
+  .wds-scrollbar[data-orientation='vertical'] .wds-scrollbar__thumb {
+    right: var(--wds-sz-scrollbar-thumb-size);
+    left: var(--wds-sz-scrollbar-thumb-size);
+  }
+
+  .wds-scrollbar[data-orientation='horizontal'] .wds-scrollbar__thumb {
+    top: var(--wds-sz-scrollbar-thumb-size);
+    bottom: var(--wds-sz-scrollbar-thumb-size);
+  }
 }

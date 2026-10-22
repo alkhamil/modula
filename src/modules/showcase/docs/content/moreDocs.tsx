@@ -9,6 +9,7 @@ import {
   CompactSelectDemo,
   DropdownMenuDemo,
   FeaturedIconDemo,
+  FileUploadCardDemo,
   IconWrapperDemo,
   ImageCarouselDemo,
   ImagePlaceholderDemo,
@@ -24,8 +25,10 @@ import {
   QuantitySelectorDemo,
   RadarChartDemo,
   ScrollAreaDemo,
+  ScrollBarDemo,
   SectionHeaderDemo,
   ToastDemo,
+  UserCellDemo,
 } from './moreDemos';
 
 export const otpInputDoc: ComponentDoc = {
@@ -523,13 +526,15 @@ export const barLineChartDoc: ComponentDoc = {
   codeName: "BarLineChart",
   codeExtra: ["data={data}"],
   baseProps: { type: 'bar', seriesName: 'Orders' },
-  controls: [{ prop: 'type', kind: 'select', options: ['bar', 'line'] }, { prop: 'seriesName', kind: 'text' }],
+  controls: [{ prop: 'multi', kind: 'boolean' }, { prop: 'stacked', kind: 'boolean' }, { prop: 'type', kind: 'select', options: ['bar', 'line'] }, { prop: 'seriesName', kind: 'text' }],
   figmaMapping: [
     { id: "series", figma: "Chart styles (series colors)", values: "primary scale", prop: "— (CSS)" },
     { id: "axes", figma: "X / Y axis", values: "labels, grid", prop: "data" },
   ],
   examples: [{ id: 'types', variants: [{ label: 'bar', props: { type: 'bar' } }, { label: 'line', props: { type: 'line' } }] }],
   props: [
+    { id: "series", name: "series · labels", type: "{ name: string; values: number[] }[] · string[]" },
+    { id: "stacked", name: "stacked", type: "boolean", default: "false" },
     { id: "data", name: "data", type: "{ label: string; value: number }[]" },
     { id: "type", name: "type", type: "'bar' | 'line'", default: "'bar'" },
     { id: "seriesName", name: "seriesName · height", type: "string · number", default: "'Series' · 220" },
@@ -595,12 +600,13 @@ export const activityGaugeDoc: ComponentDoc = {
   component: ActivityGaugeDemo,
   codeName: "ActivityGauge",
   baseProps: { value: 72 },
-  controls: [{ prop: 'value', kind: 'text' }, { prop: 'label', kind: 'text' }],
+  controls: [{ prop: 'multi', kind: 'boolean' }, { prop: 'value', kind: 'text' }, { prop: 'label', kind: 'text' }],
   figmaMapping: [
     { id: "track", figma: "Chart styles (track / series 1)", values: "primary-50 / primary-500", prop: "— (CSS)" },
   ],
   examples: [],
   props: [
+    { id: "rings", name: "rings", type: "{ label: string; value: number }[]" },
     { id: "value", name: "value", type: "number (0–100)" },
     { id: "label", name: "label · size", type: "string · number" },
     { id: 'testId', name: 'testId', type: 'string' },
@@ -683,6 +689,82 @@ export const menuItemDoc: ComponentDoc = {
   tokens: ["--wds-bg-brand-subtle", "--wds-bg-pressed", "--wds-text-primary", "--wds-text-danger", "--wds-icons-primary"].map((name) => ({ name })),
 };
 
+export const scrollBarDoc: ComponentDoc = {
+  slug: "scroll-bar",
+  name: "ScrollBar",
+  category: "layout",
+  importStatement: "import { ScrollBar } from 'shared/components/ui';",
+  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9930-12811",
+  component: ScrollBarDemo,
+  codeName: "ScrollBar",
+  codeExtra: ["value={position}", "onChange={setPosition}"],
+  baseProps: { orientation: 'vertical', length: 180 },
+  controls: [{ prop: 'orientation', kind: 'select', options: ['vertical', 'horizontal'] }, { prop: 'appearance', kind: 'select', options: ['default', 'grey', 'outline'] }, { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'thumbSize', kind: 'text' }, { prop: 'length', kind: 'text' }],
+  figmaMapping: [
+    { id: "types", figma: "Type · Length", values: "vertical, horizontal", prop: "orientation · length" },
+    { id: "styles", figma: "Scrollbar styles (mode)", values: "default, grey background, outline", prop: "appearance" },
+    { id: "size", figma: "Size Modes", values: "xs, sm, md, lg, xl", prop: "size" },
+  ],
+  examples: [],
+  props: [
+    { id: "value", name: "value · onChange", type: "number (0–100) · (value: number) => void" },
+    { id: "thumbSize", name: "thumbSize · length", type: "number", default: "30 · 240" },
+    { id: "orientation", name: "orientation", type: "'vertical' | 'horizontal'", default: "'vertical'" },
+    { id: "appearance", name: "appearance", type: "'default' | 'grey' | 'outline'", default: "'default'" },
+    { id: "size", name: "size · step", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' · number", default: "'md' · 10" },
+    { id: 'testId', name: 'testId', type: 'string' },
+  ],
+  tokens: ["--wds-stroke-default", "--wds-bg-subtle-2", "--wds-icons-tertiary", "--wds-sz-scrollbar-size", "--wds-sz-scrollbar-thumb-size"].map((name) => ({ name })),
+};
+
+export const fileUploadCardDoc: ComponentDoc = {
+  slug: "file-upload-card",
+  name: "FileUploadCard",
+  category: "forms",
+  importStatement: "import { FileUploadCard } from 'shared/components/ui';",
+  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11233-15800",
+  component: FileUploadCardDemo,
+  codeName: "FileUploadCard",
+  baseProps: { status: 'uploading', progressType: 'bar' },
+  controls: [{ prop: 'status', kind: 'select', options: ['uploading', 'uploaded', 'error', 'filled', 'disabled'] }, { prop: 'progressType', kind: 'select', options: ['bar', 'fill'] }, { prop: 'progress', kind: 'text' }],
+  figmaMapping: [
+    { id: "states", figma: "File Upload Cards states", values: "uploading, uploaded, error, filled, disabled", prop: "status" },
+    { id: "type", figma: "Type", values: "progress bar, progress fill", prop: "progressType" },
+  ],
+  examples: [{ id: 'states', variants: ['uploading', 'uploaded', 'error', 'filled', 'disabled'].map((s) => ({ label: s, props: { status: s } })) }],
+  props: [
+    { id: "name", name: "name · size", type: "string" },
+    { id: "status", name: "status", type: "'uploading' | 'uploaded' | 'error' | 'filled' | 'disabled'", default: "'filled'" },
+    { id: "progress", name: "progress · progressType", type: "number · 'bar' | 'fill'", default: "0 · 'bar'" },
+    { id: "actions", name: "onRetry · onRemove · extraActions", type: "function · ReactNode" },
+    { id: 'testId', name: 'testId', type: 'string' },
+  ],
+  tokens: ["--wds-bg-surface", "--wds-bg-danger-subtle", "--wds-stroke-danger", "--wds-bg-disabled", "--wds-icons-danger"].map((name) => ({ name })),
+};
+
+export const userCellDoc: ComponentDoc = {
+  slug: "user-cell",
+  name: "UserCell",
+  category: "data",
+  importStatement: "import { UserCell } from 'shared/components/ui';",
+  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11237-1438",
+  component: UserCellDemo,
+  codeName: "UserCell",
+  baseProps: { size: 'md' },
+  controls: [{ prop: 'name', kind: 'text' }, { prop: 'supporting', kind: 'text' }, { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'online', kind: 'boolean' }],
+  figmaMapping: [
+    { id: "cell", figma: "Table cell (avatar + text)", values: "avatar, title, supporting text", prop: "name · supporting" },
+  ],
+  examples: [],
+  props: [
+    { id: "name", name: "name · supporting", type: "string · ReactNode" },
+    { id: "src", name: "src · online", type: "string · boolean" },
+    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
+    { id: 'testId', name: 'testId', type: 'string' },
+  ],
+  tokens: ["--wds-text-primary", "--wds-text-secondary", "--wds-bg-brand-subtle"].map((name) => ({ name })),
+};
+
 export const moreDocs: ComponentDoc[] = [
   otpInputDoc,
   pinInputDoc,
@@ -710,4 +792,7 @@ export const moreDocs: ComponentDoc[] = [
   legendDoc,
   calendarDoc,
   menuItemDoc,
+  scrollBarDoc,
+  fileUploadCardDoc,
+  userCellDoc,
 ];

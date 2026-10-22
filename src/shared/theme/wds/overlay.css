@@ -39,31 +39,30 @@
     gap: var(--wds-sz-dialog-header-gap);
     padding: var(--wds-sz-dialog-header-padding-top) var(--wds-sz-dialog-header-padding-right)
       var(--wds-sz-dialog-header-padding-bottom) var(--wds-sz-dialog-header-padding-left);
+    border-bottom: var(--wds-sz-dialog-stroke) solid var(--wds-stroke-subtle);
   }
 
   .wds-dialog__heading {
     display: flex;
     min-width: 0;
     flex: 1;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--wds-sz-dialog-header-gap);
   }
 
   .wds-dialog__icon {
     display: inline-flex;
-    width: var(--wds-sz-featured-icon-container-size);
-    height: var(--wds-sz-featured-icon-container-size);
+    width: var(--wds-sz-dialog-icon-size);
+    height: var(--wds-sz-dialog-icon-size);
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    border-radius: 9999px;
-    background-color: var(--wds-primary-100);
-    color: var(--wds-primary-500);
+    color: var(--wds-icons-primary);
   }
 
   .wds-dialog__icon > svg {
-    width: var(--wds-sz-featured-icon-icon-size);
-    height: var(--wds-sz-featured-icon-icon-size);
+    width: 100%;
+    height: 100%;
   }
 
   .wds-dialog__text {
@@ -121,8 +120,8 @@
     min-height: 0;
     flex: 1;
     overflow-y: auto;
-    padding: 0 var(--wds-sz-dialog-content-padding-right) var(--wds-sz-dialog-content-padding-bottom)
-      var(--wds-sz-dialog-content-padding-left);
+    padding: var(--wds-sz-dialog-content-padding-left) var(--wds-sz-dialog-content-padding-right)
+      var(--wds-sz-dialog-content-padding-bottom) var(--wds-sz-dialog-content-padding-left);
   }
 
   .wds-dialog__footer {
@@ -130,7 +129,6 @@
     align-items: center;
     justify-content: flex-end;
     gap: var(--wds-sz-dialog-actions-gap);
-    border-top: var(--wds-sz-dialog-stroke) solid var(--wds-stroke-subtle);
     padding: var(--wds-sz-dialog-footer-actions-padding-top)
       var(--wds-sz-dialog-footer-actions-padding-right)
       var(--wds-sz-dialog-footer-actions-padding-bottom)
@@ -179,6 +177,10 @@
     padding: var(--wds-sz-dialog-content-padding-left);
     color: var(--wds-text-secondary);
     font-size: var(--wds-sz-text-body-font-size);
+  }
+
+  .wds-drawer__footer > * {
+    flex: 1;
   }
 
   .wds-drawer__footer {

@@ -97,14 +97,11 @@ function Dialog({
       ].join(' ')}
       onClick={(e) => e.stopPropagation()}
     >
-      {(title || description || icon) && (
+      {(title || icon) && (
         <div className="wds-dialog__header">
           <div className="wds-dialog__heading">
             {icon && <span className="wds-dialog__icon">{icon}</span>}
-            <div className="wds-dialog__text">
-              {title && <h2 className="wds-dialog__title">{title}</h2>}
-              {description && <p className="wds-dialog__description">{description}</p>}
-            </div>
+            {title && <h2 className="wds-dialog__title">{title}</h2>}
           </div>
           {!hideCloseButton && (
             <button
@@ -120,7 +117,12 @@ function Dialog({
           )}
         </div>
       )}
-      {children && <div className="wds-dialog__content">{children}</div>}
+      {(description || children) && (
+        <div className="wds-dialog__content">
+          {description && <p className="wds-dialog__description">{description}</p>}
+          {children}
+        </div>
+      )}
       {footer && <div className="wds-dialog__footer">{footer}</div>}
     </div>
   );

@@ -29,6 +29,7 @@ export { default as IconWrapper } from './IconWrapper';
 export { default as ImageCarousel } from './ImageCarousel';
 export { default as ImagePlaceholder } from './ImagePlaceholder';
 export { default as NavItem } from './NavItem';
+export { default as ScrollBar } from './ScrollBar';
 export { default as ScrollArea } from './ScrollArea';
 export { default as SectionHeader } from './SectionHeader';
 export { default as CompactSelect } from './CompactSelect';
@@ -57,6 +58,7 @@ export type { BreadcrumbsItem } from './Breadcrumbs';
 export { default as Dialog } from './Dialog';
 export { default as Divider } from './Divider';
 export { default as Link } from './Link';
+export { default as UserCell } from './UserCell';
 export { default as Tabs } from './Tabs';
 export type { TabItem } from './Tabs';
 export { default as Drawer } from './Drawer';
@@ -85,6 +87,7 @@ export {
   Textarea,
   Toggle,
   FileUpload,
+  FileUploadCard,
   PasswordField,
   RadioButtonGroup,
   CheckboxGroup,

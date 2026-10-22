@@ -50,7 +50,7 @@ function Pagination({
   onPageSizeChange,
   appearance = 'square',
   size = 'md',
-  showFirstLast = false,
+  showFirstLast = true,
   showLabels = false,
   showRowsPerPage = true,
   pageSizeOptions = [10, 20, 50, 100],

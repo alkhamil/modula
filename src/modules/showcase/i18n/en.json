@@ -1916,13 +1916,17 @@
         },
         "chevron": {
           "note": "A chevron icon separates items."
+        },
+        "truncated": {
+          "note": "Keeps the first item and the last ones, with \"…\" in between."
         }
       },
       "examples": {},
       "props": {
         "items": "Trail items; the last one is current.",
         "testId": "Mapped to data-testid.",
-        "size": "Size from the Size tokens."
+        "size": "Size from the Size tokens.",
+        "maxItems": "Collapses the middle of a long trail into an ellipsis once it exceeds this number."
       },
       "tokens": {
         "--wds-text-tertiary": "Link text.",
@@ -3038,6 +3042,8 @@
         }
       },
       "props": {
+        "series": "Several series with shared X labels; replaces data.",
+        "stacked": "Stacks the bars of several series.",
         "data": "Points or bars.",
         "type": "Chart kind.",
         "seriesName": "Legend label and chart height.",
@@ -3120,6 +3126,7 @@
       },
       "examples": {},
       "props": {
+        "rings": "Concentric rings, outside to inside; replaces value.",
         "value": "Fill percentage.",
         "label": "Centre text (default: percent) and diameter.",
         "testId": "Mapped to data-testid."
@@ -3229,6 +3236,105 @@
       ],
       "accessibility": [
         "Use role=\"menuitem\" when placed inside a menu container."
+      ]
+    },
+    "scroll-bar": {
+      "summary": "WDS scroll bar: a position indicator with arrow buttons at both ends and a draggable thumb, vertical or horizontal.",
+      "figma": {
+        "types": {
+          "note": "Track length is set in px."
+        },
+        "styles": {
+          "note": "Grey fills the track; outline adds a border."
+        },
+        "size": {
+          "note": "Thickness follows the Size tokens."
+        }
+      },
+      "examples": {},
+      "props": {
+        "value": "Scroll position and change handler.",
+        "thumbSize": "Thumb length (% of track) and track length (px).",
+        "orientation": "Direction.",
+        "appearance": "Figma Scrollbar style.",
+        "size": "Size from the Size tokens and the arrow step.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Thumb and outline.",
+        "--wds-bg-subtle-2": "Grey track.",
+        "--wds-icons-tertiary": "Arrows.",
+        "--wds-sz-scrollbar-size": "Track thickness.",
+        "--wds-sz-scrollbar-thumb-size": "Thumb inset."
+      },
+      "behavior": [
+        "Click or drag the track to move; arrows and arrow keys move by the step prop.",
+        "ScrollArea styles the native scrollbar of a container; ScrollBar is the standalone indicator."
+      ],
+      "accessibility": [
+        "role=\"scrollbar\" with aria-valuenow; focusable with arrow, Home and End keys."
+      ]
+    },
+    "file-upload-card": {
+      "summary": "WDS file upload card: a file row with progress, status text, retry and delete. FileUpload uses it for the chosen files.",
+      "figma": {
+        "states": {
+          "note": "Error uses the danger fill and shows a retry button."
+        },
+        "type": {
+          "note": "Bar sits under the text; fill tints the card background."
+        }
+      },
+      "examples": {
+        "states": {
+          "title": "States"
+        }
+      },
+      "props": {
+        "name": "File name and formatted size.",
+        "status": "Figma card state.",
+        "progress": "Upload progress and its style.",
+        "actions": "Retry (error only), delete and extra actions.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Card background.",
+        "--wds-bg-danger-subtle": "Error background.",
+        "--wds-stroke-danger": "Error border.",
+        "--wds-bg-disabled": "Disabled background.",
+        "--wds-icons-danger": "Delete icon."
+      },
+      "behavior": [
+        "Progress is data-driven; the component does not upload by itself."
+      ],
+      "accessibility": [
+        "The progress bar uses role=\"progressbar\"; buttons have accessible names."
+      ]
+    },
+    "user-cell": {
+      "summary": "WDS user cell: an avatar with name and supporting text, used in table cells and lists.",
+      "figma": {
+        "cell": {
+          "note": "Matches the user cell in the Figma Table."
+        }
+      },
+      "examples": {},
+      "props": {
+        "name": "Name and supporting text (e.g. email).",
+        "src": "Photo and online dot.",
+        "size": "Avatar size.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-text-primary": "Name.",
+        "--wds-text-secondary": "Supporting text.",
+        "--wds-bg-brand-subtle": "Avatar background."
+      },
+      "behavior": [
+        "Long names truncate with an ellipsis."
+      ],
+      "accessibility": [
+        "The avatar is decorative; the name carries the meaning."
       ]
     }
   }

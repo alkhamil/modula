@@ -73,6 +73,34 @@
     background-color: var(--wds-bg-brand-subtle);
   }
 
+  .wds-user-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--wds-spacing-12);
+    min-width: 0;
+  }
+
+  .wds-user-cell__text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+
+  .wds-user-cell__name {
+    overflow: hidden;
+    color: var(--wds-text-primary);
+    font-weight: var(--wds-font-weight-medium);
+    text-overflow: ellipsis;
+  }
+
+  .wds-user-cell__support {
+    overflow: hidden;
+    color: var(--wds-text-secondary);
+    font-size: var(--wds-sz-text-caption-font-size);
+    line-height: var(--wds-sz-text-caption-line-height);
+    text-overflow: ellipsis;
+  }
+
   /* ---- Table Toolbar ---- */
   .wds-toolbar {
     box-sizing: border-box;

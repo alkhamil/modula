@@ -7,6 +7,7 @@ export { default as DatePicker } from './date-picker/DatePicker';
 export { default as Textarea } from './Textarea';
 export { default as Toggle } from './Toggle';
 export { default as FileUpload } from './FileUpload';
+export { default as FileUploadCard } from './FileUploadCard';
 export { default as PasswordField } from './PasswordField';
 export { default as RadioButtonGroup } from './RadioButtonGroup';
 export { default as CheckboxGroup } from './CheckboxGroup';

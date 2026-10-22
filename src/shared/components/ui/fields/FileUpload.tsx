@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type DragEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FileText, Upload } from '../../icons';
+import { Upload } from '../../icons';
 import RowActionButton from '../RowActionButton';
+import FileUploadCard from './FileUploadCard';
 
 interface FileUploadProps {
   size?: 'sm' | 'md' | 'lg';
@@ -213,35 +214,24 @@ function FileUpload({
       {files.length > 0 && (
         <div className="wds-upload__files">
           {files.map((file, i) => (
-            <div
+            <FileUploadCard
               key={`${file.name}-${i}`}
-              data-testid={resolvedTestId ? `${resolvedTestId}-file-${i}` : undefined}
-              className="wds-file-card"
-            >
-              <span className="wds-file-card__icon">
-                <FileText />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="wds-file-card__name" title={file.name}>
-                  {file.name}
-                </p>
-                <p className="wds-file-card__meta">{formatBytes(file.size)}</p>
-              </div>
-              <RowActionButton
-                action="view"
-                testId={resolvedTestId ? `${resolvedTestId}-view-${i}` : undefined}
-                title={t('upload.viewFile', { name: file.name })}
-                onClick={() => handleView(file)}
-              />
-              {!disabled && (
+              testId={resolvedTestId ? `${resolvedTestId}-file-${i}` : undefined}
+              name={file.name}
+              size={formatBytes(file.size)}
+              status={disabled ? 'disabled' : 'filled'}
+              removeLabel={t('upload.removeFile', { name: file.name })}
+              removeTestId={resolvedTestId ? `${resolvedTestId}-delete-${i}` : undefined}
+              extraActions={
                 <RowActionButton
-                  action="delete"
-                  testId={resolvedTestId ? `${resolvedTestId}-delete-${i}` : undefined}
-                  title={t('upload.removeFile', { name: file.name })}
-                  onClick={() => handleRemove(multiple ? i : undefined)}
+                  action="view"
+                  testId={resolvedTestId ? `${resolvedTestId}-view-${i}` : undefined}
+                  title={t('upload.viewFile', { name: file.name })}
+                  onClick={() => handleView(file)}
                 />
-              )}
-            </div>
+              }
+              onRemove={() => handleRemove(multiple ? i : undefined)}
+            />
           ))}
         </div>
       )}

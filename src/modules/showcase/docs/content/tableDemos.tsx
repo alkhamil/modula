@@ -1,5 +1,6 @@
 import { useState, type ComponentProps } from 'react';
-import { Badge, Pagination, Table, TableToolbar } from '../../../../shared/components/ui';
+import { Badge, Pagination, Table, TableToolbar, UserCell } from '../../../../shared/components/ui';
+import { Download, TrashBinTrash } from '../../../../shared/components/icons';
 
 /** Demo Pagination: state halaman dikelola di sini; jumlah halaman tetap. */
 export function PaginationDemo(
@@ -26,15 +27,17 @@ interface Row {
   name: string;
   email: string;
   status: 'active' | 'inactive';
+  role: string;
+  labels: string[];
 }
 
 const ROWS: Row[] = [
-  { id: 1, name: 'Ayu Lestari', email: 'ayu@example.com', status: 'active' },
-  { id: 2, name: 'Budi Santoso', email: 'budi@example.com', status: 'inactive' },
-  { id: 3, name: 'Citra Dewi', email: 'citra@example.com', status: 'active' },
+  { id: 1, name: 'Olivia Rhye', email: 'olivia@example.com', status: 'active', role: 'Product Designer', labels: ['Design', 'Product', 'Research'] },
+  { id: 2, name: 'Phoenix Baker', email: 'phoenix@example.com', status: 'inactive', role: 'Product Manager', labels: ['Product', 'Strategy'] },
+  { id: 3, name: 'Lana Steiner', email: 'lana@example.com', status: 'active', role: 'Frontend Developer', labels: ['Engineering'] },
 ];
 
-/** Demo Table: data contoh tetap; pagination disembunyikan (ada di halaman Pagination). */
+/** Demo Table: komposisi sel seperti Figma (avatar + nama, badge status, label, ikon aksi). */
 export function TableDemo(
   props: Pick<
     ComponentProps<typeof Table<Row>>,
@@ -43,18 +46,25 @@ export function TableDemo(
 ) {
   const { highlightFirst, ...rest } = props;
   return (
-    <div className="w-full">
+    <div className="w-[760px] max-w-none">
       <Table<Row>
         {...rest}
         isRowHighlighted={highlightFirst ? (row) => row.id === 1 : undefined}
         columns={[
-          { key: 'name', header: 'Name', sortable: true },
-          { key: 'email', header: 'Email' },
+          { key: 'name', header: 'Name', sortable: true, render: (row) => <UserCell name={row.name} supporting={row.email} /> },
+          { key: 'status', header: 'Status', render: (row) => <Badge variant={row.status === 'active' ? 'success' : 'neutral'}>{row.status}</Badge> },
+          { key: 'role', header: 'Role' },
           {
-            key: 'status',
-            header: 'Status',
+            key: 'labels',
+            header: 'Label',
             render: (row) => (
-              <Badge variant={row.status === 'active' ? 'success' : 'neutral'}>{row.status}</Badge>
+              <div className="flex gap-1">
+                {row.labels.map((l) => (
+                  <Badge key={l} variant="info">
+                    {l}
+                  </Badge>
+                ))}
+              </div>
             ),
           },
         ]}
@@ -65,9 +75,14 @@ export function TableDemo(
         onPageChange={() => {}}
         onPageSizeChange={() => {}}
         rowKey={(row) => row.id}
+        renderAction={() => (
+          <>
+            <Download className="h-5 w-5 text-(--wds-icons-secondary)" />
+            <TrashBinTrash className="h-5 w-5 text-(--wds-icons-danger)" />
+          </>
+        )}
         hidePagination
         hideTotalRecords
-        hideActionColumn
       />
     </div>
   );

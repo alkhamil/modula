@@ -27,6 +27,9 @@ import {
   QuantitySelector,
   RadarChart,
   ScrollArea,
+  ScrollBar,
+  FileUploadCard,
+  UserCell,
   SectionHeader,
   useToast,
 } from '../../../../shared/components/ui';
@@ -234,10 +237,21 @@ const MONTHS = [
   { label: 'May', value: 16 },
 ];
 
-export function BarLineChartDemo(props: P<typeof BarLineChart>) {
+export function BarLineChartDemo({ multi, ...props }: P<typeof BarLineChart> & { multi?: boolean }) {
   return (
     <div className="w-[min(100%,480px)]">
-      <BarLineChart data={MONTHS} seriesName="Orders" {...props} />
+      {multi ? (
+        <BarLineChart
+          labels={MONTHS.map((x) => x.label)}
+          series={[
+            { name: 'Orders', values: MONTHS.map((x) => x.value) },
+            { name: 'Returns', values: MONTHS.map((x) => Math.round(x.value / 3)) },
+          ]}
+          {...props}
+        />
+      ) : (
+        <BarLineChart data={MONTHS} seriesName="Orders" {...props} />
+      )}
     </div>
   );
 }
@@ -268,8 +282,20 @@ export function RadarChartDemo(props: P<typeof RadarChart>) {
   );
 }
 
-export function ActivityGaugeDemo(props: P<typeof ActivityGauge>) {
-  return <ActivityGauge value={72} {...props} />;
+export function ActivityGaugeDemo({ multi, ...props }: P<typeof ActivityGauge> & { multi?: boolean }) {
+  return multi ? (
+    <ActivityGauge
+      rings={[
+        { label: 'Move', value: 78 },
+        { label: 'Exercise', value: 54 },
+        { label: 'Stand', value: 32 },
+      ]}
+      size={180}
+      {...props}
+    />
+  ) : (
+    <ActivityGauge value={72} {...props} />
+  );
 }
 
 export function LegendDemo(props: P<typeof Legend>) {
@@ -294,4 +320,21 @@ export function MenuItemDemo(props: P<typeof MenuItem>) {
       <MenuItem label="Menu item" description="Optional supporting text" leading={<Pen />} trailing={<Download />} {...props} />
     </div>
   );
+}
+
+export function ScrollBarDemo(props: P<typeof ScrollBar>) {
+  const [value, setValue] = useState(20);
+  return <ScrollBar {...props} value={value} onChange={setValue} aria-label="Scroll position" />;
+}
+
+export function FileUploadCardDemo(props: P<typeof FileUploadCard>) {
+  return (
+    <div className="w-[min(100%,420px)]">
+      <FileUploadCard name="Tech design requirements.pdf" size="200 KB" progress={80} onRemove={() => {}} onRetry={() => {}} {...props} />
+    </div>
+  );
+}
+
+export function UserCellDemo(props: P<typeof UserCell>) {
+  return <UserCell name="Olivia Rhye" supporting="olivia@example.com" {...props} />;
 }

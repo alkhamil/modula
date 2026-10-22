@@ -94,7 +94,13 @@ export function BreadcrumbsDemo(props: Partial<ComponentProps<typeof Breadcrumbs
   return (
     <Breadcrumbs
       {...props}
-      items={[{ label: 'Home', to: '/' }, { label: 'Users', to: '/user-management/users' }, { label: 'Detail' }]}
+      items={[
+        { label: 'Home', to: '/' },
+        { label: 'Company', to: '/' },
+        { label: 'Team', to: '/' },
+        { label: 'Users', to: '/user-management/users' },
+        { label: 'Detail' },
+      ]}
     />
   );
 }
