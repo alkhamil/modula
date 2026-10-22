@@ -6,6 +6,7 @@ export const breadcrumbsDoc: ComponentDoc = {
   name: 'Breadcrumbs',
   category: 'navigation',
   importStatement: "import { Breadcrumbs } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-8401',
   component: BreadcrumbsDemo,
   codeName: 'Breadcrumbs',
   codeExtra: ["items={[{ label: 'Home', to: '/' }, { label: 'Users', to: '/users' }, { label: 'Detail' }]}"],

@@ -6,6 +6,7 @@ export const fileUploadDoc: ComponentDoc = {
   name: 'FileUpload',
   category: 'forms',
   importStatement: "import { FileUpload } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11233-15800',
   component: FileUploadDemo,
   codeName: 'FileUpload',
   codeExtra: ['value={file}', 'onChange={setFile}'],

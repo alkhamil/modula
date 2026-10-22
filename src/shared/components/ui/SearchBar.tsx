@@ -1,5 +1,5 @@
 import { useRef, type InputHTMLAttributes } from 'react';
-import { Cross, Magnifer } from '../icons';
+import { CloseCircleBold, Magnifer, Microphone } from '../icons';
 
 interface SearchBarProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'value' | 'onChange' | 'className'> {
@@ -7,6 +7,10 @@ interface SearchBarProps
   onChange: (value: string) => void;
   /** Style WDS (Search bar styles): box | pill. */
   appearance?: 'box' | 'pill';
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  /** Ikon pencarian suara di akhir (Figma "Voice search"). */
+  voice?: boolean;
   /** Tombol hapus saat ada teks (default true). */
   clearable?: boolean;
   className?: string;
@@ -18,6 +22,8 @@ function SearchBar({
   value,
   onChange,
   appearance = 'box',
+  size = 'md',
+  voice = false,
   clearable = true,
   disabled,
   placeholder = 'Search',
@@ -30,6 +36,7 @@ function SearchBar({
     <div
       data-testid={testId}
       data-appearance={appearance}
+      data-wds-size={size}
       data-disabled={disabled || undefined}
       className={`wds-search ${className}`}
     >
@@ -56,8 +63,13 @@ function SearchBar({
           }}
           className="wds-search__clear"
         >
-          <Cross />
+          <CloseCircleBold />
         </button>
+      )}
+      {voice && !disabled && (
+        <span className="wds-search__voice" aria-hidden="true">
+          <Microphone />
+        </span>
       )}
     </div>
   );

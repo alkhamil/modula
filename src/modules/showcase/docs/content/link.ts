@@ -6,6 +6,7 @@ export const linkDoc: ComponentDoc = {
   name: 'Link',
   category: 'navigation',
   importStatement: "import { Link } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=10050-1041',
   component: LinkDemo,
   codeName: 'Link',
   codeExtra: ['href="/docs"'],

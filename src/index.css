@@ -20,6 +20,9 @@
 @import './shared/theme/wds/nav.css';
 @import './shared/theme/wds/content.css';
 @import './shared/theme/wds/controls.css';
+@import './shared/theme/wds/inputs.css';
+@import './shared/theme/wds/surfaces2.css';
+@import './shared/theme/wds/data.css';
 @import './shared/theme/wds/feedback.css';
 @import './shared/theme/wds/feedback.generated.css';
 

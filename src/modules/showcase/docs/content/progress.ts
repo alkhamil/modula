@@ -6,6 +6,7 @@ export const progressDoc: ComponentDoc = {
   name: 'Progress',
   category: 'feedback',
   importStatement: "import { Progress } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9930-754',
   component: ProgressDemo,
   codeName: 'Progress',
   defaults: { appearance: 'default', showLabel: false },

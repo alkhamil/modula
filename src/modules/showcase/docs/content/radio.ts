@@ -30,6 +30,7 @@ export const radioDoc = selectionDoc({
       { id: 'appearance', name: 'appearance', type: "'outline' | 'solid'", default: "'outline'" },
       { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
       { id: 'disabled', name: 'disabled', type: 'boolean', default: 'false' },
+      { id: 'direction', name: 'direction', type: "'horizontal' | 'vertical'", default: "'horizontal'" },
       { id: 'error', name: 'error', type: 'string' },
       { id: 'testId', name: 'testId', type: 'string' },
     ],

@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { CheckCircle, CloseCircle, DangerTriangle, InfoCircle } from '../../icons';
+import { CheckCircle, CloseCircle, Cross, DangerTriangle, InfoCircle } from '../../icons';
 import { ToastContext, type ToastVariant, type ShowToastParams } from './toast-context';
 
 interface ToastItemData {
@@ -13,34 +13,11 @@ interface ToastItemData {
   widthClass?: string;
 }
 
-const variantConfig: Record<
-  ToastVariant,
-  { bg: string; text: string; border: string; Icon: typeof CheckCircle }
-> = {
-  success: {
-    bg: 'bg-success',
-    text: 'text-white',
-    border: 'border-success',
-    Icon: CheckCircle,
-  },
-  error: {
-    bg: 'bg-danger',
-    text: 'text-white',
-    border: 'border-danger',
-    Icon: CloseCircle,
-  },
-  warning: {
-    bg: 'bg-warning',
-    text: 'text-white',
-    border: 'border-warning',
-    Icon: DangerTriangle,
-  },
-  info: {
-    bg: 'bg-info',
-    text: 'text-white',
-    border: 'border-info',
-    Icon: InfoCircle,
-  },
+const variantIcons: Record<ToastVariant, typeof CheckCircle> = {
+  success: CheckCircle,
+  error: CloseCircle,
+  warning: DangerTriangle,
+  info: InfoCircle,
 };
 
 let toastId = 0;
@@ -67,28 +44,22 @@ function defaultClassFor(target: HTMLElement): string {
 }
 
 function ToastItem({ item, onClose }: { item: ToastItemData; onClose: (id: number) => void }) {
-  const { bg, text, border, Icon } = variantConfig[item.variant];
+  const Icon = variantIcons[item.variant];
 
   return (
     <div
       data-testid={`toast-${item.variant}`}
-      className={[
-        'inline-flex items-center rounded-lg border px-6 py-4 text-sm font-medium shadow-lg gap-2',
-        item.widthClass ?? 'w-175',
-        bg,
-        text,
-        border,
-      ].join(' ')}
+      data-variant={item.variant}
+      role={item.variant === 'error' || item.variant === 'warning' ? 'alert' : 'status'}
+      className={['wds-toast', item.widthClass ?? 'w-175'].join(' ')}
     >
-      <Icon className="h-5 w-5 shrink-0" />
-      <span className="flex-1">{item.message}</span>
+      <span className="wds-toast__icon">
+        <Icon />
+      </span>
+      <span className="wds-toast__message">{item.message}</span>
       {item.closable !== false && (
-        <button
-          type="button"
-          onClick={() => onClose(item.id)}
-          className="shrink-0 cursor-pointer rounded-full p-0.5 transition-opacity hover:opacity-70"
-        >
-          <CloseCircle className="h-4 w-4" />
+        <button type="button" aria-label="Close" onClick={() => onClose(item.id)} className="wds-toast__close">
+          <Cross />
         </button>
       )}
     </div>

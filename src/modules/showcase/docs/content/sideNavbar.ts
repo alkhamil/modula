@@ -6,6 +6,7 @@ export const sideNavbarDoc: ComponentDoc = {
   name: 'SideNavbar',
   category: 'layout',
   importStatement: "import { SideNavbar } from 'shared/components/layout';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11287-683',
   component: SideNavbarDemo,
   codeName: 'SideNavbar',
   codeExtra: ['items={navItems}', 'collapsed={collapsed}', 'onToggle={toggle}', 'mobileOpen={false}', 'onMobileClose={close}'],

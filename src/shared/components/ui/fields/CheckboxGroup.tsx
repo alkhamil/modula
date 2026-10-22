@@ -16,6 +16,8 @@ interface CheckboxGroupProps {
   size?: SelectionSize;
   appearance?: SelectionAppearance;
   disabled?: boolean;
+  /** Arah susunan (Figma Horizontal Checkbox / Radio): horizontal (default) | vertical. */
+  direction?: 'horizontal' | 'vertical';
   error?: string;
   testId?: string;
 }
@@ -27,6 +29,7 @@ function CheckboxGroup({
   size = 'md',
   appearance,
   disabled,
+  direction = 'horizontal',
   error,
   testId,
 }: CheckboxGroupProps) {
@@ -40,7 +43,9 @@ function CheckboxGroup({
 
   return (
     <div data-testid={testId}>
-      <div className="flex flex-wrap gap-[var(--wds-sz-form-row-options-gap)]">
+      <div
+        className={`flex gap-[var(--wds-sz-form-row-options-gap)] ${direction === 'vertical' ? 'flex-col' : 'flex-wrap'}`}
+      >
         {options.map((option) => (
           <Checkbox
             key={option.value}

@@ -10,6 +10,7 @@ import { cardDoc } from './content/card';
 import { checkboxDoc } from './content/checkbox';
 import { pageHeaderDoc } from './content/pageHeader';
 import { linkDoc } from './content/link';
+import { moreDocs } from './content/moreDocs';
 import { paginationDoc } from './content/pagination';
 import { profileDoc } from './content/profile';
 import { progressDoc } from './content/progress';
@@ -64,6 +65,7 @@ export const docs: ComponentDoc[] = [
   sliderDoc,
   ratingDoc,
   segmentedControlDoc,
+  ...moreDocs,
   checkboxDoc,
   datePickerDoc,
   fileUploadDoc,

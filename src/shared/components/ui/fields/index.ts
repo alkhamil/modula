@@ -2,6 +2,7 @@ export { default as InputField } from './InputField';
 export { default as Select } from './Select';
 export { default as Checkbox } from './Checkbox';
 export { default as RadioButton } from './RadioButton';
+export { default as Calendar } from './date-picker/Calendar';
 export { default as DatePicker } from './date-picker/DatePicker';
 export { default as Textarea } from './Textarea';
 export { default as Toggle } from './Toggle';

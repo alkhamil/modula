@@ -18,6 +18,7 @@ export const cardDoc: ComponentDoc = {
   name: 'Card',
   category: 'data',
   importStatement: "import { Card } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-8962',
   component: CardDemo,
   codeName: 'Card',
   defaults: { appearance: 'outlined', size: 'md' },

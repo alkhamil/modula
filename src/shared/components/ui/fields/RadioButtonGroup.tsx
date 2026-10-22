@@ -16,6 +16,8 @@ interface RadioButtonGroupProps {
   size?: SelectionSize;
   appearance?: SelectionAppearance;
   disabled?: boolean;
+  /** Arah susunan (Figma Horizontal Checkbox / Radio): horizontal (default) | vertical. */
+  direction?: 'horizontal' | 'vertical';
   error?: string;
   testId?: string;
   'data-testid'?: string;
@@ -28,6 +30,7 @@ function RadioButtonGroup({
   size = 'md',
   appearance,
   disabled,
+  direction = 'horizontal',
   error,
   testId,
   'data-testid': dataTestId,
@@ -35,7 +38,9 @@ function RadioButtonGroup({
   const resolvedTestId = dataTestId ?? testId;
   return (
     <div data-testid={resolvedTestId} role="radiogroup">
-      <div className="flex flex-wrap gap-[var(--wds-sz-form-row-options-gap)]">
+      <div
+        className={`flex gap-[var(--wds-sz-form-row-options-gap)] ${direction === 'vertical' ? 'flex-col' : 'flex-wrap'}`}
+      >
         {options.map((option) => (
           <RadioButton
             key={option.value}

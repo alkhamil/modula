@@ -7,6 +7,8 @@ export interface AccordionItem {
   /** Teks pendukung di bawah judul header. */
   description?: ReactNode;
   content: ReactNode;
+  /** Ikon di awal judul (Figma "Leading icon"). */
+  icon?: ReactNode;
   disabled?: boolean;
 }
 
@@ -14,6 +16,10 @@ interface AccordionProps {
   items: AccordionItem[];
   /** Style WDS (Accordion styles): box | underline. */
   appearance?: 'box' | 'underline';
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  /** Pindahkan chevron ke awal (Figma "Flip icon"). */
+  flipIcon?: boolean;
   /** Boleh membuka banyak item sekaligus. */
   multiple?: boolean;
   /** Item terbuka awal (tidak terkontrol). */
@@ -26,6 +32,8 @@ interface AccordionProps {
 function Accordion({
   items,
   appearance = 'box',
+  size = 'md',
+  flipIcon = false,
   multiple = false,
   defaultOpen = [],
   className = '',
@@ -41,7 +49,13 @@ function Accordion({
   }
 
   return (
-    <div data-testid={testId} data-appearance={appearance} className={`wds-accordion ${className}`}>
+    <div
+      data-testid={testId}
+      data-appearance={appearance}
+      data-wds-size={size}
+      data-flip={flipIcon || undefined}
+      className={`wds-accordion ${className}`}
+    >
       {items.map((item) => {
         const expanded = open.includes(item.value);
         const headerId = `acc-h-${item.value}`;
@@ -58,6 +72,7 @@ function Accordion({
                 onClick={() => toggle(item.value)}
                 className="wds-accordion__header"
               >
+                {item.icon && <span className="wds-accordion__lead">{item.icon}</span>}
                 <span className="wds-accordion__text">
                   <span className="wds-accordion__title">{item.title}</span>
                   {item.description && <span className="wds-accordion__desc">{item.description}</span>}

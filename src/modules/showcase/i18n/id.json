@@ -430,7 +430,8 @@
           "size": "Ukuran dari token Size.",
           "disabled": "Menonaktifkan seluruh grup.",
           "error": "Pesan error grup; setiap kontrol menampilkan state error.",
-          "testId": "Dipetakan ke data-testid; tiap opsi mendapat `<testId>-<value>`."
+          "testId": "Dipetakan ke data-testid; tiap opsi mendapat `<testId>-<value>`.",
+          "direction": "Susunan opsi: horizontal (turun baris) atau vertikal."
         }
       }
     },
@@ -670,7 +671,8 @@
           "size": "Ukuran dari token Size.",
           "disabled": "Menonaktifkan seluruh grup.",
           "error": "Pesan error grup; setiap kontrol menampilkan state error.",
-          "testId": "Dipetakan ke data-testid; tiap opsi mendapat `<testId>-<value>`."
+          "testId": "Dipetakan ke data-testid; tiap opsi mendapat `<testId>-<value>`.",
+          "direction": "Susunan opsi: horizontal (turun baris) atau vertikal."
         }
       }
     },
@@ -2002,6 +2004,15 @@
         },
         "supporting": {
           "note": "Tampil di bawah judul pada header."
+        },
+        "leading": {
+          "note": "Ikon opsional sebelum judul (`items[].icon`)."
+        },
+        "flip": {
+          "note": "Chevron di depan judul, bukan di belakang."
+        },
+        "size": {
+          "note": "Padding dan teks mengikuti token Size."
         }
       },
       "examples": {
@@ -2014,7 +2025,8 @@
         "appearance": "Style Accordion Figma.",
         "multiple": "Izinkan beberapa item terbuka.",
         "defaultOpen": "Nilai yang terbuka awalnya.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size; `flipIcon` memindahkan chevron ke awal."
       },
       "tokens": {
         "--wds-bg-surface": "Latar item.",
@@ -2086,7 +2098,10 @@
           "note": "Judul bersifat opsional."
         },
         "actions": {
-          "note": "Aksi berupa tombol teks; tutup berupa tombol ikon."
+          "note": "Dirender sebagai Button kecil: `action` primer, `secondaryAction` sekunder."
+        },
+        "size": {
+          "note": "Padding dan ukuran ikon mengikuti token Size."
         }
       },
       "examples": {
@@ -2100,10 +2115,11 @@
       "props": {
         "variant": "Style Banner Figma.",
         "message": "Judul dan pesan.",
-        "action": "Tombol teks.",
+        "action": "Tombol aksi (primer / sekunder).",
         "onClose": "Menampilkan tombol tutup.",
         "icon": "Mengganti ikon bawaan.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size (padding, ikon, teks)."
       },
       "tokens": {
         "--wds-bg-info-subtle": "Latar info (style lain serupa).",
@@ -2113,7 +2129,8 @@
         "--wds-text-primary": "Judul.",
         "--wds-text-secondary": "Pesan.",
         "--wds-sz-banner-padding-top": "Padding.",
-        "--wds-sz-banner-gap": "Jarak antar bagian."
+        "--wds-sz-banner-gap": "Jarak antar bagian.",
+        "--wds-bg-brand": "Tombol aksi primer."
       },
       "behavior": [
         "Selebar container, tanpa sudut membulat.",
@@ -2135,6 +2152,12 @@
         },
         "clear": {
           "note": "Mengosongkan nilai dan mengembalikan fokus ke input."
+        },
+        "voice": {
+          "note": "Ikon mikrofon di ujung bar."
+        },
+        "size": {
+          "note": "Tinggi dan ukuran ikon mengikuti token Size (md = 44px)."
         }
       },
       "examples": {
@@ -2147,7 +2170,8 @@
         "appearance": "Style Search bar Figma.",
         "clearable": "Tampilkan tombol hapus saat ada teks.",
         "disabled": "Menonaktifkan input.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size; `voice` menampilkan ikon mikrofon di akhir."
       },
       "tokens": {
         "--wds-bg-surface": "Latar box.",
@@ -2325,6 +2349,784 @@
           "usage": "Dipakai untuk"
         }
       }
+    },
+    "otp-input": {
+      "summary": "Input kode sekali pakai WDS: satu kotak per karakter dengan style box atau underline, state error dan success, dukungan paste, dan pindah otomatis.",
+      "figma": {
+        "styles": {
+          "note": "Box memiliki border penuh; underline hanya garis bawah."
+        },
+        "states": {
+          "note": "Empty / filled mengikuti nilai; error dan success mengatur warna border."
+        }
+      },
+      "examples": {
+        "status": {
+          "title": "Status"
+        }
+      },
+      "props": {
+        "value": "Kode terkontrol dan handler perubahan.",
+        "length": "Jumlah karakter.",
+        "appearance": "Style OTP Figma.",
+        "status": "State validasi.",
+        "numeric": "Hanya angka; menonaktifkan input.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Border.",
+        "--wds-stroke-danger": "Border error.",
+        "--wds-stroke-success": "Border success.",
+        "--wds-sz-otp-box-size": "Ukuran kotak.",
+        "--wds-sz-otp-gap": "Jarak antar kotak."
+      },
+      "behavior": [
+        "Mengetik pindah ke kotak berikutnya; Backspace pada kotak kosong kembali.",
+        "Paste mengisi semua kotak sekaligus."
+      ],
+      "accessibility": [
+        "Kotak dikelompokkan; beri aria-label pada grup.",
+        "Kotak pertama memberi petunjuk autofill kode sekali pakai."
+      ]
+    },
+    "pin-input": {
+      "summary": "Input PIN WDS: seperti input OTP tetapi karakter disamarkan. Default empat digit.",
+      "figma": {
+        "styles": {
+          "note": "Dua style yang sama dengan OTP."
+        },
+        "states": {
+          "note": "Mengikuti nilai dan status."
+        }
+      },
+      "examples": {},
+      "props": {
+        "value": "PIN terkontrol dan handler perubahan.",
+        "length": "Jumlah karakter.",
+        "appearance": "Style PIN Figma.",
+        "status": "State validasi; menonaktifkan input.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Border.",
+        "--wds-stroke-danger": "Border error.",
+        "--wds-sz-pin-box-size": "Ukuran kotak.",
+        "--wds-sz-pin-gap": "Jarak antar kotak."
+      },
+      "behavior": [
+        "Karakter dirender sebagai field password."
+      ],
+      "accessibility": [
+        "Jangan menampilkan PIN di log atau URL."
+      ]
+    },
+    "quantity-selector": {
+      "summary": "Quantity selector WDS dengan tombol kurang / tambah di sekitar nilai, style outlined, filled, atau ghost.",
+      "figma": {
+        "styles": {
+          "note": "Outlined berborder, filled berlatar lembut, ghost keduanya tidak."
+        },
+        "states": {
+          "note": "Kontrol nonaktif di batas nilai."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Style"
+        }
+      },
+      "props": {
+        "value": "Nilai terkontrol dan handler perubahan.",
+        "range": "Batas dan kenaikan.",
+        "appearance": "Style QS Figma.",
+        "size": "Ukuran dari token Size (tinggi kontainer).",
+        "disabled": "Menonaktifkan kedua tombol.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Kontrol outlined.",
+        "--wds-bg-subtle": "Kontrol filled.",
+        "--wds-stroke-subtle": "Border outlined.",
+        "--wds-icons-secondary": "Ikon kontrol.",
+        "--wds-text-primary": "Nilai."
+      },
+      "behavior": [
+        "Nilai dibatasi min / max."
+      ],
+      "accessibility": [
+        "Tombol berlabel Decrease / Increase; nilai adalah live region."
+      ]
+    },
+    "label-text": {
+      "summary": "Label teks WDS untuk field: tiga bobot, tanda wajib merah, dan ikon akhir opsional.",
+      "figma": {
+        "weight": {
+          "note": "Medium adalah default."
+        },
+        "mandatory": {
+          "note": "Menampilkan tanda bintang merah."
+        }
+      },
+      "examples": {
+        "weights": {
+          "title": "Bobot"
+        }
+      },
+      "props": {
+        "weight": "Bobot font.",
+        "required": "Menampilkan tanda wajib.",
+        "trailing": "Ikon setelah label (mis. bantuan).",
+        "htmlFor": "Menghubungkan label dengan field.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-text-primary": "Teks label.",
+        "--wds-text-danger": "Tanda wajib.",
+        "--wds-icons-tertiary": "Ikon akhir.",
+        "--wds-sz-text-label-font-size": "Ukuran font."
+      },
+      "behavior": [
+        "FormItem sudah memakai style ini untuk labelnya."
+      ],
+      "accessibility": [
+        "Gunakan htmlFor agar klik label memfokuskan field."
+      ]
+    },
+    "compact-select": {
+      "summary": "Compact select WDS: pemicu kecil berupa teks atau ikon yang membuka menu dropdown untuk memilih satu opsi.",
+      "figma": {
+        "types": {
+          "note": "Text menampilkan nilai dan chevron; icon hanya menampilkan ikon."
+        },
+        "menu": {
+          "note": "Opsi dirender sebagai menu item; yang aktif ditandai selected."
+        }
+      },
+      "examples": {},
+      "props": {
+        "options": "Pilihan.",
+        "value": "Nilai terpilih dan handler perubahan.",
+        "type": "Tipe Compact select Figma.",
+        "icon": "Ikon pemicu untuk tipe icon; menonaktifkan.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-text-primary": "Teks pemicu.",
+        "--wds-icons-secondary": "Chevron.",
+        "--wds-bg-subtle": "Hover.",
+        "--wds-sz-compact-select-gap": "Jarak di pemicu."
+      },
+      "behavior": [
+        "Klik di luar menutup menu."
+      ],
+      "accessibility": [
+        "Pemicu memiliki aria-haspopup dan aria-expanded; beri aria-label pada pemicu ikon."
+      ]
+    },
+    "dropdown-menu": {
+      "summary": "Dropdown menu WDS: panel menu item dengan ikon, teks pendukung, dan state default, selected, disabled, serta destructive.",
+      "figma": {
+        "styles": {
+          "note": "Latar elevated dengan border lembut dan radius 12."
+        },
+        "items": {
+          "note": "`selected`, `disabled`, dan `destructive` menentukan state."
+        }
+      },
+      "examples": {},
+      "props": {
+        "trigger": "Elemen yang membuka/menutup menu.",
+        "items": "Menu item: value, label, description, icon, flag state, onSelect.",
+        "align": "Sisi pemicu tempat menu sejajar.",
+        "open": "Paksa terbuka (dokumentasi).",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-elevated": "Latar panel.",
+        "--wds-stroke-subtle": "Border panel.",
+        "--wds-bg-brand-subtle": "Item terpilih.",
+        "--wds-text-danger": "Item destructive.",
+        "--wds-sz-dropdown-padding-top": "Padding panel."
+      },
+      "behavior": [
+        "Memilih item menjalankan handler dan menutup menu.",
+        "Klik di luar atau Escape menutupnya."
+      ],
+      "accessibility": [
+        "Memakai role=\"menu\" dan \"menuitem\"."
+      ]
+    },
+    "list-item": {
+      "summary": "List item WDS: baris dengan elemen awal, judul, teks pendukung, dan aksesori akhir; default, pressed, selected, dan disabled.",
+      "figma": {
+        "states": {
+          "note": "Pressed tampil saat item ditekan."
+        },
+        "slots": {
+          "note": "Ikon, avatar, badge, atau tombol."
+        }
+      },
+      "examples": {
+        "states": {
+          "title": "State"
+        }
+      },
+      "props": {
+        "title": "Teks utama dan pendukung.",
+        "leading": "Elemen sebelum dan sesudah teks.",
+        "selected": "Flag state.",
+        "onClick": "Menjadikan baris sebagai button.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-brand-subtle": "Baris terpilih.",
+        "--wds-bg-pressed": "Baris ditekan.",
+        "--wds-text-primary": "Judul.",
+        "--wds-text-secondary": "Teks pendukung.",
+        "--wds-sz-list-item-radius": "Radius sudut."
+      },
+      "behavior": [
+        "Tanpa onClick baris berupa div biasa."
+      ],
+      "accessibility": [
+        "Baris interaktif memiliki aria-pressed untuk seleksi."
+      ]
+    },
+    "popover": {
+      "summary": "Popover WDS: panel mengambang dengan judul, teks, konten kustom, dan aksi, dibuka dengan klik pemicunya.",
+      "figma": {
+        "styles": {
+          "note": "Latar elevated, radius 12, border lembut."
+        },
+        "slots": {
+          "note": "Aksi berupa tombol rata kanan."
+        }
+      },
+      "examples": {},
+      "props": {
+        "children": "Pemicunya.",
+        "text": "Judul dan teks pendukung.",
+        "content": "Isi tambahan dan tombol aksi.",
+        "placement": "Sisi yang diinginkan; dijepit dalam viewport.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-elevated": "Latar panel.",
+        "--wds-stroke-subtle": "Border.",
+        "--wds-sz-popover-radius": "Radius sudut.",
+        "--wds-sz-popover-padding-top": "Padding.",
+        "--wds-sz-popover-gap": "Jarak antar bagian."
+      },
+      "behavior": [
+        "Klik di luar atau Escape menutupnya.",
+        "Dirender di portal di samping pemicu."
+      ],
+      "accessibility": [
+        "Panel memiliki role=\"dialog\"; pemicu memiliki aria-expanded."
+      ]
+    },
+    "toast": {
+      "summary": "Toast WDS: pesan sementara gelap dengan ikon status dan tombol tutup, ditampilkan lewat hook useToast.",
+      "figma": {
+        "styles": {
+          "note": "Latar gelap; warna ikon mengikuti variant."
+        }
+      },
+      "examples": {},
+      "props": {
+        "message": "Isi toast.",
+        "variant": "Ikon dan role.",
+        "duration": "Jeda sembunyi otomatis dan tombol tutup.",
+        "container": "Tempat dan lebar render toast.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-neutral-900": "Latar toast.",
+        "--wds-text-inverse": "Teks toast.",
+        "--wds-icons-inverse": "Ikon tutup.",
+        "--wds-sz-toast-radius": "Radius sudut."
+      },
+      "behavior": [
+        "Menyembunyikan diri setelah durasi; tombol tutup menyembunyikannya lebih cepat."
+      ],
+      "accessibility": [
+        "Error dan warning memakai role=\"alert\"; lainnya role=\"status\"."
+      ]
+    },
+    "section-header": {
+      "summary": "Section header WDS: judul seksi dengan teks pendukung, aksesori di samping judul, aksi, dan garis bawah.",
+      "figma": {
+        "styles": {
+          "note": "Latar surface dengan garis bawah lembut."
+        },
+        "slots": {
+          "note": "Badge di samping judul; tombol di kanan."
+        }
+      },
+      "examples": {},
+      "props": {
+        "title": "Judul dan teks pendukung.",
+        "titleAccessory": "Badge atau ikon di samping judul.",
+        "actions": "Tombol di kanan.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Latar.",
+        "--wds-stroke-subtle": "Garis bawah.",
+        "--wds-text-primary": "Judul.",
+        "--wds-text-tertiary": "Teks pendukung.",
+        "--wds-sz-section-header-padding-top": "Padding."
+      },
+      "behavior": [
+        "Pakai di atas Card atau seksi halaman."
+      ],
+      "accessibility": [
+        "Judul dirender sebagai h2."
+      ]
+    },
+    "nav-item": {
+      "summary": "Nav item WDS: baris navigasi mandiri dengan style light atau dark, ikon, badge, dan chevron.",
+      "figma": {
+        "styles": {
+          "note": "Dark dipakai pada side navbar brand-pressed."
+        },
+        "states": {
+          "note": "Current memakai isi brand."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Style"
+        }
+      },
+      "props": {
+        "label": "Teks dan ikon.",
+        "badge": "Jumlah dan chevron.",
+        "current": "Menandai rute aktif.",
+        "appearance": "Style Nav item Figma.",
+        "href": "Dirender sebagai anchor bila href diisi.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-brand-subtle": "Hover / current light.",
+        "--wds-bg-brand": "Hover / current dark.",
+        "--wds-text-brand": "Teks current light.",
+        "--wds-icons-secondary": "Ikon light.",
+        "--wds-sz-nav-item-padding-top": "Padding."
+      },
+      "behavior": [
+        "SideNavbar memakai tampilan dark yang sama untuk itemnya."
+      ],
+      "accessibility": [
+        "Item aktif memiliki aria-current=\"page\"."
+      ]
+    },
+    "featured-icon": {
+      "summary": "Featured icon WDS: ikon di dalam wadah berwarna, lingkaran atau kotak membulat.",
+      "figma": {
+        "styles": {
+          "note": "Style light memberi tint latar; dark membalik ikon."
+        },
+        "shape": {
+          "note": "Square memakai radius featured-icon."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Style"
+        }
+      },
+      "props": {
+        "icon": "Ikonnya.",
+        "appearance": "Style Figma.",
+        "shape": "Bentuk wadah.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-primary-100": "Latar primary light.",
+        "--wds-primary-500": "Latar primary dark / ikon.",
+        "--wds-neutral-200": "Latar gray.",
+        "--wds-sz-featured-icon-container-size": "Ukuran wadah."
+      },
+      "behavior": [
+        "Dipakai di header Dialog dan Empty State."
+      ],
+      "accessibility": [
+        "Dekoratif; teks di sekitarnya membawa makna."
+      ]
+    },
+    "icon-wrapper": {
+      "summary": "Icon wrapper WDS: memberi ikon apa pun ukuran tetap dan warna ikon primary.",
+      "figma": {
+        "color": {
+          "note": "Satu style: warna ikon primary."
+        }
+      },
+      "examples": {},
+      "props": {
+        "children": "Ikonnya.",
+        "size": "Panjang sisi dalam px.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-icons-primary": "Warna ikon."
+      },
+      "behavior": [
+        "Ikon memenuhi wrapper."
+      ],
+      "accessibility": [
+        "Dekoratif secara default; beri label pada kontrol di sekitarnya."
+      ]
+    },
+    "image": {
+      "summary": "Image WDS: gambar berbingkai yang menampilkan ikon placeholder saat belum ada sumber. Sudut default atau membulat.",
+      "figma": {
+        "styles": {
+          "note": "Rounded memakai radius 16."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Style"
+        }
+      },
+      "props": {
+        "src": "URL gambar dan teks alt.",
+        "appearance": "Style Image Figma.",
+        "size": "Ukuran bingkai.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-subtle-3": "Latar placeholder.",
+        "--wds-icons-tertiary": "Ikon placeholder.",
+        "--wds-radius-16": "Radius rounded."
+      },
+      "behavior": [
+        "Gambar dipotong untuk memenuhi bingkai."
+      ],
+      "accessibility": [
+        "Berikan teks alt untuk gambar yang bermakna."
+      ]
+    },
+    "image-carousel": {
+      "summary": "Image carousel WDS: slide dengan tombol sebelumnya / berikutnya dan dot indikator di mana dot aktif memanjang.",
+      "figma": {
+        "config": {
+          "note": "Dot aktif mengikuti indeks slide."
+        },
+        "controls": {
+          "note": "Dot aktif memakai warna brand; lainnya warna disabled."
+        }
+      },
+      "examples": {},
+      "props": {
+        "slides": "Isi slide.",
+        "defaultIndex": "Slide awal.",
+        "showArrows": "Tombol sebelumnya / berikutnya.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-brand": "Dot aktif.",
+        "--wds-bg-disabled": "Dot tidak aktif.",
+        "--wds-sz-carousel-dot-size": "Ukuran dot.",
+        "--wds-sz-carousel-dot-width-current": "Lebar dot aktif.",
+        "--wds-sz-carousel-dot-gap": "Jarak antar dot."
+      },
+      "behavior": [
+        "Navigasi berputar di kedua ujung."
+      ],
+      "accessibility": [
+        "Dot berupa tab; panah memiliki nama yang bisa diakses."
+      ]
+    },
+    "scroll-area": {
+      "summary": "Scroll area WDS: kontainer yang bisa di-scroll dengan scrollbar tipis custom, style default, track abu, atau outline.",
+      "figma": {
+        "styles": {
+          "note": "Grey mengisi track; outline menambah border track."
+        }
+      },
+      "examples": {},
+      "props": {
+        "children": "Konten yang di-scroll.",
+        "appearance": "Style Scrollbar Figma.",
+        "maxHeight": "Tinggi saat scroll dimulai.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Thumb dan outline.",
+        "--wds-bg-subtle-2": "Track abu.",
+        "--wds-sz-scrollbar-size": "Ketebalan scrollbar.",
+        "--wds-sz-scrollbar-thumb-length": "Panjang thumb minimum."
+      },
+      "behavior": [
+        "Memakai scrollbar native yang di-style CSS; Firefox mendapat varian tipis."
+      ],
+      "accessibility": [
+        "Area bisa difokus agar pengguna keyboard bisa men-scroll."
+      ]
+    },
+    "activity-feed": {
+      "summary": "Activity feed WDS: linimasa aksi dengan avatar, garis konektor, dan konten per tipe (file, labels, text, chat).",
+      "figma": {
+        "types": {
+          "note": "Tiap tipe menambah blok konten sendiri."
+        },
+        "styles": {
+          "note": "Konektor dan border file memakai stroke default."
+        }
+      },
+      "examples": {},
+      "props": {
+        "items": "Entri: name, action, time, avatar, type, dan konten.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Konektor dan border file.",
+        "--wds-text-primary": "Judul.",
+        "--wds-text-tertiary": "Waktu / petunjuk.",
+        "--wds-bg-subtle": "Gelembung chat.",
+        "--wds-sz-activity-feed-gap": "Jarak avatar ke teks."
+      },
+      "behavior": [
+        "Entri terakhir tanpa konektor."
+      ],
+      "accessibility": [
+        "Dirender sebagai daftar berurutan."
+      ]
+    },
+    "chat-message": {
+      "summary": "Gelembung pesan chat WDS: diterima (dengan avatar dan nama) atau terkirim (berisi warna brand dengan tanda terbaca).",
+      "figma": {
+        "types": {
+          "note": "Received lembut dengan sudut kiri-atas lancip; sent berisi brand dengan sudut kanan-atas lancip."
+        },
+        "meta": {
+          "note": "Receipt hanya pada sent; name hanya pada received."
+        }
+      },
+      "examples": {
+        "types": {
+          "title": "Tipe"
+        }
+      },
+      "props": {
+        "message": "Teks gelembung dan waktu.",
+        "type": "Tipe Chat message Figma.",
+        "name": "Nama dan avatar pengirim (received).",
+        "receipt": "Tanda terbaca pada pesan terkirim.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-subtle": "Gelembung received.",
+        "--wds-bg-brand": "Gelembung sent.",
+        "--wds-text-on-brand": "Teks sent.",
+        "--wds-text-tertiary": "Nama dan meta.",
+        "--wds-sz-chat-message-bubble-max-width": "Lebar maksimum gelembung."
+      },
+      "behavior": [
+        "Lebar gelembung dibatasi 260px."
+      ],
+      "accessibility": [
+        "Sertakan waktu yang terlihat pada pesan."
+      ]
+    },
+    "chat-input": {
+      "summary": "Chat input WDS: field pesan berbentuk pil dengan tombol lampiran dan tombol kirim yang aktif saat ada teks.",
+      "figma": {
+        "styles": {
+          "note": "Bar surface dengan border atas lembut dan field lembut."
+        }
+      },
+      "examples": {},
+      "props": {
+        "value": "Teks terkontrol dan handler perubahan.",
+        "onSend": "Dipanggil saat submit dengan teks tidak kosong.",
+        "placeholder": "Teks placeholder dan state disabled.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Latar bar.",
+        "--wds-bg-subtle": "Latar field.",
+        "--wds-stroke-subtle": "Border atas.",
+        "--wds-icons-brand": "Tombol kirim.",
+        "--wds-sz-chat-input-gap": "Jarak antar bagian."
+      },
+      "behavior": [
+        "Enter men-submit form; teks kosong tidak bisa dikirim."
+      ],
+      "accessibility": [
+        "Tombol lampiran dan kirim punya nama yang bisa diakses."
+      ]
+    },
+    "bar-line-chart": {
+      "summary": "Line dan bar chart WDS berbasis SVG, dengan garis grid, label sumbu, dan legend.",
+      "figma": {
+        "series": {
+          "note": "Seri pertama memakai primary-500; area memakai primary-400."
+        },
+        "axes": {
+          "note": "Sumbu Y menyesuaikan nilai terbesar."
+        }
+      },
+      "examples": {
+        "types": {
+          "title": "Tipe"
+        }
+      },
+      "props": {
+        "data": "Titik atau batang.",
+        "type": "Jenis chart.",
+        "seriesName": "Label legend dan tinggi chart.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-primary-500": "Garis / batang seri.",
+        "--wds-primary-400": "Isi area.",
+        "--wds-stroke-subtle": "Grid.",
+        "--wds-text-tertiary": "Label sumbu."
+      },
+      "behavior": [
+        "Menyesuaikan lebar kontainernya."
+      ],
+      "accessibility": [
+        "SVG memiliki role=\"img\" dan label; sediakan datanya dalam teks di tempat lain."
+      ]
+    },
+    "pie-chart": {
+      "summary": "Pie chart WDS berbasis SVG dengan legend vertikal; ubah menjadi donut dengan satu prop.",
+      "figma": {
+        "series": {
+          "note": "Irisan menurun mengikuti skala primary."
+        }
+      },
+      "examples": {},
+      "props": {
+        "data": "Irisan.",
+        "donut": "Melubangi bagian tengah.",
+        "size": "Diameter dalam px.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-primary-500": "Irisan pertama.",
+        "--wds-primary-300": "Irisan ketiga.",
+        "--wds-bg-surface": "Celah irisan dan lubang donut.",
+        "--wds-sz-pie-chart-root-gap": "Jarak ke legend."
+      },
+      "behavior": [
+        "Nilai diubah menjadi persentase dari total."
+      ],
+      "accessibility": [
+        "Sediakan nilainya juga dalam teks."
+      ]
+    },
+    "radar-chart": {
+      "summary": "Radar chart WDS berbasis SVG: sumbu radial, cincin konsentris, dan hingga tiga seri.",
+      "figma": {
+        "series": {
+          "note": "Seri memakai primary-500, secondary-500, dan warning-500."
+        }
+      },
+      "examples": {},
+      "props": {
+        "axes": "Label sumbu.",
+        "series": "Dataset, satu nilai per sumbu.",
+        "max": "Maksimum sumbu dan diameter.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-primary-500": "Seri 1.",
+        "--wds-secondary-500": "Seri 2.",
+        "--wds-warning-500": "Seri 3.",
+        "--wds-stroke-subtle": "Cincin.",
+        "--wds-text-secondary": "Label sumbu."
+      },
+      "behavior": [
+        "Poligon semi-transparan agar tumpang tindih tetap terbaca."
+      ],
+      "accessibility": [
+        "Sediakan nilainya juga dalam teks."
+      ]
+    },
+    "activity-gauge": {
+      "summary": "Activity gauge WDS: cincin yang terisi sesuai persentase, dengan nilai di tengah.",
+      "figma": {
+        "track": {
+          "note": "Track adalah primary paling terang; busur adalah primary-500."
+        }
+      },
+      "examples": {},
+      "props": {
+        "value": "Persentase isian.",
+        "label": "Teks tengah (default: persen) dan diameter.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-primary-500": "Busur.",
+        "--wds-primary-50": "Track.",
+        "--wds-text-primary": "Nilai tengah."
+      },
+      "behavior": [
+        "Nilai dibatasi 0–100."
+      ],
+      "accessibility": [
+        "SVG menampilkan persentase sebagai labelnya."
+      ]
+    },
+    "legend": {
+      "summary": "Legend WDS: titik warna dan label per seri, horizontal atau vertikal. Dipakai di dalam komponen chart.",
+      "figma": {
+        "legend": {
+          "note": "Susunan horizontal dan vertikal."
+        }
+      },
+      "examples": {},
+      "props": {
+        "items": "Label seri dan warna CSS.",
+        "direction": "Arah layout.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-text-secondary": "Teks label.",
+        "--wds-sz-legend-dot-gap": "Jarak titik dan label.",
+        "--wds-sz-legend-root-horizontal-gap": "Jarak antar item."
+      },
+      "behavior": [
+        "Turun baris saat horizontal."
+      ],
+      "accessibility": [
+        "Dirender sebagai daftar."
+      ]
+    },
+    "calendar": {
+      "summary": "Calendar WDS: grid bulan mandiri yang dipakai di dalam date picker, dengan tampilan bulan dan tahun.",
+      "figma": {
+        "styles": {
+          "note": "Box memiliki latar kartu; underline datar."
+        },
+        "days": {
+          "note": "Tanggal di luar min / max dinonaktifkan."
+        }
+      },
+      "examples": {},
+      "props": {
+        "value": "Tanggal terpilih dan handler perubahan.",
+        "range": "Rentang yang bisa dipilih.",
+        "appearance": "Style Calendar Figma.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-page": "Latar kalender.",
+        "--wds-bg-brand": "Hari terpilih.",
+        "--wds-text-primary": "Angka hari.",
+        "--wds-stroke-subtle": "Pemisah."
+      },
+      "behavior": [
+        "Klik header untuk berpindah antara tampilan hari, bulan, dan tahun."
+      ],
+      "accessibility": [
+        "Dibangun di atas react-datepicker yang mendukung navigasi keyboard."
+      ]
     }
   }
 }

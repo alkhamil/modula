@@ -6,6 +6,7 @@ export const tableToolbarDoc: ComponentDoc = {
   name: 'TableToolbar',
   category: 'data',
   importStatement: "import { TableToolbar } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11237-1439',
   component: TableToolbarDemo,
   codeName: 'TableToolbar',
   codeExtra: [

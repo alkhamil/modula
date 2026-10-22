@@ -6,6 +6,7 @@ export const paginationDoc: ComponentDoc = {
   name: 'Pagination',
   category: 'data',
   importStatement: "import { Pagination } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9930-246',
   component: PaginationDemo,
   codeName: 'Pagination',
   codeExtra: ['page={page}', 'totalPages={12}', 'onPageChange={setPage}'],

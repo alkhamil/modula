@@ -1,34 +1,46 @@
 import type { ReactNode } from 'react';
-import { CheckCircleBold, CloseCircleBold, DangerTriangleBold, InfoCircleBold, Cross } from '../icons';
+import { CheckCircle, CloseCircle, Cross, DangerTriangle, InfoCircle } from '../icons';
+import Button from './Button';
+
+interface BannerAction {
+  label: string;
+  onClick?: () => void;
+}
 
 interface BannerProps {
   /** Style WDS (Banner styles): info | success | warning | danger | default. */
   variant?: 'info' | 'success' | 'warning' | 'danger' | 'default';
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   title?: ReactNode;
   message: ReactNode;
-  /** Teks tombol aksi. */
-  action?: { label: string; onClick?: () => void };
+  /** Tombol aksi utama (Figma Action-1). */
+  action?: BannerAction;
+  /** Tombol aksi kedua (Figma Action-2). */
+  secondaryAction?: BannerAction;
   onClose?: () => void;
-  /** Ikon custom (default: sesuai variant). */
-  icon?: ReactNode;
+  /** Ikon custom (default: sesuai variant). `false` menyembunyikan ikon. */
+  icon?: ReactNode | false;
   className?: string;
   testId?: string;
 }
 
 const ICONS = {
-  info: InfoCircleBold,
-  success: CheckCircleBold,
-  warning: DangerTriangleBold,
-  danger: CloseCircleBold,
-  default: InfoCircleBold,
+  info: InfoCircle,
+  success: CheckCircle,
+  warning: DangerTriangle,
+  danger: CloseCircle,
+  default: InfoCircle,
 };
 
-/** Banner WDS: pesan selebar halaman dengan ikon, aksi, dan tombol tutup. */
+/** Banner WDS: pesan selebar halaman dengan ikon, judul, dua aksi (Button), dan tombol tutup. */
 function Banner({
   variant = 'info',
+  size = 'md',
   title,
   message,
   action,
+  secondaryAction,
   onClose,
   icon,
   className = '',
@@ -40,17 +52,27 @@ function Banner({
       role={variant === 'danger' || variant === 'warning' ? 'alert' : 'status'}
       data-testid={testId}
       data-variant={variant}
+      data-wds-size={size}
       className={`wds-banner ${className}`}
     >
-      <span className="wds-banner__icon">{icon ?? <Icon />}</span>
+      {icon !== false && <span className="wds-banner__icon">{icon ?? <Icon />}</span>}
       <div className="wds-banner__text">
         {title && <p className="wds-banner__title">{title}</p>}
         <p className="wds-banner__message">{message}</p>
       </div>
-      {action && (
-        <button type="button" onClick={action.onClick} className="wds-banner__action">
-          {action.label}
-        </button>
+      {(action || secondaryAction) && (
+        <div className="wds-banner__actions">
+          {secondaryAction && (
+            <Button size="sm" hierarchy="secondary" onClick={secondaryAction.onClick}>
+              {secondaryAction.label}
+            </Button>
+          )}
+          {action && (
+            <Button size="sm" onClick={action.onClick}>
+              {action.label}
+            </Button>
+          )}
+        </div>
       )}
       {onClose && (
         <button type="button" onClick={onClose} aria-label="Close" className="wds-banner__close">

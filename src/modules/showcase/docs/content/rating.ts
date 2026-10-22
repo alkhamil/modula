@@ -6,6 +6,7 @@ export const ratingDoc: ComponentDoc = {
   name: 'Rating',
   category: 'forms',
   importStatement: "import { Rating } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9930-12705',
   component: RatingDemo,
   codeName: 'Rating',
   codeExtra: ['value={value}', 'onChange={setValue}'],

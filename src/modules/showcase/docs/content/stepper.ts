@@ -6,6 +6,7 @@ export const stepperDoc: ComponentDoc = {
   name: 'Stepper',
   category: 'navigation',
   importStatement: "import { Stepper } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9930-13644',
   component: StepperDemo,
   codeName: 'Stepper',
   codeExtra: ['steps={steps}'],

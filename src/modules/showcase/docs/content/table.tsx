@@ -6,6 +6,7 @@ export const tableDoc: ComponentDoc = {
   name: 'Table',
   category: 'data',
   importStatement: "import { Table } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11237-1438',
   component: TableDemo,
   codeName: 'Table',
   codeExtra: ['columns={columns}', 'data={data}', 'rowKey={(row) => row.id}'],

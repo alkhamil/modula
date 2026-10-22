@@ -8,6 +8,7 @@ export const avatarDoc: ComponentDoc = {
   name: 'Avatar',
   category: 'layout',
   importStatement: "import { Avatar } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-6417',
   component: AvatarDemo,
   codeName: 'Avatar',
   defaults: { size: 'md', appearance: 'default' },

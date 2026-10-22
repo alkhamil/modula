@@ -6,6 +6,7 @@ export const dividerDoc: ComponentDoc = {
   name: 'Divider',
   category: 'layout',
   importStatement: "import { Divider } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-9752',
   component: DividerDemo,
   codeName: 'Divider',
   defaults: { orientation: 'horizontal', appearance: 'subtle' },

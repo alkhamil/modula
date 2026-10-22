@@ -6,6 +6,7 @@ export const sliderDoc: ComponentDoc = {
   name: 'Slider',
   category: 'forms',
   importStatement: "import { Slider } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9930-13523',
   component: SliderDemo,
   codeName: 'Slider',
   codeExtra: ['value={value}', 'onChange={setValue}'],

@@ -8,6 +8,7 @@ export const tabsDoc: ComponentDoc = {
   name: 'Tabs',
   category: 'navigation',
   importStatement: "import { Tabs } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9930-14293',
   component: TabsDemo,
   codeName: 'Tabs',
   codeExtra: ['items={items}', 'value={value}', 'onChange={setValue}'],

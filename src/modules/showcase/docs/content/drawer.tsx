@@ -18,6 +18,7 @@ export const drawerDoc: ComponentDoc = {
   name: 'Drawer',
   category: 'feedback',
   importStatement: "import { Drawer } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-9816',
   component: DrawerDemo,
   codeName: 'Drawer',
   codeExtra: ['open={open}', 'onClose={() => setOpen(false)}'],

@@ -6,6 +6,7 @@ export const pageHeaderDoc: ComponentDoc = {
   name: 'PageHeader',
   category: 'layout',
   importStatement: "import { PageHeader } from 'shared/components/layout';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11287-681',
   component: PageHeaderDemo,
   codeName: 'PageHeader',
   codeExtra: ["breadcrumb={[{ label: 'Home', path: '/' }, { label: 'Users' }]}"],

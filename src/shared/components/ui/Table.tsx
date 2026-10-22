@@ -1,7 +1,8 @@
 import { isValidElement, type ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DangerTriangle } from '../icons';
+import { DangerTriangle, Magnifer } from '../icons';
 import { formatNumber } from '../../utils';
+import EmptyState from './EmptyState';
 import Pagination from './Pagination';
 import Button from './Button';
 import Tooltip from './Tooltip';
@@ -465,17 +466,19 @@ function Table<T>({
               ) : error ? (
                 <tr>
                   <td colSpan={totalColumns} className="px-5 py-12">
-                    <div className="sticky left-1/2 w-max -translate-x-1/2 flex flex-col gap-2 items-center justify-center text-center">
-                      <DangerTriangle className="h-12 w-12 shrink-0 text-danger" />
-                      <p className="text-lg font-semibold text-foreground">{errorTitle}</p>
-                      {errorDescription && (
-                        <p className="text-sm text-muted-foreground">{errorDescription}</p>
-                      )}
-                      {onRetry && (
-                        <Button type="button" onClick={onRetry} variant="secondary">
-                          {resolvedRetryLabel}
-                        </Button>
-                      )}
+                    <div className="sticky left-1/2 w-max -translate-x-1/2">
+                      <EmptyState
+                        illustration={<DangerTriangle className="text-(--wds-icons-danger)" />}
+                        title={errorTitle ?? ''}
+                        description={errorDescription}
+                        actions={
+                          onRetry ? (
+                            <Button type="button" onClick={onRetry} hierarchy="secondary">
+                              {resolvedRetryLabel}
+                            </Button>
+                          ) : undefined
+                        }
+                      />
                     </div>
                   </td>
                 </tr>
@@ -484,29 +487,19 @@ function Table<T>({
                   <td colSpan={totalColumns} className="px-5 py-12">
                     <div className="sticky left-1/2 w-max -translate-x-1/2">
                       {isEmptyState ? (
-                        <div className="flex flex-col gap-1.5 items-center justify-center text-center">
-                          <p className="text-2xl font-semibold text-foreground">
-                            {resolvedEmptyTitle}
-                          </p>
-                          {emptyStateDescription && (
-                            <p className="text-base text-muted-foreground">
-                              {emptyStateDescription}
-                            </p>
-                          )}
-                        </div>
+                        <EmptyState
+                          illustration={<Magnifer />}
+                          title={resolvedEmptyTitle}
+                          description={emptyStateDescription}
+                        />
                       ) : isFilteredEmptyState ? (
-                        <div className="flex flex-col gap-1.5 items-center justify-center text-center">
-                          <p className="text-2xl font-semibold text-foreground">
-                            {resolvedFilteredTitle}
-                          </p>
-                          {filteredEmptyStateDescription && (
-                            <p className="text-base text-muted-foreground">
-                              {resolvedFilteredDesc}
-                            </p>
-                          )}
-                        </div>
+                        <EmptyState
+                          illustration={<Magnifer />}
+                          title={resolvedFilteredTitle}
+                          description={filteredEmptyStateDescription ? resolvedFilteredDesc : undefined}
+                        />
                       ) : (
-                        <p className="text-center text-base text-foreground">No data available.</p>
+                        <p className="text-center text-base text-(--wds-text-primary)">No data available.</p>
                       )}
                     </div>
                   </td>

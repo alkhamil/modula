@@ -430,7 +430,8 @@
           "size": "Size from the Size tokens.",
           "disabled": "Disables the whole group.",
           "error": "Error message for the group; every control shows the error state.",
-          "testId": "Mapped to data-testid; each option gets `<testId>-<value>`."
+          "testId": "Mapped to data-testid; each option gets `<testId>-<value>`.",
+          "direction": "Layout of the options: horizontal (wraps) or vertical."
         }
       }
     },
@@ -670,7 +671,8 @@
           "size": "Size from the Size tokens.",
           "disabled": "Disables the whole group.",
           "error": "Error message for the group; every control shows the error state.",
-          "testId": "Mapped to data-testid; each option gets `<testId>-<value>`."
+          "testId": "Mapped to data-testid; each option gets `<testId>-<value>`.",
+          "direction": "Layout of the options: horizontal (wraps) or vertical."
         }
       }
     },
@@ -2002,6 +2004,15 @@
         },
         "supporting": {
           "note": "Shown under the title in the header."
+        },
+        "leading": {
+          "note": "Optional icon before the title (`items[].icon`)."
+        },
+        "flip": {
+          "note": "Chevron before the title instead of after."
+        },
+        "size": {
+          "note": "Padding and text follow the Size tokens."
         }
       },
       "examples": {
@@ -2014,7 +2025,8 @@
         "appearance": "Figma Accordion style.",
         "multiple": "Allow several open items.",
         "defaultOpen": "Initially open values.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens; `flipIcon` moves the chevron to the start."
       },
       "tokens": {
         "--wds-bg-surface": "Item background.",
@@ -2086,7 +2098,10 @@
           "note": "Title is optional."
         },
         "actions": {
-          "note": "Action is a text button; close is an icon button."
+          "note": "Rendered as small Buttons: `action` primary, `secondaryAction` secondary."
+        },
+        "size": {
+          "note": "Padding and icon size follow the Size tokens."
         }
       },
       "examples": {
@@ -2100,10 +2115,11 @@
       "props": {
         "variant": "Figma Banner style.",
         "message": "Title and message.",
-        "action": "Text button.",
+        "action": "Text buttons (primary / secondary).",
         "onClose": "Shows the close button.",
         "icon": "Replaces the default icon.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens (padding, icon, text)."
       },
       "tokens": {
         "--wds-bg-info-subtle": "Info background (other styles similar).",
@@ -2113,7 +2129,8 @@
         "--wds-text-primary": "Title.",
         "--wds-text-secondary": "Message.",
         "--wds-sz-banner-padding-top": "Padding.",
-        "--wds-sz-banner-gap": "Gap between parts."
+        "--wds-sz-banner-gap": "Gap between parts.",
+        "--wds-bg-brand": "Primary action button."
       },
       "behavior": [
         "Spans the full width of its container, without rounded corners.",
@@ -2135,6 +2152,12 @@
         },
         "clear": {
           "note": "Resets the value and returns focus to the input."
+        },
+        "voice": {
+          "note": "Microphone icon at the end of the bar."
+        },
+        "size": {
+          "note": "Height and icon size follow the Size tokens (md = 44px)."
         }
       },
       "examples": {
@@ -2147,7 +2170,8 @@
         "appearance": "Figma Search bar style.",
         "clearable": "Show the clear button when there is text.",
         "disabled": "Disables the input.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens; `voice` shows a microphone icon at the end."
       },
       "tokens": {
         "--wds-bg-surface": "Box background.",
@@ -2325,6 +2349,784 @@
           "usage": "Used for"
         }
       }
+    },
+    "otp-input": {
+      "summary": "WDS one-time code input: one box per character in box or underline style, with error and success states, paste support and auto-advance.",
+      "figma": {
+        "styles": {
+          "note": "Box has a full border; underline only a bottom line."
+        },
+        "states": {
+          "note": "Empty / filled follow the value; error and success set the border color."
+        }
+      },
+      "examples": {
+        "status": {
+          "title": "Status"
+        }
+      },
+      "props": {
+        "value": "Controlled code and change handler.",
+        "length": "Number of characters.",
+        "appearance": "Figma OTP style.",
+        "status": "Validation state.",
+        "numeric": "Digits only; disables the input.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Border.",
+        "--wds-stroke-danger": "Error border.",
+        "--wds-stroke-success": "Success border.",
+        "--wds-sz-otp-box-size": "Box size.",
+        "--wds-sz-otp-gap": "Gap between boxes."
+      },
+      "behavior": [
+        "Typing moves to the next box; Backspace on an empty box moves back.",
+        "Pasting fills all boxes at once."
+      ],
+      "accessibility": [
+        "Boxes are grouped; set an aria-label on the group.",
+        "The first box hints one-time-code autofill."
+      ]
+    },
+    "pin-input": {
+      "summary": "WDS PIN input: like the OTP input but characters are masked. Defaults to four digits.",
+      "figma": {
+        "styles": {
+          "note": "Same two styles as OTP."
+        },
+        "states": {
+          "note": "Follow the value and status."
+        }
+      },
+      "examples": {},
+      "props": {
+        "value": "Controlled PIN and change handler.",
+        "length": "Number of characters.",
+        "appearance": "Figma PIN style.",
+        "status": "Validation state; disables the input.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Border.",
+        "--wds-stroke-danger": "Error border.",
+        "--wds-sz-pin-box-size": "Box size.",
+        "--wds-sz-pin-gap": "Gap between boxes."
+      },
+      "behavior": [
+        "Characters are rendered as password fields."
+      ],
+      "accessibility": [
+        "Never show the PIN in logs or URLs."
+      ]
+    },
+    "quantity-selector": {
+      "summary": "WDS quantity selector with minus / plus buttons around the value, in outlined, filled or ghost style.",
+      "figma": {
+        "styles": {
+          "note": "Outlined has a border, filled a subtle background, ghost neither."
+        },
+        "states": {
+          "note": "A control is disabled at the limit."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Styles"
+        }
+      },
+      "props": {
+        "value": "Controlled value and change handler.",
+        "range": "Limits and increment.",
+        "appearance": "Figma QS style.",
+        "size": "Size from the Size tokens (container height).",
+        "disabled": "Disables both buttons.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Outlined control.",
+        "--wds-bg-subtle": "Filled control.",
+        "--wds-stroke-subtle": "Outlined border.",
+        "--wds-icons-secondary": "Control icons.",
+        "--wds-text-primary": "Value."
+      },
+      "behavior": [
+        "The value is clamped to min / max."
+      ],
+      "accessibility": [
+        "Buttons are labelled Decrease / Increase; the value is a live region."
+      ]
+    },
+    "label-text": {
+      "summary": "WDS label text for fields: three weights, a red required mark and an optional trailing icon.",
+      "figma": {
+        "weight": {
+          "note": "Medium is the default."
+        },
+        "mandatory": {
+          "note": "Shows a red asterisk."
+        }
+      },
+      "examples": {
+        "weights": {
+          "title": "Weights"
+        }
+      },
+      "props": {
+        "weight": "Font weight.",
+        "required": "Shows the required mark.",
+        "trailing": "Icon after the label (e.g. help).",
+        "htmlFor": "Associates the label with a field.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-text-primary": "Label text.",
+        "--wds-text-danger": "Required mark.",
+        "--wds-icons-tertiary": "Trailing icon.",
+        "--wds-sz-text-label-font-size": "Font size."
+      },
+      "behavior": [
+        "FormItem already renders this style for its labels."
+      ],
+      "accessibility": [
+        "Use htmlFor so clicking the label focuses the field."
+      ]
+    },
+    "compact-select": {
+      "summary": "WDS compact select: a small text or icon trigger that opens a dropdown menu to pick one option.",
+      "figma": {
+        "types": {
+          "note": "Text shows the value and a chevron; icon shows only an icon."
+        },
+        "menu": {
+          "note": "Options render as menu items; the current one is selected."
+        }
+      },
+      "examples": {},
+      "props": {
+        "options": "Choices.",
+        "value": "Selected value and change handler.",
+        "type": "Figma Compact select type.",
+        "icon": "Trigger icon for the icon type; disables it.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-text-primary": "Trigger text.",
+        "--wds-icons-secondary": "Chevron.",
+        "--wds-bg-subtle": "Hover.",
+        "--wds-sz-compact-select-gap": "Gap in the trigger."
+      },
+      "behavior": [
+        "Click outside closes the menu."
+      ],
+      "accessibility": [
+        "The trigger has aria-haspopup and aria-expanded; give icon triggers an aria-label."
+      ]
+    },
+    "dropdown-menu": {
+      "summary": "WDS dropdown menu: a panel of menu items with icons, supporting text and default, selected, disabled and destructive states.",
+      "figma": {
+        "styles": {
+          "note": "Elevated background with a subtle border and radius 12."
+        },
+        "items": {
+          "note": "`selected`, `disabled` and `destructive` set the state."
+        }
+      },
+      "examples": {},
+      "props": {
+        "trigger": "Element that toggles the menu.",
+        "items": "Menu items: value, label, description, icon, state flags, onSelect.",
+        "align": "Which edge of the trigger the menu aligns to.",
+        "open": "Force open (docs).",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-elevated": "Panel background.",
+        "--wds-stroke-subtle": "Panel border.",
+        "--wds-bg-brand-subtle": "Selected item.",
+        "--wds-text-danger": "Destructive item.",
+        "--wds-sz-dropdown-padding-top": "Panel padding."
+      },
+      "behavior": [
+        "Selecting an item runs its handler and closes the menu.",
+        "Click outside or Escape closes it."
+      ],
+      "accessibility": [
+        "Uses role=\"menu\" and \"menuitem\"."
+      ]
+    },
+    "list-item": {
+      "summary": "WDS list item: a row with leading element, title, supporting text and trailing accessory; default, pressed, selected and disabled.",
+      "figma": {
+        "states": {
+          "note": "Pressed shows while the item is held down."
+        },
+        "slots": {
+          "note": "Icons, avatars, badges or buttons."
+        }
+      },
+      "examples": {
+        "states": {
+          "title": "States"
+        }
+      },
+      "props": {
+        "title": "Main and supporting text.",
+        "leading": "Elements before and after the text.",
+        "selected": "State flags.",
+        "onClick": "Makes the row a button.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-brand-subtle": "Selected row.",
+        "--wds-bg-pressed": "Pressed row.",
+        "--wds-text-primary": "Title.",
+        "--wds-text-secondary": "Supporting text.",
+        "--wds-sz-list-item-radius": "Corner radius."
+      },
+      "behavior": [
+        "Without onClick the row is a plain div."
+      ],
+      "accessibility": [
+        "Interactive rows expose aria-pressed for selection."
+      ]
+    },
+    "popover": {
+      "summary": "WDS popover: a floating panel with title, text, custom content and actions, opened by clicking its trigger.",
+      "figma": {
+        "styles": {
+          "note": "Elevated background, radius 12, subtle border."
+        },
+        "slots": {
+          "note": "Actions are right-aligned buttons."
+        }
+      },
+      "examples": {},
+      "props": {
+        "children": "The trigger.",
+        "text": "Heading and supporting text.",
+        "content": "Extra body and action buttons.",
+        "placement": "Preferred side; clamped to the viewport.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-elevated": "Panel background.",
+        "--wds-stroke-subtle": "Border.",
+        "--wds-sz-popover-radius": "Corner radius.",
+        "--wds-sz-popover-padding-top": "Padding.",
+        "--wds-sz-popover-gap": "Gap between sections."
+      },
+      "behavior": [
+        "Click outside or Escape closes it.",
+        "Rendered in a portal next to the trigger."
+      ],
+      "accessibility": [
+        "The panel has role=\"dialog\"; the trigger exposes aria-expanded."
+      ]
+    },
+    "toast": {
+      "summary": "WDS toast: a dark transient message with a status icon and close button, shown through the useToast hook.",
+      "figma": {
+        "styles": {
+          "note": "Dark background; the icon color follows the variant."
+        }
+      },
+      "examples": {},
+      "props": {
+        "message": "Toast content.",
+        "variant": "Icon and role.",
+        "duration": "Auto-hide delay and close button.",
+        "container": "Where and how wide the toast renders.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-neutral-900": "Toast background.",
+        "--wds-text-inverse": "Toast text.",
+        "--wds-icons-inverse": "Close icon.",
+        "--wds-sz-toast-radius": "Corner radius."
+      },
+      "behavior": [
+        "Hides itself after the duration; the close button hides it sooner."
+      ],
+      "accessibility": [
+        "Error and warning use role=\"alert\"; others role=\"status\"."
+      ]
+    },
+    "section-header": {
+      "summary": "WDS section header: a section title with supporting text, an accessory beside the title, actions and a bottom divider.",
+      "figma": {
+        "styles": {
+          "note": "Surface background with a subtle bottom stroke."
+        },
+        "slots": {
+          "note": "Badge next to the title; buttons on the right."
+        }
+      },
+      "examples": {},
+      "props": {
+        "title": "Title and supporting text.",
+        "titleAccessory": "Badge or icon beside the title.",
+        "actions": "Buttons on the right.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Background.",
+        "--wds-stroke-subtle": "Bottom divider.",
+        "--wds-text-primary": "Title.",
+        "--wds-text-tertiary": "Supporting text.",
+        "--wds-sz-section-header-padding-top": "Padding."
+      },
+      "behavior": [
+        "Use it at the top of a Card or page section."
+      ],
+      "accessibility": [
+        "Renders the title as an h2."
+      ]
+    },
+    "nav-item": {
+      "summary": "WDS nav item: a standalone navigation row in light or dark style with icon, badge and chevron.",
+      "figma": {
+        "styles": {
+          "note": "Dark is used on the brand-pressed side navbar."
+        },
+        "states": {
+          "note": "Current uses the brand fill."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Styles"
+        }
+      },
+      "props": {
+        "label": "Text and icon.",
+        "badge": "Count and chevron.",
+        "current": "Marks the active route.",
+        "appearance": "Figma Nav item style.",
+        "href": "Renders an anchor when href is set.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-brand-subtle": "Light hover / current.",
+        "--wds-bg-brand": "Dark hover / current.",
+        "--wds-text-brand": "Light current text.",
+        "--wds-icons-secondary": "Light icons.",
+        "--wds-sz-nav-item-padding-top": "Padding."
+      },
+      "behavior": [
+        "SideNavbar uses the same dark look for its items."
+      ],
+      "accessibility": [
+        "The current item has aria-current=\"page\"."
+      ]
+    },
+    "featured-icon": {
+      "summary": "WDS featured icon: an icon inside a colored container, circle or rounded square.",
+      "figma": {
+        "styles": {
+          "note": "Light styles tint the background; dark inverts the icon."
+        },
+        "shape": {
+          "note": "Square uses the featured-icon radius."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Styles"
+        }
+      },
+      "props": {
+        "icon": "The icon.",
+        "appearance": "Figma style.",
+        "shape": "Container shape.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-primary-100": "Primary light background.",
+        "--wds-primary-500": "Primary dark background / icon.",
+        "--wds-neutral-200": "Gray background.",
+        "--wds-sz-featured-icon-container-size": "Container size."
+      },
+      "behavior": [
+        "Used in Dialog and Empty State headers."
+      ],
+      "accessibility": [
+        "Decorative; the surrounding text carries the meaning."
+      ]
+    },
+    "icon-wrapper": {
+      "summary": "WDS icon wrapper: gives any icon a fixed size and the primary icon color.",
+      "figma": {
+        "color": {
+          "note": "Single style: primary icon color."
+        }
+      },
+      "examples": {},
+      "props": {
+        "children": "The icon.",
+        "size": "Side length in px.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-icons-primary": "Icon color."
+      },
+      "behavior": [
+        "The icon fills the wrapper."
+      ],
+      "accessibility": [
+        "Decorative by default; label the control around it."
+      ]
+    },
+    "image": {
+      "summary": "WDS image: a framed image that shows a placeholder icon while there is no source. Default or rounded corners.",
+      "figma": {
+        "styles": {
+          "note": "Rounded uses radius 16."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Styles"
+        }
+      },
+      "props": {
+        "src": "Image URL and alt text.",
+        "appearance": "Figma Image style.",
+        "size": "Frame size.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-subtle-3": "Placeholder background.",
+        "--wds-icons-tertiary": "Placeholder icon.",
+        "--wds-radius-16": "Rounded radius."
+      },
+      "behavior": [
+        "Images are cropped to fill the frame."
+      ],
+      "accessibility": [
+        "Provide alt text for meaningful images."
+      ]
+    },
+    "image-carousel": {
+      "summary": "WDS image carousel: slides with previous / next buttons and dot indicators where the active dot stretches.",
+      "figma": {
+        "config": {
+          "note": "The active dot follows the slide index."
+        },
+        "controls": {
+          "note": "Current dot uses the brand color; others the disabled color."
+        }
+      },
+      "examples": {},
+      "props": {
+        "slides": "Slide content.",
+        "defaultIndex": "Initial slide.",
+        "showArrows": "Previous / next buttons.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-brand": "Current dot.",
+        "--wds-bg-disabled": "Inactive dots.",
+        "--wds-sz-carousel-dot-size": "Dot size.",
+        "--wds-sz-carousel-dot-width-current": "Active dot width.",
+        "--wds-sz-carousel-dot-gap": "Gap between dots."
+      },
+      "behavior": [
+        "Navigation wraps around at both ends."
+      ],
+      "accessibility": [
+        "Dots are tabs; arrows have accessible names."
+      ]
+    },
+    "scroll-area": {
+      "summary": "WDS scroll area: a scrollable container with a thin custom scrollbar in default, grey-track or outline style.",
+      "figma": {
+        "styles": {
+          "note": "Grey fills the track; outline adds a track border."
+        }
+      },
+      "examples": {},
+      "props": {
+        "children": "Scrollable content.",
+        "appearance": "Figma Scrollbar style.",
+        "maxHeight": "Height at which scrolling starts.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Thumb and outline.",
+        "--wds-bg-subtle-2": "Grey track.",
+        "--wds-sz-scrollbar-size": "Scrollbar thickness.",
+        "--wds-sz-scrollbar-thumb-length": "Minimum thumb length."
+      },
+      "behavior": [
+        "Uses the native scrollbar styled with CSS; Firefox gets a thin variant."
+      ],
+      "accessibility": [
+        "The area is focusable so keyboard users can scroll it."
+      ]
+    },
+    "activity-feed": {
+      "summary": "WDS activity feed: a timeline of actions with avatars, a connector line and content per type (file, labels, text, chat).",
+      "figma": {
+        "types": {
+          "note": "Each type adds its own content block."
+        },
+        "styles": {
+          "note": "Connector and file border use the default stroke."
+        }
+      },
+      "examples": {},
+      "props": {
+        "items": "Entries: name, action, time, avatar, type and content.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-stroke-default": "Connector and file border.",
+        "--wds-text-primary": "Title.",
+        "--wds-text-tertiary": "Time / hint.",
+        "--wds-bg-subtle": "Chat bubble.",
+        "--wds-sz-activity-feed-gap": "Gap avatar to text."
+      },
+      "behavior": [
+        "The last entry has no connector."
+      ],
+      "accessibility": [
+        "Rendered as an ordered list."
+      ]
+    },
+    "chat-message": {
+      "summary": "WDS chat message bubble: received (with avatar and name) or sent (brand-filled with a read receipt).",
+      "figma": {
+        "types": {
+          "note": "Received is subtle with a sharp top-left corner; sent is brand-filled with a sharp top-right."
+        },
+        "meta": {
+          "note": "Receipt only on sent; name only on received."
+        }
+      },
+      "examples": {
+        "types": {
+          "title": "Types"
+        }
+      },
+      "props": {
+        "message": "Bubble text and timestamp.",
+        "type": "Figma Chat message type.",
+        "name": "Sender name and avatar (received).",
+        "receipt": "Read receipt on sent messages.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-subtle": "Received bubble.",
+        "--wds-bg-brand": "Sent bubble.",
+        "--wds-text-on-brand": "Sent text.",
+        "--wds-text-tertiary": "Name and meta.",
+        "--wds-sz-chat-message-bubble-max-width": "Max bubble width."
+      },
+      "behavior": [
+        "Bubble width is capped at 260px."
+      ],
+      "accessibility": [
+        "Pair messages with visible timestamps."
+      ]
+    },
+    "chat-input": {
+      "summary": "WDS chat input: a pill message field with an attach button and a send button that enables once there is text.",
+      "figma": {
+        "styles": {
+          "note": "Surface bar with a subtle top border and a subtle field."
+        }
+      },
+      "examples": {},
+      "props": {
+        "value": "Controlled text and change handler.",
+        "onSend": "Called on submit with non-empty text.",
+        "placeholder": "Placeholder text and disabled state.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Bar background.",
+        "--wds-bg-subtle": "Field background.",
+        "--wds-stroke-subtle": "Top border.",
+        "--wds-icons-brand": "Send button.",
+        "--wds-sz-chat-input-gap": "Gap between parts."
+      },
+      "behavior": [
+        "Enter submits the form; empty text cannot be sent."
+      ],
+      "accessibility": [
+        "Attach and send buttons have accessible names."
+      ]
+    },
+    "bar-line-chart": {
+      "summary": "WDS line and bar chart drawn in SVG, with grid lines, axis labels and a legend.",
+      "figma": {
+        "series": {
+          "note": "The first series uses primary-500; the area uses primary-400."
+        },
+        "axes": {
+          "note": "The Y axis scales to the largest value."
+        }
+      },
+      "examples": {
+        "types": {
+          "title": "Types"
+        }
+      },
+      "props": {
+        "data": "Points or bars.",
+        "type": "Chart kind.",
+        "seriesName": "Legend label and chart height.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-primary-500": "Series line / bars.",
+        "--wds-primary-400": "Area fill.",
+        "--wds-stroke-subtle": "Grid.",
+        "--wds-text-tertiary": "Axis labels."
+      },
+      "behavior": [
+        "Scales with its container width."
+      ],
+      "accessibility": [
+        "The SVG has role=\"img\" and a label; provide the data in text elsewhere."
+      ]
+    },
+    "pie-chart": {
+      "summary": "WDS pie chart in SVG with a vertical legend; switch to a donut with one prop.",
+      "figma": {
+        "series": {
+          "note": "Slices step down the primary scale."
+        }
+      },
+      "examples": {},
+      "props": {
+        "data": "Slices.",
+        "donut": "Cuts out the centre.",
+        "size": "Diameter in px.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-primary-500": "First slice.",
+        "--wds-primary-300": "Third slice.",
+        "--wds-bg-surface": "Slice gap and donut hole.",
+        "--wds-sz-pie-chart-root-gap": "Gap to the legend."
+      },
+      "behavior": [
+        "Values are converted to percentages of the total."
+      ],
+      "accessibility": [
+        "Provide the values in text as well."
+      ]
+    },
+    "radar-chart": {
+      "summary": "WDS radar chart in SVG: radial axes, concentric rings and up to three series.",
+      "figma": {
+        "series": {
+          "note": "Series use primary-500, secondary-500 and warning-500."
+        }
+      },
+      "examples": {},
+      "props": {
+        "axes": "Axis labels.",
+        "series": "Datasets, one value per axis.",
+        "max": "Axis maximum and diameter.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-primary-500": "Series 1.",
+        "--wds-secondary-500": "Series 2.",
+        "--wds-warning-500": "Series 3.",
+        "--wds-stroke-subtle": "Rings.",
+        "--wds-text-secondary": "Axis labels."
+      },
+      "behavior": [
+        "Polygons are semi-transparent so overlaps stay readable."
+      ],
+      "accessibility": [
+        "Provide the values in text as well."
+      ]
+    },
+    "activity-gauge": {
+      "summary": "WDS activity gauge: a ring that fills to a percentage, with the value in the centre.",
+      "figma": {
+        "track": {
+          "note": "The track is the lightest primary; the arc is primary-500."
+        }
+      },
+      "examples": {},
+      "props": {
+        "value": "Fill percentage.",
+        "label": "Centre text (default: percent) and diameter.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-primary-500": "Arc.",
+        "--wds-primary-50": "Track.",
+        "--wds-text-primary": "Centre value."
+      },
+      "behavior": [
+        "The value is clamped to 0–100."
+      ],
+      "accessibility": [
+        "The SVG exposes the percentage as its label."
+      ]
+    },
+    "legend": {
+      "summary": "WDS legend: a color dot and label per series, horizontal or vertical. Used inside the chart components.",
+      "figma": {
+        "legend": {
+          "note": "Horizontal and vertical arrangements."
+        }
+      },
+      "examples": {},
+      "props": {
+        "items": "Series labels and CSS colors.",
+        "direction": "Layout direction.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-text-secondary": "Label text.",
+        "--wds-sz-legend-dot-gap": "Gap between dot and label.",
+        "--wds-sz-legend-root-horizontal-gap": "Gap between items."
+      },
+      "behavior": [
+        "Wraps onto several lines when horizontal."
+      ],
+      "accessibility": [
+        "Rendered as a list."
+      ]
+    },
+    "calendar": {
+      "summary": "WDS calendar: the standalone month grid used inside the date picker, with month and year views.",
+      "figma": {
+        "styles": {
+          "note": "Box has a card background; underline is flat."
+        },
+        "days": {
+          "note": "Dates outside min / max are disabled."
+        }
+      },
+      "examples": {},
+      "props": {
+        "value": "Selected date and change handler.",
+        "range": "Selectable range.",
+        "appearance": "Figma Calendar style.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-page": "Calendar background.",
+        "--wds-bg-brand": "Selected day.",
+        "--wds-text-primary": "Day numbers.",
+        "--wds-stroke-subtle": "Divider."
+      },
+      "behavior": [
+        "Click the header to switch between day, month and year views."
+      ],
+      "accessibility": [
+        "Built on react-datepicker, which supports keyboard navigation."
+      ]
     }
   }
 }

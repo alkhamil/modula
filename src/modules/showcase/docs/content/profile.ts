@@ -6,6 +6,7 @@ export const profileDoc: ComponentDoc = {
   name: 'Profile',
   category: 'layout',
   importStatement: "import { Profile } from 'shared/components/layout';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11287-683',
   component: ProfileDemo,
   codeName: 'Profile',
   codeExtra: ["user={{ name: 'Ayu Lestari', roleName: 'Admin' }}", 'onLogout={logout}'],

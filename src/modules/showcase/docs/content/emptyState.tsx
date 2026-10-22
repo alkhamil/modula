@@ -7,6 +7,7 @@ export const emptyStateDoc: ComponentDoc = {
   name: 'EmptyState',
   category: 'data',
   importStatement: "import { EmptyState } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-10428',
   component: EmptyStateDemo,
   codeName: 'EmptyState',
   baseProps: {

@@ -66,7 +66,9 @@ Aturan wajib saat menulis atau mengubah kode frontend di repo ini
   (hex semantic → `theme.ts` memetakan token legacy `bg-primary`, dst.). Jangan
   edit file `*.generated.*`; ubah `tokens.json` lalu jalankan ulang. Komponen WDS
   hanya menetapkan atribut data (`data-hierarchy`, `data-wds-size`, ...), gaya di CSS
-  (`wds/<komponen>.css`, @layer components). Nilai warna kosong hasil ekspor
+  (`wds/<komponen>.css`, @layer components; CSS tulisan tangan memakai token
+  semantic langsung: feedback, overlay, table, surface, upload, layout, nav, content, controls,
+  inputs, surfaces2, data). Nilai warna kosong hasil ekspor
   (`#NaNNaNNaN`) dibaca sebagai `transparent`.
 - Penamaan komponen mengikuti nama di Figma WDS (lihat AGENTS.md); komponen baru/yang
   diganti ke WDS memakai nama WDS-nya, bukan akhiran `Field`.
@@ -75,7 +77,8 @@ Aturan wajib saat menulis atau mengubah kode frontend di repo ini
   (didaftarkan di `docs/registry.ts`) + semua kalimatnya di
   `showcase/i18n/{en,id}.json` bawah `docs.<slug>` (summary, figma.<id>.note,
   examples.<id>, props.<id>, tokens.<--var>, behavior[], accessibility[],
-  guidelines.do/dont) — wajib dua bahasa; dirender `DocPage` — playground, pemetaan
+  guidelines.do/dont) — wajib dua bahasa; slug dokumen tidak boleh sama dengan kunci
+  bersama (`labels`, `sections`, `nav`, ...; dijaga `registry.ts`); dirender `DocPage` — playground, pemetaan
   properti Figma → props, contoh + kode (dibuat dari props yang sama), matriks
   state (dipaksa via `data-wds-state`), tabel props, token (nilai live), behavior,
   aksesibilitas. Setiap komponen yang dibuat/diubah mengikuti Figma WDS wajib

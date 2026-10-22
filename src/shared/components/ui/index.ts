@@ -15,6 +15,31 @@ export { default as FormArray } from './FormArray';
 export { default as FormDefaultValuesWatcher } from './FormDefaultValuesWatcher';
 export { default as TableToolbar } from './TableToolbar';
 export { default as Avatar } from './Avatar';
+export { default as ActivityFeed } from './ActivityFeed';
+export type { ActivityItem } from './ActivityFeed';
+export { default as ActivityGauge } from './charts/ActivityGauge';
+export { default as BarLineChart } from './charts/BarLineChart';
+export { default as ChatInput } from './ChatInput';
+export { default as ChatMessage } from './ChatMessage';
+export { default as Legend } from './charts/Legend';
+export { default as PieChart } from './charts/PieChart';
+export { default as RadarChart } from './charts/RadarChart';
+export { default as FeaturedIcon } from './FeaturedIcon';
+export { default as IconWrapper } from './IconWrapper';
+export { default as ImageCarousel } from './ImageCarousel';
+export { default as ImagePlaceholder } from './ImagePlaceholder';
+export { default as NavItem } from './NavItem';
+export { default as ScrollArea } from './ScrollArea';
+export { default as SectionHeader } from './SectionHeader';
+export { default as CompactSelect } from './CompactSelect';
+export { default as DropdownMenu } from './DropdownMenu';
+export type { MenuEntry } from './DropdownMenu';
+export { default as LabelText } from './LabelText';
+export { default as ListItem } from './ListItem';
+export { default as OtpInput } from './OtpInput';
+export { default as PinInput } from './PinInput';
+export { default as Popover } from './Popover';
+export { default as QuantitySelector } from './QuantitySelector';
 export { default as Rating } from './Rating';
 export { default as SegmentedControl } from './SegmentedControl';
 export type { SegmentedOption } from './SegmentedControl';
@@ -54,6 +79,7 @@ export {
   Select,
   Checkbox,
   RadioButton,
+  Calendar,
   DatePicker,
   Textarea,
   Toggle,

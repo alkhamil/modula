@@ -18,6 +18,7 @@ export const dialogDoc: ComponentDoc = {
   name: 'Dialog',
   category: 'feedback',
   importStatement: "import { Dialog } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-11741',
   component: DialogDemo,
   codeName: 'Dialog',
   codeExtra: ['open={open}', 'onClose={() => setOpen(false)}'],

@@ -6,6 +6,7 @@ export const segmentedControlDoc: ComponentDoc = {
   name: 'SegmentedControl',
   category: 'forms',
   importStatement: "import { SegmentedControl } from 'shared/components/ui';",
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9930-13059',
   component: SegmentedControlDemo,
   codeName: 'SegmentedControl',
   codeExtra: ['options={options}', 'value={value}', 'onChange={setValue}'],
