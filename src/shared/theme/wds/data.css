@@ -41,6 +41,27 @@
     gap: var(--wds-spacing-4);
   }
 
+  .wds-feed__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--wds-spacing-8);
+  }
+
+  .wds-feed__time {
+    margin-left: var(--wds-spacing-8);
+    color: var(--wds-text-tertiary);
+    font-weight: var(--wds-font-weight-regular);
+    font-size: var(--wds-sz-text-caption-font-size);
+  }
+
+  .wds-feed__desc {
+    margin: 0;
+    color: var(--wds-text-secondary);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+  }
+
   .wds-feed__title {
     margin: 0;
     color: var(--wds-text-primary);

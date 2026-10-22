@@ -7,6 +7,8 @@ export interface MenuEntry {
   /** Teks pendukung di bawah label (Menu item "supporting text"). */
   description?: ReactNode;
   icon?: ReactNode;
+  /** Elemen di akhir baris (badge, chevron). */
+  trailing?: ReactNode;
   disabled?: boolean;
   /** Item destruktif (merah). */
   destructive?: boolean;
@@ -76,6 +78,7 @@ function DropdownMenu({ trigger, items, align = 'start', size = 'md', open: forc
                 <span>{item.label}</span>
                 {item.description && <span className="wds-menu__support">{item.description}</span>}
               </span>
+              {item.trailing && <span className="wds-menu__icon">{item.trailing}</span>}
             </button>
           ))}
         </div>

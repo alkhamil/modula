@@ -18,6 +18,7 @@ import {
   LabelText,
   Legend,
   ListItem,
+  MenuItem,
   NavItem,
   OtpInput,
   PieChart,
@@ -29,7 +30,7 @@ import {
   SectionHeader,
   useToast,
 } from '../../../../shared/components/ui';
-import { Database, Settings, InfoCircle, Pen, TrashBinTrash, Download } from '../../../../shared/components/icons';
+import { Database, Settings, InfoCircle, MenuDotsVertical, Pen, TrashBinTrash, Download } from '../../../../shared/components/icons';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type P<T extends JSXElementConstructor<any>> = Partial<ComponentProps<T>>;
@@ -163,7 +164,7 @@ export function IconWrapperDemo(props: P<typeof IconWrapper>) {
 }
 
 export function ImagePlaceholderDemo(props: P<typeof ImagePlaceholder>) {
-  return <ImagePlaceholder width={280} height={160} {...props} />;
+  return <ImagePlaceholder width={220} {...props} />;
 }
 
 export function ImageCarouselDemo(props: P<typeof ImageCarousel>) {
@@ -199,7 +200,7 @@ export function ActivityFeedDemo(props: P<typeof ActivityFeed>) {
       <ActivityFeed
         {...props}
         items={[
-          { name: 'Ayu', action: 'created the module', time: '2 min ago' },
+          { name: 'Ayu', action: 'Created the module', time: '2 min ago', menu: <MenuDotsVertical className="h-4 w-4 text-(--wds-icons-tertiary)" /> },
           { name: 'Budi', action: 'attached a file', time: '1 h ago', type: 'file', file: { name: 'spec.pdf', size: '240 KB' } },
           { name: 'Citra', action: 'commented', time: 'Yesterday', type: 'chat', text: 'Looks good to me!' },
         ]}
@@ -286,3 +287,11 @@ export function LegendDemo(props: P<typeof Legend>) {
 
 // Avatar re-export supaya import tidak dianggap tak terpakai bila demo avatar dipakai di sini.
 export { Avatar };
+
+export function MenuItemDemo(props: P<typeof MenuItem>) {
+  return (
+    <div className="w-[min(100%,280px)]">
+      <MenuItem label="Menu item" description="Optional supporting text" leading={<Pen />} trailing={<Download />} {...props} />
+    </div>
+  );
+}

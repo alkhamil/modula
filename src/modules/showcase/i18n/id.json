@@ -2835,10 +2835,13 @@
       ]
     },
     "image": {
-      "summary": "Image WDS: gambar berbingkai yang menampilkan ikon placeholder saat belum ada sumber. Sudut default atau membulat.",
+      "summary": "Image / placeholder WDS: blok abu datar dengan sembilan rasio preset yang menampilkan gambar bila ada sumber. Sudut default atau membulat.",
       "figma": {
         "styles": {
           "note": "Rounded memakai radius 16."
+        },
+        "ratio": {
+          "note": "Sembilan preset: 1:1, 16:9, 4:3, 3:2, 2:1, 5:2, 3:4, 2:3, 1:2."
         }
       },
       "examples": {
@@ -2847,6 +2850,7 @@
         }
       },
       "props": {
+        "ratio": "Rasio (Figma Ratio); diabaikan bila height diisi.",
         "src": "URL gambar dan teks alt.",
         "appearance": "Style Image Figma.",
         "size": "Ukuran bingkai.",
@@ -3185,6 +3189,46 @@
       ],
       "accessibility": [
         "Dibangun di atas react-datepicker yang mendukung navigasi keyboard."
+      ]
+    },
+    "menu-item": {
+      "summary": "Menu item WDS: baris yang bisa dipilih dengan slot awal dan akhir serta teks pendukung opsional. Item yang sama dipakai di DropdownMenu dan Select.",
+      "figma": {
+        "states": {
+          "note": "Pressed tampil saat item ditekan."
+        },
+        "slots": {
+          "note": "Ikon, avatar, checkbox, atau radio di depan; badge, chevron, atau toggle di belakang."
+        },
+        "size": {
+          "note": "Padding dan teks mengikuti token Size."
+        }
+      },
+      "examples": {
+        "states": {
+          "title": "State"
+        }
+      },
+      "props": {
+        "label": "Teks utama dan pendukung.",
+        "slots": "Elemen sebelum dan sesudah teks.",
+        "size": "Ukuran dari token Size.",
+        "state": "Flag state.",
+        "onClick": "Dipanggil saat diklik.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-brand-subtle": "Baris terpilih.",
+        "--wds-bg-pressed": "Baris ditekan.",
+        "--wds-text-primary": "Label.",
+        "--wds-text-danger": "Destructive.",
+        "--wds-icons-primary": "Ikon."
+      },
+      "behavior": [
+        "Di dalam DropdownMenu item menutup menu setelah handler dijalankan."
+      ],
+      "accessibility": [
+        "Gunakan role=\"menuitem\" saat ditempatkan di dalam kontainer menu."
       ]
     }
   }

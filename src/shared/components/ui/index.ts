@@ -34,6 +34,7 @@ export { default as SectionHeader } from './SectionHeader';
 export { default as CompactSelect } from './CompactSelect';
 export { default as DropdownMenu } from './DropdownMenu';
 export type { MenuEntry } from './DropdownMenu';
+export { default as MenuItem } from './MenuItem';
 export { default as LabelText } from './LabelText';
 export { default as ListItem } from './ListItem';
 export { default as OtpInput } from './OtpInput';

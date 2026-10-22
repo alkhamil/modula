@@ -15,6 +15,7 @@ import {
   LabelTextDemo,
   LegendDemo,
   ListItemDemo,
+  MenuItemDemo,
   NavItemDemo,
   OtpInputDemo,
   PieChartDemo,
@@ -373,12 +374,14 @@ export const imageDoc: ComponentDoc = {
   component: ImagePlaceholderDemo,
   codeName: "ImagePlaceholder",
   baseProps: { appearance: 'default' },
-  controls: [{ prop: 'appearance', kind: 'select', options: ['default', 'rounded'] }],
+  controls: [{ prop: 'ratio', kind: 'select', options: ['1:1', '16:9', '4:3', '3:2', '2:1', '5:2', '3:4', '2:3', '1:2'] }, { prop: 'appearance', kind: 'select', options: ['default', 'rounded'] }],
   figmaMapping: [
     { id: "styles", figma: "Image styles (mode)", values: "default, rounded", prop: "appearance" },
+    { id: "ratio", figma: "Ratio", values: "1:1 … 1:2", prop: "ratio" },
   ],
   examples: [{ id: 'styles', variants: [{ label: 'default', props: { appearance: 'default' } }, { label: 'rounded', props: { appearance: 'rounded' } }] }],
   props: [
+    { id: "ratio", name: "ratio", type: "'1:1' | '16:9' | '4:3' | '3:2' | '2:1' | '5:2' | '3:4' | '2:3' | '1:2'", default: "'1:1'" },
     { id: "src", name: "src · alt", type: "string" },
     { id: "appearance", name: "appearance", type: "'default' | 'rounded'", default: "'default'" },
     { id: "size", name: "width · height", type: "number | string", default: "'100%' · 160" },
@@ -653,6 +656,33 @@ export const calendarDoc: ComponentDoc = {
   tokens: ["--wds-bg-page", "--wds-bg-brand", "--wds-text-primary", "--wds-stroke-subtle"].map((name) => ({ name })),
 };
 
+export const menuItemDoc: ComponentDoc = {
+  slug: "menu-item",
+  name: "MenuItem",
+  category: "data",
+  importStatement: "import { MenuItem } from 'shared/components/ui';",
+  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-11540",
+  component: MenuItemDemo,
+  codeName: "MenuItem",
+  baseProps: { size: 'md' },
+  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'label', kind: 'text' }, { prop: 'selected', kind: 'boolean' }, { prop: 'disabled', kind: 'boolean' }, { prop: 'destructive', kind: 'boolean' }],
+  figmaMapping: [
+    { id: "states", figma: "Menu item states", values: "default, pressed, selected, disabled, destructive", prop: "selected · disabled · destructive" },
+    { id: "slots", figma: "Leading · text · trailing", values: "slots", prop: "leading · label · description · trailing" },
+    { id: "size", figma: "Size Modes", values: "xs, sm, md, lg, xl", prop: "size" },
+  ],
+  examples: [{ id: 'states', variants: [{ label: 'default', props: {} }, { label: 'selected', props: { selected: true } }, { label: 'disabled', props: { disabled: true } }, { label: 'destructive', props: { destructive: true } }] }],
+  props: [
+    { id: "label", name: "label · description", type: "ReactNode" },
+    { id: "slots", name: "leading · trailing", type: "ReactNode" },
+    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
+    { id: "state", name: "selected · disabled · destructive", type: "boolean", default: "false" },
+    { id: "onClick", name: "onClick", type: "() => void" },
+    { id: 'testId', name: 'testId', type: 'string' },
+  ],
+  tokens: ["--wds-bg-brand-subtle", "--wds-bg-pressed", "--wds-text-primary", "--wds-text-danger", "--wds-icons-primary"].map((name) => ({ name })),
+};
+
 export const moreDocs: ComponentDoc[] = [
   otpInputDoc,
   pinInputDoc,
@@ -679,4 +709,5 @@ export const moreDocs: ComponentDoc[] = [
   activityGaugeDoc,
   legendDoc,
   calendarDoc,
+  menuItemDoc,
 ];

@@ -2835,10 +2835,13 @@
       ]
     },
     "image": {
-      "summary": "WDS image: a framed image that shows a placeholder icon while there is no source. Default or rounded corners.",
+      "summary": "WDS image / placeholder: a flat gray block with nine preset aspect ratios that shows the image once there is a source. Default or rounded corners.",
       "figma": {
         "styles": {
           "note": "Rounded uses radius 16."
+        },
+        "ratio": {
+          "note": "Nine presets: 1:1, 16:9, 4:3, 3:2, 2:1, 5:2, 3:4, 2:3, 1:2."
         }
       },
       "examples": {
@@ -2847,6 +2850,7 @@
         }
       },
       "props": {
+        "ratio": "Aspect ratio (Figma Ratio); ignored when height is set.",
         "src": "Image URL and alt text.",
         "appearance": "Figma Image style.",
         "size": "Frame size.",
@@ -3185,6 +3189,46 @@
       ],
       "accessibility": [
         "Built on react-datepicker, which supports keyboard navigation."
+      ]
+    },
+    "menu-item": {
+      "summary": "WDS menu item: a selectable row with leading and trailing slots and optional supporting text. The same item is used inside DropdownMenu and Select.",
+      "figma": {
+        "states": {
+          "note": "Pressed shows while the item is held down."
+        },
+        "slots": {
+          "note": "Icon, avatar, checkbox or radio before; badge, chevron or toggle after."
+        },
+        "size": {
+          "note": "Padding and text follow the Size tokens."
+        }
+      },
+      "examples": {
+        "states": {
+          "title": "States"
+        }
+      },
+      "props": {
+        "label": "Main and supporting text.",
+        "slots": "Elements before and after the text.",
+        "size": "Size from the Size tokens.",
+        "state": "State flags.",
+        "onClick": "Called on click.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-brand-subtle": "Selected row.",
+        "--wds-bg-pressed": "Pressed row.",
+        "--wds-text-primary": "Label.",
+        "--wds-text-danger": "Destructive.",
+        "--wds-icons-primary": "Icons."
+      },
+      "behavior": [
+        "Inside DropdownMenu the item closes the menu after its handler runs."
+      ],
+      "accessibility": [
+        "Use role=\"menuitem\" when placed inside a menu container."
       ]
     }
   }
