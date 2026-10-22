@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router';
-import { Logout2, Settings } from '../icons';
+import { AltArrowDown, AltArrowUp, Logout2, Settings } from '../icons';
+import Avatar from '../ui/Avatar';
 import { useClickOutside } from '../../hooks';
 import LanguageSwitch from '../../i18n/LanguageSwitch';
 
@@ -49,65 +50,65 @@ function Profile({
           }
           setDropdownOpen(!dropdownOpen);
         }}
-        className="flex cursor-pointer items-center gap-3 rounded-lg p-1.5 transition-colors hover:bg-muted"
+        type="button"
+        aria-expanded={dropdownOpen}
+        data-state={dropdownOpen ? 'active' : undefined}
+        className="wds-profile"
       >
-        <div className="hidden text-right sm:block">
-          <p className="text-sm font-medium leading-tight text-foreground">Hi, {firstName}</p>
-          <p className="text-xs leading-tight text-muted-foreground">
-            {user?.roleName ?? 'User'}
-          </p>
+        <div className="wds-profile__text hidden text-right sm:block">
+          <p className="wds-profile__title">Hi, {firstName}</p>
+          <p className="wds-profile__support">{user?.roleName ?? 'User'}</p>
         </div>
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
-          {initial}
-        </div>
+        <Avatar name={user?.name ?? initial} size="sm" />
+        <span className="wds-profile__chevron max-sm:hidden">
+          {dropdownOpen ? <AltArrowUp /> : <AltArrowDown />}
+        </span>
       </button>
 
       {dropdownOpen && (
         <div
           className={[
-            'absolute right-0 z-50 w-60 rounded-lg border border-border bg-background py-1 shadow-xl',
+            'wds-profile__menu absolute right-0 z-50 w-60',
             dropdownAbove ? 'bottom-full mb-2' : 'top-full mt-2',
           ].join(' ')}
         >
           <div className="flex items-center gap-3 px-4 py-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-base font-bold text-primary">
-              {initial}
-            </div>
+            <Avatar name={user?.name ?? initial} size="md" />
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-foreground">{user?.name ?? 'User'}</p>
-              <p className="truncate text-xs text-muted-foreground">
+              <p className="truncate text-sm font-medium text-(--wds-text-primary)">{user?.name ?? 'User'}</p>
+              <p className="truncate text-xs text-(--wds-text-secondary)">
                 {user?.roleName ?? 'User'}
               </p>
             </div>
           </div>
-          <div className="my-1 border-t border-border" />
+          <div className="my-1 border-t border-(--wds-stroke-subtle)" />
           <div className="flex items-center justify-between gap-2 px-4 py-2">
-            <span className="whitespace-nowrap text-sm text-muted-foreground">{t('auth.language')}</span>
+            <span className="whitespace-nowrap text-sm text-(--wds-text-secondary)">{t('auth.language')}</span>
             <LanguageSwitch testId={testId ? `${testId}-language` : undefined} />
           </div>
-          <div className="my-1 border-t border-border" />
+          <div className="my-1 border-t border-(--wds-stroke-subtle)" />
           <NavLink
             to={settingsPath}
             end
             onClick={() => setDropdownOpen(false)}
             className={({ isActive }) =>
               [
-                'flex items-center gap-2 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted',
-                isActive ? 'bg-muted font-medium' : '',
+                'flex items-center gap-2 px-4 py-2 text-sm text-(--wds-text-primary) transition-colors hover:bg-(--wds-bg-brand-subtle)',
+                isActive ? 'bg-(--wds-bg-brand-subtle) font-medium' : '',
               ].join(' ')
             }
           >
-            <Settings className="h-4 w-4 text-muted-foreground" />
+            <Settings className="h-4 w-4 text-(--wds-text-secondary)" />
             {resolvedSettingsLabel}
           </NavLink>
           {onLogout && (
             <>
-              <div className="my-1 border-t border-border" />
+              <div className="my-1 border-t border-(--wds-stroke-subtle)" />
               <button
                 onClick={onLogout}
-                className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
+                className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-(--wds-text-primary) transition-colors hover:bg-(--wds-bg-brand-subtle)"
               >
-                <Logout2 className="h-4 w-4 text-muted-foreground" />
+                <Logout2 className="h-4 w-4 text-(--wds-text-secondary)" />
                 {resolvedLogoutLabel}
               </button>
             </>

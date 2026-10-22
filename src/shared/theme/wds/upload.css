@@ -1,0 +1,163 @@
+/*
+ * File Upload (Area + Cards) WDS. Warna dari semantic (File Upload Area/Cards styles + states);
+ * jarak dari token Size (`--wds-sz-file-upload-area-*`, `--wds-sz-card-*`). Di @layer components.
+ */
+@layer components {
+  .wds-upload {
+    --u-bg: var(--wds-bg-surface);
+    --u-stroke: var(--wds-stroke-default);
+    --u-text: var(--wds-text-primary);
+    --u-hint: var(--wds-text-tertiary);
+    --u-icon: var(--wds-icons-brand);
+    --u-feat: var(--wds-neutral-200);
+    --u-action: var(--wds-text-link);
+    box-sizing: border-box;
+    display: flex;
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--wds-sz-file-upload-area-text-gap);
+    padding: var(--wds-sz-file-upload-area-padding-top) var(--wds-sz-file-upload-area-padding-right)
+      var(--wds-sz-file-upload-area-padding-bottom) var(--wds-sz-file-upload-area-padding-left);
+    border: var(--wds-sz-table-stroke) dashed var(--u-stroke);
+    border-radius: var(--wds-radius-8);
+    background-color: var(--u-bg);
+    font-family: var(--wds-sz-text-body-font-family);
+    text-align: center;
+    transition:
+      background-color 150ms,
+      border-color 150ms;
+  }
+
+  .wds-upload:hover:not([data-state='disabled']),
+  .wds-upload[data-state='hover'] {
+    --u-bg: var(--wds-bg-brand-subtle);
+    --u-stroke: var(--wds-stroke-brand);
+  }
+
+  .wds-upload:focus-visible {
+    outline: 1px solid var(--wds-stroke-focus);
+    outline-offset: 2px;
+    border-color: var(--wds-stroke-focus);
+  }
+
+  .wds-upload[data-state='error'] {
+    --u-stroke: var(--wds-stroke-danger);
+  }
+
+  .wds-upload[data-state='disabled'] {
+    --u-bg: var(--wds-bg-disabled);
+    --u-text: var(--wds-text-disabled);
+    --u-icon: var(--wds-icons-disabled);
+    --u-feat: var(--wds-bg-disabled);
+    cursor: not-allowed;
+  }
+
+  .wds-upload__icon {
+    display: inline-flex;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background-color: var(--u-feat);
+    color: var(--u-icon);
+  }
+
+  .wds-upload__icon > svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .wds-upload__title {
+    color: var(--u-text);
+    font-weight: var(--wds-font-weight-medium);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+  }
+
+  .wds-upload__hint {
+    color: var(--u-hint);
+    font-size: var(--wds-sz-text-caption-font-size);
+    line-height: var(--wds-sz-text-caption-line-height);
+  }
+
+  .wds-upload__track {
+    width: 100%;
+    max-width: 320px;
+    height: 8px;
+    overflow: hidden;
+    border-radius: 9999px;
+    background-color: var(--wds-bg-brand-subtle);
+  }
+
+  .wds-upload__fill {
+    height: 100%;
+    border-radius: 9999px;
+    background-color: var(--wds-bg-brand);
+    transition: width 150ms;
+  }
+
+  .wds-upload__error {
+    margin: 4px 0 0;
+    color: var(--wds-text-danger);
+    font-size: var(--wds-sz-text-caption-font-size);
+    line-height: var(--wds-sz-text-caption-line-height);
+  }
+
+  .wds-upload__files {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wds-spacing-8);
+    margin-top: var(--wds-spacing-8);
+  }
+
+  /* ---- File card ---- */
+  .wds-file-card {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: var(--wds-sz-card-actions-gap);
+    padding: var(--wds-sz-card-padding-top) var(--wds-sz-card-padding-right)
+      var(--wds-sz-card-padding-bottom) var(--wds-sz-card-padding-left);
+    border: var(--wds-sz-table-stroke) solid var(--wds-stroke-default);
+    border-radius: var(--wds-radius-8);
+    background-color: var(--wds-bg-surface);
+  }
+
+  .wds-file-card__icon {
+    display: inline-flex;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background-color: var(--wds-primary-100);
+    color: var(--wds-icons-brand);
+  }
+
+  .wds-file-card__icon > svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .wds-file-card__name {
+    overflow: hidden;
+    margin: 0;
+    color: var(--wds-text-primary);
+    font-weight: var(--wds-font-weight-medium);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .wds-file-card__meta {
+    margin: 0;
+    color: var(--wds-text-tertiary);
+    font-size: var(--wds-sz-text-caption-font-size);
+    line-height: var(--wds-sz-text-caption-line-height);
+  }
+}

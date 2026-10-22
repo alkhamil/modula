@@ -74,47 +74,38 @@ function SideNavbar({
     );
   }
 
-  function itemClasses(isActive: boolean) {
-    return [
-      'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-      isActive
-        ? 'bg-primary-foreground text-primary'
-        : 'text-primary-foreground hover:bg-primary-foreground hover:text-primary',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30',
-      collapsed ? 'justify-center px-0' : '',
-    ].join(' ');
-  }
-
   const hoveredNavItem = hoveredItem ? navItems.find((n) => n.label === hoveredItem) : null;
 
   return (
     <>
       {mobileOpen && (
-        <div className="fixed inset-0 z-30 bg-black/50 md:hidden" onClick={onMobileClose} />
+        <div className="wds-overlay__backdrop z-30 md:hidden" onClick={onMobileClose} />
       )}
 
       <aside
         data-testid={testId ?? 'app-sidebar'}
+        data-collapsed={collapsed || undefined}
         className={[
-          'fixed inset-y-0 left-0 z-40 flex flex-col border-r border-primary-foreground/10 transition-all duration-300',
-          'bg-primary text-primary-foreground',
+          'wds-sidenav fixed inset-y-0 left-0 z-40 transition-all duration-300',
           collapsed ? 'md:w-16' : 'md:w-64',
           'w-64',
           mobileOpen ? 'translate-x-0' : '-translate-x-full',
           'md:translate-x-0',
         ].join(' ')}
       >
-        <div className="relative flex h-22 shrink-0 items-center justify-center p-2">
+        <div className="wds-sidenav__header">
           {!collapsed &&
             (logo ?? (
-              <span className="text-lg font-bold tracking-tight">{appName}</span>
+              <span className="wds-sidenav__logo">{appName}</span>
             ))}
 
           <button
             data-testid="sidebar-toggle"
             onClick={onToggle}
+            type="button"
+            aria-label={t('common.toggleSidebar', { defaultValue: 'Toggle sidebar' })}
             className={[
-              'flex h-7 w-7 items-center justify-center rounded bg-primary-foreground text-primary shadow transition-colors hover:bg-primary-foreground/80 max-md:hidden',
+              'wds-sidenav__toggle max-md:hidden',
               collapsed ? 'absolute left-1/2 -translate-x-1/2' : 'absolute right-0 translate-x-1/2',
             ].join(' ')}
           >
@@ -126,7 +117,7 @@ function SideNavbar({
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto space-y-1 p-2">
+        <nav className="wds-sidenav__nav">
           {navItems.map((item) => {
             const hasSubItems = !!(item.children && item.children.length > 0);
             const isExpanded = expandedItems.has(item.label) || isChildActive(item.children);
@@ -140,15 +131,18 @@ function SideNavbar({
               >
                 {hasSubItems ? (
                   <button
+                    type="button"
                     onClick={() => !collapsed && toggleExpand(item.label)}
-                    className={itemClasses(false)}
+                    aria-expanded={isExpanded}
+                    data-current={isChildActive(item.children) || undefined}
+                    className="wds-nav-item"
                   >
                     {item.icon}
                     {!collapsed && (
                       <>
-                        <span className="flex-1 text-left">{resolveNavLabel(item, t)}</span>
+                        <span className="wds-nav-item__label">{resolveNavLabel(item, t)}</span>
                         <AltArrowDown
-                          className={`h-4 w-4 transition-transform ${isExpanded ? '-rotate-90' : 'rotate-90'}`}
+                          className={`wds-nav-item__chevron transition-transform ${isExpanded ? '-rotate-90' : 'rotate-90'}`}
                         />
                       </>
                     )}
@@ -157,28 +151,20 @@ function SideNavbar({
                   <NavLink
                     to={item.path!}
                     end={item.path === '/'}
-                    className={({ isActive }) => itemClasses(isActive)}
+                    className="wds-nav-item"
                   >
                     {item.icon}
-                    {!collapsed && <span>{resolveNavLabel(item, t)}</span>}
+                    {!collapsed && <span className="wds-nav-item__label">{resolveNavLabel(item, t)}</span>}
                   </NavLink>
                 )}
 
                 {hasSubItems && isExpanded && !collapsed && (
-                  <div className="mt-1 space-y-1">
+                  <div className="wds-sidenav__sub">
                     {item.children!.map((child) => (
                       <NavLink
                         key={child.path}
                         to={child.path}
-                        className={({ isActive }) =>
-                          [
-                            'flex w-full items-center rounded-lg px-3 py-2 pl-11 text-sm font-medium transition-colors',
-                            isActive
-                              ? 'bg-primary-foreground text-primary'
-                              : 'text-primary-foreground hover:bg-primary-foreground hover:text-primary',
-                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30',
-                          ].join(' ')
-                        }
+                        className="wds-nav-item wds-nav-item--sub"
                       >
                         {resolveNavLabel(child, t)}
                       </NavLink>

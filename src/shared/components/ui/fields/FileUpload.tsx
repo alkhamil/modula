@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState, type DragEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DangerCircle, FileText } from '../../icons';
+import { FileText, Upload } from '../../icons';
 import RowActionButton from '../RowActionButton';
 
 interface FileUploadProps {
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   error?: string;
+  /** Teks pendukung di bawah area (mis. format dan ukuran maks). */
+  hint?: string;
   accept?: string;
   multiple?: boolean;
   value: File | File[] | null;
@@ -15,12 +17,6 @@ interface FileUploadProps {
   testId?: string;
   'data-testid'?: string;
 }
-
-const zoneSizeStyles: Record<string, string> = {
-  sm: 'p-4 text-xs',
-  md: 'p-6 text-sm',
-  lg: 'p-8 text-base',
-};
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -32,6 +28,7 @@ function FileUpload({
   size = 'md',
   disabled = false,
   error,
+  hint,
   accept,
   multiple = false,
   value,
@@ -154,64 +151,48 @@ function FileUpload({
   return (
     <div data-testid={resolvedTestId} className={className}>
       <div
+        role="button"
+        tabIndex={disabled || uploading ? -1 : 0}
+        aria-disabled={disabled || undefined}
+        data-wds-size={size === 'lg' ? 'lg' : size === 'sm' ? 'sm' : 'md'}
+        data-state={disabled ? 'disabled' : error ? 'error' : dragging ? 'hover' : 'default'}
         onClick={() => !disabled && !uploading && inputRef.current?.click()}
+        onKeyDown={(e) => {
+          if ((e.key === 'Enter' || e.key === ' ') && !disabled && !uploading) {
+            e.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        className={[
-          'relative flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors',
-          error
-            ? 'border-danger'
-            : dragging
-              ? 'border-primary bg-primary/10'
-              : 'border-border hover:border-muted-foreground',
-          disabled || uploading ? 'cursor-not-allowed bg-muted' : '',
-          zoneSizeStyles[size],
-        ].join(' ')}
+        className="wds-upload"
       >
-        {error && (
-          <span className="absolute top-2 right-3">
-            <DangerCircle className="h-3.5 w-3.5" />
-          </span>
-        )}
         {uploading ? (
           <div className="flex w-full flex-col items-center gap-2">
-            <span className="text-foreground">
+            <span className="wds-upload__title">
               {t('upload.uploading', { target: pendingLabel ?? '' })}
             </span>
             <div
               data-testid={resolvedTestId ? `${resolvedTestId}-progress` : undefined}
-              className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-muted"
+              className="wds-upload__track"
               role="progressbar"
               aria-valuenow={progress}
               aria-valuemin={0}
               aria-valuemax={100}
             >
-              <div
-                className="h-full rounded-full bg-primary transition-[width]"
-                style={{ width: `${progress}%` }}
-              />
+              <div className="wds-upload__fill" style={{ width: `${progress}%` }} />
             </div>
-            <span className="text-xs text-muted-foreground">{progress}%</span>
+            <span className="wds-upload__hint">{progress}%</span>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-1 text-muted-foreground">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              className="h-8 w-8"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 16.5V9.75m0 0l-3 3m3-3l3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
-              />
-            </svg>
-            <span>{t('upload.dropHint')}</span>
-          </div>
+          <>
+            <span className="wds-upload__icon">
+              <Upload />
+            </span>
+            <span className="wds-upload__title">{t('upload.dropHint')}</span>
+            {hint && <span className="wds-upload__hint">{hint}</span>}
+          </>
         )}
       </div>
       <input
@@ -228,19 +209,21 @@ function FileUpload({
         className="hidden"
       />
       {files.length > 0 && (
-        <div className="mt-2 flex flex-col gap-2">
+        <div className="wds-upload__files">
           {files.map((file, i) => (
             <div
               key={`${file.name}-${i}`}
               data-testid={resolvedTestId ? `${resolvedTestId}-file-${i}` : undefined}
-              className="flex items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3"
+              className="wds-file-card"
             >
-              <FileText className="h-8 w-8 shrink-0 text-muted-foreground" />
+              <span className="wds-file-card__icon">
+                <FileText />
+              </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-foreground" title={file.name}>
+                <p className="wds-file-card__name" title={file.name}>
                   {file.name}
                 </p>
-                <p className="text-xs text-muted-foreground">{formatBytes(file.size)}</p>
+                <p className="wds-file-card__meta">{formatBytes(file.size)}</p>
               </div>
               <RowActionButton
                 action="view"
@@ -263,7 +246,7 @@ function FileUpload({
       {error && (
         <p
           data-testid={resolvedTestId ? `${resolvedTestId}-error` : undefined}
-          className="mt-1 text-xs text-danger"
+          className="wds-upload__error"
           role="alert"
         >
           {error}

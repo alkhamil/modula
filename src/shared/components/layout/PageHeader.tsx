@@ -19,6 +19,7 @@ interface PageHeaderProps {
   testId?: string;
 }
 
+/** Header halaman WDS (Header styles): judul + breadcrumb, aksi, dan slot kanan. */
 function PageHeader({
   title,
   breadcrumb,
@@ -28,29 +29,31 @@ function PageHeader({
   testId,
 }: PageHeaderProps) {
   return (
-    <header
-      data-testid={testId}
-      className="flex h-16 shrink-0 items-center border-b border-border bg-background px-4 lg:px-6"
-    >
+    <header data-testid={testId} className="wds-header">
       {onMenuToggle && (
-        <button onClick={onMenuToggle} className="mr-4 md:hidden" aria-label="Toggle menu">
-          <HamburgerMenu className="h-6 w-6" />
+        <button
+          type="button"
+          onClick={onMenuToggle}
+          className="wds-header__menu md:hidden"
+          aria-label="Toggle menu"
+        >
+          <HamburgerMenu />
         </button>
       )}
 
-      <div className="min-w-0 flex-1">
-        <h1 className="truncate text-lg font-semibold leading-tight">{title}</h1>
+      <div className="wds-header__text">
+        <h1 className="wds-header__title">{title}</h1>
         {breadcrumb && breadcrumb.length > 0 && (
-          <nav aria-label="Breadcrumb" className="mt-0.5 flex items-center gap-1 text-xs">
+          <nav aria-label="Breadcrumb" className="wds-header__crumbs">
             {breadcrumb.map((item, i) => (
-              <span key={item.label} className="flex items-center gap-1">
-                {i > 0 && <span className="text-muted-foreground">/</span>}
+              <span key={item.label} className="wds-header__crumb">
+                {i > 0 && <span className="wds-header__sep">/</span>}
                 {item.path ? (
-                  <NavLink to={item.path} className="text-primary hover:underline">
+                  <NavLink to={item.path} className="wds-header__link">
                     {item.label}
                   </NavLink>
                 ) : (
-                  <span className="text-muted-foreground">{item.label}</span>
+                  <span>{item.label}</span>
                 )}
               </span>
             ))}
@@ -58,8 +61,8 @@ function PageHeader({
         )}
       </div>
 
-      {actions && <div className="ml-4 flex items-center gap-2">{actions}</div>}
-      {children && <div className="ml-4 flex items-center">{children}</div>}
+      {actions && <div className="wds-header__actions">{actions}</div>}
+      {children && <div className="wds-header__slot">{children}</div>}
     </header>
   );
 }

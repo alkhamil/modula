@@ -1,0 +1,295 @@
+/*
+ * Stepper, Slider, Rating dan Segmented Control WDS. Warna dari semantic (Step states, Slider states,
+ * Rating styles, Segmented control styles); ukuran dari token Size. Di @layer components.
+ */
+@layer components {
+  /* ---- Stepper ---- */
+  .wds-stepper {
+    display: flex;
+    gap: var(--wds-sz-stepper-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--wds-sz-text-body-font-family);
+  }
+
+  .wds-stepper[data-orientation='vertical'] {
+    flex-direction: column;
+  }
+
+  .wds-step {
+    --st-bg: var(--wds-bg-surface);
+    --st-stroke: var(--wds-stroke-subtle);
+    --st-num: var(--wds-text-secondary);
+    --st-title: var(--wds-text-secondary);
+    --st-conn: var(--wds-stroke-subtle);
+    position: relative;
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    align-items: flex-start;
+    gap: var(--wds-sz-stepper-content-gap);
+  }
+
+  .wds-step[data-status='current'] {
+    --st-bg: var(--wds-bg-brand);
+    --st-stroke: var(--wds-stroke-brand);
+    --st-num: var(--wds-text-inverse);
+    --st-title: var(--wds-text-primary);
+    --st-conn: var(--wds-stroke-brand);
+  }
+
+  .wds-step[data-status='completed'] {
+    --st-bg: var(--wds-bg-success);
+    --st-stroke: var(--wds-stroke-success);
+    --st-num: var(--wds-text-inverse);
+    --st-title: var(--wds-text-primary);
+    --st-conn: var(--wds-stroke-success);
+  }
+
+  .wds-step[data-status='error'] {
+    --st-bg: var(--wds-bg-danger);
+    --st-stroke: var(--wds-stroke-danger);
+    --st-num: var(--wds-text-inverse);
+    --st-title: var(--wds-text-danger);
+    --st-conn: var(--wds-stroke-danger);
+  }
+
+  .wds-stepper[data-orientation='horizontal'] .wds-step:last-child {
+    flex: none;
+  }
+
+  .wds-step__indicator {
+    display: inline-flex;
+    width: var(--wds-sz-stepper-indicator-size);
+    height: var(--wds-sz-stepper-indicator-size);
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border: var(--wds-sz-stepper-stroke) solid var(--st-stroke);
+    border-radius: 9999px;
+    background-color: var(--st-bg);
+    color: var(--st-num);
+    font-weight: var(--wds-font-weight-medium);
+    font-size: var(--wds-sz-text-caption-font-size);
+  }
+
+  .wds-step__check {
+    width: 5px;
+    height: 10px;
+    margin-bottom: 2px;
+    border: solid var(--wds-text-inverse);
+    border-width: 0 1.5px 1.5px 0;
+    transform: rotate(45deg);
+  }
+
+  .wds-step__text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--wds-sz-stepper-text-gap);
+  }
+
+  .wds-step__title {
+    color: var(--st-title);
+    font-weight: var(--wds-font-weight-semi);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+  }
+
+  .wds-step__desc {
+    color: var(--wds-text-secondary);
+    font-size: var(--wds-sz-text-caption-font-size);
+    line-height: var(--wds-sz-text-caption-line-height);
+  }
+
+  /* Konektor ke langkah berikutnya (horizontal: elemen flex setelah teks) */
+  .wds-stepper[data-orientation='horizontal'] .wds-step:not(:last-child)::after {
+    content: '';
+    min-width: 24px;
+    flex: 1;
+    align-self: flex-start;
+    margin-top: calc(var(--wds-sz-stepper-indicator-size) / 2 - 1px);
+    margin-right: var(--wds-sz-stepper-gap);
+    height: var(--wds-sz-stepper-connector-thickness);
+    background-color: var(--st-conn);
+  }
+
+  .wds-stepper[data-orientation='vertical'] .wds-step:not(:last-child) {
+    padding-bottom: var(--wds-spacing-16);
+  }
+
+  .wds-stepper[data-orientation='vertical'] .wds-step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    top: calc(var(--wds-sz-stepper-indicator-size) + 4px);
+    bottom: 4px;
+    left: calc(var(--wds-sz-stepper-indicator-size) / 2 - 1px);
+    width: var(--wds-sz-stepper-connector-thickness);
+    background-color: var(--st-conn);
+  }
+
+  /* ---- Slider ---- */
+  .wds-slider {
+    --sl-track: var(--wds-bg-subtle-3);
+    --sl-bar: var(--wds-bg-brand);
+    --sl-thumb-stroke: var(--wds-stroke-brand);
+    width: 100%;
+    height: var(--wds-sz-slider-thumb-size);
+    margin: 0;
+    cursor: pointer;
+    appearance: none;
+    background: transparent;
+  }
+
+  .wds-slider::-webkit-slider-runnable-track {
+    height: var(--wds-sz-slider-track-height);
+    border-radius: var(--wds-sz-slider-radius);
+    background: linear-gradient(
+      to right,
+      var(--sl-bar) var(--sl-pct, 0%),
+      var(--sl-track) var(--sl-pct, 0%)
+    );
+  }
+
+  .wds-slider::-moz-range-track {
+    height: var(--wds-sz-slider-track-height);
+    border-radius: var(--wds-sz-slider-radius);
+    background-color: var(--sl-track);
+  }
+
+  .wds-slider::-moz-range-progress {
+    height: var(--wds-sz-slider-track-height);
+    border-radius: var(--wds-sz-slider-radius);
+    background-color: var(--sl-bar);
+  }
+
+  .wds-slider::-webkit-slider-thumb {
+    width: var(--wds-sz-slider-thumb-size);
+    height: var(--wds-sz-slider-thumb-size);
+    margin-top: calc((var(--wds-sz-slider-track-height) - var(--wds-sz-slider-thumb-size)) / 2);
+    box-sizing: border-box;
+    border: var(--wds-sz-slider-thumb-stroke) solid var(--sl-thumb-stroke);
+    border-radius: 9999px;
+    appearance: none;
+    background-color: var(--wds-bg-surface);
+  }
+
+  .wds-slider::-moz-range-thumb {
+    width: var(--wds-sz-slider-thumb-size);
+    height: var(--wds-sz-slider-thumb-size);
+    box-sizing: border-box;
+    border: var(--wds-sz-slider-thumb-stroke) solid var(--sl-thumb-stroke);
+    border-radius: 9999px;
+    background-color: var(--wds-bg-surface);
+  }
+
+  .wds-slider:active {
+    --sl-bar: var(--wds-bg-brand-pressed);
+    --sl-thumb-stroke: var(--wds-stroke-focus);
+  }
+
+  .wds-slider:focus-visible {
+    outline: 1px solid var(--wds-stroke-focus);
+    outline-offset: 4px;
+    border-radius: 9999px;
+  }
+
+  .wds-slider:disabled {
+    --sl-track: var(--wds-bg-disabled);
+    --sl-bar: var(--wds-bg-disabled-2);
+    --sl-thumb-stroke: var(--wds-stroke-disabled);
+    cursor: not-allowed;
+  }
+
+  /* ---- Rating ---- */
+  .wds-rating {
+    display: inline-flex;
+    gap: var(--wds-sz-rating-gap);
+  }
+
+  .wds-rating__star {
+    display: inline-flex;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    line-height: 0;
+  }
+
+  button.wds-rating__star {
+    cursor: pointer;
+  }
+
+  button.wds-rating__star:focus-visible {
+    outline: 1px solid var(--wds-stroke-focus);
+    outline-offset: 2px;
+    border-radius: var(--wds-radius-4);
+  }
+
+  .wds-rating__star > svg {
+    width: var(--wds-sz-rating-star-size);
+    height: var(--wds-sz-rating-star-size);
+    fill: var(--wds-icons-disabled);
+  }
+
+  .wds-rating__star > svg[data-filled] {
+    fill: var(--wds-icons-warning);
+  }
+
+  /* ---- Segmented control ---- */
+  .wds-segmented {
+    display: inline-flex;
+    gap: var(--wds-spacing-4);
+    padding: var(--wds-sz-segmented-control-root-padding-top);
+    border-radius: var(--wds-sz-segmented-control-root-radius);
+    background-color: var(--wds-bg-subtle-2);
+    font-family: var(--wds-sz-text-body-font-family);
+  }
+
+  .wds-segmented[data-full] {
+    display: flex;
+    width: 100%;
+  }
+
+  .wds-segmented[data-full] .wds-segmented__item {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .wds-segmented__item {
+    display: inline-flex;
+    cursor: pointer;
+    align-items: center;
+    gap: var(--wds-spacing-8);
+    padding: var(--wds-padding-8) var(--wds-padding-12);
+    border: 0;
+    border-radius: var(--wds-radius-8);
+    background: transparent;
+    color: var(--wds-text-tertiary);
+    font-family: inherit;
+    font-weight: var(--wds-font-weight-medium);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+    white-space: nowrap;
+  }
+
+  .wds-segmented__item > svg {
+    width: var(--wds-sz-icon-size);
+    height: var(--wds-sz-icon-size);
+  }
+
+  .wds-segmented__item[data-current] {
+    background-color: var(--wds-bg-elevated);
+    color: var(--wds-text-primary);
+  }
+
+  .wds-segmented__item:disabled {
+    cursor: not-allowed;
+    color: var(--wds-text-disabled);
+  }
+
+  .wds-segmented__item:focus-visible {
+    outline: 1px solid var(--wds-stroke-focus);
+    outline-offset: 2px;
+  }
+}

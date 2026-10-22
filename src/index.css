@@ -15,6 +15,11 @@
 @import './shared/theme/wds/overlay.css';
 @import './shared/theme/wds/table.css';
 @import './shared/theme/wds/surface.css';
+@import './shared/theme/wds/upload.css';
+@import './shared/theme/wds/layout.css';
+@import './shared/theme/wds/nav.css';
+@import './shared/theme/wds/content.css';
+@import './shared/theme/wds/controls.css';
 @import './shared/theme/wds/feedback.css';
 @import './shared/theme/wds/feedback.generated.css';
 

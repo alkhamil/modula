@@ -1,0 +1,2 @@
+/* Theme tokens, Tailwind utilities and component classes of the app's UI (see shared/ui/index.ts). */
+@import './base/tailwind.css';

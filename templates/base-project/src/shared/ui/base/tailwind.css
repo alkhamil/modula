@@ -1,0 +1,9 @@
+/* Base kit: Inter, theme tokens, Tailwind theme and spacing utilities; imported by shared/ui/library.css. */
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import './generated/tokens.css';
+@import './generated/tailwind-theme.css';
+@import './styles/utilities.css';
+@source './';

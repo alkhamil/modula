@@ -83,7 +83,7 @@ function ExampleBlock({ slug, view, example, keyPrefix = 'examples' }: { slug: s
         tabs={[
           {
             id: 'preview',
-            label: t('tabs.preview'),
+            label: t('labels.tabs.preview'),
             content: (
               <div className="flex flex-wrap items-center gap-3 p-5">
                 {example.variants.map((variant) => (
@@ -94,7 +94,7 @@ function ExampleBlock({ slug, view, example, keyPrefix = 'examples' }: { slug: s
               </div>
             ),
           },
-          { id: 'code', label: t('tabs.code'), content: <CodeBlock code={code} flush /> },
+          { id: 'code', label: t('labels.tabs.code'), content: <CodeBlock code={code} flush /> },
         ]}
       />
     </div>
@@ -113,7 +113,7 @@ function GroupSection({ doc, group }: { doc: ComponentDoc; group: GroupDoc }) {
         ))}
       </div>
       <Table
-        head={[t('table.props.prop'), t('table.props.type'), t('table.props.default'), t('table.props.description')]}
+        head={[t('labels.table.props.prop'), t('labels.table.props.type'), t('labels.table.props.default'), t('labels.table.props.description')]}
         rows={group.props.map((p) => [
           <code key="n" className={`${chip} font-semibold`}>
             {p.name}
@@ -263,7 +263,7 @@ function DocPage({ doc }: { doc: ComponentDoc }) {
 
         <Section id="figma" title={t('sections.figma.title')} hint={t('sections.figma.hint')}>
           <Table
-            head={[t('table.figma.figma'), t('table.figma.values'), t('table.figma.props'), t('table.figma.notes')]}
+            head={[t('labels.table.figma.figma'), t('labels.table.figma.values'), t('labels.table.figma.props'), t('labels.table.figma.notes')]}
             rows={doc.figmaMapping.map((m) => [
               <span key="f" className="font-medium">
                 {m.figma}
@@ -307,7 +307,7 @@ function DocPage({ doc }: { doc: ComponentDoc }) {
 
         <Section id="props" title={t('sections.props.title')}>
           <Table
-            head={[t('table.props.prop'), t('table.props.type'), t('table.props.default'), t('table.props.description')]}
+            head={[t('labels.table.props.prop'), t('labels.table.props.type'), t('labels.table.props.default'), t('labels.table.props.description')]}
             rows={doc.props.map((p) => [
               <code key="n" className={`${chip} font-semibold`}>
                 {p.name}
@@ -329,7 +329,7 @@ function DocPage({ doc }: { doc: ComponentDoc }) {
 
         <Section id="tokens" title={t('sections.tokens.title')} hint={t('sections.tokens.hint', { file: 'tokens/tokens.json' })}>
           <Table
-            head={[t('table.tokens.variable'), t('table.tokens.value'), t('table.tokens.usage')]}
+            head={[t('labels.table.tokens.variable'), t('labels.table.tokens.value'), t('labels.table.tokens.usage')]}
             rows={doc.tokens.map((tk) => {
               const value = tokenValues[tk.name] ?? '';
               return [
