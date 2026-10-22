@@ -1,6 +1,6 @@
 import { createElement, type ReactNode } from 'react';
 import * as Icons from '../../../shared/components/icons';
-import { isIconRef } from './types';
+import { isIconRef, isRawRef } from './types';
 
 const iconMap = Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
 
@@ -8,7 +8,9 @@ const iconMap = Icons as unknown as Record<string, React.ComponentType<{ classNa
 export function resolveProps(props: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(props)) {
-    if (isIconRef(value)) {
+    if (isRawRef(value)) {
+      out[key] = value.value;
+    } else if (isIconRef(value)) {
       const Icon = iconMap[value.$icon];
       out[key] = Icon ? createElement(Icon) : null;
     } else {
@@ -19,6 +21,7 @@ export function resolveProps(props: Record<string, unknown>): Record<string, unk
 }
 
 function literal(value: unknown): string | null {
+  if (isRawRef(value)) return `{${value.$raw}}`;
   if (isIconRef(value)) return `{<${value.$icon} />}`;
   if (typeof value === 'string') return JSON.stringify(value);
   if (typeof value === 'number') return `{${value}}`;
@@ -58,10 +61,10 @@ export function toJsx(
 
 /** Kode contoh satu komponen dari data dokumentasi (nama/atribut tambahan/props yang disembunyikan). */
 export function docCode(
-  doc: { name: string; codeName?: string; codeExtra?: string[]; codeOmit?: string[]; defaults?: Record<string, unknown> },
+  doc: { name: string; codeChildren?: string; codeName?: string; codeNameFor?: (props: Record<string, unknown>) => string; codeExtra?: string[]; codeOmit?: string[]; defaults?: Record<string, unknown> },
   props: Record<string, unknown>,
   children?: ReactNode,
 ): string {
   const visible = Object.fromEntries(Object.entries(props).filter(([key]) => !doc.codeOmit?.includes(key)));
-  return toJsx(doc.codeName ?? doc.name, visible, doc.defaults ?? {}, children, doc.codeExtra ?? []);
+  return toJsx(doc.codeNameFor?.(props) ?? doc.codeName ?? doc.name, visible, doc.defaults ?? {}, doc.codeChildren ?? children, doc.codeExtra ?? []);
 }

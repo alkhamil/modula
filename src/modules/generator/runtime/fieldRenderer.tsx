@@ -7,14 +7,12 @@ import {
   CheckboxGroup,
   ColorField,
   DatePicker,
-  DateRangePicker,
   EditorField,
   FileUpload,
   FormArrayField,
   PasswordField,
   RadioButtonGroup,
   Select,
-  SelectMultiple,
   Toggle,
   Textarea,
   InputField,
@@ -146,7 +144,8 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={DateRangePicker}
+          component={DatePicker}
+          range
           placeholder={placeholderFor('Select')}
           {...(p?.size ? { size: p.size } : {})}
           {...(maxDate ? { maxDate } : {})}
@@ -204,7 +203,8 @@ export function renderDynamicField(
           <FormItem
             label={label}
             {...common}
-            component={SelectMultiple}
+            component={Select}
+            multiple
             placeholder={placeholderFor('Select')}
             searchable={p?.searchable ?? true}
             paginateOnScroll={p?.paginateOnScroll ?? true}
@@ -226,7 +226,8 @@ export function renderDynamicField(
         <FormItem
           label={label}
           {...common}
-          component={SelectMultiple}
+          component={Select}
+            multiple
           placeholder={placeholderFor('Select')}
           options={ctx.optionsOf(field)}
           searchable={p?.searchable ?? true}

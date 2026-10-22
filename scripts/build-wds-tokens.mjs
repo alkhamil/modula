@@ -238,7 +238,7 @@ writeFileSync(join(OUT, 'wds/button.generated.css'), btn.join('\n'));
 // Fokus ortogonal (cincin di CSS statis). Nilai kosong (NaN) pada disabled-off mewarisi `default`.
 const SC_SOURCES = [
   { kind: 'checkbox', coll: 'Checkbox states', states: ['default', 'selected', 'indeterminate', 'disabled-off', 'disabled-on', 'error'] },
-  { kind: 'radio', coll: 'RadioButton btn states', states: ['default', 'selected', 'disabled-off', 'disabled-on', 'error'] },
+  { kind: 'radio', coll: 'Radio btn states', states: ['default', 'selected', 'disabled-off', 'disabled-on', 'error'] },
   { kind: 'toggle', coll: 'Toggle states', states: ['default', 'selected', 'disabled-off', 'disabled-on', 'error'] },
 ];
 const SC_BASE = '_Selection Controls';
@@ -292,6 +292,221 @@ for (const { kind, coll, states } of SC_SOURCES) {
 }
 sc.push('}', '');
 writeFileSync(join(OUT, 'wds/selection.generated.css'), sc.join('\n'));
+
+// ---------- field.generated.css (Input field, Textarea) ----------
+// State DOM: default, selected (fokus + kosong), typing (fokus + isi), filled, disabled,
+// error-empty, error-filled, read-only. Cincin fokus (state `focused`) ada di CSS statis.
+const FIELD_STATES = ['default', 'selected', 'typing', 'filled', 'disabled', 'error-empty', 'error-filled', 'read-only'];
+const fld = [HEADER, '@layer components {', ''];
+const FIELD_COLORS = [
+  ['--f-bg', 'color.background'],
+  ['--f-fg', 'color.text'],
+  ['--f-icon', 'color.icons'],
+  ['--f-icon-error', 'color.icons-error'],
+  ['--f-stroke', 'color.stroke'],
+  ['--f-hint', 'color.hint'],
+  ['--f-dd-bg', 'color.dropdown'],
+  ['--f-dd-fg', 'color.dropdown-text'],
+  ['--f-dd-icon', 'color.dropdown-icons'],
+  ['--f-dd-stroke', 'color.dropdown-stroke'],
+];
+const sides = (get, prefix) => ['top', 'right', 'bottom', 'left'].map((side) => get(`${prefix}${side}`)).join(' ');
+
+// Input field: style (box/underline) x state
+for (const style of store.get('Input styles').keys()) {
+  const sty = entries('Input styles', style);
+  const sel = { 'Input styles': style, Size: 'md' };
+  const g = (key) => toCss(key, sty.get(key), { coll: 'Input styles', sel });
+  fld.push(
+    `.wds-field[data-kind="input"][data-appearance="${style}"] {`,
+    `  --f-radius: ${g('radius')};`,
+    `  --f-focus-radius: ${g('focus.radius')};`,
+    `  --f-bw: ${['top', 'right', 'bottom', 'left'].map((side) => g(`stroke.${side}`)).join(' ')};`,
+    `  --f-dd-lead-pad: ${sides(g, 'padding.leading-dropdown.')};`,
+    `  --f-dd-trail-pad: ${sides(g, 'padding.trailing-dropdown.')};`,
+    '}',
+    '',
+  );
+  for (const state of FIELD_STATES) {
+    const e = entries('Input states', state);
+    const sc = { ...sel, 'Input states': state };
+    const items = FIELD_COLORS.filter(([, key]) => e.has(key)).map(
+      ([name, key]) => `  ${name}: ${toCss(key, e.get(key), { coll: 'Input states', sel: sc })};`,
+    );
+    fld.push(`.wds-field[data-kind="input"][data-appearance="${style}"][data-state="${state}"] {`, ...items, '}', '');
+  }
+}
+
+// Textarea: satu style (box); mode `focus` Figma = state `selected`
+{
+  const sty = entries('Textarea styles', 'box');
+  const sel = { 'Textarea styles': 'box', Size: 'md' };
+  const g = (key) => toCss(key, sty.get(key), { coll: 'Textarea styles', sel });
+  fld.push(
+    `.wds-field[data-kind="textarea"] {`,
+    `  --f-radius: ${g('radius')};`,
+    `  --f-focus-radius: ${g('focus.radius')};`,
+    `  --f-bw: ${['top', 'right', 'bottom', 'left'].map((side) => g(`stroke.${side}`)).join(' ')};`,
+    `  --f-pad: ${g('padding.top')} ${g('padding.right')} ${g('padding.bottom')} ${g('padding.left')};`,
+    `  --f-resize: ${g('color.resize-line')};`,
+    '}',
+    '',
+  );
+  const TEXTAREA_MODE = { selected: 'focus' };
+  for (const state of FIELD_STATES) {
+    const mode = TEXTAREA_MODE[state] ?? state;
+    const e = entries('Textarea states', mode);
+    const sc = { ...sel, 'Textarea states': mode };
+    const pairs = [['--f-bg', 'color.background'], ['--f-fg', 'color.text'], ['--f-stroke', 'color.stroke'], ['--f-hint', 'color.hint']];
+    const items = pairs.map(([name, key]) => `  ${name}: ${toCss(key, e.get(key), { coll: 'Textarea states', sel: sc })};`);
+    fld.push(`.wds-field[data-kind="textarea"][data-state="${state}"] {`, ...items, '}', '');
+  }
+}
+// Select & Date Picker: kotak seperti Input (tanpa state typing), + warna tag (Select) per style.
+const COMBO_STATES = ['default', 'selected', 'filled', 'disabled', 'error-empty', 'error-filled', 'read-only'];
+const COMBO_COLORS = [
+  ['--f-bg', 'color.background'],
+  ['--f-fg', 'color.text'],
+  ['--f-icon', 'color.icons'],
+  ['--f-stroke', 'color.stroke'],
+  ['--f-hint', 'color.hint'],
+];
+const COMBOS = [
+  { kind: 'select', styles: 'Select styles', states: 'Select states', radius: 'radius', bw: (side) => `stroke.${side}`, extra: ['tag-background', 'tag-text', 'tag-icon'] },
+  { kind: 'date', styles: 'Date Picker styles', states: 'Date Picker states', radius: 'radius.input', bw: (side) => `stroke-weight.${side}`, extra: [] },
+];
+for (const combo of COMBOS) {
+  for (const style of store.get(combo.styles).keys()) {
+    const sty = entries(combo.styles, style);
+    const sel = { [combo.styles]: style, Size: 'md' };
+    const g = (key) => toCss(key, sty.get(key), { coll: combo.styles, sel });
+    const items = [
+      `  --f-radius: ${g(combo.radius)};`,
+      `  --f-focus-radius: ${g('focus.radius')};`,
+      `  --f-bw: ${['top', 'right', 'bottom', 'left'].map((side) => g(combo.bw(side))).join(' ')};`,
+    ];
+    if (combo.kind === 'select') {
+      items.push(`  --f-pad: ${['top', 'right', 'bottom', 'left'].map((side) => g(`padding.${side}`)).join(' ')};`);
+      items.push(`  --f-tag-bg: ${g('color.tag-background')};`, `  --f-tag-fg: ${g('color.tag-text')};`, `  --f-tag-icon: ${g('color.tag-icon')};`);
+    }
+    fld.push(`.wds-field[data-kind="${combo.kind}"][data-appearance="${style}"] {`, ...items, '}', '');
+    for (const state of COMBO_STATES) {
+      const e = entries(combo.states, state);
+      const sc = { ...sel, [combo.states]: state };
+      const lines = COMBO_COLORS.filter(([, key]) => e.has(key)).map(
+        ([name, key]) => `  ${name}: ${toCss(key, e.get(key), { coll: combo.states, sel: sc })};`,
+      );
+      fld.push(`.wds-field[data-kind="${combo.kind}"][data-appearance="${style}"][data-state="${state}"] {`, ...lines, '}', '');
+    }
+  }
+}
+fld.push('}', '');
+writeFileSync(join(OUT, 'wds/field.generated.css'), fld.join('\n'));
+
+// ---------- menu.generated.css (Dropdown, Menu item, kalender) ----------
+const mnu = [HEADER, '@layer components {', ''];
+{
+  const dd = entries('Dropdown styles', 'default');
+  const sel = { 'Dropdown styles': 'default', Size: 'md' };
+  const g = (key) => toCss(key, dd.get(key), { coll: 'Dropdown styles', sel });
+  const sz = (key) => toCss(key, entries('Size', 'md').get(key), { coll: 'Size', sel: { Size: 'md' } });
+  mnu.push(
+    '.wds-menu {',
+    `  --m-bg: ${g('color.background')};`,
+    `  --m-stroke: ${g('color.stroke')};`,
+    `  --m-radius: ${sz('dropdown.radius')};`,
+    `  --m-stroke-w: ${sz('dropdown.stroke')};`,
+    `  --m-pad: ${['top', 'right', 'bottom', 'left'].map((side) => sz(`dropdown.padding.${side}`)).join(' ')};`,
+    `  --m-gap: ${sz('dropdown.gap')};`,
+    '}',
+    '',
+  );
+  for (const state of store.get('Menu item states').keys()) {
+    const e = entries('Menu item states', state);
+    const sc = { 'Menu item states': state, Size: 'md' };
+    const items = [
+      ['--mi-bg', 'color.background'],
+      ['--mi-fg', 'color.text'],
+      ['--mi-support', 'color.supporting-text'],
+      ['--mi-icon', 'color.icons'],
+    ].map(([name, key]) => `  ${name}: ${toCss(key, e.get(key), { coll: 'Menu item states', sel: sc })};`);
+    mnu.push(`.wds-menu__item[data-state="${state}"] {`, ...items, '}', '');
+  }
+  // Kalender (Date Picker): warna per style + day cell per state.
+  for (const style of store.get('Date Picker styles').keys()) {
+    const e = entries('Date Picker styles', style);
+    const sc = { 'Date Picker styles': style, Size: 'md' };
+    const c = (key) => toCss(key, e.get(key), { coll: 'Date Picker styles', sel: sc });
+    mnu.push(
+      `.wds-cal[data-appearance="${style}"] {`,
+      `  --c-bg: ${c('color.background-calendar')};`,
+      `  --c-radius: ${c('radius.calendar')};`,
+      `  --c-header: ${c('color.header-text')};`,
+      `  --c-weekday: ${c('color.weekday-text')};`,
+      `  --c-nav: ${c('color.nav-icons')};`,
+      `  --c-divider: ${toCss('color.divider', entries('Calendar styles', 'default').get('color.divider'), { coll: 'Calendar styles', sel: sc })};`,
+      '}',
+      '',
+    );
+  }
+}
+mnu.push('}', '');
+writeFileSync(join(OUT, 'wds/menu.generated.css'), mnu.join('\n'));
+
+// ---------- feedback.generated.css (Badge, Alert, Tooltip) ----------
+const fb = [HEADER, '@layer components {', ''];
+{
+  const sz = (key) => toCss(key, entries('Size', 'md').get(key), { coll: 'Size', sel: { Size: 'md' } });
+  // Badge: warna per style (neutral, primary, info, success, warning, danger)
+  for (const style of store.get('Badge styles').keys()) {
+    const e = entries('Badge styles', style);
+    const sel = { 'Badge styles': style, Size: 'md' };
+    const c = (key) => toCss(key, e.get(key), { coll: 'Badge styles', sel });
+    fb.push(
+      `.wds-badge[data-style="${style}"] {`,
+      `  --b-bg: ${c('background')};`,
+      `  --b-fg: ${c('text')};`,
+      `  --b-icon: ${c('icons')};`,
+      `  --b-counter-fg: ${c('text-counter')};`,
+      '}',
+      '',
+    );
+  }
+  // Alert: style (info, success, warning, danger) x varian (basic, solid, light, left-stroke)
+  for (const style of store.get('Alert styles').keys()) {
+    for (const variant of store.get('Alert variant').keys()) {
+      const e = entries('Alert variant', variant);
+      const sel = { 'Alert styles': style, 'Alert variant': variant, Size: 'md' };
+      const c = (key) => toCss(key, e.get(key), { coll: 'Alert variant', sel });
+      fb.push(
+        `.wds-alert[data-style="${style}"][data-appearance="${variant}"] {`,
+        `  --a-bg: ${c('color.background')};`,
+        `  --a-title: ${c('color.title')};`,
+        `  --a-support: ${c('color.supporting-text')};`,
+        `  --a-icon: ${c('color.icons')};`,
+        `  --a-close: ${c('color.close')};`,
+        `  --a-action: ${c('color.action')};`,
+        `  --a-stroke: ${c('color.stroke')};`,
+        `  --a-bw: ${['top', 'right', 'bottom', 'left'].map((side) => c(`stroke.${side}`)).join(' ')};`,
+        '}',
+        '',
+      );
+    }
+  }
+  fb.push('.wds-alert {', `  --a-radius: ${sz('alert.root-radius')};`, `  --a-text-gap: ${sz('alert.text-gap')};`, '}', '');
+  // Tooltip
+  const tt = entries('Tooltip styles', 'default');
+  const tsel = { 'Tooltip styles': 'default', Size: 'md' };
+  fb.push(
+    '.wds-tooltip {',
+    `  --t-bg: ${toCss('color.background', tt.get('color.background'), { coll: 'Tooltip styles', sel: tsel })};`,
+    `  --t-fg: ${toCss('color.text', tt.get('color.text'), { coll: 'Tooltip styles', sel: tsel })};`,
+    '}',
+    '',
+  );
+}
+fb.push('}', '');
+writeFileSync(join(OUT, 'wds/feedback.generated.css'), fb.join('\n'));
 
 const count = [...store.values()].reduce((n, modes) => n + modes.size, 0);
 console.log(`WDS tokens: ${store.size} koleksi, ${count} mode; Button ${HIERARCHIES.length} hierarchy x ${STATES.length} state.`);

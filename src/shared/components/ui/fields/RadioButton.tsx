@@ -23,7 +23,7 @@ interface RadioButtonProps {
   'data-wds-state'?: string;
 }
 
-/** RadioButton WDS (Figma "RadioButton Button": Style outline/solid; state dari token RadioButton btn states). */
+/** RadioButton WDS (Figma "Radio Button": Style outline/solid; state dari token Radio btn states). */
 function RadioButton({
   value,
   checked,

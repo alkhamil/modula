@@ -1,10 +1,11 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { createPortal } from 'react-dom';
 import { useDebounce, useClickOutside, useSelectDropdown } from '../../../hooks';
 import { stripNonAscii } from '../../../utils';
 import type { SelectOption, LoadOptionsFn } from './Select';
-import { DangerCircle } from '../../icons';
+import { AltArrowDown, AltArrowUp, Check, CloseCircle } from '../../icons';
+import type { FieldSize } from './fieldState';
+import { MenuItem, MenuPanel, SelectSpinner } from './SelectParts';
 
 function dedupeByValue(list: SelectOption[]): SelectOption[] {
   const seen = new Set<string>();
@@ -17,10 +18,22 @@ function dedupeByValue(list: SelectOption[]): SelectOption[] {
   return out;
 }
 
-interface SelectMultipleProps {
-  size?: 'sm' | 'md' | 'lg';
+export interface MultipleSelectProps {
+  /** Mode multiple (nilai `string[]`). */
+  multiple: true;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: FieldSize;
+  /** Style WDS (mode "Select styles"): box (default) atau underline. */
+  appearance?: 'box' | 'underline';
   disabled?: boolean;
+  /** State read-only: tampil seperti disabled tetapi nilainya tetap terbaca. */
+  readOnly?: boolean;
+  /** Pesan error: state error + teks di slot hint (warna danger). */
   error?: string;
+  /** Teks pendukung di bawah field (digantikan `error`). */
+  hint?: React.ReactNode;
+  /** Hanya dokumentasi: paksa state `selected` (terbuka) atau `focused` (cincin fokus). */
+  'data-wds-state'?: string;
   placeholder?: string;
   options?: SelectOption[];
   loadOptions?: LoadOptionsFn;
@@ -71,28 +84,14 @@ interface SelectMultipleProps {
   isOptionDisabled?: (option: SelectOption) => boolean;
 }
 
-const sizeStyles: Record<string, string> = {
-  sm: 'px-3 py-1.5 text-xs min-h-[34px]',
-  md: 'pl-4 pr-3 py-2.5 text-sm min-h-[44px]',
-  lg: 'pl-5 pr-3 py-3 text-base min-h-[52px]',
-};
-
-const iconSizeStyles: Record<string, string> = {
-  sm: 'h-4 w-4',
-  md: 'h-5 w-5',
-  lg: 'h-5 w-5',
-};
-
-const tagSizeStyles: Record<string, string> = {
-  sm: 'px-1.5 py-0.5 text-xs',
-  md: 'px-2 py-0.5 text-xs',
-  lg: 'px-2 py-1 text-sm',
-};
-
 function SelectMultiple({
   size = 'md',
+  appearance = 'box',
   disabled = false,
+  readOnly = false,
   error,
+  hint,
+  'data-wds-state': forcedState,
   placeholder = 'Select...',
   options: staticOptions,
   loadOptions,
@@ -117,7 +116,7 @@ function SelectMultiple({
   testId,
   'data-testid': dataTestId,
   isOptionDisabled,
-}: SelectMultipleProps) {
+}: Omit<MultipleSelectProps, 'multiple'>) {
   const { t } = useTranslation();
   const resolvedEmptyText = emptyOptionsText ?? t('fields.noOptions');
   const [isOpen, setIsOpen] = useState(false);
@@ -191,39 +190,24 @@ function SelectMultiple({
   }, [value, chipsSummary, applyMeasurement]);
 
   const showChipsSummary = chipsSummary && value.length > 0 && summaryOverflow;
-  const chipClasses = [
-    'inline-flex items-center gap-0.5 rounded-full font-medium',
-    'bg-muted text-foreground',
-    tagSizeStyles[size],
-  ].join(' ');
+  const chipClasses = 'wds-field__tag';
 
   const selectedOptions = options.filter((o) => value.includes(o.value));
 
   const renderChips = selectedOptions.map((opt) => (
     <span key={opt.value} className={chipClasses}>
-      {chipLabel ? chipLabel(opt) : opt.label}
+      <span className="wds-field__tag-label">{chipLabel ? chipLabel(opt) : opt.label}</span>
       <button
         type="button"
+        aria-label="Remove"
         onClick={(e) => {
-          if (disabled) return;
+          if (disabled || readOnly) return;
           removeValue(opt.value, e);
         }}
-        className={[
-          'flex items-center rounded-sm transition-colors focus-visible:outline-none',
-          disabled
-            ? 'text-muted-foreground opacity-50 cursor-not-allowed'
-            : 'cursor-pointer hover:text-primary',
-        ].join(' ')}
+        className="wds-field__tag-remove"
         tabIndex={-1}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          className="h-3 w-3"
-        >
-          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-        </svg>
+        <CloseCircle />
       </button>
     </span>
   ));
@@ -416,21 +400,40 @@ function SelectMultiple({
     onChange([]);
   }
 
-  const triggerBaseClass = [
-    'flex w-full items-center rounded-lg border outline-none transition-colors',
-    error
-      ? 'border-danger focus:border-danger focus:ring-2 focus:ring-danger/20 focus-visible:border-danger focus-visible:ring-2 focus-visible:ring-danger/20 focus-within:border-danger focus-within:ring-2 focus-within:ring-danger/20'
-      : 'border-border focus:border-primary focus:ring-2 focus:ring-primary/30 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30',
-    disabled ? 'cursor-not-allowed' : 'bg-background cursor-pointer',
-  ].join(' ');
+  const invalid = Boolean(error);
+  const slot = error ?? hint;
+  const open = isOpen || forcedState === 'selected';
+  const filled = value.length > 0;
+  const state = disabled
+    ? 'disabled'
+    : readOnly
+      ? 'read-only'
+      : invalid
+        ? filled
+          ? 'error-filled'
+          : 'error-empty'
+        : open
+          ? 'selected'
+          : filled
+            ? 'filled'
+            : 'default';
+  const interactive = !disabled && !readOnly;
+
+  function handleToggle() {
+    if (interactive) toggle();
+  }
+
+  const showClear = !loading && interactive && clearable && filled;
 
   const triggerContent = (
     <>
-      <div ref={contentRef} className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
+      <div ref={contentRef} className="wds-field__tags">
         {showChipsSummary ? (
-          <span className={chipClasses}>{summaryFormat(value.length)}</span>
+          <span className={chipClasses}>
+            <span className="wds-field__tag-label">{summaryFormat(value.length)}</span>
+          </span>
         ) : (
-          value.length > 0 && renderChips
+          filled && renderChips
         )}
         {searchable ? (
           <input
@@ -440,101 +443,73 @@ function SelectMultiple({
             onChange={handleSearchInput}
             onKeyDown={handleSearchKeyDown}
             onFocus={() => {
-              if (!isOpen) toggle();
+              if (!isOpen && interactive) toggle();
             }}
             onClick={(e) => e.stopPropagation()}
-            placeholder={value.length > 0 ? '' : placeholder}
+            placeholder={filled ? '' : placeholder}
             disabled={disabled}
-            className="min-w-15 flex-1 bg-transparent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:text-muted-foreground"
+            readOnly={readOnly}
+            aria-invalid={invalid ? true : undefined}
+            className="wds-field__input min-w-15"
           />
-        ) : value.length === 0 ? (
-          <span className="flex-1 text-muted-foreground">{placeholder}</span>
+        ) : !filled ? (
+          <span className="wds-field__value">{placeholder}</span>
         ) : null}
-        {value.length > 0 && !searchable && <span className="flex-1" />}
       </div>
-      <span className="flex shrink-0 items-center text-muted-foreground">
-        {loading ? (
-          <svg
-            className={[iconSizeStyles[size], 'animate-spin'].join(' ')}
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            />
-          </svg>
-        ) : !disabled && clearable && value.length > 0 ? (
+      {loading && (
+        <span className="wds-field__icon">
+          <SelectSpinner />
+        </span>
+      )}
+      {showClear && (
+        <>
           <button
             type="button"
             onClick={clearAll}
-            className="flex cursor-pointer items-center rounded-sm transition-colors hover:text-foreground focus-visible:outline-none"
+            aria-label="Clear"
             tabIndex={-1}
+            className="wds-field__icon wds-field__action"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className={iconSizeStyles[size]}
-            >
-              <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-            </svg>
+            <CloseCircle />
           </button>
-        ) : null}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          className={iconSizeStyles[size]}
-        >
-          <path
-            fillRule="evenodd"
-            d="M5.22 8.22a.75.75 0 011.06 0L10 11.94l3.72-3.72a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.22 9.28a.75.75 0 010-1.06z"
-            clipRule="evenodd"
-          />
-        </svg>
-        {error && <DangerCircle className="h-3.5 w-3.5" />}
+          <span className="wds-field__divider" aria-hidden="true" />
+        </>
+      )}
+      <span className="wds-field__icon" aria-hidden="true">
+        {open ? <AltArrowUp /> : <AltArrowDown />}
       </span>
     </>
   );
 
   return (
-    <div data-testid={dataTestId ?? testId} className={className}>
-      <div ref={wrapperRef} className="relative">
+    <div
+      data-testid={dataTestId ?? testId}
+      className={['wds-field', className].filter(Boolean).join(' ')}
+      data-kind="select"
+      data-appearance={appearance}
+      data-state={state}
+      data-wds-size={size}
+      data-wds-state={forcedState}
+    >
+      <div ref={wrapperRef} className="wds-field__box">
         {searchable ? (
-          <div
-            className={[triggerBaseClass, disabled ? 'bg-muted' : '', sizeStyles[size]].join(
-              ' ',
-            )}
-            onClick={toggle}
-          >
+          <div className="wds-field__content" onClick={handleToggle}>
             {triggerContent}
           </div>
         ) : (
           <button
             type="button"
-            onClick={toggle}
+            onClick={handleToggle}
             disabled={disabled}
-            className={[
-              triggerBaseClass,
-              disabled ? 'bg-muted text-muted-foreground' : 'cursor-pointer',
-              sizeStyles[size],
-            ].join(' ')}
+            aria-haspopup="listbox"
+            aria-expanded={isOpen}
+            aria-invalid={invalid ? true : undefined}
+            className="wds-field__content wds-field__trigger"
           >
             {triggerContent}
           </button>
         )}
-        {chipsSummary && value.length > 0 && (
+        {chipsSummary && filled && (
           <div
             ref={measureRef}
             aria-hidden="true"
@@ -543,120 +518,83 @@ function SelectMultiple({
             {renderChips}
           </div>
         )}
-        {isOpen &&
-          dropdownPosition &&
-          createPortal(
-            <div
-              ref={dropdownRef}
-              data-select-dropdown
-              onMouseDown={(e) => e.stopPropagation()}
-              style={{
-                position: 'fixed',
-                top: dropdownPosition.top,
-                left: dropdownPosition.left,
-                width: dropdownPosition.width,
-                zIndex: 50,
-              }}
-              className="rounded-lg border border-border bg-background shadow-lg mt-2"
-            >
-              <div ref={listRef} onScroll={handleListScroll} className="max-h-60 overflow-y-auto">
-                {loading && loadedOptions.length === 0 ? (
-                  <div className="flex items-center justify-center py-6">
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-primary" />
-                  </div>
-                ) : loadError ? (
-                  <div className="flex flex-col items-center gap-2 px-3 py-6 text-sm">
-                    <span className="text-danger">{loadError}</span>
-                    <button
-                      type="button"
-                      onClick={() => load(searchTerm || undefined)}
-                      className="text-sm font-medium text-primary hover:text-primary/80"
-                    >
-                      Retry
-                    </button>
-                  </div>
-                ) : !loading && listOptions.length === 0 ? (
-                  <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-                    {resolvedEmptyText}
-                  </p>
-                ) : (
-                  <>
-                    {listOptions.map((opt, index) => {
-                      const isSelected = value.includes(opt.value);
-                      const disabled = isOptionDisabled?.(opt) ?? false;
-                      const focused = highlightedIndex === index;
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          data-focused-index={index}
-                          disabled={disabled}
-                          onClick={() => toggleOption(opt)}
-                          onMouseMove={() => {
-                            if (!disabled) setHighlightedIndex(index);
-                          }}
-                          className={[
-                            'flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors',
-                            disabled
-                              ? 'cursor-not-allowed text-muted-foreground'
-                              : focused && !isSelected
-                                ? 'cursor-pointer bg-muted text-foreground'
-                                : isSelected
-                                  ? 'cursor-pointer bg-primary/10 text-primary font-medium'
-                                  : 'cursor-pointer text-foreground hover:bg-muted',
-                          ].join(' ')}
-                        >
-                          {!hideCheckBox && (
-                            <span
-                              className={[
-                                'flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors',
-                                disabled
-                                  ? 'border-border bg-muted'
-                                  : isSelected
-                                    ? 'border-primary bg-primary text-primary-foreground'
-                                    : 'border-border',
-                              ].join(' ')}
-                            >
-                              {isSelected && !disabled && (
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                  className="h-3 w-3"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              )}
-                            </span>
-                          )}
-                          {opt.label}
-                          {disabled && <span className="text-xs"></span>}
-                        </button>
-                      );
-                    })}
-                    {loading && (
-                      <div className="flex items-center justify-center py-2">
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-primary" />
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>,
-            document.body,
-          )}
       </div>
-      {error && (
-        <p
-          data-testid={testId ? `${testId}-error` : undefined}
-          className="mt-1 text-xs text-danger"
-          role="alert"
+
+      {isOpen && dropdownPosition && (
+        <MenuPanel
+          dropdownRef={dropdownRef}
+          position={dropdownPosition}
+          size={size}
+          listRef={listRef}
+          onScroll={handleListScroll}
         >
-          {error}
+          {loading && loadedOptions.length === 0 ? (
+            <div className="flex items-center justify-center py-6 text-[var(--wds-icons-secondary)]">
+              <span className="wds-field__icon">
+                <SelectSpinner />
+              </span>
+            </div>
+          ) : loadError ? (
+            <div className="flex flex-col items-center gap-2 p-4">
+              <span className="wds-menu__empty !p-0 !text-[var(--wds-text-danger)]">{loadError}</span>
+              <button
+                type="button"
+                data-state="default"
+                onClick={() => load(searchTerm || undefined)}
+                className="wds-menu__item !w-auto"
+              >
+                Retry
+              </button>
+            </div>
+          ) : !loading && listOptions.length === 0 ? (
+            <p className="wds-menu__empty">{resolvedEmptyText}</p>
+          ) : (
+            <>
+              {listOptions.map((opt, index) => {
+                const isSelected = value.includes(opt.value);
+                const optionDisabled = isOptionDisabled?.(opt) ?? false;
+                return (
+                  <MenuItem
+                    key={opt.value}
+                    index={index}
+                    disabled={optionDisabled}
+                    selected={isSelected && hideCheckBox}
+                    highlighted={highlightedIndex === index && !(isSelected && hideCheckBox)}
+                    leading={
+                      !hideCheckBox ? (
+                        <span className="wds-menu__check" data-checked={isSelected ? 'true' : 'false'}>
+                          {isSelected && <Check />}
+                        </span>
+                      ) : undefined
+                    }
+                    onClick={() => toggleOption(opt)}
+                    onMouseMove={() => {
+                      if (!optionDisabled) setHighlightedIndex(index);
+                    }}
+                  >
+                    {opt.label}
+                  </MenuItem>
+                );
+              })}
+              {loading && (
+                <div className="flex items-center justify-center py-2 text-[var(--wds-icons-secondary)]">
+                  <span className="wds-field__icon">
+                    <SelectSpinner />
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+        </MenuPanel>
+      )}
+
+      {slot && (
+        <p
+          data-testid={error && (dataTestId ?? testId) ? `${dataTestId ?? testId}-error` : undefined}
+          className="wds-field__hint"
+          role={error ? 'alert' : undefined}
+        >
+          {slot}
         </p>
       )}
     </div>

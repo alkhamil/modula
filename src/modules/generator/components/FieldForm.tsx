@@ -371,6 +371,10 @@ function componentLabel(t: (key: string) => string, type: FieldType): string {
       return t('field.compNumber');
     case 'currencyField':
       return t('field.compCurrency');
+    case 'selectMultipleField':
+      return 'Select (multiple)';
+    case 'dateRangeField':
+      return 'DatePicker (range)';
     default:
       return fieldTypeRegistry[type].component;
   }

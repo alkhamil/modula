@@ -1,0 +1,221 @@
+/*
+ * Badge, Alert, dan Tooltip WDS. Warna dari `feedback.generated.css` (`--b-*`, `--a-*`, `--t-*`);
+ * ukuran/jarak/tipografi dari token Size (per `data-wds-size`). Di @layer components.
+ */
+@layer components {
+  /* ---- Badge ---- */
+  .wds-badge {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--wds-sz-badge-gap);
+    padding: var(--wds-sz-badge-padding-top) var(--wds-sz-badge-padding-right)
+      var(--wds-sz-badge-padding-bottom) var(--wds-sz-badge-padding-left);
+    border-radius: 9999px;
+    background-color: var(--b-bg);
+    color: var(--b-fg);
+    font-family: var(--wds-sz-text-badge-font-family);
+    font-weight: var(--wds-font-weight-medium);
+    font-size: var(--wds-sz-text-badge-font-size);
+    line-height: var(--wds-sz-text-badge-line-height);
+    white-space: nowrap;
+  }
+
+  .wds-badge[data-counter='true'] {
+    padding-right: var(--wds-sz-badge-padding-right-offset);
+  }
+
+  .wds-badge[data-icon-only='true'] {
+    padding: var(--wds-sz-badge-padding-all);
+  }
+
+  .wds-badge__icon {
+    display: inline-flex;
+    width: var(--wds-sz-icon-size);
+    height: var(--wds-sz-icon-size);
+    flex-shrink: 0;
+    color: var(--b-icon);
+  }
+
+  .wds-badge__icon > svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .wds-badge__dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background-color: var(--b-icon);
+  }
+
+  .wds-badge__counter {
+    display: inline-flex;
+    min-width: 1.5em;
+    align-items: center;
+    justify-content: center;
+    padding: var(--wds-sz-badge-counter-padding-top) var(--wds-sz-badge-counter-padding-right)
+      var(--wds-sz-badge-counter-padding-bottom) var(--wds-sz-badge-counter-padding-left);
+    border-radius: var(--wds-sz-badge-counter-radius);
+    background-color: var(--b-fg);
+    color: var(--b-counter-fg);
+  }
+
+  .wds-badge__remove {
+    display: inline-flex;
+    width: calc(var(--wds-sz-icon-size) * 0.8);
+    height: calc(var(--wds-sz-icon-size) * 0.8);
+    flex-shrink: 0;
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: var(--b-icon);
+  }
+
+  .wds-badge__remove > svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ---- Alert ---- */
+  .wds-alert {
+    box-sizing: border-box;
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    gap: var(--wds-spacing-8);
+    padding: var(--wds-padding-12) var(--wds-padding-16);
+    border-style: solid;
+    border-color: var(--a-stroke);
+    border-width: var(--a-bw);
+    border-radius: var(--a-radius);
+    background-color: var(--a-bg);
+    /* Dua lapis shadow dari efek Figma "Alert" (y2 blur4 + y4 blur8). */
+    box-shadow:
+      0 2px 4px rgb(16 24 40 / 6%),
+      0 4px 8px rgb(16 24 40 / 10%);
+  }
+
+  .wds-alert__icon {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--a-icon);
+  }
+
+  .wds-alert__icon > svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .wds-alert__text {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--a-text-gap);
+    text-align: left;
+  }
+
+  .wds-alert__title {
+    margin: 0;
+    color: var(--a-title);
+    font-family: var(--wds-font-family-title);
+    font-weight: var(--wds-font-weight-semi-bold);
+    font-size: var(--wds-font-size-16);
+    line-height: var(--wds-font-line-height-16);
+  }
+
+  .wds-alert__message {
+    color: var(--a-support);
+    font-family: var(--wds-sz-text-body-font-family);
+    font-weight: var(--wds-font-weight-regular);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+  }
+
+  .wds-alert[data-has-title='false'] .wds-alert__message {
+    color: var(--a-title);
+    font-weight: var(--wds-font-weight-medium);
+  }
+
+  .wds-alert__action {
+    flex-shrink: 0;
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    padding: 0 var(--wds-padding-8);
+    color: var(--a-action);
+    font-family: var(--wds-sz-text-label-font-family);
+    font-weight: var(--wds-font-weight-medium);
+    font-size: var(--wds-sz-text-label-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+  }
+
+  .wds-alert__close {
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: var(--a-close);
+  }
+
+  .wds-alert__close > svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ---- Tooltip ---- */
+  .wds-tooltip {
+    position: fixed;
+    z-index: 999;
+    pointer-events: none;
+  }
+
+  .wds-tooltip__body {
+    display: flex;
+    align-items: center;
+    gap: var(--wds-sz-tooltip-gap);
+    padding: var(--wds-sz-tooltip-padding-top) var(--wds-sz-tooltip-padding-right)
+      var(--wds-sz-tooltip-padding-bottom) var(--wds-sz-tooltip-padding-left);
+    border-radius: var(--wds-sz-tooltip-radius);
+    background-color: var(--t-bg);
+    color: var(--t-fg);
+    font-family: var(--wds-sz-text-body-font-family);
+    font-weight: var(--wds-font-weight-regular);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+    text-align: left;
+    overflow-wrap: anywhere;
+    box-shadow:
+      0 1px 2px rgb(16 24 40 / 6%),
+      0 1px 3px rgb(16 24 40 / 10%);
+  }
+
+  .wds-tooltip__icon {
+    display: inline-flex;
+    width: var(--wds-sz-tooltip-icon-size);
+    height: var(--wds-sz-tooltip-icon-size);
+    flex-shrink: 0;
+  }
+
+  .wds-tooltip__icon > svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .wds-tooltip__arrow {
+    position: absolute;
+    width: var(--wds-sz-tooltip-arrow-size);
+    height: var(--wds-sz-tooltip-arrow-size);
+    background-color: var(--t-bg);
+    transform: rotate(45deg);
+  }
+}

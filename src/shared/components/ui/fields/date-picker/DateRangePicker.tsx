@@ -4,16 +4,29 @@ import { createPortal } from 'react-dom';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './DatePicker.css';
-import { Calendar, DangerCircle } from '../../../icons';
 import { useSelectDropdown } from '../../../../hooks';
-import Button from '../../Button';
 import DatePickerHeader, { YEAR_ITEM_COUNT, type PickerView } from './DatePickerHeader';
+import { DateFieldShell, DateIcons, dateFieldState } from './DateFieldShell';
+import type { FieldSize } from '../fieldState';
 
-interface DateRangePickerProps {
-  size?: 'sm' | 'md' | 'lg';
+export interface RangeDatePickerProps {
+  /** Mode rentang tanggal (`value` = "awal,akhir"). */
+  range: true;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: FieldSize;
+  /** Style WDS (mode "Date Picker styles"): box (default) atau underline. */
+  appearance?: 'box' | 'underline';
   disabled?: boolean;
+  /** State read-only: tampil seperti disabled; kalender tidak bisa dibuka. */
+  readOnly?: boolean;
+  /** Pesan error: state error + teks di slot hint (warna danger). */
   error?: string;
+  /** Teks pendukung di bawah field (digantikan `error`). */
+  hint?: React.ReactNode;
+  /** Hanya dokumentasi: paksa state `selected` (terbuka) atau `focused` (cincin fokus). */
+  'data-wds-state'?: string;
   placeholder?: string;
+  minDate?: Date;
   maxDate?: Date;
   maxRangeDays?: number;
   value: string;
@@ -24,18 +37,6 @@ interface DateRangePickerProps {
   testId?: string;
   'data-testid'?: string;
 }
-
-const triggerSizeStyles: Record<string, string> = {
-  sm: 'px-3 py-1.5 text-xs',
-  md: 'px-4 py-2.5 text-sm',
-  lg: 'px-5 py-3 text-base',
-};
-
-const inputBaseClasses = [
-  'w-full rounded-lg border bg-background text-left outline-none transition-colors placeholder:text-muted-foreground',
-  'focus-visible:ring-2 focus-visible:ring-primary/30',
-  'disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground',
-].join(' ');
 
 function pad2(n: number): string {
   return String(n).padStart(2, '0');
@@ -84,9 +85,14 @@ function addDays(date: Date, days: number): Date {
 
 function DateRangePicker({
   size = 'md',
+  appearance = 'box',
   disabled = false,
+  readOnly = false,
   error,
+  hint,
+  'data-wds-state': forcedState,
   placeholder = 'Select date range',
+  minDate,
   maxDate,
   maxRangeDays,
   value,
@@ -95,7 +101,7 @@ function DateRangePicker({
   panelWidthClassName = 'w-80',
   testId,
   'data-testid': dataTestId,
-}: DateRangePickerProps) {
+}: Omit<RangeDatePickerProps, 'range'>) {
   const resolvedTestId = dataTestId ?? testId;
   const { t } = useTranslation();
   const resolvedPlaceholder = placeholder ?? t('fields.selectDateRange');
@@ -131,7 +137,8 @@ function DateRangePicker({
   const isSelectingEnd = !!maxRangeDays && !!activeStart && !activeEnd;
   const rangeMinDate = isSelectingEnd ? addDays(activeStart, -maxRangeDays) : undefined;
   const rangeMaxDate = isSelectingEnd ? addDays(activeStart, maxRangeDays) : undefined;
-  const effectiveMinDate = rangeMinDate;
+  const effectiveMinDate =
+    rangeMinDate && minDate ? (rangeMinDate > minDate ? rangeMinDate : minDate) : (rangeMinDate ?? minDate);
   const effectiveMaxDate =
     rangeMaxDate && maxDate
       ? rangeMaxDate < maxDate
@@ -149,23 +156,13 @@ function DateRangePicker({
   }, [open]);
 
   function openPanel() {
-    if (disabled) return;
+    if (disabled || readOnly) return;
     const [committedStart, committedEnd] = parseRange(value);
     setDraftStart(committedStart);
     setDraftEnd(committedEnd);
     setCursor(committedStart ?? new Date());
     setView('date');
     setOpen(true);
-  }
-
-  function handleCancel() {
-    setOpen(false);
-  }
-
-  function handleApply() {
-    if (!draftStart) return;
-    onChange(formatRange(draftStart, draftEnd));
-    setOpen(false);
   }
 
   function handleClear() {
@@ -203,77 +200,24 @@ function DateRangePicker({
     }
     setDraftStart(start);
     setDraftEnd(end);
+    // Rentang lengkap (awal + akhir) langsung diterapkan dan kalender ditutup — tanpa tombol Apply.
+    if (start && end) {
+      onChange(formatRange(start, end));
+      setOpen(false);
+    }
   }
 
-  const borderError = error
-    ? 'border-danger focus-visible:border-danger focus-visible:ring-danger/20'
-    : 'border-border focus-visible:border-primary';
+  const fieldStateValue = dateFieldState({ disabled, readOnly, error, open, hasValue: Boolean(value), forced: forcedState });
+  const interactive = !disabled && !readOnly;
 
-  const openRing = open && !error ? 'border-primary ring-2 ring-primary/30' : '';
-  const inputPad = value && !disabled ? 'pr-12' : 'pr-9';
-
-  return (
-    <div className={['w-full', className].filter(Boolean).join(' ')} ref={wrapperRef}>
-      <div className="relative">
-        <div
-          className={[
-            'pointer-events-none absolute right-0 inset-y-0 z-10 flex items-center gap-0.5 text-muted-foreground',
-            error ? 'pr-3.5' : 'pr-3',
-          ].join(' ')}
-        >
-          {value && !disabled && (
-            <button
-              type="button"
-              onClick={handleClear}
-              className="pointer-events-auto flex cursor-pointer items-center rounded-sm transition-colors hover:text-foreground focus-visible:outline-none"
-              tabIndex={-1}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="h-4 w-4"
-              >
-                <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-              </svg>
-            </button>
-          )}
-          <span className="pointer-events-none flex items-center mr-1">
-            <Calendar className='w-4 h-4' />
-          </span>
-          {error && (
-            <span className="pointer-events-none flex items-center">
-              <DangerCircle className="h-3.5 w-3.5" />
-            </span>
-          )}
-        </div>
-
-        <input
-          type="text"
-          readOnly
-          value={formatDisplay(value)}
-          placeholder={resolvedPlaceholder}
-          disabled={disabled}
-          onClick={() => (open ? setOpen(false) : openPanel())}
-          data-testid={resolvedTestId}
-          className={[
-            inputBaseClasses,
-            borderError,
-            triggerSizeStyles[size],
-            openRing,
-            inputPad,
-            disabled ? '' : 'cursor-pointer',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-        />
-
-        {open &&
-          dropdownPosition &&
-          createPortal(
+  const panelNode =
+    open && dropdownPosition
+      ? createPortal(
             <div
               ref={panelRef}
               data-testid={resolvedTestId ? `${resolvedTestId}-panel` : undefined}
+              data-appearance={appearance}
+              data-wds-size={size}
               onMouseDown={(e) => e.stopPropagation()}
               style={{
                 position: 'fixed',
@@ -283,7 +227,7 @@ function DateRangePicker({
                 zIndex: 9999,
               }}
               className={[
-                'rounded-lg border border-border bg-background shadow-lg',
+                'wds-cal',
                 panelWidthClassName === 'w-full' ? '' : panelWidthClassName,
               ]
                 .filter(Boolean)
@@ -315,43 +259,37 @@ function DateRangePicker({
                   )}
                 />
               </div>
-              <div className="flex items-center gap-2 border-t border-border px-4 py-3">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="md"
-                  className="flex-1"
-                  data-testid={resolvedTestId ? `${resolvedTestId}-cancel` : undefined}
-                  onClick={handleCancel}
-                >
-                  {t('common.cancel')}
-                </Button>
-                <Button
-                  type="button"
-                  size="md"
-                  className="flex-1"
-                  data-testid={resolvedTestId ? `${resolvedTestId}-apply` : undefined}
-                  disabled={!draftStart || disabled}
-                  onClick={handleApply}
-                >
-                  {t('common.apply')}
-                </Button>
-              </div>
             </div>,
             document.body,
-          )}
-      </div>
+          )
+      : null;
 
-      {error && (
-        <p
-          data-testid={resolvedTestId ? `${resolvedTestId}-error` : undefined}
-          className="mt-1 text-xs text-danger"
-          role="alert"
-        >
-          {error}
-        </p>
-      )}
-    </div>
+  return (
+    <DateFieldShell
+      wrapperRef={wrapperRef}
+      className={className}
+      appearance={appearance}
+      size={size}
+      state={fieldStateValue}
+      forcedState={forcedState}
+      error={error}
+      hint={hint}
+      testId={resolvedTestId}
+      panel={panelNode}
+    >
+      <input
+        type="text"
+        readOnly
+        value={formatDisplay(value)}
+        placeholder={resolvedPlaceholder}
+        disabled={disabled}
+        aria-invalid={error ? true : undefined}
+        onClick={() => (open ? setOpen(false) : openPanel())}
+        data-testid={resolvedTestId}
+        className={['wds-field__input', interactive ? 'cursor-pointer' : ''].filter(Boolean).join(' ')}
+      />
+      <DateIcons hasValue={Boolean(value)} interactive={interactive} clearable onClear={handleClear} />
+    </DateFieldShell>
   );
 }
 

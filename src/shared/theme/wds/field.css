@@ -1,0 +1,332 @@
+/*
+ * Dasar Input field & Textarea WDS: ukuran/jarak/tipografi dari token Size (per `data-wds-size`),
+ * warna & garis per style × state dari `field.generated.css` (`--f-*`). Di @layer components
+ * agar utility Tailwind (`className`) bisa menimpa.
+ */
+@layer components {
+  .wds-field {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: var(--wds-sz-input-field-field-and-validation-gap);
+  }
+
+  .wds-field__box {
+    position: relative;
+    display: flex;
+    box-sizing: border-box;
+    width: 100%;
+    align-items: stretch;
+    overflow: hidden;
+    border-radius: var(--f-radius);
+    background-color: var(--f-bg);
+    transition: background-color 150ms ease;
+  }
+
+  /* Garis tepi sebagai overlay di dalam bingkai (Figma strokeAlign inside): tinggi total = padding + teks. */
+  .wds-field__box::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-style: solid;
+    border-color: var(--f-stroke);
+    border-width: var(--f-bw);
+    border-radius: inherit;
+    pointer-events: none;
+    transition: border-color 150ms ease;
+  }
+
+  .wds-field[data-state='disabled'] .wds-field__box,
+  .wds-field[data-state='disabled'] .wds-field__input {
+    cursor: not-allowed;
+  }
+
+  .wds-field__content {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    align-items: center;
+    gap: var(--wds-sz-input-field-content-gap);
+    padding: var(--wds-sz-padding-top) var(--wds-sz-padding-right) var(--wds-sz-padding-bottom)
+      var(--wds-sz-padding-left);
+  }
+
+  .wds-field__input {
+    min-width: 0;
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--f-fg);
+    font-family: var(--wds-sz-text-body-font-family);
+    font-weight: var(--wds-font-weight-regular);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+  }
+
+  .wds-field__input::placeholder {
+    color: var(--wds-text-placeholder);
+    opacity: 1;
+  }
+
+  .wds-field__input:-webkit-autofill {
+    -webkit-text-fill-color: var(--f-fg);
+  }
+
+  .wds-field__icon {
+    display: inline-flex;
+    width: var(--wds-sz-icon-size);
+    height: var(--wds-sz-icon-size);
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    color: var(--f-icon);
+  }
+
+  .wds-field__icon > svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .wds-field__icon--error {
+    color: var(--f-icon-error);
+  }
+
+  .wds-field__action {
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    padding: 0;
+  }
+
+  .wds-field__action svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .wds-field__action:hover {
+    color: var(--wds-icons-primary);
+  }
+
+  /* Type: Leading / Trailing dropdown — segmen dengan warna & padding dropdown. */
+  .wds-field__dd {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--wds-sz-input-field-leading-dropdown-gap);
+    background-color: var(--f-dd-bg);
+    color: var(--f-dd-fg);
+    font-family: var(--wds-sz-text-body-font-family);
+    font-weight: var(--wds-font-weight-regular);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+    white-space: nowrap;
+  }
+
+  .wds-field__dd svg {
+    color: var(--f-dd-icon);
+  }
+
+  .wds-field__dd--lead {
+    padding: var(--f-dd-lead-pad);
+    border-right: var(--wds-stroke-1) solid var(--f-dd-stroke);
+  }
+
+  .wds-field__dd--trail {
+    padding: var(--f-dd-trail-pad);
+    border-left: var(--wds-stroke-1) solid var(--f-dd-stroke);
+  }
+
+  .wds-field[data-appearance='underline'] .wds-field__dd--lead {
+    border-right-width: var(--wds-stroke-1);
+  }
+
+  /* Textarea: kotak berpadding token, tinggi minimum 128px (node Figma), resize vertikal. */
+  .wds-field[data-kind='textarea'] .wds-field__box {
+    min-height: 128px;
+    padding: var(--f-pad);
+  }
+
+  .wds-field[data-kind='textarea'] .wds-field__input {
+    min-height: 100%;
+    resize: vertical;
+  }
+
+  .wds-field[data-kind='textarea'][data-autogrow='true'] .wds-field__input {
+    resize: none;
+    field-sizing: content;
+  }
+
+  .wds-field__hint {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--wds-sz-input-field-hint-gap);
+    margin: 0;
+    color: var(--f-hint);
+    font-family: var(--wds-sz-text-hint-font-family);
+    font-weight: var(--wds-font-weight-regular);
+    font-size: var(--wds-sz-text-hint-font-size);
+    line-height: var(--wds-sz-text-hint-line-height);
+  }
+
+  .wds-field__counter {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
+  /* Cincin fokus (Figma "Focus indicator"): stroke token di luar kotak, jarak 2px. */
+  .wds-field:has(.wds-field__input:focus-visible) .wds-field__box,
+  .wds-field[data-wds-state='focused'] .wds-field__box {
+    outline: var(--wds-sz-focus-stroke) solid var(--wds-stroke-focus);
+    outline-offset: 2px;
+  }
+
+  /* Label & deskripsi di FormItem (Figma "Label and Description" + "Label text"). */
+  .wds-form-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wds-sz-input-field-layout-vertical-gap);
+  }
+
+  .wds-form-item[data-layout='horizontal'] {
+    flex-direction: row;
+    gap: var(--wds-sz-form-row-gap);
+  }
+
+  .wds-form-item__label-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wds-sz-input-field-label-and-supporting-text-gap);
+  }
+
+  .wds-form-item__label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--wds-sz-form-row-label-gap);
+    color: var(--wds-text-primary);
+    font-family: var(--wds-font-family-title);
+    font-weight: var(--wds-font-weight-medium);
+    font-size: var(--wds-sz-text-label-font-size);
+    line-height: var(--wds-sz-text-label-line-height);
+  }
+
+  .wds-form-item__mandatory {
+    color: var(--wds-text-danger);
+  }
+
+  .wds-form-item__description {
+    margin: 0;
+    color: var(--wds-text-secondary);
+    font-family: var(--wds-sz-text-body-font-family);
+    font-weight: var(--wds-font-weight-regular);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+  }
+}
+
+/* ---- Select & Date Picker (memakai kerangka .wds-field) ---- */
+@layer components {
+  .wds-field[data-kind='select'] .wds-field__content {
+    padding: var(--f-pad);
+  }
+
+  .wds-field__trigger {
+    min-width: 0;
+    flex: 1;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    color: var(--f-fg);
+    font-family: var(--wds-sz-text-body-font-family);
+    font-weight: var(--wds-font-weight-regular);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .wds-field[data-state='disabled'] .wds-field__trigger,
+  .wds-field[data-state='read-only'] .wds-field__trigger {
+    cursor: default;
+  }
+
+  .wds-field[data-state='disabled'] .wds-field__trigger {
+    cursor: not-allowed;
+  }
+
+  .wds-field__value {
+    display: block;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .wds-field__tags {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--wds-sz-select-tags-gap);
+  }
+
+  .wds-field__tag {
+    display: inline-flex;
+    max-width: 100%;
+    align-items: center;
+    gap: var(--wds-sz-select-tag-gap);
+    padding: var(--wds-sz-select-tag-padding-top) var(--wds-sz-select-tag-padding-right)
+      var(--wds-sz-select-tag-padding-bottom) var(--wds-sz-select-tag-padding-left);
+    border-radius: var(--wds-sz-select-tag-radius);
+    background-color: var(--f-tag-bg);
+    color: var(--f-tag-fg);
+    font-family: var(--wds-sz-text-body-font-family);
+    font-weight: var(--wds-font-weight-regular);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+  }
+
+  .wds-field__tag-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .wds-field__tag-remove {
+    display: inline-flex;
+    width: var(--wds-sz-select-tag-icon-size);
+    height: var(--wds-sz-select-tag-icon-size);
+    flex-shrink: 0;
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: var(--f-tag-icon);
+  }
+
+  .wds-field__tag-remove svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .wds-field__divider {
+    width: var(--wds-stroke-1);
+    height: var(--wds-sz-icon-size);
+    flex-shrink: 0;
+    background-color: var(--wds-stroke-default);
+  }
+
+  .wds-field__spinner {
+    animation: wds-spin 0.8s linear infinite;
+  }
+
+  @keyframes wds-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}

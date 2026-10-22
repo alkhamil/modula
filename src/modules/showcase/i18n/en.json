@@ -49,26 +49,67 @@
         "title": "Accessibility"
       },
       "do": "Do",
-      "dont": "Don't"
+      "dont": "Don't",
+      "group": {
+        "title": "Group"
+      }
     },
     "table": {
+      "summary": "WDS table with white or gray header, sortable columns, row hover / selected / loading states, an action column and built-in empty and error views.",
       "figma": {
-        "figma": "Figma",
-        "values": "Values",
-        "props": "Props",
-        "notes": "Notes"
+        "styles": {
+          "note": "White or gray header background."
+        },
+        "rowStates": {
+          "note": "Hover is a subtle fill; highlighted rows use the selected fill; loading shows skeleton rows."
+        },
+        "header": {
+          "note": "Click a sortable header to sort."
+        },
+        "cell": {
+          "note": "Cell padding follows the Size tokens; dense tightens the vertical padding."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Header styles"
+        }
       },
       "props": {
-        "prop": "Prop",
-        "type": "Type",
-        "default": "Default",
-        "description": "Description"
+        "columns": "Column definitions, row data and a stable row key.",
+        "paging": "Pagination state (the Pagination component renders below).",
+        "handlers": "Page and page-size change handlers.",
+        "sort": "Controlled sorting.",
+        "headerStyle": "Figma Table style.",
+        "dense": "Tighter vertical cell padding.",
+        "showRowNumber": "Adds a page-aware row number column.",
+        "renderAction": "Action column content and its side.",
+        "highlight": "Mark rows as selected.",
+        "state": "Loading skeleton, error view, empty view.",
+        "sticky": "Keep the header / action column in view while scrolling.",
+        "testId": "Mapped to data-testid."
       },
       "tokens": {
-        "variable": "CSS variable",
-        "value": "Value",
-        "usage": "Used for"
-      }
+        "--wds-bg-surface": "Row and white header background.",
+        "--wds-bg-subtle": "Row hover and gray header.",
+        "--wds-bg-brand-subtle": "Selected row.",
+        "--wds-stroke-subtle": "Dividers.",
+        "--wds-text-primary": "Cell text.",
+        "--wds-text-secondary": "Header text.",
+        "--wds-sz-table-stroke": "Divider thickness.",
+        "--wds-sz-table-header-cell-root-padding-top": "Header cell padding.",
+        "--wds-sz-table-cell-root-padding-top": "Cell vertical padding.",
+        "--wds-sz-table-cell-root-padding-right": "Cell horizontal padding."
+      },
+      "behavior": [
+        "Long cell text is truncated with a tooltip when fixed layout is used.",
+        "Sticky cells keep an opaque background so scrolled content does not show through.",
+        "The table scrolls horizontally inside its frame."
+      ],
+      "accessibility": [
+        "Uses native table markup with header cells.",
+        "Sortable headers are clickable; keep column names meaningful."
+      ]
     },
     "playground": {
       "preview": "Preview",
@@ -93,7 +134,9 @@
     },
     "categories": {
       "actions": "Actions",
-      "forms": "Forms"
+      "forms": "Forms",
+      "feedback": "Feedback",
+      "data": "Data"
     },
     "button": {
       "summary": "WDS action button. Hierarchy sets visual emphasis (primary → text), the destructive style is for dangerous actions, and states (hover, pressed, focus, disabled) and sizes come from design tokens.",
@@ -242,6 +285,10 @@
         },
         "tick": {
           "note": "Equals the value prop; no extra prop."
+        },
+        "horizontal": {
+          "values": "Description, Options (slot)",
+          "note": "The Horizontal variant is a row of options: `CheckboxGroup`."
         }
       },
       "examples": {
@@ -313,6 +360,35 @@
           "Do not use a toggle in forms that need a Save step.",
           "Do not use long label text; keep it to one or two lines."
         ]
+      },
+      "group": {
+        "summary": "CheckboxGroup renders a set of checkboxes from an `options` list (value is an array). Options flow horizontally and wrap, spaced by the form-row options gap (16px). One error message is shown under the whole group.",
+        "examples": {
+          "basic": {
+            "title": "Basic",
+            "description": "Each option can have a hint under its label."
+          },
+          "solid": {
+            "title": "Solid style"
+          },
+          "sizes": {
+            "title": "Sizes"
+          },
+          "error": {
+            "title": "Error",
+            "description": "The message appears once under the group; every control shows the error state."
+          }
+        },
+        "props": {
+          "options": "List of options; `hint` and `disabled` are optional per option.",
+          "value": "Selected values (array of option values).",
+          "onChange": "Called with the new value.",
+          "appearance": "Figma Style for every control: outline or solid.",
+          "size": "Size from the Size tokens.",
+          "disabled": "Disables the whole group.",
+          "error": "Error message for the group; every control shows the error state.",
+          "testId": "Mapped to data-testid; each option gets `<testId>-<value>`."
+        }
       }
     },
     "toggle": {
@@ -448,6 +524,10 @@
         },
         "tick": {
           "note": "Equals the value prop; no extra prop."
+        },
+        "horizontal": {
+          "values": "Description, Options (slot)",
+          "note": "The Horizontal variant is a row of options: `RadioButtonGroup`."
         }
       },
       "examples": {
@@ -520,7 +600,1032 @@
           "Do not use a toggle in forms that need a Save step.",
           "Do not use long label text; keep it to one or two lines."
         ]
+      },
+      "group": {
+        "summary": "RadioButtonGroup renders a set of radio buttons from an `options` list (value is the chosen option). Options flow horizontally and wrap, spaced by the form-row options gap (16px). One error message is shown under the whole group.",
+        "examples": {
+          "basic": {
+            "title": "Basic",
+            "description": "Each option can have a hint under its label."
+          },
+          "solid": {
+            "title": "Solid style"
+          },
+          "sizes": {
+            "title": "Sizes"
+          },
+          "error": {
+            "title": "Error",
+            "description": "The message appears once under the group; every control shows the error state."
+          }
+        },
+        "props": {
+          "options": "List of options; `hint` and `disabled` are optional per option.",
+          "value": "Selected option value.",
+          "onChange": "Called with the new value.",
+          "appearance": "Figma Style for every control: outline or solid.",
+          "size": "Size from the Size tokens.",
+          "disabled": "Disables the whole group.",
+          "error": "Error message for the group; every control shows the error state.",
+          "testId": "Mapped to data-testid; each option gets `<testId>-<value>`."
+        }
       }
+    },
+    "input-field": {
+      "summary": "WDS text input. Two styles (box, underline), five sizes, leading/trailing icons, dropdown segments, a help icon, a hint line, and default / focus / typing / filled / disabled / error / read-only states from the design tokens. Label and description come from FormItem.",
+      "figma": {
+        "label": {
+          "values": "boolean + text",
+          "note": "The label is rendered by FormItem (label, required mark, help tooltip)."
+        },
+        "description": {
+          "values": "boolean + text",
+          "note": "Rendered by FormItem under the label."
+        },
+        "placeholder": {
+          "values": "free text"
+        },
+        "hint": {
+          "values": "boolean + text",
+          "note": "Shown under the field; the error message replaces it."
+        },
+        "layout": {
+          "note": "FormItem layout=\"horizontal\" puts the label on the left (gap 40)."
+        },
+        "states": {
+          "note": "Derived from interaction and props: focus (selected / typing), value (filled), disabled, readOnly, error."
+        },
+        "size": {
+          "note": "Height from padding + line height (44px at md); text 12/14/14/16/16."
+        },
+        "focus": {
+          "values": "1px stroke outside, 2px gap",
+          "note": "Shown for keyboard focus only."
+        },
+        "help": {
+          "values": "boolean",
+          "note": "Question-circle icon at the field end with a tooltip."
+        },
+        "type": {
+          "note": "Leading/Trailing dropdown = a tinted segment with its own padding and a divider."
+        },
+        "icons": {
+          "values": "icon",
+          "note": "20px icons inside the field (color from the icon tokens)."
+        },
+        "styles": {
+          "note": "box: full border and radius 8. underline: bottom border only, no radius or fill."
+        }
+      },
+      "examples": {
+        "appearance": {
+          "title": "Style",
+          "description": "Box has a full border; underline only a bottom line."
+        },
+        "sizes": {
+          "title": "Sizes"
+        },
+        "icons": {
+          "title": "Icons and help"
+        },
+        "dropdown": {
+          "title": "Dropdown segments",
+          "description": "Type “Leading / Trailing dropdown”."
+        },
+        "validation": {
+          "title": "Hint and error"
+        }
+      },
+      "matrices": {
+        "states": "Style × state"
+      },
+      "props": {
+        "value": "Current text (controlled).",
+        "onChange": "Called with the change event.",
+        "placeholder": "Placeholder text.",
+        "size": "Size from the Size tokens (padding, text, gap).",
+        "hint": "Supporting text under the field (replaced by the error message).",
+        "error": "Error message: error state + text in the hint slot (danger color).",
+        "sanitize": "Cleans the value on every change.",
+        "disabled": "Disabled / read-only states.",
+        "appearance": "Figma Input styles: box (default) or underline.",
+        "help": "Help icon at the end of the field; the content shows as a tooltip.",
+        "prepend": "Leading / trailing icon or content inside the field.",
+        "group": "Type “Leading / Trailing dropdown”: a tinted segment (e.g. country code, unit).",
+        "clearable": "Shows a clear button while there is text.",
+        "currency": "Formats digits as currency (id-ID); onChange receives the raw digits.",
+        "invalid": "Error state without a message.",
+        "rest": "type, name, maxLength, aria-*, etc. are passed to the <input>."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Field background.",
+        "--wds-bg-disabled": "Background when disabled / read-only.",
+        "--wds-text-placeholder": "Placeholder color.",
+        "--wds-text-primary": "Typed text color.",
+        "--wds-text-disabled": "Text when disabled.",
+        "--wds-text-tertiary": "Hint text.",
+        "--wds-text-danger": "Error message.",
+        "--wds-icons-secondary": "Leading/trailing icons.",
+        "--wds-icons-danger": "Error icon.",
+        "--wds-stroke-default": "Border (default).",
+        "--wds-stroke-focus": "Border while focused + focus ring.",
+        "--wds-stroke-danger": "Border in the error state.",
+        "--wds-radius-8": "Box radius.",
+        "--wds-sz-padding-left": "Horizontal padding (follows size).",
+        "--wds-sz-padding-top": "Vertical padding (follows size).",
+        "--wds-sz-input-field-content-gap": "Gap between icon and text.",
+        "--wds-sz-text-body-font-size": "Text size.",
+        "--wds-sz-focus-stroke": "Focus ring thickness."
+      },
+      "behavior": [
+        "Focus (mouse or keyboard) turns the border to the focus color; an empty focused field is “selected”, a focused field with text is “typing”.",
+        "The focus ring (1px stroke, 2px gap) appears for keyboard focus only.",
+        "Disabled and read-only use the disabled background; disabled blocks focus, read-only still allows selecting text.",
+        "Error shows a red border and error icon, and the message replaces the hint under the field.",
+        "`clearable` shows a clear button while there is text; `currency` formats digits and returns the raw digits.",
+        "Non-ASCII characters are stripped on input (existing behavior), then `sanitize` runs."
+      ],
+      "accessibility": [
+        "Always provide a label (FormItem label) or aria-label; the placeholder is not a label.",
+        "Errors use role=\"alert\" and the input gets aria-invalid.",
+        "The clear button is outside the tab order on purpose; Escape/Delete keep working in the input.",
+        "Keep the focus ring visible; do not remove the outline through className."
+      ],
+      "guidelines": {
+        "do": [
+          "Use a clear, short placeholder as an example, not as the label.",
+          "Show validation messages next to the field.",
+          "Pick the dropdown segment for units or country codes."
+        ],
+        "dont": [
+          "Do not use the placeholder as the only label.",
+          "Do not hide errors in tooltips.",
+          "Do not mix underline and box styles in one form."
+        ]
+      }
+    },
+    "textarea": {
+      "summary": "WDS multi-line input. Five sizes, a hint line with an optional n/max counter, auto-grow, and default / focus / typing / filled / disabled / error / read-only states from the design tokens.",
+      "figma": {
+        "label": {
+          "values": "boolean + text",
+          "note": "The label is rendered by FormItem (label, required mark, help tooltip)."
+        },
+        "description": {
+          "values": "boolean + text",
+          "note": "Rendered by FormItem under the label."
+        },
+        "placeholder": {
+          "values": "free text"
+        },
+        "hint": {
+          "values": "boolean + text",
+          "note": "Shown under the field; the error message replaces it."
+        },
+        "layout": {
+          "note": "FormItem layout=\"horizontal\" puts the label on the left (gap 40)."
+        },
+        "states": {
+          "note": "Derived from interaction and props: focus (selected / typing), value (filled), disabled, readOnly, error."
+        },
+        "size": {
+          "note": "Height from padding + line height (44px at md); text 12/14/14/16/16."
+        },
+        "focus": {
+          "values": "1px stroke outside, 2px gap",
+          "note": "Shown for keyboard focus only."
+        },
+        "dynamic": {
+          "values": "boolean",
+          "note": "autoGrow: height follows the content and the resize handle is removed."
+        },
+        "scrollbar": {
+          "values": "boolean",
+          "note": "The native scrollbar is used."
+        },
+        "counter": {
+          "values": "text",
+          "note": "Setting maxLength shows the n/max counter on the right of the hint row."
+        }
+      },
+      "examples": {
+        "sizes": {
+          "title": "Sizes"
+        },
+        "validation": {
+          "title": "Hint and error"
+        },
+        "autogrow": {
+          "title": "Auto grow",
+          "description": "Height follows the content (Figma “Dynamic?”)."
+        }
+      },
+      "matrices": {
+        "states": "State"
+      },
+      "props": {
+        "value": "Current text (controlled).",
+        "onChange": "Called with the change event.",
+        "placeholder": "Placeholder text.",
+        "size": "Size from the Size tokens (padding, text, gap).",
+        "hint": "Supporting text under the field (replaced by the error message).",
+        "error": "Error message: error state + text in the hint slot (danger color).",
+        "sanitize": "Cleans the value on every change.",
+        "disabled": "Disabled / read-only states.",
+        "maxLength": "Limit; also shows the n/max counter in the hint row.",
+        "autoGrow": "Height follows the content (Figma “Dynamic?”); no resize handle.",
+        "rows": "Initial row count (minimum height is 128px).",
+        "rest": "name, maxLength, aria-*, etc. are passed to the <textarea>."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Field background.",
+        "--wds-bg-disabled": "Background when disabled / read-only.",
+        "--wds-text-placeholder": "Placeholder color.",
+        "--wds-text-primary": "Typed text color.",
+        "--wds-text-disabled": "Text when disabled.",
+        "--wds-text-tertiary": "Hint text.",
+        "--wds-text-danger": "Error message.",
+        "--wds-icons-secondary": "Leading/trailing icons.",
+        "--wds-icons-danger": "Error icon.",
+        "--wds-stroke-default": "Border (default).",
+        "--wds-stroke-focus": "Border while focused + focus ring.",
+        "--wds-stroke-danger": "Border in the error state.",
+        "--wds-radius-8": "Box radius.",
+        "--wds-sz-padding-left": "Horizontal padding (follows size).",
+        "--wds-sz-padding-top": "Vertical padding (follows size).",
+        "--wds-sz-input-field-content-gap": "Gap between icon and text.",
+        "--wds-sz-text-body-font-size": "Text size.",
+        "--wds-sz-focus-stroke": "Focus ring thickness."
+      },
+      "behavior": [
+        "Minimum height is 128px; by default it can be resized vertically.",
+        "`autoGrow` makes the height follow the content and removes the resize handle.",
+        "`maxLength` shows an n/max counter at the right of the hint row.",
+        "Focus, filled, disabled, read-only, and error states follow the Textarea state tokens; the focus ring is for keyboard focus only.",
+        "Error shows a red border and the message replaces the hint."
+      ],
+      "accessibility": [
+        "Always provide a label (FormItem label) or aria-label.",
+        "Errors use role=\"alert\" and the textarea gets aria-invalid.",
+        "Keep the focus ring visible."
+      ],
+      "guidelines": {
+        "do": [
+          "Set maxLength when there is a real limit.",
+          "Use autoGrow for short notes."
+        ],
+        "dont": [
+          "Do not use a textarea for single-line values.",
+          "Do not rely on the counter alone to explain the limit."
+        ]
+      }
+    },
+    "select": {
+      "summary": "WDS select. Single mode and a `multiple` prop (tags), box and underline styles, five sizes, search, async options with paging, a hint line, and default / open / filled / disabled / error / read-only states from the design tokens. The dropdown uses the WDS menu.",
+      "figma": {
+        "label": {
+          "values": "boolean + text",
+          "note": "The label is rendered by FormItem."
+        },
+        "description": {
+          "values": "boolean + text",
+          "note": "Rendered by FormItem under the label."
+        },
+        "placeholder": {
+          "values": "free text"
+        },
+        "hint": {
+          "values": "boolean + text",
+          "note": "Shown under the field; the error message replaces it."
+        },
+        "layout": {
+          "note": "FormItem layout=\"horizontal\" puts the label on the left (gap 40)."
+        },
+        "styles": {
+          "note": "box: full border and radius 8. underline: bottom border only, no radius or fill."
+        },
+        "states": {
+          "note": "Derived from props and interaction: open (selected), value (filled), disabled, readOnly, error."
+        },
+        "size": {
+          "note": "Same box as Input Field: 44px at md; sizes 36/40/44/48/52."
+        },
+        "focus": {
+          "values": "1px stroke outside, 2px gap",
+          "note": "Shown for keyboard focus only."
+        },
+        "modes": {
+          "note": "single = default; multiple = the `multiple` prop (tags, clear button, divider)."
+        },
+        "menu": {
+          "note": "Panel: padding 8, radius 12, gap 4; items 44px, radius 8. Highlight = pressed, chosen = selected."
+        }
+      },
+      "examples": {
+        "appearance": {
+          "title": "Style"
+        },
+        "sizes": {
+          "title": "Sizes"
+        },
+        "multiple": {
+          "title": "Multiple",
+          "description": "Selected options show as tags."
+        },
+        "searchable": {
+          "title": "Searchable"
+        },
+        "validation": {
+          "title": "Hint and error"
+        }
+      },
+      "matrices": {
+        "states": "Style × state"
+      },
+      "props": {
+        "options": "List of { label, value }.",
+        "value": "Selected value (with `multiple`: array of values).",
+        "onChange": "Called with the new value.",
+        "placeholder": "Text when nothing is selected.",
+        "appearance": "Figma Select styles: box (default) or underline.",
+        "size": "Size from the Size tokens.",
+        "hint": "Supporting text (replaced by the error message).",
+        "error": "Error message: error state + text in the hint slot.",
+        "searchable": "Type in the field to filter (or search via loadOptions).",
+        "clearable": "Shows a clear button while there is a value.",
+        "loadOptions": "Async options; paginateOnScroll loads the next page on scroll.",
+        "disabled": "Disabled / read-only states.",
+        "optionDisabled": "Options that return true are shown disabled.",
+        "multiple": "Extra props used only with `multiple`.",
+        "multipleProps": "Multiple mode: the value becomes an array of values and selected options show as tags."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Field background.",
+        "--wds-bg-disabled": "Background when disabled / read-only.",
+        "--wds-text-placeholder": "Placeholder color.",
+        "--wds-text-primary": "Value text color.",
+        "--wds-text-tertiary": "Hint text.",
+        "--wds-text-danger": "Error message.",
+        "--wds-icons-secondary": "Arrow / calendar icons.",
+        "--wds-stroke-default": "Border (default).",
+        "--wds-stroke-focus": "Border while open + focus ring.",
+        "--wds-stroke-danger": "Border in the error state.",
+        "--wds-bg-elevated": "Dropdown menu background.",
+        "--wds-stroke-subtle": "Menu / calendar border.",
+        "--wds-bg-pressed": "Highlighted menu item.",
+        "--wds-bg-brand-subtle": "Selected menu item / hover / range days.",
+        "--wds-bg-subtle": "Tag background.",
+        "--wds-radius-12": "Menu / calendar radius.",
+        "--wds-sz-select-tag-radius": "Tag radius.",
+        "--wds-bg-page": "Calendar background.",
+        "--wds-text-secondary": "Weekday labels.",
+        "--wds-text-inverse": "Text on the selected day.",
+        "--wds-text-disabled": "Disabled days.",
+        "--wds-icons-primary": "Calendar navigation icons.",
+        "--wds-bg-brand": "Selected day."
+      },
+      "behavior": [
+        "Click (or focus, when searchable) opens the menu; the border turns to the focus color and the arrow flips up (state “selected”).",
+        "Menu items: highlighted (mouse or arrow keys) = pressed, chosen = selected (check mark), disabled = muted.",
+        "Arrow keys move the highlight, Enter picks, Escape closes (searchable).",
+        "Multiple mode shows tags with a remove button, a clear button and a divider before the arrow; options show a checkbox unless hideCheckBox.",
+        "The menu is rendered in a portal and follows the field width; long lists scroll (max 240px).",
+        "Error shows a red border and the message replaces the hint."
+      ],
+      "accessibility": [
+        "Provide a label (FormItem label) or aria-label.",
+        "The trigger exposes aria-haspopup=\"listbox\" and aria-expanded; options use role=\"option\" with aria-selected.",
+        "Errors use role=\"alert\"."
+      ],
+      "guidelines": {
+        "do": [
+          "Use Select for 5+ options; use radio for fewer.",
+          "Enable search for long lists."
+        ],
+        "dont": [
+          "Do not use Select for actions.",
+          "Do not nest menus."
+        ]
+      }
+    },
+    "date-picker": {
+      "summary": "WDS date field with a calendar popup. Single date, a `range` prop for date ranges, optional time, box and underline styles, five sizes, a hint line, and default / open / filled / disabled / error / read-only states from the design tokens.",
+      "figma": {
+        "label": {
+          "values": "boolean + text",
+          "note": "The label is rendered by FormItem."
+        },
+        "description": {
+          "values": "boolean + text",
+          "note": "Rendered by FormItem under the label."
+        },
+        "placeholder": {
+          "values": "free text"
+        },
+        "hint": {
+          "values": "boolean + text",
+          "note": "Shown under the field; the error message replaces it."
+        },
+        "layout": {
+          "note": "FormItem layout=\"horizontal\" puts the label on the left (gap 40)."
+        },
+        "styles": {
+          "note": "box: full border and radius 8. underline: bottom border only, no radius or fill."
+        },
+        "states": {
+          "note": "Derived from props and interaction: open (selected), value (filled), disabled, readOnly, error."
+        },
+        "size": {
+          "note": "Same box as Input Field: 44px at md; sizes 36/40/44/48/52."
+        },
+        "focus": {
+          "values": "1px stroke outside, 2px gap",
+          "note": "Shown for keyboard focus only."
+        },
+        "calendar": {
+          "values": "default, selected, today, disabled, empty",
+          "note": "Selected day = brand circle; today = focus-colored ring; in-range days = brand subtle."
+        },
+        "rangeMode": {
+          "values": "single, range",
+          "note": "The `range` prop switches to a date range."
+        }
+      },
+      "examples": {
+        "appearance": {
+          "title": "Style"
+        },
+        "sizes": {
+          "title": "Sizes"
+        },
+        "range": {
+          "title": "Date range",
+          "description": "Pick a start and an end date."
+        },
+        "validation": {
+          "title": "Hint and error"
+        }
+      },
+      "matrices": {
+        "states": "Style × state"
+      },
+      "props": {
+        "value": "Date as ISO text (range: “start,end”).",
+        "onChange": "Called with the new ISO text.",
+        "placeholder": "Text when empty.",
+        "appearance": "Figma Date Picker styles: box (default) or underline.",
+        "size": "Size from the Size tokens.",
+        "showTime": "Adds hour and minute selectors.",
+        "limits": "Earliest / latest selectable date.",
+        "maxRange": "Maximum days in a range (with `range`).",
+        "clearable": "Shows a clear button while there is a value.",
+        "hint": "Supporting text (replaced by the error message).",
+        "error": "Error message: error state + text in the hint slot.",
+        "disabled": "Disabled / read-only states.",
+        "range": "Range mode: value becomes “start,end”; the first click sets the start, the second the end."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Field background.",
+        "--wds-bg-disabled": "Background when disabled / read-only.",
+        "--wds-text-placeholder": "Placeholder color.",
+        "--wds-text-primary": "Value text color.",
+        "--wds-text-tertiary": "Hint text.",
+        "--wds-text-danger": "Error message.",
+        "--wds-icons-secondary": "Arrow / calendar icons.",
+        "--wds-stroke-default": "Border (default).",
+        "--wds-stroke-focus": "Border while open + focus ring.",
+        "--wds-stroke-danger": "Border in the error state.",
+        "--wds-bg-elevated": "Dropdown menu background.",
+        "--wds-stroke-subtle": "Menu / calendar border.",
+        "--wds-bg-pressed": "Highlighted menu item.",
+        "--wds-bg-brand-subtle": "Selected menu item / hover / range days.",
+        "--wds-bg-subtle": "Tag background.",
+        "--wds-radius-12": "Menu / calendar radius.",
+        "--wds-sz-select-tag-radius": "Tag radius.",
+        "--wds-bg-page": "Calendar background.",
+        "--wds-text-secondary": "Weekday labels.",
+        "--wds-text-inverse": "Text on the selected day.",
+        "--wds-text-disabled": "Disabled days.",
+        "--wds-icons-primary": "Calendar navigation icons.",
+        "--wds-bg-brand": "Selected day."
+      },
+      "behavior": [
+        "Clicking the field opens the calendar; the border turns to the focus color (state “selected”). Read-only and disabled fields do not open it.",
+        "Picking a day applies it immediately and closes the calendar (with showTime it stays open to set the time). Escape or clicking outside closes without changing the value.",
+        "The header switches between days, months, and years; arrows move the page.",
+        "Calendar: radius 12, padding 16, 40px day cells; selected day is a brand circle, today a focus-colored ring.",
+        "Date range: the first click sets the start, the second sets the end, applies the range, and closes the calendar; days in between are highlighted.",
+        "Error shows a red border and the message replaces the hint."
+      ],
+      "accessibility": [
+        "Provide a label (FormItem label) or aria-label.",
+        "The field is read-only text; the calendar is the input method, so also show the expected format in the hint.",
+        "Errors use role=\"alert\"."
+      ],
+      "guidelines": {
+        "do": [
+          "Limit selectable dates with minDate / maxDate.",
+          "Use range for periods."
+        ],
+        "dont": [
+          "Do not use a date picker for birthdays far in the past without year navigation.",
+          "Do not hide the expected format."
+        ]
+      }
+    },
+    "badge": {
+      "summary": "WDS badge for status, counts and tags. Six styles, five sizes, and types: dot, counter, leading / trailing icon, close button and icon only.",
+      "figma": {
+        "label": {
+          "note": "Content passed as children."
+        },
+        "styles": {
+          "note": "Each style maps to a subtle background with a matching text and icon color."
+        },
+        "types": {
+          "note": "Combine freely; icon only hides the label and needs an aria-label."
+        },
+        "size": {
+          "note": "Pill shape; height and text size follow the Size tokens."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Styles"
+        },
+        "sizes": {
+          "title": "Sizes"
+        },
+        "types": {
+          "title": "Types",
+          "description": "Dot, counter, icons, close and icon only."
+        }
+      },
+      "props": {
+        "variant": "Figma Badge style.",
+        "legacy": "Still accepted and mapped to the closest style (error → danger).",
+        "size": "Size from the Size tokens.",
+        "dot": "Shows a status dot before the label.",
+        "counter": "Counter bubble after the label.",
+        "icons": "Icon before / after the label.",
+        "onRemove": "Shows a close button and calls this on click.",
+        "iconOnly": "Hides the label (set aria-label).",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-subtle": "Neutral background.",
+        "--wds-bg-brand-subtle": "Primary background.",
+        "--wds-bg-success-subtle": "Success background.",
+        "--wds-bg-danger-subtle": "Danger background.",
+        "--wds-text-secondary": "Neutral text.",
+        "--wds-text-brand": "Primary text.",
+        "--wds-text-success": "Success text.",
+        "--wds-text-danger": "Danger text.",
+        "--wds-text-inverse": "Counter text.",
+        "--wds-sz-badge-padding-left": "Horizontal padding.",
+        "--wds-sz-badge-padding-top": "Vertical padding.",
+        "--wds-sz-badge-gap": "Gap between parts.",
+        "--wds-sz-text-badge-font-size": "Label font size."
+      },
+      "behavior": [
+        "Static element; it is not focusable unless it has a close button.",
+        "The close button calls onRemove and is a real button with its own focus ring.",
+        "The counter is shown as a small inverse bubble after the label."
+      ],
+      "accessibility": [
+        "Do not rely on color alone; keep a meaningful label.",
+        "Icon only and dot-only badges need an aria-label.",
+        "The close button has an accessible name."
+      ]
+    },
+    "alert": {
+      "summary": "WDS alert for inline messages. Four styles in four appearances, optional title, action and close button.",
+      "figma": {
+        "message": {
+          "note": "Alert text."
+        },
+        "title": {
+          "note": "Shown above the message."
+        },
+        "styles": {
+          "note": "Info, success, warning and danger set colors and icon."
+        },
+        "variant": {
+          "note": "Basic: plain with border. Solid: filled. Light: subtle fill. Left stroke: accent bar."
+        },
+        "types": {
+          "note": "Action renders a text button; onClose renders a close icon."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Styles"
+        },
+        "appearances": {
+          "title": "Appearances"
+        },
+        "title": {
+          "title": "Title"
+        },
+        "actions": {
+          "title": "Action and close"
+        }
+      },
+      "props": {
+        "variant": "Figma Alert style.",
+        "legacy": "Still accepted (error → danger).",
+        "message": "Alert body.",
+        "title": "Optional title above the message.",
+        "appearance": "Figma Alert variant.",
+        "action": "Text button with label and click handler.",
+        "onClose": "Shows a close button.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-info-subtle": "Light background.",
+        "--wds-bg-info": "Solid background.",
+        "--wds-bg-surface": "Basic background.",
+        "--wds-stroke-info-subtle": "Light border.",
+        "--wds-stroke-info": "Accent stroke.",
+        "--wds-icons-info": "Icon color.",
+        "--wds-text-primary": "Title color.",
+        "--wds-text-secondary": "Message color.",
+        "--wds-text-inverse": "Text on solid.",
+        "--wds-text-info": "Action color.",
+        "--wds-icons-secondary": "Close icon.",
+        "--wds-radius-8": "Corner radius."
+      },
+      "behavior": [
+        "Danger and warning use role=\"alert\"; others use role=\"status\".",
+        "The close button calls onClose; hiding is up to the parent.",
+        "Basic uses outline icons; other appearances use filled icons."
+      ],
+      "accessibility": [
+        "Do not rely on color alone; the icon and text carry the meaning.",
+        "The close button has an accessible name.",
+        "Keep messages short and actionable."
+      ]
+    },
+    "tooltip": {
+      "summary": "WDS tooltip for short hints. Four placements, optional leading icon, shown on hover, focus or click.",
+      "figma": {
+        "text": {
+          "note": "Tooltip content."
+        },
+        "position": {
+          "note": "Preferred side; clamped to the viewport."
+        },
+        "leading": {
+          "note": "Optional icon before the text."
+        },
+        "styles": {
+          "note": "Brand background with on-brand text."
+        }
+      },
+      "examples": {
+        "placements": {
+          "title": "Placements"
+        },
+        "leading": {
+          "title": "Leading icon"
+        }
+      },
+      "props": {
+        "content": "Tooltip content.",
+        "placement": "Preferred side.",
+        "leading": "Icon before the text.",
+        "maxWidth": "Width limits in px.",
+        "open": "Forces the tooltip open (controlled).",
+        "className": "Class on the tooltip.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-brand": "Background and arrow.",
+        "--wds-text-on-brand": "Text color.",
+        "--wds-sz-tooltip-padding-left": "Horizontal padding.",
+        "--wds-sz-tooltip-padding-top": "Vertical padding.",
+        "--wds-sz-tooltip-radius": "Corner radius.",
+        "--wds-sz-tooltip-gap": "Gap between icon and text.",
+        "--wds-sz-tooltip-arrow-size": "Arrow size.",
+        "--wds-sz-text-body-font-size": "Text size."
+      },
+      "behavior": [
+        "Opens on hover, focus and click of the trigger; Escape closes it.",
+        "Rendered in a portal and positioned next to the trigger, clamped to the viewport.",
+        "Hugs its content up to maxWidth."
+      ],
+      "accessibility": [
+        "The trigger is described by the tooltip (aria-describedby).",
+        "Do not put essential information only in a tooltip.",
+        "Keyboard focus shows the tooltip too."
+      ]
+    },
+    "dialog": {
+      "summary": "WDS dialog for confirmations and short tasks. Title, supporting text, optional featured icon, content and a footer for actions.",
+      "figma": {
+        "title": {
+          "note": "Heading of the dialog."
+        },
+        "supporting": {
+          "note": "Shown under the title."
+        },
+        "styles": {
+          "note": "Icon style shows a featured icon above the title."
+        },
+        "types": {
+          "note": "Alert has one button; confirm has a secondary and a primary button — pass them in footer."
+        },
+        "size": {
+          "note": "Spacing follows the Size tokens."
+        }
+      },
+      "examples": {
+        "icon": {
+          "title": "Featured icon"
+        },
+        "types": {
+          "title": "Types",
+          "description": "Alert (one action) and confirm (two actions)."
+        }
+      },
+      "props": {
+        "open": "Controlled visibility and the close handler.",
+        "title": "Dialog title.",
+        "description": "Supporting text under the title.",
+        "icon": "Featured icon above the title.",
+        "children": "Dialog content.",
+        "footer": "Action buttons, aligned to the right.",
+        "maxWidth": "Maximum panel width.",
+        "size": "Size from the Size tokens.",
+        "close": "Hide or disable the close button.",
+        "dismiss": "Close on backdrop click / Escape.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-elevated": "Panel background.",
+        "--wds-text-primary": "Title.",
+        "--wds-text-secondary": "Supporting text.",
+        "--wds-icons-primary": "Icons.",
+        "--wds-stroke-subtle": "Footer divider.",
+        "--wds-radius-12": "Panel radius.",
+        "--wds-sz-dialog-header-padding-top": "Header padding.",
+        "--wds-sz-dialog-heading-and-optional-visual-gap": "Gap between icon and text.",
+        "--wds-sz-dialog-text-gap": "Gap between title and supporting text.",
+        "--wds-sz-dialog-icon-size": "Featured icon size.",
+        "--wds-sz-dialog-actions-gap": "Gap between footer buttons.",
+        "--wds-sz-dialog-footer-actions-padding-top": "Footer padding."
+      },
+      "behavior": [
+        "Rendered in a portal over a dimmed backdrop; page scroll is locked while open.",
+        "Escape and a backdrop click close it unless disabled.",
+        "The panel fades and scales in."
+      ],
+      "accessibility": [
+        "The panel has role=\"dialog\" and aria-modal.",
+        "The close button has an accessible name.",
+        "Keep one primary action in the footer."
+      ]
+    },
+    "drawer": {
+      "summary": "WDS drawer: a side panel with title, scrollable content and a footer. Modal with a backdrop, or non-modal so the page stays interactive.",
+      "figma": {
+        "title": {
+          "note": "Heading of the drawer."
+        },
+        "styles": {
+          "note": "Elevated background with primary title and icons."
+        },
+        "gap": {
+          "note": "Section gap grows with the Size mode."
+        }
+      },
+      "examples": {},
+      "props": {
+        "open": "Controlled visibility and the close handler.",
+        "title": "Drawer title.",
+        "children": "Drawer content.",
+        "footer": "Action buttons.",
+        "width": "Panel width: 320 / 400 / 480px.",
+        "modal": "Backdrop and scroll lock; false keeps the page interactive.",
+        "dismiss": "Close on backdrop click / Escape.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-elevated": "Panel background.",
+        "--wds-text-primary": "Title.",
+        "--wds-icons-primary": "Close icon.",
+        "--wds-stroke-subtle": "Border and dividers.",
+        "--wds-sz-drawer-section-gap": "Section gap.",
+        "--wds-sz-dialog-header-padding-top": "Header padding.",
+        "--wds-sz-dialog-actions-gap": "Gap between footer buttons."
+      },
+      "behavior": [
+        "Slides in from the right and out again before unmounting.",
+        "Non-modal: a click outside closes it, except in dialogs and select menus.",
+        "Escape closes it; a non-modal drawer ignores Escape while a dialog is open."
+      ],
+      "accessibility": [
+        "The close button has an accessible name.",
+        "Modal drawers lock page scroll.",
+        "Keep the footer actions consistent with dialogs."
+      ]
+    },
+    "pagination": {
+      "summary": "WDS pagination with a 7-slot page window, previous / next, optional first / last and labels, and a rows-per-page selector. Square or round buttons.",
+      "figma": {
+        "styles": {
+          "note": "Square uses an 8px radius; round is a pill. The current page is brand-filled."
+        },
+        "firstLast": {
+          "note": "Adds jump-to-first / last buttons."
+        },
+        "labels": {
+          "note": "Adds Previous / Next text to the navigation buttons."
+        },
+        "rows": {
+          "note": "Select with 10 / 20 / 50 / 100 rows."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Styles"
+        }
+      },
+      "props": {
+        "page": "Current page (1-based) and total number of pages.",
+        "onPageChange": "Called with the new page.",
+        "pageSize": "Rows per page and its change handler (needed to show the selector).",
+        "appearance": "Figma Pagination style.",
+        "showFirstLast": "Show first / last page buttons.",
+        "showLabels": "Show Previous / Next labels.",
+        "showRowsPerPage": "Show the rows-per-page selector.",
+        "pageSizeOptions": "Options of the selector.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-brand": "Current page background.",
+        "--wds-text-inverse": "Current page text.",
+        "--wds-text-secondary": "Inactive page text.",
+        "--wds-text-tertiary": "Ellipsis.",
+        "--wds-icons-secondary": "Navigation icons.",
+        "--wds-radius-8": "Square button radius.",
+        "--wds-sz-pagination-button-size": "Button size.",
+        "--wds-sz-pagination-gap": "Gap between buttons.",
+        "--wds-sz-pagination-padding-button": "Button padding.",
+        "--wds-sz-pagination-rows-gap": "Gap around the rows selector."
+      },
+      "behavior": [
+        "Shows up to 7 slots: the start, middle and end windows use ellipses.",
+        "Previous / first are disabled on page 1; next / last on the last page.",
+        "Disabled buttons use 40% opacity."
+      ],
+      "accessibility": [
+        "The nav landmark is labelled \"Pagination\"; the current page has aria-current=\"page\".",
+        "Icon-only buttons have an accessible name."
+      ]
+    },
+    "table-toolbar": {
+      "summary": "WDS table toolbar: a search field and a filter button that opens a filter drawer. The button turns tonal while filters are active.",
+      "figma": {
+        "states": {
+          "note": "Filtered = at least one value differs from its default; the filter button becomes tonal."
+        },
+        "search": {
+          "note": "Debounced; synced to the URL when searchParamName is set."
+        },
+        "filter": {
+          "note": "Fields are rendered in a side drawer with Reset and Apply."
+        }
+      },
+      "examples": {
+        "states": {
+          "title": "States"
+        }
+      },
+      "props": {
+        "search": "Controlled search text and change handler.",
+        "searchPlaceholder": "Placeholder of the search field.",
+        "filterFields": "Fields of the filter drawer.",
+        "filterValues": "Applied values and the defaults that do not count as active.",
+        "onApply": "Apply / reset handlers.",
+        "filterTitle": "Title of the button and drawer.",
+        "withFilterButton": "Hide the filter button when false.",
+        "debounce": "Search debounce and URL param name.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Toolbar background.",
+        "--wds-stroke-subtle": "Bottom divider.",
+        "--wds-sz-table-toolbar-padding-top": "Vertical padding.",
+        "--wds-sz-table-toolbar-padding-left": "Horizontal padding.",
+        "--wds-sz-table-toolbar-root-gap": "Gap between search and filter.",
+        "--wds-sz-table-stroke": "Divider thickness."
+      },
+      "behavior": [
+        "Typing updates the search after the debounce delay.",
+        "Apply closes the drawer and resets to page 1; Reset clears the values.",
+        "The drawer uses the same panel as Drawer."
+      ],
+      "accessibility": [
+        "The drawer has role=\"dialog\" with the filter title as its label.",
+        "The close button has an accessible name."
+      ]
+    },
+    "card": {
+      "summary": "WDS card container with a title, actions, body and optional footer. Outlined or filled, collapsible, and a compact size for narrow panels.",
+      "figma": {
+        "styles": {
+          "note": "Outlined has a subtle border on the surface color; filled uses a subtle background and no border."
+        },
+        "title": {
+          "note": "Header text; the header shows a divider while the body is open."
+        },
+        "actions": {
+          "note": "`actions` sits in the header, `footer` is a divider-topped action row."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Styles"
+        },
+        "footer": {
+          "title": "Footer"
+        }
+      },
+      "props": {
+        "title": "Header title and header actions.",
+        "children": "Card body.",
+        "footer": "Action row below the body.",
+        "appearance": "Figma Card style.",
+        "size": "`sm` is a compact variant for narrow panels.",
+        "collapsible": "Click the header to collapse; `defaultOpen` and a custom toggle icon.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Outlined background.",
+        "--wds-bg-subtle": "Filled background.",
+        "--wds-stroke-subtle": "Border and dividers.",
+        "--wds-text-primary": "Title.",
+        "--wds-text-secondary": "Body text.",
+        "--wds-sz-card-radius": "Corner radius.",
+        "--wds-sz-card-padding-top": "Vertical padding.",
+        "--wds-sz-card-padding-left": "Horizontal padding.",
+        "--wds-sz-card-actions-gap": "Gap between actions."
+      },
+      "behavior": [
+        "Collapsible cards hide the body and footer; the header divider hides with them.",
+        "The header becomes a real button when collapsible."
+      ],
+      "accessibility": [
+        "The collapsible header exposes aria-expanded.",
+        "Use a descriptive title."
+      ]
+    },
+    "empty-state": {
+      "summary": "WDS empty state: illustration, title, supporting text and actions, centered.",
+      "figma": {
+        "title": {
+          "note": "Main message."
+        },
+        "supporting": {
+          "note": "Explains what happened or what to do."
+        },
+        "illustration": {
+          "note": "An icon or image placed in a rounded placeholder."
+        },
+        "actions": {
+          "note": "Optional buttons below the text."
+        }
+      },
+      "examples": {
+        "actions": {
+          "title": "With action"
+        }
+      },
+      "props": {
+        "title": "Main message.",
+        "description": "Supporting text.",
+        "illustration": "Icon or image above the title.",
+        "actions": "Buttons below the text.",
+        "testId": "Mapped to data-testid."
+      },
+      "tokens": {
+        "--wds-text-primary": "Title.",
+        "--wds-text-secondary": "Supporting text.",
+        "--wds-icons-secondary": "Illustration icon.",
+        "--wds-sz-empty-state-gap": "Gap between sections.",
+        "--wds-sz-empty-state-text-gap": "Gap between title and text.",
+        "--wds-sz-empty-state-actions-gap": "Gap between actions.",
+        "--wds-sz-empty-state-illustration-size": "Illustration size."
+      },
+      "behavior": [
+        "Content is centered and hugs its width.",
+        "Use inside a Card or Table body when there is no data."
+      ],
+      "accessibility": [
+        "Keep the title short and specific.",
+        "Provide a next step in the actions when possible."
+      ]
     }
   }
 }

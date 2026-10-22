@@ -3,11 +3,11 @@ import { CheckCircle, CloseCircle, InfoCircle } from '../../../shared/components
 import CodeBlock from './CodeBlock';
 import Playground from './Playground';
 import { docCode, resolveProps } from './render';
-import type { ComponentDoc, DocExample, DocMatrix, TokenDoc } from './types';
+import type { ComponentDoc, DocExample, DocMatrix, GroupDoc, TokenDoc } from './types';
 import { useDocT } from './useDocT';
 import Tabs from './ui/Tabs';
 
-const TOC = ['playground', 'figma', 'examples', 'states', 'props', 'tokens', 'behavior', 'accessibility'] as const;
+const TOC = ['playground', 'figma', 'examples', 'states', 'props', 'group', 'tokens', 'behavior', 'accessibility'] as const;
 
 const th = 'whitespace-nowrap px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground';
 const td = 'px-3 py-2.5 align-top text-xs text-foreground';
@@ -54,17 +54,29 @@ function Table({ head, rows }: { head: string[]; rows: ReactNode[][] }) {
   );
 }
 
-function ExampleBlock({ doc, example }: { doc: ComponentDoc; example: DocExample }) {
-  const { t, c } = useDocT(doc.slug);
-  const Component = doc.component;
-  const description = c(`examples.${example.id}.description`, { defaultValue: '' });
+interface ExampleView {
+  name: string;
+  codeName?: string;
+  codeExtra?: string[];
+  codeOmit?: string[];
+  defaults?: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component: React.ComponentType<any>;
+  baseProps: Record<string, unknown>;
+  baseChildren?: string;
+}
+
+function ExampleBlock({ slug, view, example, keyPrefix = 'examples' }: { slug: string; view: ExampleView; example: DocExample; keyPrefix?: string }) {
+  const { t, c } = useDocT(slug);
+  const Component = view.component;
+  const description = c(`${keyPrefix}.${example.id}.description`, { defaultValue: '' });
   const code = example.variants
-    .map((v) => docCode(doc, { ...doc.baseProps, ...v.props }, v.props.iconOnly || doc.baseChildren === undefined ? undefined : (v.children ?? v.label)))
+    .map((v) => docCode(view, { ...view.baseProps, ...v.props }, v.props.iconOnly || view.baseChildren === undefined ? undefined : (v.children ?? v.label)))
     .join('\n');
   return (
     <div className="flex flex-col gap-2">
       <div>
-        <h3 className="text-[13px] font-semibold text-foreground">{c(`examples.${example.id}.title`)}</h3>
+        <h3 className="text-[13px] font-semibold text-foreground">{c(`${keyPrefix}.${example.id}.title`)}</h3>
         {description && <p className="text-xs text-muted-foreground">{description}</p>}
       </div>
       <Tabs
@@ -75,8 +87,8 @@ function ExampleBlock({ doc, example }: { doc: ComponentDoc; example: DocExample
             content: (
               <div className="flex flex-wrap items-center gap-3 p-5">
                 {example.variants.map((variant) => (
-                  <Component key={variant.label} {...resolveProps({ ...doc.baseProps, ...variant.props })}>
-                    {variant.props.iconOnly || doc.baseChildren === undefined ? undefined : (variant.children ?? variant.label)}
+                  <Component key={variant.label} {...resolveProps({ ...view.baseProps, ...variant.props })}>
+                    {variant.props.iconOnly || view.baseChildren === undefined ? undefined : (variant.children ?? variant.label)}
                   </Component>
                 ))}
               </div>
@@ -86,6 +98,38 @@ function ExampleBlock({ doc, example }: { doc: ComponentDoc; example: DocExample
         ]}
       />
     </div>
+  );
+}
+
+function GroupSection({ doc, group }: { doc: ComponentDoc; group: GroupDoc }) {
+  const { t, c } = useDocT(doc.slug);
+  const view: ExampleView = { ...group, codeName: group.name };
+  return (
+    <Section id="group" title={t('sections.group.title')} hint={c('group.summary')}>
+      <CodeBlock code={group.importStatement} />
+      <div className="flex flex-col gap-7">
+        {group.examples.map((example) => (
+          <ExampleBlock key={example.id} slug={doc.slug} view={view} example={example} keyPrefix="group.examples" />
+        ))}
+      </div>
+      <Table
+        head={[t('table.props.prop'), t('table.props.type'), t('table.props.default'), t('table.props.description')]}
+        rows={group.props.map((p) => [
+          <code key="n" className={`${chip} font-semibold`}>
+            {p.name}
+          </code>,
+          <code key="t" className="font-mono text-[11px] text-primary">
+            {p.type}
+          </code>,
+          <span key="d" className="font-mono text-[11px] text-muted-foreground">
+            {p.default ?? '—'}
+          </span>,
+          <span key="x" className="text-muted-foreground">
+            {c(`group.props.${p.id}`)}
+          </span>,
+        ])}
+      />
+    </Section>
   );
 }
 
@@ -182,7 +226,7 @@ function BulletCard({ icon: Icon, tone, items }: { icon: typeof InfoCircle; tone
 function DocPage({ doc }: { doc: ComponentDoc }) {
   const { t, c, list } = useDocT(doc.slug);
   const tokenValues = useTokenValues(doc.tokens);
-  const sections = TOC.filter((id) => id !== 'states' || doc.matrices);
+  const sections = TOC.filter((id) => (id !== 'states' || doc.matrices) && (id !== 'group' || doc.group));
   const active = useActiveSection(sections);
   const doList = list('guidelines.do');
   const dontList = list('guidelines.dont');
@@ -237,13 +281,15 @@ function DocPage({ doc }: { doc: ComponentDoc }) {
           />
         </Section>
 
-        <Section id="examples" title={t('sections.examples.title')}>
-          <div className="flex flex-col gap-7">
-            {doc.examples.map((example) => (
-              <ExampleBlock key={example.id} doc={doc} example={example} />
-            ))}
-          </div>
-        </Section>
+        {doc.examples.length > 0 && (
+          <Section id="examples" title={t('sections.examples.title')}>
+            <div className="flex flex-col gap-7">
+              {doc.examples.map((example) => (
+                <ExampleBlock key={example.id} slug={doc.slug} view={doc} example={example} />
+              ))}
+            </div>
+          </Section>
+        )}
 
         {doc.matrices && (
           <Section
@@ -278,6 +324,8 @@ function DocPage({ doc }: { doc: ComponentDoc }) {
             ])}
           />
         </Section>
+
+        {doc.group && <GroupSection doc={doc} group={doc.group} />}
 
         <Section id="tokens" title={t('sections.tokens.title')} hint={t('sections.tokens.hint', { file: 'tokens/tokens.json' })}>
           <Table

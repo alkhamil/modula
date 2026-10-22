@@ -40,7 +40,7 @@ function DatePickerHeader({
   testId,
 }: DatePickerHeaderProps) {
   const navButtonClasses =
-    'flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-primary';
+    'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-[var(--c-nav,var(--wds-icons-primary))] transition-colors hover:bg-[var(--wds-bg-brand-subtle)]';
   let label: ReactNode;
   let labelTestId: string | undefined;
 
@@ -70,12 +70,12 @@ function DatePickerHeader({
         <AltArrowLeft />
       </button>
       {view === 'year' ? (
-        <span className="text-sm font-semibold text-foreground">{label}</span>
+        <span className="text-[length:var(--wds-sz-text-body-font-size)] font-medium text-[var(--c-header,var(--wds-text-primary))]">{label}</span>
       ) : (
         <button
           type="button"
           data-testid={labelTestId}
-          className="cursor-pointer text-sm font-semibold text-foreground"
+          className="cursor-pointer text-[length:var(--wds-sz-text-body-font-size)] font-medium text-[var(--c-header,var(--wds-text-primary))]"
           onClick={() => onViewChange(view === 'date' ? 'month' : 'year')}
         >
           {label}

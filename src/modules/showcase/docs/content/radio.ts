@@ -1,4 +1,4 @@
-import { RadioDemo } from './selectionDemos';
+import { RadioDemo, RadioGroupDemo } from './selectionDemos';
 import { selectionDoc } from './selectionDoc';
 
 export const radioDoc = selectionDoc({
@@ -10,6 +10,30 @@ export const radioDoc = selectionDoc({
   labelProp: 'label',
   codeExtra: ['value="option"', 'checked={checked}', 'onChange={setValue}'],
   appearance: true,
+  group: {
+    name: 'RadioButtonGroup',
+    importStatement: "import { RadioButtonGroup } from 'shared/components/ui';",
+    component: RadioGroupDemo,
+    codeExtra: ['options={options}', 'value={value}', 'onChange={setValue}'],
+    codeOmit: ['value'],
+    baseProps: { value: 'editor' },
+    examples: [
+      { id: 'basic', variants: [{ label: 'basic', props: {} }] },
+      { id: 'solid', variants: [{ label: 'solid', props: { appearance: 'solid' } }] },
+      { id: 'sizes', variants: [{ label: 'sm', props: { size: 'sm' } }, { label: 'lg', props: { size: 'lg' } }] },
+      { id: 'error', variants: [{ label: 'error', props: { value: '', error: 'Choose a role' } }] },
+    ],
+    props: [
+      { id: 'options', name: 'options', type: '{ label, value, hint?, disabled? }[]' },
+      { id: 'value', name: 'value', type: 'string' },
+      { id: 'onChange', name: 'onChange', type: '(value: string) => void' },
+      { id: 'appearance', name: 'appearance', type: "'outline' | 'solid'", default: "'outline'" },
+      { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
+      { id: 'disabled', name: 'disabled', type: 'boolean', default: 'false' },
+      { id: 'error', name: 'error', type: 'string' },
+      { id: 'testId', name: 'testId', type: 'string' },
+    ],
+  },
   valueProp: 'checked',
   valueType: 'boolean',
   onChangeType: '(value: string) => void',
@@ -17,9 +41,9 @@ export const radioDoc = selectionDoc({
     { id: 'label', figma: 'Label (TEXT)', values: 'free text', prop: 'label' },
     { id: 'supporting', figma: 'Supporting / error (TEXT)', values: 'free text', prop: 'hint · error' },
     { id: 'style', figma: 'Style (variant)', values: 'Outline, Solid', prop: 'appearance' },
-    { id: 'states', figma: 'RadioButton btn states (mode)', values: 'default, selected, disabled-off, disabled-on, error, focused…', prop: 'checked · disabled · error' },
+    { id: 'states', figma: 'Radio btn states (mode)', values: 'default, selected, disabled-off, disabled-on, error, focused…', prop: 'checked · disabled · error' },
     { id: 'size', figma: 'Size (mode)', values: 'xs, sm, md, lg, xl', prop: 'size' },
-    { id: 'types', figma: 'RadioButton btn types (mode)', values: 'default, icon only', prop: 'label' },
-    { id: 'modes', figma: 'RadioButton btn modes (mode)', values: 'Hint, No Hint', prop: 'hint' },
+    { id: 'types', figma: 'Radio btn types (mode)', values: 'default, icon only', prop: 'label' },
+    { id: 'modes', figma: 'Radio btn modes (mode)', values: 'Hint, No Hint', prop: 'hint' },
   ],
 });

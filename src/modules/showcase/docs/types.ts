@@ -5,6 +5,16 @@ export interface IconRef {
   $icon: string;
 }
 export const icon = (name: string): IconRef => ({ $icon: name });
+/** Props non-serializable di data docs: `value` dipakai saat render, `code` dicetak di kode contoh. */
+export interface RawRef {
+  $raw: string;
+  value: unknown;
+}
+export const raw = (code: string, value: unknown): RawRef => ({ $raw: code, value });
+export const fn = (name: string): RawRef => raw(name, () => undefined);
+export const isRawRef = (value: unknown): value is RawRef =>
+  typeof value === 'object' && value !== null && '$raw' in value;
+
 export const isIconRef = (value: unknown): value is IconRef =>
   typeof value === 'object' && value !== null && '$icon' in value;
 
@@ -63,6 +73,23 @@ export interface TokenDoc {
 }
 
 /**
+ * Komponen grup yang didokumentasikan di halaman komponen dasarnya (mis. CheckboxGroup di halaman
+ * Checkbox). Teks di locale: `docs.<slug>.group.summary|examples.<id>|props.<id>`.
+ */
+export interface GroupDoc {
+  /** Nama komponen, mis. `CheckboxGroup`. */
+  name: string;
+  importStatement: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component: ComponentType<any>;
+  codeExtra: string[];
+  codeOmit: string[];
+  baseProps: Record<string, unknown>;
+  examples: DocExample[];
+  props: PropDoc[];
+}
+
+/**
  * Data teknis dokumentasi satu komponen. Semua kalimat (ringkasan, catatan, behavior, dst.)
  * ada di `showcase/i18n/<lang>.json` di bawah `docs.<slug>` agar bisa diterjemahkan.
  */
@@ -75,6 +102,10 @@ export interface ComponentDoc {
   importStatement: string;
   /** Nama komponen di kode contoh bila beda dari `name` (mis. wrapper demo → komponen asli). */
   codeName?: string;
+  /** Nama komponen di kode contoh menurut props (untuk komponen yang berganti nama menurut props; saat ini tidak dipakai). */
+  codeNameFor?: (props: Record<string, unknown>) => string;
+  /** Kode children di kode contoh (mis. elemen pemicu Tooltip); menggantikan teks children. */
+  codeChildren?: string;
   /** Atribut tambahan di awal kode contoh (mis. `value={checked}`). */
   codeExtra?: string[];
   /** Props demo yang tidak dicetak di kode contoh. */
@@ -93,4 +124,6 @@ export interface ComponentDoc {
   matrices?: DocMatrix[];
   props: PropDoc[];
   tokens: TokenDoc[];
+  /** Komponen grup (mis. CheckboxGroup) yang dijelaskan di halaman ini. */
+  group?: GroupDoc;
 }

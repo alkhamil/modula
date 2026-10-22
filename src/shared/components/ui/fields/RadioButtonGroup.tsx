@@ -35,7 +35,7 @@ function RadioButtonGroup({
   const resolvedTestId = dataTestId ?? testId;
   return (
     <div data-testid={resolvedTestId} role="radiogroup">
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-[var(--wds-sz-form-row-options-gap)]">
         {options.map((option) => (
           <RadioButton
             key={option.value}

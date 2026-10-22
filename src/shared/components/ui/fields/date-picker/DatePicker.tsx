@@ -4,17 +4,29 @@ import { createPortal } from 'react-dom';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './DatePicker.css';
-import { Calendar, DangerCircle } from '../../../icons';
 import { useSelectDropdown } from '../../../../hooks';
-import Button from '../../Button';
 import DatePickerHeader, { YEAR_ITEM_COUNT, type PickerView } from './DatePickerHeader';
+import { DateFieldShell, DateIcons, dateFieldState } from './DateFieldShell';
+import type { FieldSize } from '../fieldState';
+import DateRange, { type RangeDatePickerProps } from './DateRangePicker';
 
-interface DatePickerProps {
-  size?: 'sm' | 'md' | 'lg';
+interface SingleDatePickerProps {
+  /** Mode satu tanggal (default). `range` memilih mode rentang tanggal. */
+  range?: false;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: FieldSize;
+  /** Style WDS (mode "Date Picker styles"): box (default) atau underline. */
+  appearance?: 'box' | 'underline';
   disabled?: boolean;
+  /** State read-only: tampil seperti disabled; kalender tidak bisa dibuka. */
+  readOnly?: boolean;
+  /** Pesan error: state error + teks di slot hint (warna danger). */
   error?: string;
+  /** Teks pendukung di bawah field (digantikan `error`). */
+  hint?: React.ReactNode;
+  /** Hanya dokumentasi: paksa state `selected` (terbuka) atau `focused` (cincin fokus). */
+  'data-wds-state'?: string;
   placeholder?: string;
-  range?: boolean;
   showTime?: boolean;
   minDate?: Date;
   maxDate?: Date;
@@ -28,12 +40,6 @@ interface DatePickerProps {
   testId?: string;
   'data-testid'?: string;
 }
-
-const triggerSizeStyles: Record<string, string> = {
-  sm: 'px-3 py-1.5 text-xs',
-  md: 'px-4 py-2.5 text-sm',
-  lg: 'px-5 py-3 text-base',
-};
 
 const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
 const MINUTES = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
@@ -66,31 +72,10 @@ function toDisplay(date: Date | null, showTime = false): string {
   return showTime ? `${base} ${pad2(date.getHours())}:${pad2(date.getMinutes())}` : base;
 }
 
-function formatRange(start: Date | null, end: Date | null): string {
-  if (!start && !end) return '';
-  if (start && !end) return toIso(start);
-  if (start && end) return `${toIso(start)},${toIso(end)}`;
-  return '';
-}
-
-function parseRange(value: string): [Date | null, Date | null] {
-  if (!value) return [null, null];
-  const parts = value.split(',');
-  return [toDate(parts[0]), toDate(parts[1] ?? '')];
-}
-
 function formatDisplay(value: string, showTime = false): string {
   if (!value) return '';
-  const [start, end] = parseRange(value);
-  if (start && end) return `${toDisplay(start)} - ${toDisplay(end)}`;
-  return toDisplay(start, showTime) || value;
+  return toDisplay(toDate(value), showTime) || value;
 }
-
-const inputBaseClasses = [
-  'w-full rounded-lg border bg-background text-left outline-none transition-colors placeholder:text-muted-foreground',
-  'focus-visible:ring-2 focus-visible:ring-primary/30',
-  'disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground',
-].join(' ');
 
 const timeSelectClasses = [
   'h-9 w-16 rounded-lg border border-border bg-background px-2 text-center text-sm text-foreground outline-none transition-colors',
@@ -98,57 +83,15 @@ const timeSelectClasses = [
   'disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground',
 ].join(' ');
 
-function renderRightSide(
-  hasValue: boolean,
-  disabled: boolean,
-  onClear: () => void,
-  showError: boolean,
-) {
-  return (
-    <div
-      className={[
-        'pointer-events-none absolute right-0 inset-y-0 z-10 flex items-center gap-0.5 text-muted-foreground',
-        showError ? 'pr-3.5' : 'pr-3',
-      ].join(' ')}
-    >
-      {hasValue && !disabled && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onClear();
-          }}
-          className="pointer-events-auto flex cursor-pointer items-center rounded-sm transition-colors hover:text-foreground focus-visible:outline-none"
-          tabIndex={-1}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="h-4 w-4"
-          >
-            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-          </svg>
-        </button>
-      )}
-      <span className="pointer-events-none flex items-center mr-1">
-        <Calendar className='w-4 h-4' />
-      </span>
-      {showError && (
-        <span className="pointer-events-none flex items-center">
-          <DangerCircle className="h-3.5 w-3.5" />
-        </span>
-      )}
-    </div>
-  );
-}
-
-function DatePicker({
+function DateSingle({
   size = 'md',
+  appearance = 'box',
   disabled = false,
+  readOnly = false,
   error,
+  hint,
+  'data-wds-state': forcedState,
   placeholder,
-  range: isRange = false,
   showTime = false,
   minDate,
   maxDate,
@@ -159,7 +102,7 @@ function DatePicker({
   panelWidthClassName = 'w-80',
   testId,
   'data-testid': dataTestId,
-}: DatePickerProps) {
+}: Omit<SingleDatePickerProps, 'range'>) {
   const resolvedTestId = dataTestId ?? testId;
   const { t } = useTranslation();
   const resolvedPlaceholder = placeholder ?? t('fields.selectDate');
@@ -201,10 +144,11 @@ function DatePicker({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [open]);
 
-  const [startDate, endDate] = isRange ? parseRange(value) : [null, null];
+  const fieldStateValue = dateFieldState({ disabled, readOnly, error, open, hasValue: Boolean(value), forced: forcedState });
+  const interactive = !disabled && !readOnly;
 
   function openPanel() {
-    if (disabled) return;
+    if (disabled || readOnly) return;
     const parsed = toDate(value);
     setDraftDate(parsed);
     setDraftHour(parsed ? pad2(parsed.getHours()) : '00');
@@ -238,72 +182,25 @@ function DatePicker({
       return;
     }
     setDraftDate(date);
+    commit(date, draftHour, draftMinute);
+    // Tanpa waktu: memilih hari langsung menutup kalender; dengan waktu tetap terbuka untuk atur jam.
+    if (!showTime) setOpen(false);
   }
 
-  function handleApply() {
-    if (!draftDate) {
-      setOpen(false);
-      return;
-    }
-    const d = new Date(
-      draftDate.getFullYear(),
-      draftDate.getMonth(),
-      draftDate.getDate(),
-      Number(draftHour),
-      Number(draftMinute),
-      0,
-      0,
-    );
+  /** Terapkan tanggal + jam langsung ke `onChange` (tanpa tombol Apply). */
+  function commit(date: Date, hour: string, minute: string) {
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate(), Number(hour), Number(minute), 0, 0);
     onChange(showTime ? toIsoDateTime(d) : toIso(d));
-    setOpen(false);
   }
 
-  function renderSinglePicker() {
-    const borderError = error
-      ? 'border-danger focus-visible:border-danger focus-visible:ring-danger/20'
-      : 'border-border focus-visible:border-primary';
-
-    const openRing = open && !error ? 'border-primary ring-2 ring-primary/30' : '';
-
-    const inputPad = clearable && value && !disabled ? 'pr-12' : 'pr-9';
-
-    return (
-      <div ref={wrapperRef} className={['relative w-full', className].filter(Boolean).join(' ')}>
-        {renderRightSide(
-          clearable && !!value,
-          disabled,
-          () => {
-            onChange('');
-            setOpen(false);
-          },
-          !!error,
-        )}
-        <input
-          ref={inputRef}
-          type="text"
-          readOnly
-          value={formatDisplay(value, showTime)}
-          placeholder={resolvedPlaceholder}
-          disabled={disabled}
-          onClick={() => (open ? setOpen(false) : openPanel())}
-          data-testid={resolvedTestId}
-          className={[
-            inputBaseClasses,
-            borderError,
-            triggerSizeStyles[size],
-            openRing,
-            inputPad,
-            disabled ? '' : 'cursor-pointer',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-        />
-        {open &&
-          dropdownPosition &&
-          createPortal(
+  const panelNode =
+    open && dropdownPosition
+      ? createPortal(
             <div
               ref={panelRef}
               data-testid={resolvedTestId ? `${resolvedTestId}-panel` : undefined}
+              data-appearance={appearance}
+              data-wds-size={size}
               onMouseDown={(e) => e.stopPropagation()}
               style={{
                 position: 'fixed',
@@ -313,7 +210,7 @@ function DatePicker({
                 zIndex: 9999,
               }}
               className={[
-                'rounded-lg border border-border bg-background shadow-lg',
+                'wds-cal',
                 panelWidthClassName === 'w-full' ? '' : panelWidthClassName,
               ]
                 .filter(Boolean)
@@ -353,7 +250,10 @@ function DatePicker({
                     data-testid={resolvedTestId ? `${resolvedTestId}-hour` : undefined}
                     value={draftHour}
                     disabled={disabled}
-                    onChange={(e) => setDraftHour(e.target.value)}
+                    onChange={(e) => {
+                      setDraftHour(e.target.value);
+                      if (draftDate) commit(draftDate, e.target.value, draftMinute);
+                    }}
                     className={timeSelectClasses}
                     aria-label={t('fields.hour')}
                   >
@@ -368,7 +268,10 @@ function DatePicker({
                     data-testid={resolvedTestId ? `${resolvedTestId}-minute` : undefined}
                     value={draftMinute}
                     disabled={disabled}
-                    onChange={(e) => setDraftMinute(e.target.value)}
+                    onChange={(e) => {
+                      setDraftMinute(e.target.value);
+                      if (draftDate) commit(draftDate, draftHour, e.target.value);
+                    }}
                     className={timeSelectClasses}
                     aria-label={t('fields.minute')}
                   >
@@ -380,107 +283,73 @@ function DatePicker({
                   </select>
                 </div>
               )}
-              <div className="flex items-center gap-2 border-t border-border px-4 py-3">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="md"
-                  className="flex-1"
-                  data-testid={resolvedTestId ? `${resolvedTestId}-cancel` : undefined}
-                  onClick={() => setOpen(false)}
-                >
-                  {t('common.cancel')}
-                </Button>
-                <Button
-                  type="button"
-                  size="md"
-                  className="flex-1"
-                  data-testid={resolvedTestId ? `${resolvedTestId}-apply` : undefined}
-                  disabled={!draftDate || disabled}
-                  onClick={handleApply}
-                >
-                  {t('common.apply')}
-                </Button>
-              </div>
             </div>,
             document.body,
-          )}
-      </div>
-    );
-  }
+          )
+      : null;
 
-  function renderLegacyRangePicker() {
-    const borderError = error
-      ? 'border-danger focus-visible:border-danger focus-visible:ring-danger/20'
-      : 'border-border focus-visible:border-primary';
-
-    const openRing = open && !error ? 'border-primary ring-2 ring-primary/30' : '';
-
-    const inputPad = clearable && value && !disabled ? 'pr-12' : 'pr-9';
-
-    const sharedProps = {
-      disabled,
-      minDate,
-      maxDate,
-      dateFormat: 'dd/MM/yyyy' as const,
-      onCalendarOpen: () => setOpen(true),
-      onCalendarClose: () => setOpen(false),
-      showMonthDropdown: true,
-      showYearDropdown: true,
-      dropdownMode: 'select' as const,
-      yearDropdownItemNumber: 30,
-      popperClassName: 'datepicker-popper' as const,
-      calendarClassName: 'datepicker-calendar' as const,
-    };
-
+  function renderSinglePicker() {
     return (
-      <div className={['relative w-full', className].filter(Boolean).join(' ')}>
-        {renderRightSide(clearable && !!value, disabled, () => onChange(''), !!error)}
-        <ReactDatePicker
-          selected={startDate}
-          onChange={(dates: [Date | null, Date | null]) => {
-            const [start, end] = dates;
-            onChange(formatRange(start, end));
-          }}
-          startDate={startDate}
-          endDate={endDate}
-          selectsRange
-          placeholderText="Select date range..."
-          {...sharedProps}
-          customInput={
-            <input
-              ref={inputRef}
-              value={formatDisplay(value)}
-              className={[
-                inputBaseClasses,
-                borderError,
-                triggerSizeStyles[size],
-                openRing,
-                inputPad,
-              ].join(' ')}
-              disabled={disabled}
-              data-testid={resolvedTestId}
-            />
-          }
+      <DateFieldShell
+        wrapperRef={wrapperRef}
+        className={className}
+        appearance={appearance}
+        size={size}
+        state={fieldStateValue}
+        forcedState={forcedState}
+        error={error}
+        hint={hint}
+        testId={resolvedTestId}
+        panel={panelNode}
+      >
+        <input
+          ref={inputRef}
+          type="text"
+          readOnly
+          value={formatDisplay(value, showTime)}
+          placeholder={resolvedPlaceholder}
+          disabled={disabled}
+          aria-invalid={error ? true : undefined}
+          onClick={() => (open ? setOpen(false) : openPanel())}
+          data-testid={resolvedTestId}
+          className={['wds-field__input', interactive ? 'cursor-pointer' : ''].filter(Boolean).join(' ')}
         />
-      </div>
+        <DateIcons
+          hasValue={Boolean(value)}
+          interactive={interactive}
+          clearable={clearable}
+          onClear={() => {
+            onChange('');
+            setOpen(false);
+          }}
+        />
+      </DateFieldShell>
     );
   }
 
-  return (
-    <div>
-      {isRange ? renderLegacyRangePicker() : renderSinglePicker()}
-      {error && (
-        <p
-          data-testid={resolvedTestId ? `${resolvedTestId}-error` : undefined}
-          className="mt-1 text-xs text-danger"
-          role="alert"
-        >
-          {error}
-        </p>
-      )}
-    </div>
-  );
+  return renderSinglePicker();
+}
+
+export type DatePickerProps = SingleDatePickerProps | RangeDatePickerProps;
+
+/**
+ * Props longgar untuk pemanggil generik (`FormItem component={DatePicker}`): props mode satu tanggal
+ * dan rentang tersedia, `range` memilih mode. Pemakaian langsung memakai overload yang ketat.
+ */
+type DatePickerLooseProps = Omit<SingleDatePickerProps, 'range'> &
+  Partial<Omit<RangeDatePickerProps, 'range' | keyof SingleDatePickerProps>> & { range?: boolean };
+
+/**
+ * Date Picker WDS. Satu tanggal (default, opsional `showTime`); `range` memilih rentang tanggal
+ * ("awal,akhir"): klik pertama = awal, klik kedua = akhir lalu diterapkan.
+ */
+function DatePicker(props: SingleDatePickerProps): React.ReactElement;
+function DatePicker(props: RangeDatePickerProps): React.ReactElement;
+function DatePicker(props: DatePickerLooseProps): React.ReactElement;
+function DatePicker(props: DatePickerLooseProps): React.ReactElement {
+  const { range, ...rest } = props;
+  if (range) return <DateRange {...(rest as Omit<RangeDatePickerProps, 'range'>)} />;
+  return <DateSingle {...(rest as Omit<SingleDatePickerProps, 'range'>)} />;
 }
 
 export default DatePicker;

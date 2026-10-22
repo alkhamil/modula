@@ -1,6 +1,8 @@
-import { type ChangeEvent, type InputHTMLAttributes, type ReactNode, forwardRef } from 'react';
-import { CloseCircle, DangerCircle } from '../../icons';
+import { type ChangeEvent, type InputHTMLAttributes, type ReactNode, forwardRef, useState } from 'react';
+import { CloseCircle, DangerCircle, QuestionCircle } from '../../icons';
 import { stripNonAscii } from '../../../utils';
+import Tooltip from '../Tooltip';
+import { fieldSlot, fieldState, type FieldSize } from './fieldState';
 
 type PrependProps =
   | { prepend?: ReactNode; prependGroup?: never }
@@ -11,16 +13,27 @@ type AppendProps =
   | { appendGroup?: ReactNode; append?: never };
 
 interface InputFieldOwnProps {
-  size?: 'sm' | 'md' | 'lg';
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: FieldSize;
+  /** Style WDS (mode "Input styles"): box (default) atau underline. */
+  appearance?: 'box' | 'underline';
+  /** Pesan error: state error + teks di slot hint (warna danger). */
   error?: string;
+  /** State error tanpa pesan. */
   isInvalid?: boolean;
+  /** Teks pendukung di bawah field (digantikan `error`). */
+  hint?: ReactNode;
+  /** Ikon bantuan di ujung field; isinya tampil sebagai tooltip (Figma "Show Help icon"). */
+  help?: ReactNode;
   currency?: boolean;
   clearable?: boolean;
   sanitize?: (value: string) => string;
-  /** Kelas tambahan untuk elemen `<input>` (mis. padding kiri). */
+  /** Kelas tambahan untuk elemen `<input>`. */
   inputClassName?: string;
-  /** Kelas tambahan untuk addon prepend/append (mis. background). */
+  /** Kelas tambahan untuk addon ikon prepend/append. */
   addonClassName?: string;
+  /** Hanya dokumentasi: paksa state (`selected`, `typing`, `focused`). */
+  'data-wds-state'?: string;
   'data-testid'?: string;
 }
 
@@ -29,30 +42,6 @@ type InputFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> &
   PrependProps &
   AppendProps;
 
-const sizeStyles: Record<string, string> = {
-  sm: 'px-3 py-1.5 text-xs',
-  md: 'px-4 py-2.5 text-sm',
-  lg: 'px-5 py-3 text-base',
-};
-
-const iconSizeStyles: Record<string, string> = {
-  sm: '[&>svg]:h-4 [&>svg]:w-4',
-  md: '[&>svg]:h-5 [&>svg]:w-5',
-  lg: '[&>svg]:h-5 [&>svg]:w-5',
-};
-
-const groupBaseStyles =
-  'flex items-center self-stretch bg-muted px-3 text-sm text-muted-foreground border-border';
-const groupDisabledStyles =
-  'flex items-center self-stretch bg-muted px-3 text-sm text-muted-foreground border-border';
-const prependGroupStyles = `${groupBaseStyles} border-r`;
-const appendGroupStyles = `${groupBaseStyles} border-l`;
-const prependGroupDisabledStyles = `${groupDisabledStyles} border-r`;
-const appendGroupDisabledStyles = `${groupDisabledStyles} border-l`;
-const addonStyles = 'flex items-center self-stretch px-3';
-const prependAddonDisabledStyles = 'border-r border-border bg-muted text-muted-foreground';
-const appendAddonDisabledStyles = 'border-l border-border bg-muted text-muted-foreground';
-
 function formatCurrency(value: string): string {
   if (!value) return '';
   const digits = value.replace(/\D/g, '');
@@ -60,12 +49,20 @@ function formatCurrency(value: string): string {
   return Number(digits).toLocaleString('id-ID');
 }
 
+/**
+ * Input Field WDS. `prepend`/`append` = ikon/konten leading/trailing di dalam field;
+ * `prependGroup`/`appendGroup` = Type "Leading/Trailing dropdown" (segmen berlatar).
+ * Warna dan state (default, selected, typing, filled, disabled, error, read-only) dari token.
+ */
 const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
   (
     {
       size = 'md',
+      appearance = 'box',
       error,
       isInvalid,
+      hint,
+      help,
       prepend,
       prependGroup,
       append,
@@ -79,16 +76,26 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       disabled,
       readOnly,
       onChange,
+      onFocus,
+      onBlur,
       value,
+      defaultValue,
+      'data-wds-state': forcedState,
       'data-testid': testId,
       ...rest
     },
     ref,
   ) => {
+    const [focused, setFocused] = useState(false);
+    const [uncontrolledFilled, setUncontrolledFilled] = useState(
+      defaultValue !== undefined && String(defaultValue).length > 0,
+    );
     const displayValue = currency ? formatCurrency(String(value ?? '')) : value;
-    const leftPad = inputClassName ? '' : prepend ? 'pl-0' : prependGroup ? 'pl-3' : '';
-    const rightPad = append ? 'pr-0' : appendGroup ? 'pr-3' : '';
-    const hasValue = value !== undefined && value !== null && String(value).length > 0;
+    const hasValue =
+      value !== undefined && value !== null ? String(value).length > 0 : uncontrolledFilled;
+    const invalid = Boolean(error) || Boolean(isInvalid);
+    const state = fieldState({ disabled, readOnly, invalid, focused, filled: hasValue, forced: forcedState });
+    const slot = fieldSlot(error, hint);
 
     function handleChange(e: ChangeEvent<HTMLInputElement>) {
       const cleaned = stripNonAscii(e.target.value);
@@ -106,6 +113,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
           e.target.value = raw;
         }
       }
+      setUncontrolledFilled(e.target.value.length > 0);
       onChange?.(e);
     }
 
@@ -117,86 +125,72 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
     }
 
     return (
-      <div>
-        <div
-          className={[
-            'flex items-center rounded-lg border bg-background transition-colors overflow-auto',
-            error || isInvalid
-              ? 'border-danger focus-within:border-danger focus-within:ring-2 focus-within:ring-danger/20'
-              : 'border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30',
-            disabled ? 'cursor-not-allowed bg-muted' : '',
-            className,
-          ].join(' ')}
-        >
-          {prependGroup && (
-            <div className={disabled ? prependGroupDisabledStyles : prependGroupStyles}>
-              {prependGroup}
-            </div>
-          )}
-          {prepend && (
-            <div
-              className={`${addonStyles} ${disabled ? prependAddonDisabledStyles : ''} ${addonClassName}`}
-            >
-              {prepend}
-            </div>
-          )}
-          <input
-            data-testid={testId}
-            ref={ref}
-            disabled={disabled}
-            readOnly={readOnly}
-            value={displayValue}
-            onChange={handleChange}
-            className={[
-              'w-full flex-1 border-none bg-transparent outline-none placeholder:text-muted-foreground',
-              sizeStyles[size],
-              iconSizeStyles[size],
-              leftPad,
-              rightPad,
-              inputClassName,
-              disabled ? 'cursor-not-allowed text-muted-foreground disabled:bg-muted' : '',
-              readOnly ? 'cursor-default' : '',
-            ].join(' ')}
-            {...rest}
-          />
-          {clearable && hasValue && !disabled && !readOnly && (
-            <span className="flex items-center pr-3 pl-1">
+      <div
+        className={['wds-field', className].filter(Boolean).join(' ')}
+        data-kind="input"
+        data-appearance={appearance}
+        data-state={state}
+        data-wds-size={size}
+        data-wds-state={forcedState}
+      >
+        <div className="wds-field__box">
+          {prependGroup && <div className="wds-field__dd wds-field__dd--lead">{prependGroup}</div>}
+          <div className="wds-field__content">
+            {prepend && <span className={`wds-field__icon ${addonClassName}`}>{prepend}</span>}
+            <input
+              data-testid={testId}
+              ref={ref}
+              disabled={disabled}
+              readOnly={readOnly}
+              value={displayValue}
+              defaultValue={defaultValue}
+              aria-invalid={invalid ? true : undefined}
+              onChange={handleChange}
+              onFocus={(e) => {
+                setFocused(true);
+                onFocus?.(e);
+              }}
+              onBlur={(e) => {
+                setFocused(false);
+                onBlur?.(e);
+              }}
+              className={['wds-field__input', inputClassName].filter(Boolean).join(' ')}
+              {...rest}
+            />
+            {clearable && hasValue && !disabled && !readOnly && (
               <button
                 type="button"
                 onClick={handleClear}
                 aria-label="Clear"
-                className="flex cursor-pointer items-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none"
                 tabIndex={-1}
+                className="wds-field__icon wds-field__action"
               >
-                <CloseCircle className="h-4 w-4" />
+                <CloseCircle />
               </button>
-            </span>
-          )}
-          {(error || isInvalid) && (
-            <span className="flex items-center pr-3">
-              <DangerCircle className="h-3.5 w-3.5" />
-            </span>
-          )}
-          {appendGroup && (
-            <div className={disabled ? appendGroupDisabledStyles : appendGroupStyles}>
-              {appendGroup}
-            </div>
-          )}
-          {append && (
-            <div
-              className={`${addonStyles} ${disabled ? appendAddonDisabledStyles : ''} ${addonClassName}`}
-            >
-              {append}
-            </div>
-          )}
+            )}
+            {invalid && (
+              <span className="wds-field__icon wds-field__icon--error">
+                <DangerCircle />
+              </span>
+            )}
+            {append && <span className={`wds-field__icon ${addonClassName}`}>{append}</span>}
+            {help && (
+              <Tooltip content={help}>
+                <span className="wds-field__icon" aria-label="Help">
+                  <QuestionCircle />
+                </span>
+              </Tooltip>
+            )}
+          </div>
+          {appendGroup && <div className="wds-field__dd wds-field__dd--trail">{appendGroup}</div>}
         </div>
-        {error && (
+        {slot && (
           <p
-            data-testid={testId ? `${testId}-error` : undefined}
-            className="mt-1 text-xs text-danger"
-            role="alert"
+            data-testid={error && testId ? `${testId}-error` : undefined}
+            className="wds-field__hint"
+            role={error ? 'alert' : undefined}
           >
-            {error}
+            {slot}
           </p>
         )}
       </div>

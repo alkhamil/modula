@@ -213,7 +213,8 @@ export function formItemSnippet(
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={DateRangePicker}${sizeOpt(props?.dateRange?.size)}${dateOpt('maxDate', props?.dateRange?.maxDate)}${numOpt('maxRangeDays', props?.dateRange?.maxRangeDays)}
+                  component={DatePicker}
+                  range${sizeOpt(props?.dateRange?.size)}${dateOpt('maxDate', props?.dateRange?.maxDate)}${numOpt('maxRangeDays', props?.dateRange?.maxRangeDays)}
                   placeholder="${placeholderText('Select')}"
                 />`;
     case 'selectField': {
@@ -266,7 +267,8 @@ export function formItemSnippet(
         return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={SelectMultiple}
+                  component={Select}
+                  multiple
                   placeholder="${placeholderText('Select')}"${searchable}${paginate}${multiExtra}${numOpt('pageSize', multiProps?.pageSize)}
                   loadOptions={${field.loadOptionsFn}}
                 />`;
@@ -274,7 +276,8 @@ export function formItemSnippet(
       return `<FormItem
                   label="${field.label}"
                   ${common}
-                  component={SelectMultiple}
+                  component={Select}
+                  multiple
                   placeholder="${placeholderText('Select')}"
                   options={${optionsVar}}${searchable}${multiExtra}
                 />`;

@@ -12,10 +12,12 @@ interface CodeBlockProps {
   flush?: boolean;
   /** Tinggi maksimum area kode; lebih dari itu discroll (default 20rem). */
   maxHeight?: string;
+  /** Tinggi tetap area kode (tidak ikut panjang kode); scroll di dalam. */
+  height?: string;
 }
 
 /** Blok kode bergaya editor: bilah bahasa + salin, nomor baris, syntax highlight, tinggi maksimum. */
-function CodeBlock({ code, language = 'tsx', flush = false, maxHeight = '20rem' }: CodeBlockProps) {
+function CodeBlock({ code, language = 'tsx', flush = false, maxHeight = '20rem', height }: CodeBlockProps) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const copy = () => {
@@ -37,15 +39,20 @@ function CodeBlock({ code, language = 'tsx', flush = false, maxHeight = '20rem' 
           {copied ? t('docs.code.copied') : t('docs.code.copy')}
         </button>
       </div>
-      <Suspense
-        fallback={
-          <pre style={{ maxHeight }} className="overflow-auto px-4 py-3 font-mono text-[11px] leading-relaxed text-foreground">
-            <code>{code}</code>
-          </pre>
-        }
-      >
-        <CodeEditor code={code} maxHeight={maxHeight} ariaLabel={t('docs.code.readOnly')} />
-      </Suspense>
+      <div style={height ? { height } : undefined}>
+        <Suspense
+          fallback={
+            <pre
+              style={height ? { height } : { maxHeight }}
+              className="overflow-auto px-4 py-3 font-mono text-[11px] leading-relaxed text-foreground"
+            >
+              <code>{code}</code>
+            </pre>
+          }
+        >
+          <CodeEditor code={code} maxHeight={maxHeight} fill={Boolean(height)} ariaLabel={t('docs.code.readOnly')} />
+        </Suspense>
+      </div>
     </div>
   );
 }

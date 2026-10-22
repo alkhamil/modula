@@ -49,26 +49,67 @@
         "title": "Aksesibilitas"
       },
       "do": "Lakukan",
-      "dont": "Hindari"
+      "dont": "Hindari",
+      "group": {
+        "title": "Grup"
+      }
     },
     "table": {
+      "summary": "Tabel WDS dengan header putih atau abu, kolom yang bisa diurutkan, state baris hover / selected / loading, kolom aksi, serta tampilan kosong dan error bawaan.",
       "figma": {
-        "figma": "Figma",
-        "values": "Nilai",
-        "props": "Props",
-        "notes": "Catatan"
+        "styles": {
+          "note": "Latar header putih atau abu."
+        },
+        "rowStates": {
+          "note": "Hover berupa isi lembut; baris tersorot memakai isi selected; loading menampilkan baris skeleton."
+        },
+        "header": {
+          "note": "Klik header yang sortable untuk mengurutkan."
+        },
+        "cell": {
+          "note": "Padding sel mengikuti token Size; dense merapatkan padding vertikal."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Style header"
+        }
       },
       "props": {
-        "prop": "Prop",
-        "type": "Tipe",
-        "default": "Default",
-        "description": "Deskripsi"
+        "columns": "Definisi kolom, data baris, dan key baris yang stabil.",
+        "paging": "State pagination (komponen Pagination dirender di bawah).",
+        "handlers": "Handler perubahan halaman dan ukuran halaman.",
+        "sort": "Pengurutan terkontrol.",
+        "headerStyle": "Style Table Figma.",
+        "dense": "Padding vertikal sel lebih rapat.",
+        "showRowNumber": "Menambah kolom nomor baris sadar halaman.",
+        "renderAction": "Isi kolom aksi dan posisinya.",
+        "highlight": "Tandai baris sebagai selected.",
+        "state": "Skeleton loading, tampilan error, tampilan kosong.",
+        "sticky": "Pertahankan header / kolom aksi saat scroll.",
+        "testId": "Dipetakan ke data-testid."
       },
       "tokens": {
-        "variable": "CSS variable",
-        "value": "Nilai",
-        "usage": "Dipakai untuk"
-      }
+        "--wds-bg-surface": "Latar baris dan header putih.",
+        "--wds-bg-subtle": "Hover baris dan header abu.",
+        "--wds-bg-brand-subtle": "Baris selected.",
+        "--wds-stroke-subtle": "Pemisah.",
+        "--wds-text-primary": "Teks sel.",
+        "--wds-text-secondary": "Teks header.",
+        "--wds-sz-table-stroke": "Ketebalan pemisah.",
+        "--wds-sz-table-header-cell-root-padding-top": "Padding sel header.",
+        "--wds-sz-table-cell-root-padding-top": "Padding vertikal sel.",
+        "--wds-sz-table-cell-root-padding-right": "Padding horizontal sel."
+      },
+      "behavior": [
+        "Teks sel panjang dipotong dengan tooltip saat fixed layout.",
+        "Sel sticky memakai latar solid agar konten yang di-scroll tidak tembus.",
+        "Tabel di-scroll horizontal di dalam frame-nya."
+      ],
+      "accessibility": [
+        "Memakai markup tabel asli dengan sel header.",
+        "Header sortable bisa diklik; gunakan nama kolom yang bermakna."
+      ]
     },
     "playground": {
       "preview": "Preview",
@@ -93,7 +134,9 @@
     },
     "categories": {
       "actions": "Aksi",
-      "forms": "Form"
+      "forms": "Form",
+      "feedback": "Umpan balik",
+      "data": "Data"
     },
     "button": {
       "summary": "Tombol aksi WDS. Hierarchy menentukan penekanan visual (primary → text), gaya destruktif dipakai untuk aksi berbahaya, dan state (hover, pressed, fokus, disabled) serta ukuran datang dari token desain.",
@@ -242,6 +285,10 @@
         },
         "tick": {
           "note": "Sama dengan prop value; tidak ada prop tambahan."
+        },
+        "horizontal": {
+          "values": "Description, Options (slot)",
+          "note": "Varian Horizontal berupa satu baris opsi: `CheckboxGroup`."
         }
       },
       "examples": {
@@ -313,6 +360,35 @@
           "Jangan pakai toggle di form yang butuh langkah Simpan.",
           "Jangan memakai label panjang; cukup satu atau dua baris."
         ]
+      },
+      "group": {
+        "summary": "CheckboxGroup merender sekumpulan checkbox dari daftar `options` (nilainya array). Opsi mengalir horizontal dan membungkus, berjarak sesuai gap opsi form-row (16px). Satu pesan error tampil di bawah seluruh grup.",
+        "examples": {
+          "basic": {
+            "title": "Dasar",
+            "description": "Tiap opsi bisa punya hint di bawah labelnya."
+          },
+          "solid": {
+            "title": "Gaya solid"
+          },
+          "sizes": {
+            "title": "Ukuran"
+          },
+          "error": {
+            "title": "Error",
+            "description": "Pesan tampil sekali di bawah grup; setiap kontrol menampilkan state error."
+          }
+        },
+        "props": {
+          "options": "Daftar opsi; `hint` dan `disabled` opsional per opsi.",
+          "value": "Nilai terpilih (array nilai opsi).",
+          "onChange": "Dipanggil dengan nilai baru.",
+          "appearance": "Figma Style untuk semua kontrol: outline atau solid.",
+          "size": "Ukuran dari token Size.",
+          "disabled": "Menonaktifkan seluruh grup.",
+          "error": "Pesan error grup; setiap kontrol menampilkan state error.",
+          "testId": "Dipetakan ke data-testid; tiap opsi mendapat `<testId>-<value>`."
+        }
       }
     },
     "toggle": {
@@ -448,6 +524,10 @@
         },
         "tick": {
           "note": "Sama dengan prop value; tidak ada prop tambahan."
+        },
+        "horizontal": {
+          "values": "Description, Options (slot)",
+          "note": "Varian Horizontal berupa satu baris opsi: `RadioButtonGroup`."
         }
       },
       "examples": {
@@ -520,7 +600,1032 @@
           "Jangan pakai toggle di form yang butuh langkah Simpan.",
           "Jangan memakai label panjang; cukup satu atau dua baris."
         ]
+      },
+      "group": {
+        "summary": "RadioButtonGroup merender sekumpulan radio button dari daftar `options` (nilainya opsi terpilih). Opsi mengalir horizontal dan membungkus, berjarak sesuai gap opsi form-row (16px). Satu pesan error tampil di bawah seluruh grup.",
+        "examples": {
+          "basic": {
+            "title": "Dasar",
+            "description": "Tiap opsi bisa punya hint di bawah labelnya."
+          },
+          "solid": {
+            "title": "Gaya solid"
+          },
+          "sizes": {
+            "title": "Ukuran"
+          },
+          "error": {
+            "title": "Error",
+            "description": "Pesan tampil sekali di bawah grup; setiap kontrol menampilkan state error."
+          }
+        },
+        "props": {
+          "options": "Daftar opsi; `hint` dan `disabled` opsional per opsi.",
+          "value": "Nilai opsi terpilih.",
+          "onChange": "Dipanggil dengan nilai baru.",
+          "appearance": "Figma Style untuk semua kontrol: outline atau solid.",
+          "size": "Ukuran dari token Size.",
+          "disabled": "Menonaktifkan seluruh grup.",
+          "error": "Pesan error grup; setiap kontrol menampilkan state error.",
+          "testId": "Dipetakan ke data-testid; tiap opsi mendapat `<testId>-<value>`."
+        }
       }
+    },
+    "input-field": {
+      "summary": "Input teks WDS. Dua gaya (box, underline), lima ukuran, ikon leading/trailing, segmen dropdown, ikon bantuan, baris hint, serta state default / fokus / mengetik / terisi / disabled / error / read-only dari token desain. Label dan deskripsi berasal dari FormItem.",
+      "figma": {
+        "label": {
+          "values": "boolean + teks",
+          "note": "Label dirender oleh FormItem (label, tanda wajib, tooltip bantuan)."
+        },
+        "description": {
+          "values": "boolean + teks",
+          "note": "Dirender FormItem di bawah label."
+        },
+        "placeholder": {
+          "values": "teks bebas"
+        },
+        "hint": {
+          "values": "boolean + teks",
+          "note": "Tampil di bawah field; pesan error menggantikannya."
+        },
+        "layout": {
+          "note": "FormItem layout=\"horizontal\" menaruh label di kiri (jarak 40)."
+        },
+        "states": {
+          "note": "Diturunkan dari interaksi dan props: fokus (selected / typing), nilai (filled), disabled, readOnly, error."
+        },
+        "size": {
+          "note": "Tinggi dari padding + line height (44px pada md); teks 12/14/14/16/16."
+        },
+        "focus": {
+          "values": "stroke 1px di luar, jarak 2px",
+          "note": "Hanya tampil untuk fokus keyboard."
+        },
+        "help": {
+          "values": "boolean",
+          "note": "Ikon tanda tanya di ujung field dengan tooltip."
+        },
+        "type": {
+          "note": "Leading/Trailing dropdown = segmen berlatar dengan padding sendiri dan pemisah."
+        },
+        "icons": {
+          "values": "ikon",
+          "note": "Ikon 20px di dalam field (warna dari token ikon)."
+        },
+        "styles": {
+          "note": "box: border penuh dan radius 8. underline: hanya border bawah, tanpa radius dan isi."
+        }
+      },
+      "examples": {
+        "appearance": {
+          "title": "Style",
+          "description": "Box berborder penuh; underline hanya garis bawah."
+        },
+        "sizes": {
+          "title": "Ukuran"
+        },
+        "icons": {
+          "title": "Ikon dan bantuan"
+        },
+        "dropdown": {
+          "title": "Segmen dropdown",
+          "description": "Type “Leading / Trailing dropdown”."
+        },
+        "validation": {
+          "title": "Hint dan error"
+        }
+      },
+      "matrices": {
+        "states": "Style × state"
+      },
+      "props": {
+        "value": "Teks saat ini (controlled).",
+        "onChange": "Dipanggil dengan event perubahan.",
+        "placeholder": "Teks placeholder.",
+        "size": "Ukuran dari token Size (padding, teks, jarak).",
+        "hint": "Teks pendukung di bawah field (digantikan pesan error).",
+        "error": "Pesan error: state error + teks di slot hint (warna danger).",
+        "sanitize": "Membersihkan nilai di setiap perubahan.",
+        "disabled": "State disabled / read-only.",
+        "appearance": "Figma Input styles: box (default) atau underline.",
+        "help": "Ikon bantuan di ujung field; isinya tampil sebagai tooltip.",
+        "prepend": "Ikon atau konten leading / trailing di dalam field.",
+        "group": "Type “Leading / Trailing dropdown”: segmen berlatar (mis. kode negara, satuan).",
+        "clearable": "Menampilkan tombol hapus selama ada teks.",
+        "currency": "Memformat angka sebagai mata uang (id-ID); onChange menerima angka mentahnya.",
+        "invalid": "State error tanpa pesan.",
+        "rest": "type, name, maxLength, aria-*, dst. diteruskan ke <input>."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Latar field.",
+        "--wds-bg-disabled": "Latar saat disabled / read-only.",
+        "--wds-text-placeholder": "Warna placeholder.",
+        "--wds-text-primary": "Warna teks yang diketik.",
+        "--wds-text-disabled": "Teks saat disabled.",
+        "--wds-text-tertiary": "Teks hint.",
+        "--wds-text-danger": "Pesan error.",
+        "--wds-icons-secondary": "Ikon leading/trailing.",
+        "--wds-icons-danger": "Ikon error.",
+        "--wds-stroke-default": "Border (default).",
+        "--wds-stroke-focus": "Border saat fokus + cincin fokus.",
+        "--wds-stroke-danger": "Border pada state error.",
+        "--wds-radius-8": "Radius kotak.",
+        "--wds-sz-padding-left": "Padding horizontal (ikut ukuran).",
+        "--wds-sz-padding-top": "Padding vertikal (ikut ukuran).",
+        "--wds-sz-input-field-content-gap": "Jarak ikon–teks.",
+        "--wds-sz-text-body-font-size": "Ukuran teks.",
+        "--wds-sz-focus-stroke": "Tebal cincin fokus."
+      },
+      "behavior": [
+        "Fokus (mouse atau keyboard) mengubah border ke warna fokus; field kosong yang terfokus = “selected”, yang berisi teks = “typing”.",
+        "Cincin fokus (stroke 1px, jarak 2px) hanya tampil untuk fokus keyboard.",
+        "Disabled dan read-only memakai latar disabled; disabled memblokir fokus, read-only tetap bisa memilih teks.",
+        "Error menampilkan border merah dan ikon error, dan pesan menggantikan hint di bawah field.",
+        "`clearable` menampilkan tombol hapus selama ada teks; `currency` memformat angka dan mengembalikan angka mentah.",
+        "Karakter non-ASCII dibuang saat input (perilaku lama), lalu `sanitize` dijalankan."
+      ],
+      "accessibility": [
+        "Selalu beri label (label FormItem) atau aria-label; placeholder bukan label.",
+        "Error memakai role=\"alert\" dan input mendapat aria-invalid.",
+        "Tombol hapus sengaja di luar urutan Tab; Escape/Delete tetap bekerja di input.",
+        "Biarkan cincin fokus terlihat; jangan menghapus outline lewat className."
+      ],
+      "guidelines": {
+        "do": [
+          "Pakai placeholder singkat sebagai contoh, bukan sebagai label.",
+          "Tampilkan pesan validasi di dekat field.",
+          "Pakai segmen dropdown untuk satuan atau kode negara."
+        ],
+        "dont": [
+          "Jangan memakai placeholder sebagai satu-satunya label.",
+          "Jangan menyembunyikan error di tooltip.",
+          "Jangan mencampur style underline dan box dalam satu form."
+        ]
+      }
+    },
+    "textarea": {
+      "summary": "Input multi-baris WDS. Lima ukuran, baris hint dengan penghitung n/max opsional, tinggi otomatis, serta state default / fokus / mengetik / terisi / disabled / error / read-only dari token desain.",
+      "figma": {
+        "label": {
+          "values": "boolean + teks",
+          "note": "Label dirender oleh FormItem (label, tanda wajib, tooltip bantuan)."
+        },
+        "description": {
+          "values": "boolean + teks",
+          "note": "Dirender FormItem di bawah label."
+        },
+        "placeholder": {
+          "values": "teks bebas"
+        },
+        "hint": {
+          "values": "boolean + teks",
+          "note": "Tampil di bawah field; pesan error menggantikannya."
+        },
+        "layout": {
+          "note": "FormItem layout=\"horizontal\" menaruh label di kiri (jarak 40)."
+        },
+        "states": {
+          "note": "Diturunkan dari interaksi dan props: fokus (selected / typing), nilai (filled), disabled, readOnly, error."
+        },
+        "size": {
+          "note": "Tinggi dari padding + line height (44px pada md); teks 12/14/14/16/16."
+        },
+        "focus": {
+          "values": "stroke 1px di luar, jarak 2px",
+          "note": "Hanya tampil untuk fokus keyboard."
+        },
+        "dynamic": {
+          "values": "boolean",
+          "note": "autoGrow: tinggi mengikuti isi dan handle resize dihapus."
+        },
+        "scrollbar": {
+          "values": "boolean",
+          "note": "Memakai scrollbar bawaan browser."
+        },
+        "counter": {
+          "values": "teks",
+          "note": "Mengisi maxLength menampilkan penghitung n/max di kanan baris hint."
+        }
+      },
+      "examples": {
+        "sizes": {
+          "title": "Ukuran"
+        },
+        "validation": {
+          "title": "Hint dan error"
+        },
+        "autogrow": {
+          "title": "Tinggi otomatis",
+          "description": "Tinggi mengikuti isi (Figma “Dynamic?”)."
+        }
+      },
+      "matrices": {
+        "states": "State"
+      },
+      "props": {
+        "value": "Teks saat ini (controlled).",
+        "onChange": "Dipanggil dengan event perubahan.",
+        "placeholder": "Teks placeholder.",
+        "size": "Ukuran dari token Size (padding, teks, jarak).",
+        "hint": "Teks pendukung di bawah field (digantikan pesan error).",
+        "error": "Pesan error: state error + teks di slot hint (warna danger).",
+        "sanitize": "Membersihkan nilai di setiap perubahan.",
+        "disabled": "State disabled / read-only.",
+        "maxLength": "Batas; juga menampilkan penghitung n/max di baris hint.",
+        "autoGrow": "Tinggi mengikuti isi (Figma “Dynamic?”); tanpa handle resize.",
+        "rows": "Jumlah baris awal (tinggi minimum 128px).",
+        "rest": "name, maxLength, aria-*, dst. diteruskan ke <textarea>."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Latar field.",
+        "--wds-bg-disabled": "Latar saat disabled / read-only.",
+        "--wds-text-placeholder": "Warna placeholder.",
+        "--wds-text-primary": "Warna teks yang diketik.",
+        "--wds-text-disabled": "Teks saat disabled.",
+        "--wds-text-tertiary": "Teks hint.",
+        "--wds-text-danger": "Pesan error.",
+        "--wds-icons-secondary": "Ikon leading/trailing.",
+        "--wds-icons-danger": "Ikon error.",
+        "--wds-stroke-default": "Border (default).",
+        "--wds-stroke-focus": "Border saat fokus + cincin fokus.",
+        "--wds-stroke-danger": "Border pada state error.",
+        "--wds-radius-8": "Radius kotak.",
+        "--wds-sz-padding-left": "Padding horizontal (ikut ukuran).",
+        "--wds-sz-padding-top": "Padding vertikal (ikut ukuran).",
+        "--wds-sz-input-field-content-gap": "Jarak ikon–teks.",
+        "--wds-sz-text-body-font-size": "Ukuran teks.",
+        "--wds-sz-focus-stroke": "Tebal cincin fokus."
+      },
+      "behavior": [
+        "Tinggi minimum 128px; secara bawaan bisa di-resize vertikal.",
+        "`autoGrow` membuat tinggi mengikuti isi dan menghapus handle resize.",
+        "`maxLength` menampilkan penghitung n/max di kanan baris hint.",
+        "State fokus, terisi, disabled, read-only, dan error mengikuti token state Textarea; cincin fokus hanya untuk fokus keyboard.",
+        "Error menampilkan border merah dan pesan menggantikan hint."
+      ],
+      "accessibility": [
+        "Selalu beri label (label FormItem) atau aria-label.",
+        "Error memakai role=\"alert\" dan textarea mendapat aria-invalid.",
+        "Biarkan cincin fokus terlihat."
+      ],
+      "guidelines": {
+        "do": [
+          "Isi maxLength bila ada batas nyata.",
+          "Pakai autoGrow untuk catatan pendek."
+        ],
+        "dont": [
+          "Jangan memakai textarea untuk nilai satu baris.",
+          "Jangan hanya mengandalkan penghitung untuk menjelaskan batas."
+        ]
+      }
+    },
+    "select": {
+      "summary": "Select WDS. Mode single dan prop `multiple` (tag), gaya box dan underline, lima ukuran, pencarian, opsi async berpaging, baris hint, serta state default / terbuka / terisi / disabled / error / read-only dari token desain. Dropdown memakai menu WDS.",
+      "figma": {
+        "label": {
+          "values": "boolean + teks",
+          "note": "Label dirender oleh FormItem."
+        },
+        "description": {
+          "values": "boolean + teks",
+          "note": "Dirender FormItem di bawah label."
+        },
+        "placeholder": {
+          "values": "teks bebas"
+        },
+        "hint": {
+          "values": "boolean + teks",
+          "note": "Tampil di bawah field; pesan error menggantikannya."
+        },
+        "layout": {
+          "note": "FormItem layout=\"horizontal\" menaruh label di kiri (jarak 40)."
+        },
+        "styles": {
+          "note": "box: border penuh dan radius 8. underline: hanya border bawah, tanpa radius dan isi."
+        },
+        "states": {
+          "note": "Diturunkan dari props dan interaksi: terbuka (selected), nilai (filled), disabled, readOnly, error."
+        },
+        "size": {
+          "note": "Kotak sama dengan Input Field: 44px pada md; ukuran 36/40/44/48/52."
+        },
+        "focus": {
+          "values": "stroke 1px di luar, jarak 2px",
+          "note": "Hanya tampil untuk fokus keyboard."
+        },
+        "modes": {
+          "note": "single = bawaan; multiple = prop `multiple` (tag, tombol hapus, pemisah)."
+        },
+        "menu": {
+          "note": "Panel: padding 8, radius 12, jarak 4; item 44px, radius 8. Sorot = pressed, terpilih = selected."
+        }
+      },
+      "examples": {
+        "appearance": {
+          "title": "Style"
+        },
+        "sizes": {
+          "title": "Ukuran"
+        },
+        "multiple": {
+          "title": "Multiple",
+          "description": "Opsi terpilih tampil sebagai tag."
+        },
+        "searchable": {
+          "title": "Dapat dicari"
+        },
+        "validation": {
+          "title": "Hint dan error"
+        }
+      },
+      "matrices": {
+        "states": "Style × state"
+      },
+      "props": {
+        "options": "Daftar { label, value }.",
+        "value": "Nilai terpilih (dengan `multiple`: array nilai).",
+        "onChange": "Dipanggil dengan nilai baru.",
+        "placeholder": "Teks saat belum ada pilihan.",
+        "appearance": "Figma Select styles: box (default) atau underline.",
+        "size": "Ukuran dari token Size.",
+        "hint": "Teks pendukung (digantikan pesan error).",
+        "error": "Pesan error: state error + teks di slot hint.",
+        "searchable": "Ketik di field untuk memfilter (atau mencari lewat loadOptions).",
+        "clearable": "Menampilkan tombol hapus selama ada nilai.",
+        "loadOptions": "Opsi async; paginateOnScroll memuat halaman berikutnya saat scroll.",
+        "disabled": "State disabled / read-only.",
+        "optionDisabled": "Opsi yang mengembalikan true tampil disabled.",
+        "multiple": "Props tambahan yang hanya dipakai dengan `multiple`.",
+        "multipleProps": "Mode multiple: nilai menjadi array dan opsi terpilih tampil sebagai tag."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Latar field.",
+        "--wds-bg-disabled": "Latar saat disabled / read-only.",
+        "--wds-text-placeholder": "Warna placeholder.",
+        "--wds-text-primary": "Warna teks nilai.",
+        "--wds-text-tertiary": "Teks hint.",
+        "--wds-text-danger": "Pesan error.",
+        "--wds-icons-secondary": "Ikon panah / kalender.",
+        "--wds-stroke-default": "Border (default).",
+        "--wds-stroke-focus": "Border saat terbuka + cincin fokus.",
+        "--wds-stroke-danger": "Border pada state error.",
+        "--wds-bg-elevated": "Latar menu dropdown.",
+        "--wds-stroke-subtle": "Border menu / kalender.",
+        "--wds-bg-pressed": "Item menu yang disorot.",
+        "--wds-bg-brand-subtle": "Item menu terpilih / hover / hari dalam rentang.",
+        "--wds-bg-subtle": "Latar tag.",
+        "--wds-radius-12": "Radius menu / kalender.",
+        "--wds-sz-select-tag-radius": "Radius tag.",
+        "--wds-bg-page": "Latar kalender.",
+        "--wds-text-secondary": "Label hari dalam minggu.",
+        "--wds-text-inverse": "Teks pada hari terpilih.",
+        "--wds-text-disabled": "Hari yang dinonaktifkan.",
+        "--wds-icons-primary": "Ikon navigasi kalender.",
+        "--wds-bg-brand": "Hari terpilih."
+      },
+      "behavior": [
+        "Klik (atau fokus saat searchable) membuka menu; border berubah ke warna fokus dan panah berbalik (state “selected”).",
+        "Item menu: tersorot (mouse atau panah) = pressed, terpilih = selected (centang), disabled = redup.",
+        "Tombol panah memindah sorotan, Enter memilih, Escape menutup (searchable).",
+        "Mode multiple menampilkan tag dengan tombol hapus, tombol hapus semua, dan pemisah sebelum panah; opsi menampilkan checkbox kecuali hideCheckBox.",
+        "Menu dirender di portal dan mengikuti lebar field; daftar panjang discroll (maks 240px).",
+        "Error menampilkan border merah dan pesan menggantikan hint."
+      ],
+      "accessibility": [
+        "Beri label (label FormItem) atau aria-label.",
+        "Trigger memakai aria-haspopup=\"listbox\" dan aria-expanded; opsi memakai role=\"option\" dengan aria-selected.",
+        "Error memakai role=\"alert\"."
+      ],
+      "guidelines": {
+        "do": [
+          "Pakai Select untuk 5+ opsi; pakai radio untuk yang lebih sedikit.",
+          "Aktifkan pencarian untuk daftar panjang."
+        ],
+        "dont": [
+          "Jangan memakai Select untuk aksi.",
+          "Jangan membuat menu bersarang."
+        ]
+      }
+    },
+    "date-picker": {
+      "summary": "Field tanggal WDS dengan kalender popup. Satu tanggal, prop `range` untuk rentang tanggal, waktu opsional, gaya box dan underline, lima ukuran, baris hint, serta state default / terbuka / terisi / disabled / error / read-only dari token desain.",
+      "figma": {
+        "label": {
+          "values": "boolean + teks",
+          "note": "Label dirender oleh FormItem."
+        },
+        "description": {
+          "values": "boolean + teks",
+          "note": "Dirender FormItem di bawah label."
+        },
+        "placeholder": {
+          "values": "teks bebas"
+        },
+        "hint": {
+          "values": "boolean + teks",
+          "note": "Tampil di bawah field; pesan error menggantikannya."
+        },
+        "layout": {
+          "note": "FormItem layout=\"horizontal\" menaruh label di kiri (jarak 40)."
+        },
+        "styles": {
+          "note": "box: border penuh dan radius 8. underline: hanya border bawah, tanpa radius dan isi."
+        },
+        "states": {
+          "note": "Diturunkan dari props dan interaksi: terbuka (selected), nilai (filled), disabled, readOnly, error."
+        },
+        "size": {
+          "note": "Kotak sama dengan Input Field: 44px pada md; ukuran 36/40/44/48/52."
+        },
+        "focus": {
+          "values": "stroke 1px di luar, jarak 2px",
+          "note": "Hanya tampil untuk fokus keyboard."
+        },
+        "calendar": {
+          "values": "default, selected, today, disabled, empty",
+          "note": "Hari terpilih = lingkaran brand; hari ini = cincin warna fokus; hari dalam rentang = brand subtle."
+        },
+        "rangeMode": {
+          "values": "single, range",
+          "note": "Prop `range` beralih ke rentang tanggal."
+        }
+      },
+      "examples": {
+        "appearance": {
+          "title": "Style"
+        },
+        "sizes": {
+          "title": "Ukuran"
+        },
+        "range": {
+          "title": "Rentang tanggal",
+          "description": "Pilih tanggal awal dan akhir."
+        },
+        "validation": {
+          "title": "Hint dan error"
+        }
+      },
+      "matrices": {
+        "states": "Style × state"
+      },
+      "props": {
+        "value": "Tanggal sebagai teks ISO (rentang: “awal,akhir”).",
+        "onChange": "Dipanggil dengan teks ISO baru.",
+        "placeholder": "Teks saat kosong.",
+        "appearance": "Figma Date Picker styles: box (default) atau underline.",
+        "size": "Ukuran dari token Size.",
+        "showTime": "Menambah pilihan jam dan menit.",
+        "limits": "Tanggal paling awal / akhir yang bisa dipilih.",
+        "maxRange": "Jumlah hari maksimum dalam rentang (dengan `range`).",
+        "clearable": "Menampilkan tombol hapus selama ada nilai.",
+        "hint": "Teks pendukung (digantikan pesan error).",
+        "error": "Pesan error: state error + teks di slot hint.",
+        "disabled": "State disabled / read-only.",
+        "range": "Mode rentang: nilai menjadi “awal,akhir”; klik pertama menetapkan awal, klik kedua akhir."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Latar field.",
+        "--wds-bg-disabled": "Latar saat disabled / read-only.",
+        "--wds-text-placeholder": "Warna placeholder.",
+        "--wds-text-primary": "Warna teks nilai.",
+        "--wds-text-tertiary": "Teks hint.",
+        "--wds-text-danger": "Pesan error.",
+        "--wds-icons-secondary": "Ikon panah / kalender.",
+        "--wds-stroke-default": "Border (default).",
+        "--wds-stroke-focus": "Border saat terbuka + cincin fokus.",
+        "--wds-stroke-danger": "Border pada state error.",
+        "--wds-bg-elevated": "Latar menu dropdown.",
+        "--wds-stroke-subtle": "Border menu / kalender.",
+        "--wds-bg-pressed": "Item menu yang disorot.",
+        "--wds-bg-brand-subtle": "Item menu terpilih / hover / hari dalam rentang.",
+        "--wds-bg-subtle": "Latar tag.",
+        "--wds-radius-12": "Radius menu / kalender.",
+        "--wds-sz-select-tag-radius": "Radius tag.",
+        "--wds-bg-page": "Latar kalender.",
+        "--wds-text-secondary": "Label hari dalam minggu.",
+        "--wds-text-inverse": "Teks pada hari terpilih.",
+        "--wds-text-disabled": "Hari yang dinonaktifkan.",
+        "--wds-icons-primary": "Ikon navigasi kalender.",
+        "--wds-bg-brand": "Hari terpilih."
+      },
+      "behavior": [
+        "Mengklik field membuka kalender; border berubah ke warna fokus (state “selected”). Field read-only dan disabled tidak membukanya.",
+        "Memilih hari langsung menerapkannya dan menutup kalender (dengan showTime tetap terbuka untuk mengatur jam). Escape atau klik di luar menutup tanpa mengubah nilai.",
+        "Header berpindah antara hari, bulan, dan tahun; panah memindah halaman.",
+        "Kalender: radius 12, padding 16, sel hari 40px; hari terpilih berupa lingkaran brand, hari ini berupa cincin warna fokus.",
+        "Rentang tanggal: klik pertama menetapkan awal, klik kedua menetapkan akhir, menerapkan rentang, dan menutup kalender; hari di antaranya disorot.",
+        "Error menampilkan border merah dan pesan menggantikan hint."
+      ],
+      "accessibility": [
+        "Beri label (label FormItem) atau aria-label.",
+        "Field berupa teks read-only; kalender adalah cara input, jadi tampilkan juga format yang diharapkan di hint.",
+        "Error memakai role=\"alert\"."
+      ],
+      "guidelines": {
+        "do": [
+          "Batasi tanggal yang bisa dipilih dengan minDate / maxDate.",
+          "Pakai rentang untuk periode."
+        ],
+        "dont": [
+          "Jangan memakai date picker untuk tanggal lahir yang jauh ke masa lalu tanpa navigasi tahun.",
+          "Jangan menyembunyikan format yang diharapkan."
+        ]
+      }
+    },
+    "badge": {
+      "summary": "Badge WDS untuk status, jumlah, dan tag. Enam style, lima ukuran, dan tipe: dot, counter, ikon kiri / kanan, tombol tutup, dan ikon saja.",
+      "figma": {
+        "label": {
+          "note": "Isi diberikan lewat children."
+        },
+        "styles": {
+          "note": "Tiap style memakai latar lembut dengan warna teks dan ikon yang sesuai."
+        },
+        "types": {
+          "note": "Bisa dikombinasikan; ikon saja menyembunyikan label dan butuh aria-label."
+        },
+        "size": {
+          "note": "Bentuk pil; tinggi dan ukuran teks mengikuti token Size."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Style"
+        },
+        "sizes": {
+          "title": "Ukuran"
+        },
+        "types": {
+          "title": "Tipe",
+          "description": "Dot, counter, ikon, tutup, dan ikon saja."
+        }
+      },
+      "props": {
+        "variant": "Style Badge Figma.",
+        "legacy": "Masih diterima dan dipetakan ke style terdekat (error → danger).",
+        "size": "Ukuran dari token Size.",
+        "dot": "Menampilkan titik status sebelum label.",
+        "counter": "Gelembung angka setelah label.",
+        "icons": "Ikon sebelum / sesudah label.",
+        "onRemove": "Menampilkan tombol tutup dan memanggil fungsi ini saat diklik.",
+        "iconOnly": "Menyembunyikan label (isi aria-label).",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-subtle": "Latar netral.",
+        "--wds-bg-brand-subtle": "Latar primary.",
+        "--wds-bg-success-subtle": "Latar success.",
+        "--wds-bg-danger-subtle": "Latar danger.",
+        "--wds-text-secondary": "Teks netral.",
+        "--wds-text-brand": "Teks primary.",
+        "--wds-text-success": "Teks success.",
+        "--wds-text-danger": "Teks danger.",
+        "--wds-text-inverse": "Teks counter.",
+        "--wds-sz-badge-padding-left": "Padding horizontal.",
+        "--wds-sz-badge-padding-top": "Padding vertikal.",
+        "--wds-sz-badge-gap": "Jarak antar bagian.",
+        "--wds-sz-text-badge-font-size": "Ukuran font label."
+      },
+      "behavior": [
+        "Elemen statis; tidak bisa difokus kecuali punya tombol tutup.",
+        "Tombol tutup memanggil onRemove dan berupa button asli dengan focus ring sendiri.",
+        "Counter tampil sebagai gelembung kecil inverse setelah label."
+      ],
+      "accessibility": [
+        "Jangan hanya mengandalkan warna; gunakan label yang bermakna.",
+        "Badge ikon saja dan dot saja butuh aria-label.",
+        "Tombol tutup punya nama yang bisa diakses."
+      ]
+    },
+    "alert": {
+      "summary": "Alert WDS untuk pesan inline. Empat style dalam empat tampilan, dengan judul, aksi, dan tombol tutup opsional.",
+      "figma": {
+        "message": {
+          "note": "Teks alert."
+        },
+        "title": {
+          "note": "Tampil di atas pesan."
+        },
+        "styles": {
+          "note": "Info, success, warning, dan danger menentukan warna dan ikon."
+        },
+        "variant": {
+          "note": "Basic: polos dengan border. Solid: terisi. Light: isi lembut. Left stroke: garis aksen di kiri."
+        },
+        "types": {
+          "note": "Action menampilkan tombol teks; onClose menampilkan ikon tutup."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Style"
+        },
+        "appearances": {
+          "title": "Tampilan"
+        },
+        "title": {
+          "title": "Judul"
+        },
+        "actions": {
+          "title": "Aksi dan tutup"
+        }
+      },
+      "props": {
+        "variant": "Style Alert Figma.",
+        "legacy": "Masih diterima (error → danger).",
+        "message": "Isi alert.",
+        "title": "Judul opsional di atas pesan.",
+        "appearance": "Variant Alert Figma.",
+        "action": "Tombol teks dengan label dan handler klik.",
+        "onClose": "Menampilkan tombol tutup.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-info-subtle": "Latar light.",
+        "--wds-bg-info": "Latar solid.",
+        "--wds-bg-surface": "Latar basic.",
+        "--wds-stroke-info-subtle": "Border light.",
+        "--wds-stroke-info": "Garis aksen.",
+        "--wds-icons-info": "Warna ikon.",
+        "--wds-text-primary": "Warna judul.",
+        "--wds-text-secondary": "Warna pesan.",
+        "--wds-text-inverse": "Teks pada solid.",
+        "--wds-text-info": "Warna aksi.",
+        "--wds-icons-secondary": "Ikon tutup.",
+        "--wds-radius-8": "Radius sudut."
+      },
+      "behavior": [
+        "Danger dan warning memakai role=\"alert\"; lainnya role=\"status\".",
+        "Tombol tutup memanggil onClose; menyembunyikan diserahkan ke parent.",
+        "Basic memakai ikon outline; tampilan lain memakai ikon terisi."
+      ],
+      "accessibility": [
+        "Jangan hanya mengandalkan warna; ikon dan teks membawa makna.",
+        "Tombol tutup punya nama yang bisa diakses.",
+        "Buat pesan singkat dan bisa ditindaklanjuti."
+      ]
+    },
+    "tooltip": {
+      "summary": "Tooltip WDS untuk petunjuk singkat. Empat posisi, ikon awal opsional, tampil saat hover, fokus, atau klik.",
+      "figma": {
+        "text": {
+          "note": "Isi tooltip."
+        },
+        "position": {
+          "note": "Sisi yang diinginkan; dibatasi dalam viewport."
+        },
+        "leading": {
+          "note": "Ikon opsional sebelum teks."
+        },
+        "styles": {
+          "note": "Latar brand dengan teks on-brand."
+        }
+      },
+      "examples": {
+        "placements": {
+          "title": "Posisi"
+        },
+        "leading": {
+          "title": "Ikon awal"
+        }
+      },
+      "props": {
+        "content": "Isi tooltip.",
+        "placement": "Sisi yang diinginkan.",
+        "leading": "Ikon sebelum teks.",
+        "maxWidth": "Batas lebar dalam px.",
+        "open": "Memaksa tooltip terbuka (terkontrol).",
+        "className": "Class pada tooltip.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-brand": "Latar dan panah.",
+        "--wds-text-on-brand": "Warna teks.",
+        "--wds-sz-tooltip-padding-left": "Padding horizontal.",
+        "--wds-sz-tooltip-padding-top": "Padding vertikal.",
+        "--wds-sz-tooltip-radius": "Radius sudut.",
+        "--wds-sz-tooltip-gap": "Jarak ikon dan teks.",
+        "--wds-sz-tooltip-arrow-size": "Ukuran panah.",
+        "--wds-sz-text-body-font-size": "Ukuran teks."
+      },
+      "behavior": [
+        "Terbuka saat hover, fokus, dan klik pada pemicu; Escape menutup.",
+        "Dirender di portal dan diposisikan di samping pemicu, dibatasi viewport.",
+        "Lebar mengikuti isi hingga maxWidth."
+      ],
+      "accessibility": [
+        "Pemicu dijelaskan oleh tooltip (aria-describedby).",
+        "Jangan menaruh informasi penting hanya di tooltip.",
+        "Fokus keyboard juga menampilkan tooltip."
+      ]
+    },
+    "dialog": {
+      "summary": "Dialog WDS untuk konfirmasi dan tugas singkat. Judul, teks pendukung, featured icon opsional, konten, dan footer untuk aksi.",
+      "figma": {
+        "title": {
+          "note": "Judul dialog."
+        },
+        "supporting": {
+          "note": "Tampil di bawah judul."
+        },
+        "styles": {
+          "note": "Style icon menampilkan featured icon di atas judul."
+        },
+        "types": {
+          "note": "Alert punya satu tombol; confirm punya tombol sekunder dan primer — berikan lewat footer."
+        },
+        "size": {
+          "note": "Jarak mengikuti token Size."
+        }
+      },
+      "examples": {
+        "icon": {
+          "title": "Featured icon"
+        },
+        "types": {
+          "title": "Tipe",
+          "description": "Alert (satu aksi) dan confirm (dua aksi)."
+        }
+      },
+      "props": {
+        "open": "Visibilitas terkontrol dan handler tutup.",
+        "title": "Judul dialog.",
+        "description": "Teks pendukung di bawah judul.",
+        "icon": "Featured icon di atas judul.",
+        "children": "Konten dialog.",
+        "footer": "Tombol aksi, rata kanan.",
+        "maxWidth": "Lebar maksimum panel.",
+        "size": "Ukuran dari token Size.",
+        "close": "Sembunyikan atau nonaktifkan tombol tutup.",
+        "dismiss": "Tutup saat klik backdrop / Escape.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-elevated": "Latar panel.",
+        "--wds-text-primary": "Judul.",
+        "--wds-text-secondary": "Teks pendukung.",
+        "--wds-icons-primary": "Ikon.",
+        "--wds-stroke-subtle": "Garis pemisah footer.",
+        "--wds-radius-12": "Radius panel.",
+        "--wds-sz-dialog-header-padding-top": "Padding header.",
+        "--wds-sz-dialog-heading-and-optional-visual-gap": "Jarak ikon dan teks.",
+        "--wds-sz-dialog-text-gap": "Jarak judul dan teks pendukung.",
+        "--wds-sz-dialog-icon-size": "Ukuran featured icon.",
+        "--wds-sz-dialog-actions-gap": "Jarak antar tombol footer.",
+        "--wds-sz-dialog-footer-actions-padding-top": "Padding footer."
+      },
+      "behavior": [
+        "Dirender di portal di atas backdrop redup; scroll halaman dikunci saat terbuka.",
+        "Escape dan klik backdrop menutupnya kecuali dinonaktifkan.",
+        "Panel muncul dengan fade dan scale."
+      ],
+      "accessibility": [
+        "Panel memakai role=\"dialog\" dan aria-modal.",
+        "Tombol tutup punya nama yang bisa diakses.",
+        "Gunakan satu aksi utama di footer."
+      ]
+    },
+    "drawer": {
+      "summary": "Drawer WDS: panel samping dengan judul, konten yang bisa di-scroll, dan footer. Modal dengan backdrop, atau non-modal agar halaman tetap interaktif.",
+      "figma": {
+        "title": {
+          "note": "Judul drawer."
+        },
+        "styles": {
+          "note": "Latar elevated dengan judul dan ikon primary."
+        },
+        "gap": {
+          "note": "Jarak section membesar mengikuti mode Size."
+        }
+      },
+      "examples": {},
+      "props": {
+        "open": "Visibilitas terkontrol dan handler tutup.",
+        "title": "Judul drawer.",
+        "children": "Konten drawer.",
+        "footer": "Tombol aksi.",
+        "width": "Lebar panel: 320 / 400 / 480px.",
+        "modal": "Backdrop dan kunci scroll; false menjaga halaman tetap interaktif.",
+        "dismiss": "Tutup saat klik backdrop / Escape.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-elevated": "Latar panel.",
+        "--wds-text-primary": "Judul.",
+        "--wds-icons-primary": "Ikon tutup.",
+        "--wds-stroke-subtle": "Border dan pemisah.",
+        "--wds-sz-drawer-section-gap": "Jarak section.",
+        "--wds-sz-dialog-header-padding-top": "Padding header.",
+        "--wds-sz-dialog-actions-gap": "Jarak antar tombol footer."
+      },
+      "behavior": [
+        "Masuk dari kanan dan keluar dulu sebelum di-unmount.",
+        "Non-modal: klik di luar menutupnya, kecuali di dialog dan menu select.",
+        "Escape menutupnya; drawer non-modal mengabaikan Escape saat dialog terbuka."
+      ],
+      "accessibility": [
+        "Tombol tutup punya nama yang bisa diakses.",
+        "Drawer modal mengunci scroll halaman.",
+        "Samakan aksi footer dengan dialog."
+      ]
+    },
+    "pagination": {
+      "summary": "Pagination WDS dengan jendela 7 slot halaman, sebelumnya / berikutnya, first / last dan label opsional, serta pemilih baris per halaman. Tombol square atau round.",
+      "figma": {
+        "styles": {
+          "note": "Square radius 8px; round berbentuk pil. Halaman aktif berisi warna brand."
+        },
+        "firstLast": {
+          "note": "Menambah tombol ke halaman pertama / terakhir."
+        },
+        "labels": {
+          "note": "Menambah teks Previous / Next pada tombol navigasi."
+        },
+        "rows": {
+          "note": "Select dengan 10 / 20 / 50 / 100 baris."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Style"
+        }
+      },
+      "props": {
+        "page": "Halaman saat ini (mulai 1) dan jumlah halaman.",
+        "onPageChange": "Dipanggil dengan halaman baru.",
+        "pageSize": "Baris per halaman dan handler perubahannya (diperlukan untuk menampilkan pemilih).",
+        "appearance": "Style Pagination Figma.",
+        "showFirstLast": "Tampilkan tombol halaman pertama / terakhir.",
+        "showLabels": "Tampilkan label Previous / Next.",
+        "showRowsPerPage": "Tampilkan pemilih baris per halaman.",
+        "pageSizeOptions": "Pilihan pada pemilih.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-brand": "Latar halaman aktif.",
+        "--wds-text-inverse": "Teks halaman aktif.",
+        "--wds-text-secondary": "Teks halaman tidak aktif.",
+        "--wds-text-tertiary": "Ellipsis.",
+        "--wds-icons-secondary": "Ikon navigasi.",
+        "--wds-radius-8": "Radius tombol square.",
+        "--wds-sz-pagination-button-size": "Ukuran tombol.",
+        "--wds-sz-pagination-gap": "Jarak antar tombol.",
+        "--wds-sz-pagination-padding-button": "Padding tombol.",
+        "--wds-sz-pagination-rows-gap": "Jarak di sekitar pemilih baris."
+      },
+      "behavior": [
+        "Menampilkan maksimal 7 slot: jendela awal, tengah, dan akhir memakai ellipsis.",
+        "Previous / first nonaktif di halaman 1; next / last di halaman terakhir.",
+        "Tombol nonaktif memakai opacity 40%."
+      ],
+      "accessibility": [
+        "Landmark nav berlabel \"Pagination\"; halaman aktif memakai aria-current=\"page\".",
+        "Tombol ikon saja punya nama yang bisa diakses."
+      ]
+    },
+    "table-toolbar": {
+      "summary": "Toolbar tabel WDS: kolom pencarian dan tombol filter yang membuka drawer filter. Tombol berubah tonal saat filter aktif.",
+      "figma": {
+        "states": {
+          "note": "Filtered = minimal satu nilai berbeda dari default; tombol filter menjadi tonal."
+        },
+        "search": {
+          "note": "Didebounce; disinkronkan ke URL bila searchParamName diisi."
+        },
+        "filter": {
+          "note": "Field ditampilkan di drawer samping dengan Reset dan Apply."
+        }
+      },
+      "examples": {
+        "states": {
+          "title": "State"
+        }
+      },
+      "props": {
+        "search": "Teks pencarian terkontrol dan handler perubahan.",
+        "searchPlaceholder": "Placeholder kolom pencarian.",
+        "filterFields": "Field pada drawer filter.",
+        "filterValues": "Nilai yang diterapkan dan default yang tidak dihitung aktif.",
+        "onApply": "Handler apply / reset.",
+        "filterTitle": "Judul tombol dan drawer.",
+        "withFilterButton": "Sembunyikan tombol filter bila false.",
+        "debounce": "Debounce pencarian dan nama param URL.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Latar toolbar.",
+        "--wds-stroke-subtle": "Garis pemisah bawah.",
+        "--wds-sz-table-toolbar-padding-top": "Padding vertikal.",
+        "--wds-sz-table-toolbar-padding-left": "Padding horizontal.",
+        "--wds-sz-table-toolbar-root-gap": "Jarak pencarian dan filter.",
+        "--wds-sz-table-stroke": "Ketebalan garis."
+      },
+      "behavior": [
+        "Mengetik memperbarui pencarian setelah jeda debounce.",
+        "Apply menutup drawer dan kembali ke halaman 1; Reset menghapus nilai.",
+        "Drawer memakai panel yang sama dengan Drawer."
+      ],
+      "accessibility": [
+        "Drawer memakai role=\"dialog\" dengan judul filter sebagai label.",
+        "Tombol tutup punya nama yang bisa diakses."
+      ]
+    },
+    "card": {
+      "summary": "Container card WDS dengan judul, aksi, isi, dan footer opsional. Outlined atau filled, bisa dilipat, dan ukuran ringkas untuk panel sempit.",
+      "figma": {
+        "styles": {
+          "note": "Outlined punya border lembut di atas warna surface; filled memakai latar lembut tanpa border."
+        },
+        "title": {
+          "note": "Teks header; header menampilkan pemisah saat isi terbuka."
+        },
+        "actions": {
+          "note": "`actions` ada di header, `footer` adalah baris aksi dengan garis di atasnya."
+        }
+      },
+      "examples": {
+        "styles": {
+          "title": "Style"
+        },
+        "footer": {
+          "title": "Footer"
+        }
+      },
+      "props": {
+        "title": "Judul header dan aksi header.",
+        "children": "Isi card.",
+        "footer": "Baris aksi di bawah isi.",
+        "appearance": "Style Card Figma.",
+        "size": "`sm` adalah varian ringkas untuk panel sempit.",
+        "collapsible": "Klik header untuk melipat; `defaultOpen` dan ikon toggle kustom.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-bg-surface": "Latar outlined.",
+        "--wds-bg-subtle": "Latar filled.",
+        "--wds-stroke-subtle": "Border dan pemisah.",
+        "--wds-text-primary": "Judul.",
+        "--wds-text-secondary": "Teks isi.",
+        "--wds-sz-card-radius": "Radius sudut.",
+        "--wds-sz-card-padding-top": "Padding vertikal.",
+        "--wds-sz-card-padding-left": "Padding horizontal.",
+        "--wds-sz-card-actions-gap": "Jarak antar aksi."
+      },
+      "behavior": [
+        "Card collapsible menyembunyikan isi dan footer; pemisah header ikut hilang.",
+        "Header menjadi button asli saat collapsible."
+      ],
+      "accessibility": [
+        "Header collapsible memiliki aria-expanded.",
+        "Gunakan judul yang deskriptif."
+      ]
+    },
+    "empty-state": {
+      "summary": "Empty state WDS: ilustrasi, judul, teks pendukung, dan aksi, rata tengah.",
+      "figma": {
+        "title": {
+          "note": "Pesan utama."
+        },
+        "supporting": {
+          "note": "Menjelaskan yang terjadi atau yang perlu dilakukan."
+        },
+        "illustration": {
+          "note": "Ikon atau gambar di placeholder berbentuk membulat."
+        },
+        "actions": {
+          "note": "Tombol opsional di bawah teks."
+        }
+      },
+      "examples": {
+        "actions": {
+          "title": "Dengan aksi"
+        }
+      },
+      "props": {
+        "title": "Pesan utama.",
+        "description": "Teks pendukung.",
+        "illustration": "Ikon atau gambar di atas judul.",
+        "actions": "Tombol di bawah teks.",
+        "testId": "Dipetakan ke data-testid."
+      },
+      "tokens": {
+        "--wds-text-primary": "Judul.",
+        "--wds-text-secondary": "Teks pendukung.",
+        "--wds-icons-secondary": "Ikon ilustrasi.",
+        "--wds-sz-empty-state-gap": "Jarak antar bagian.",
+        "--wds-sz-empty-state-text-gap": "Jarak judul dan teks.",
+        "--wds-sz-empty-state-actions-gap": "Jarak antar aksi.",
+        "--wds-sz-empty-state-illustration-size": "Ukuran ilustrasi."
+      },
+      "behavior": [
+        "Konten rata tengah dan selebar isinya.",
+        "Pakai di dalam Card atau body Table saat tidak ada data."
+      ],
+      "accessibility": [
+        "Buat judul singkat dan spesifik.",
+        "Berikan langkah berikutnya di aksi bila memungkinkan."
+      ]
     }
   }
 }

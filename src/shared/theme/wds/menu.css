@@ -1,0 +1,107 @@
+/*
+ * Dropdown menu & Menu item WDS (panel Select/Date Picker). Warna dari `menu.generated.css`
+ * (`--m-*`, `--mi-*`); ukuran dari token Size. Di @layer components.
+ */
+@layer components {
+  .wds-menu {
+    box-sizing: border-box;
+    display: flex;
+    max-height: 15rem;
+    flex-direction: column;
+    gap: var(--m-gap);
+    overflow-y: auto;
+    padding: var(--m-pad);
+    border: var(--m-stroke-w) solid var(--m-stroke);
+    border-radius: var(--m-radius);
+    background-color: var(--m-bg);
+    /* Dua lapis shadow dari efek Figma "Dropdown / Menu" (y2 blur4 + y4 blur8). */
+    box-shadow:
+      0 2px 4px rgb(16 24 40 / 6%),
+      0 4px 8px rgb(16 24 40 / 10%);
+  }
+
+  .wds-menu__item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: var(--wds-sz-menu-item-trailing-gap);
+    padding: var(--wds-sz-padding-top) var(--wds-sz-padding-right) var(--wds-sz-padding-bottom)
+      var(--wds-sz-padding-left);
+    border: 0;
+    border-radius: var(--wds-sz-list-item-radius);
+    background-color: var(--mi-bg);
+    color: var(--mi-fg);
+    cursor: pointer;
+    font-family: var(--wds-sz-text-body-font-family);
+    font-weight: var(--wds-font-weight-regular);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+    text-align: left;
+  }
+
+  .wds-menu__item[data-state='disabled'] {
+    cursor: not-allowed;
+  }
+
+  .wds-menu__text {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--wds-sz-menu-item-text-gap);
+  }
+
+  .wds-menu__support {
+    color: var(--mi-support);
+    font-size: var(--wds-sz-text-hint-font-size);
+    line-height: var(--wds-sz-text-hint-line-height);
+  }
+
+  .wds-menu__icon {
+    display: inline-flex;
+    width: var(--wds-sz-icon-size);
+    height: var(--wds-sz-icon-size);
+    flex-shrink: 0;
+    color: var(--mi-icon);
+  }
+
+  .wds-menu__icon > svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .wds-menu__empty {
+    margin: 0;
+    padding: var(--wds-padding-16);
+    color: var(--wds-text-tertiary);
+    font-family: var(--wds-sz-text-body-font-family);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+    text-align: center;
+  }
+}
+
+/* Penanda centang di opsi Select multiple (gaya Checkbox solid, tanpa input). */
+@layer components {
+  .wds-menu__check {
+    box-sizing: border-box;
+    display: inline-flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--wds-radius-6);
+    box-shadow: inset 0 0 0 var(--wds-stroke-1-5) var(--wds-stroke-default);
+    color: var(--wds-icons-on-brand);
+  }
+
+  .wds-menu__check[data-checked='true'] {
+    background-color: var(--wds-bg-info);
+    box-shadow: inset 0 0 0 var(--wds-stroke-1-5) var(--wds-stroke-info);
+  }
+
+  .wds-menu__check > svg {
+    width: 80%;
+    height: 80%;
+  }
+}

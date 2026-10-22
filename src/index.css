@@ -8,6 +8,15 @@
 @import './shared/theme/wds/button.generated.css';
 @import './shared/theme/wds/selection.css';
 @import './shared/theme/wds/selection.generated.css';
+@import './shared/theme/wds/field.css';
+@import './shared/theme/wds/field.generated.css';
+@import './shared/theme/wds/menu.css';
+@import './shared/theme/wds/menu.generated.css';
+@import './shared/theme/wds/overlay.css';
+@import './shared/theme/wds/table.css';
+@import './shared/theme/wds/surface.css';
+@import './shared/theme/wds/feedback.css';
+@import './shared/theme/wds/feedback.generated.css';
 
 /*
  * Token warna/radius Tailwind dipetakan ke CSS variables (--theme-*)

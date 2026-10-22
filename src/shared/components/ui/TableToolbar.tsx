@@ -6,16 +6,14 @@ import { useDebounce } from '../../hooks';
 import InputField from './fields/InputField';
 import Textarea from './fields/Textarea';
 import Select from './fields/Select';
-import SelectMultiple from './fields/SelectMultiple';
 import DatePicker from './fields/date-picker/DatePicker';
-import DateRangePicker from './fields/date-picker/DateRangePicker';
 import Checkbox from './fields/Checkbox';
 import CheckboxGroup from './fields/CheckboxGroup';
 import Toggle from './fields/Toggle';
 import RadioButtonGroup from './fields/RadioButtonGroup';
 import type { LoadOptionsFn } from './fields/Select';
 import Button from './Button';
-import { CloseCircle, Filter, Magnifer } from '../icons';
+import { Cross, Filter, Magnifer } from '../icons';
 
 export interface FilterField {
   name: string;
@@ -227,7 +225,11 @@ function TableToolbar({
   }
 
   return (
-    <div data-testid={testId} className={`flex items-center justify-between ${className}`}>
+    <div
+      data-testid={testId}
+      data-filtered={hasActive || undefined}
+      className={`wds-toolbar ${className}`}
+    >
       <div className="w-80">
         <InputField
           size="md"
@@ -242,14 +244,9 @@ function TableToolbar({
       </div>
       <div className={withFilterButton ? 'visible' : 'hidden'}>
         <Button
-          variant="custom"
+          hierarchy={hasActive ? 'tonal' : 'secondary'}
           size="md"
-          icon={<Filter />}
-          className={
-            hasActive
-              ? 'border border-primary text-primary bg-primary/15 hover:bg-primary/20'
-              : 'border border-border text-foreground bg-background hover:bg-muted'
-          }
+          leadingIcon={<Filter />}
           onClick={open}
         >
           {resolvedFilterTitle}
@@ -261,7 +258,7 @@ function TableToolbar({
               <div
                 data-testid={testId ? `${testId}-backdrop` : undefined}
                 className={[
-                  'absolute inset-0 bg-black/50 transition-opacity duration-200',
+                  'wds-overlay__backdrop transition-opacity duration-200',
                   visible ? 'opacity-100' : 'opacity-0',
                 ].join(' ')}
                 onClick={close}
@@ -271,24 +268,24 @@ function TableToolbar({
                 aria-label={resolvedFilterTitle}
                 data-testid={testId ? `${testId}-drawer` : undefined}
                 className={[
-                  'absolute inset-y-0 right-0 flex w-96 max-w-[90vw] flex-col bg-background shadow-xl transition-transform duration-200',
+                  'wds-drawer absolute inset-y-0 right-0 w-96',
                   visible ? 'translate-x-0' : 'translate-x-full',
                 ].join(' ')}
               >
-                <div className="flex items-center justify-between border-b border-border px-5 py-4">
-                  <h3 className="text-base font-semibold text-foreground">{resolvedFilterTitle}</h3>
+                <div className="wds-drawer__header">
+                  <h3 className="wds-drawer__title">{resolvedFilterTitle}</h3>
                   <button
                     data-testid={testId ? `${testId}-close` : undefined}
                     type="button"
                     onClick={close}
                     aria-label={t('common.close')}
-                    className="flex cursor-pointer items-center rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    className="wds-dialog__close"
                   >
-                    <CloseCircle className="h-5 w-5" />
+                    <Cross />
                   </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-5">
+                <div className="wds-drawer__body">
                   <div className="flex flex-col stack-gap">
                     {filterFields.map((field) => (
                       <div key={field.name}>
@@ -296,7 +293,8 @@ function TableToolbar({
                           {field.label}
                         </label>
                         {field.type === 'multi-select' ? (
-                          <SelectMultiple
+                          <Select
+                            multiple
                             size="md"
                             placeholder={field.placeholder ?? t('filter.all')}
                             searchable
@@ -326,7 +324,8 @@ function TableToolbar({
                           />
                         ) : field.type === 'date' ? (
                           field.range ? (
-                            <DateRangePicker
+                            <DatePicker
+                              range
                               size="md"
                               panelWidthClassName="w-72"
                               placeholder={field.placeholder}
@@ -428,7 +427,7 @@ function TableToolbar({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 border-t border-border p-4">
+                <div className="wds-drawer__footer">
                   <Button
                     testId={testId ? `${testId}-reset` : undefined}
                     className="flex-1"

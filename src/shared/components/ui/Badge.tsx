@@ -1,35 +1,81 @@
 import { type ReactNode } from 'react';
+import { Cross } from '../icons';
+
+/** Style Badge WDS (mode "Badge styles"). */
+export type BadgeStyle = 'neutral' | 'primary' | 'info' | 'success' | 'warning' | 'danger';
+/** Nama lama: `error` → danger, `secondary` → neutral; `custom` = tanpa warna WDS (warna dari className). */
+type BadgeVariant = BadgeStyle | 'error' | 'secondary' | 'custom';
 
 interface BadgeProps {
-  variant?: 'success' | 'error' | 'warning' | 'info' | 'primary' | 'secondary' | 'custom';
-  children: ReactNode;
+  variant?: BadgeVariant;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  /** Tipe "dot": titik berwarna sebelum label. */
+  dot?: boolean;
+  /** Tipe "counter": angka dalam pil di ujung kanan. */
+  counter?: ReactNode;
+  /** Ikon sebelum / sesudah label (tipe "icon left" / "icon right"). */
+  leadingIcon?: ReactNode;
+  trailingIcon?: ReactNode;
+  /** Tipe "x close": tombol hapus di ujung kanan. */
+  onRemove?: () => void;
+  /** Tipe "icon only": hanya ikon (`leadingIcon`); children diabaikan — beri aria-label. */
+  iconOnly?: boolean;
+  children?: ReactNode;
   className?: string;
   testId?: string;
+  'aria-label'?: string;
 }
 
-const variantStyles: Record<string, string> = {
-  success: 'bg-success/15 text-success',
-  error: 'bg-danger/15 text-danger',
-  warning: 'bg-warning/15 text-warning',
-  info: 'bg-info/15 text-info',
-  primary: 'bg-primary text-primary-foreground',
-  secondary: 'bg-muted text-muted-foreground',
-  custom: '',
+const STYLE_OF: Record<Exclude<BadgeVariant, 'custom'>, BadgeStyle> = {
+  neutral: 'neutral',
+  primary: 'primary',
+  info: 'info',
+  success: 'success',
+  warning: 'warning',
+  danger: 'danger',
+  error: 'danger',
+  secondary: 'neutral',
 };
 
-function Badge({ variant = 'info', children, className = '', testId }: BadgeProps) {
+/**
+ * Badge WDS: label berbentuk pil. Style (warna) dari token "Badge styles"; tipe (dot, counter, x close,
+ * icon left/right/only) lewat props. Ukuran dari token Size.
+ */
+function Badge({
+  variant = 'info',
+  size = 'md',
+  dot = false,
+  counter,
+  leadingIcon,
+  trailingIcon,
+  onRemove,
+  iconOnly = false,
+  children,
+  className = '',
+  testId,
+  'aria-label': ariaLabel,
+}: BadgeProps) {
   return (
     <span
       data-testid={testId}
-      className={[
-        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-        variantStyles[variant] ?? '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+      data-style={variant === 'custom' ? undefined : STYLE_OF[variant]}
+      data-wds-size={size}
+      data-counter={counter !== undefined ? 'true' : undefined}
+      data-icon-only={iconOnly ? 'true' : undefined}
+      aria-label={ariaLabel}
+      className={['wds-badge', className].filter(Boolean).join(' ')}
     >
-      {children}
+      {dot && <span className="wds-badge__dot" aria-hidden="true" />}
+      {leadingIcon && <span className="wds-badge__icon">{leadingIcon}</span>}
+      {!iconOnly && children}
+      {!iconOnly && trailingIcon && <span className="wds-badge__icon">{trailingIcon}</span>}
+      {!iconOnly && counter !== undefined && <span className="wds-badge__counter">{counter}</span>}
+      {!iconOnly && onRemove && (
+        <button type="button" aria-label="Remove" className="wds-badge__remove" onClick={onRemove}>
+          <Cross />
+        </button>
+      )}
     </span>
   );
 }

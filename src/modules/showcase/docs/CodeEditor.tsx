@@ -16,13 +16,13 @@ const highlight = HighlightStyle.define([
   { tag: [t.className, t.typeName, t.function(t.variableName)], color: 'var(--code-type)' },
 ]);
 
-const theme = (maxHeight: string) =>
+const theme = (maxHeight: string, fill: boolean) =>
   EditorView.theme({
     '&': {
       fontSize: '11px',
       backgroundColor: 'transparent',
       color: 'var(--theme-foreground)',
-      maxHeight,
+      ...(fill ? { height: '100%' } : { maxHeight }),
     },
     '&.cm-focused': { outline: '2px solid var(--wds-stroke-focus)', outlineOffset: '-2px' },
     '.cm-scroller': {
@@ -48,11 +48,13 @@ interface CodeEditorProps {
   code: string;
   /** Tinggi maksimum area kode (CSS); lebih dari itu discroll. */
   maxHeight: string;
+  /** Isi tinggi induk (tinggi tetap, scroll di dalam) alih-alih tinggi maksimum. */
+  fill?: boolean;
   ariaLabel: string;
 }
 
 /** Editor kode read-only (CodeMirror 6): nomor baris, highlight JSX/TSX, scroll bila melebihi tinggi. */
-function CodeEditor({ code, maxHeight, ariaLabel }: CodeEditorProps) {
+function CodeEditor({ code, maxHeight, fill = false, ariaLabel }: CodeEditorProps) {
   const host = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
 
@@ -70,7 +72,7 @@ function CodeEditor({ code, maxHeight, ariaLabel }: CodeEditorProps) {
           EditorView.editable.of(false),
           // Tetap bisa difokus keyboard agar bisa di-scroll dengan panah/PageUp.
           EditorView.contentAttributes.of({ tabindex: '0', 'aria-label': ariaLabel }),
-          theme(maxHeight),
+          theme(maxHeight, fill),
         ],
       }),
     });
@@ -81,7 +83,7 @@ function CodeEditor({ code, maxHeight, ariaLabel }: CodeEditorProps) {
     };
     // `code` ditangani efek di bawah; editor dibuat ulang hanya saat tinggi berubah.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [maxHeight, ariaLabel]);
+  }, [maxHeight, fill, ariaLabel]);
 
   useEffect(() => {
     const editor = view.current;
@@ -90,7 +92,7 @@ function CodeEditor({ code, maxHeight, ariaLabel }: CodeEditorProps) {
     }
   }, [code]);
 
-  return <div ref={host} data-testid="code-editor" />;
+  return <div ref={host} data-testid="code-editor" className={fill ? 'h-full' : undefined} />;
 }
 
 export default CodeEditor;

@@ -9,7 +9,7 @@ import {
   type Path,
   type UseFormReturn,
 } from 'react-hook-form';
-import { InfoCircle } from '../icons';
+import { QuestionCircle } from '../icons';
 import Tooltip from './Tooltip';
 
 type LabelFontWeight = 'light' | 'normal' | 'medium' | 'semibold' | 'bold';
@@ -35,6 +35,8 @@ interface FormItemProps<TForm extends FieldValues, TComponent extends React.Elem
   renderComponent?: (methods: UseFormReturn<TForm>) => ReactNode;
   rules?: Record<string, any>;
   label?: string;
+  /** Teks penjelasan di bawah label (Figma "Description"). */
+  description?: ReactNode;
   required?: boolean;
   layout?: 'vertical' | 'horizontal';
   labelWidth?: string;
@@ -56,6 +58,7 @@ function FormItem<TForm extends FieldValues, TComponent extends React.ElementTyp
     renderComponent,
     rules,
     label,
+    description,
     required: explicitRequired,
     layout = 'vertical',
     labelWidth = 'w-64',
@@ -74,36 +77,36 @@ function FormItem<TForm extends FieldValues, TComponent extends React.ElementTyp
   const isRequired =
     explicitRequired ?? (typeof rules?.required === 'string' || rules?.required === true);
 
-  const renderLabel = () => {
-    if (!label) return null;
+  // Label WDS: Medium 14/20 (token Label text), tanda wajib `*` merah; `labelFontWeight` lain menimpa.
+  const weightClass = labelFontWeight === 'medium' ? '' : LABEL_FONT_WEIGHTS[labelFontWeight];
 
-    const labelContent = (
+  const renderLabel = () => {
+    if (!label && !description) return null;
+
+    const labelContent = label ? (
       <>
         {label}
-        {isRequired && <span className="ml-0.5 text-danger">*</span>}
+        {isRequired && <span className="wds-form-item__mandatory">*</span>}
         {labelTooltip && (
           <Tooltip content={labelTooltip}>
-            <InfoCircle className="ml-1 h-3.5 w-3.5 cursor-pointer" />
+            <QuestionCircle className="h-4 w-4 cursor-pointer" />
           </Tooltip>
         )}
       </>
-    );
-
-    if (name) {
-      return (
-        <label
-          htmlFor={name}
-          className={`text-sm ${LABEL_FONT_WEIGHTS[labelFontWeight]} text-foreground`}
-        >
-          {labelContent}
-        </label>
-      );
-    }
+    ) : null;
 
     return (
-      <span className={`text-sm ${LABEL_FONT_WEIGHTS[labelFontWeight]} text-foreground`}>
-        {labelContent}
-      </span>
+      <div className="wds-form-item__label-group">
+        {labelContent &&
+          (name ? (
+            <label htmlFor={name} className={`wds-form-item__label ${weightClass}`}>
+              {labelContent}
+            </label>
+          ) : (
+            <span className={`wds-form-item__label ${weightClass}`}>{labelContent}</span>
+          ))}
+        {description && <p className="wds-form-item__description">{description}</p>}
+      </div>
     );
   };
 
@@ -151,7 +154,8 @@ function FormItem<TForm extends FieldValues, TComponent extends React.ElementTyp
     return (
       <div
         data-testid={testId ? `${testId}-field` : undefined}
-        className={`flex gap-4 ${align === 'start' ? 'items-start' : 'items-center'} ${className}`}
+        data-layout="horizontal"
+        className={`wds-form-item ${align === 'start' ? 'items-start' : 'items-center'} ${className}`}
       >
         <div className={`${labelWidth} shrink-0`}>{renderLabel()}</div>
         <div className="min-w-0 flex-1">{renderContent()}</div>
@@ -160,8 +164,8 @@ function FormItem<TForm extends FieldValues, TComponent extends React.ElementTyp
   }
 
   return (
-    <div data-testid={testId ? `${testId}-field` : undefined} className={className}>
-      {label && <div className="mb-1.5">{renderLabel()}</div>}
+    <div data-testid={testId ? `${testId}-field` : undefined} data-layout="vertical" className={`wds-form-item ${className}`}>
+      {renderLabel()}
       {renderContent()}
     </div>
   );

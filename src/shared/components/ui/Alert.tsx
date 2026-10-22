@@ -1,59 +1,84 @@
 import { type ReactNode } from 'react';
-import { CheckCircle, CloseCircle, DangerTriangle, InfoCircle } from '../icons';
+import {
+  CheckCircle,
+  CheckCircleBold,
+  CloseCircle,
+  CloseCircleBold,
+  Cross,
+  DangerTriangle,
+  DangerTriangleBold,
+  InfoCircle,
+  InfoCircleBold,
+} from '../icons';
 
-export type AlertVariant = 'success' | 'error' | 'warning' | 'info';
+/** Style Alert WDS (mode "Alert styles"); `error` = nama lama dari `danger`. */
+export type AlertVariant = 'success' | 'error' | 'danger' | 'warning' | 'info';
+/** Varian tampilan (mode "Alert variant"): basic, solid, light, left-stroke. */
+export type AlertAppearance = 'basic' | 'solid' | 'light' | 'left-stroke';
 
 interface AlertProps {
   variant: AlertVariant;
   message: string | ReactNode;
+  /** Judul di atas pesan (Figma "Show title"). */
+  title?: ReactNode;
+  /** Varian tampilan WDS (default `light`). */
+  appearance?: AlertAppearance;
+  /** Tombol aksi di sisi kanan (Alert types: action). */
+  action?: { label: string; onClick?: () => void };
+  /** Menampilkan tombol tutup (Alert types: close). */
+  onClose?: () => void;
   testId?: string;
 }
 
-const variantConfig: Record<
-  AlertVariant,
-  { bg: string; text: string; border: string; Icon: typeof CheckCircle }
-> = {
-  success: {
-    bg: 'bg-success/15',
-    text: 'text-success',
-    border: 'border-success',
-    Icon: CheckCircle,
-  },
-  error: {
-    bg: 'bg-danger/15',
-    text: 'text-danger',
-    border: 'border-danger',
-    Icon: CloseCircle,
-  },
-  warning: {
-    bg: 'bg-warning/15',
-    text: 'text-warning',
-    border: 'border-warning',
-    Icon: DangerTriangle,
-  },
-  info: {
-    bg: 'bg-info/15',
-    text: 'text-info',
-    border: 'border-info',
-    Icon: InfoCircle,
-  },
+const STYLE_OF: Record<AlertVariant, 'success' | 'danger' | 'warning' | 'info'> = {
+  success: 'success',
+  error: 'danger',
+  danger: 'danger',
+  warning: 'warning',
+  info: 'info',
 };
 
-function Alert({ variant, message, testId }: AlertProps) {
-  const { bg, text, border, Icon } = variantConfig[variant];
+// Outline untuk varian `basic`, filled (Bold Duotone) untuk varian lain — sesuai token `alert-icons`.
+const ICONS = {
+  success: { outline: CheckCircle, filled: CheckCircleBold },
+  danger: { outline: CloseCircle, filled: CloseCircleBold },
+  warning: { outline: DangerTriangle, filled: DangerTriangleBold },
+  info: { outline: InfoCircle, filled: InfoCircleBold },
+} as const;
 
+/**
+ * Alert WDS: pesan blok dengan ikon status. Warna dan garis dari token (style × varian);
+ * judul, tombol aksi, dan tombol tutup opsional.
+ */
+function Alert({ variant, message, title, appearance = 'light', action, onClose, testId }: AlertProps) {
+  const style = STYLE_OF[variant];
+  const Icon = ICONS[style][appearance === 'basic' ? 'outline' : 'filled'];
   return (
     <div
       data-testid={testId}
-      className={[
-        'flex items-center rounded-lg border p-3 text-sm font-medium gap-2',
-        bg,
-        text,
-        border,
-      ].join(' ')}
+      data-style={style}
+      data-appearance={appearance}
+      data-has-title={title ? 'true' : 'false'}
+      role={style === 'danger' || style === 'warning' ? 'alert' : 'status'}
+      className="wds-alert"
     >
-      {Icon && <Icon className="h-5 w-5 shrink-0" />}
-      <span className="flex-1 text-left">{message}</span>
+      <span className="wds-alert__icon" aria-hidden="true">
+        <Icon />
+      </span>
+      <div className="wds-alert__text">
+        {title && <p className="wds-alert__title">{title}</p>}
+        <span className="wds-alert__message">{message}</span>
+      </div>
+      {action && (
+        <button type="button" className="wds-alert__action" onClick={action.onClick}>
+          {action.label}
+        </button>
+      )}
+      {onClose && (
+        <button type="button" aria-label="Close" className="wds-alert__close" onClick={onClose}>
+          <Cross />
+        </button>
+      )}
     </div>
   );
 }

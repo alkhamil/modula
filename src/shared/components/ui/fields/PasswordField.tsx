@@ -1,27 +1,18 @@
-import { useState, type ChangeEvent, type InputHTMLAttributes } from 'react';
-import { DangerCircle } from '../../icons';
-import { stripNonAscii } from '../../../utils';
+import { useState, type InputHTMLAttributes, type ReactNode } from 'react';
+import InputField from './InputField';
+import type { FieldSize } from './fieldState';
 
 interface PasswordFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'> {
-  size?: 'sm' | 'md' | 'lg';
+  size?: FieldSize;
+  appearance?: 'box' | 'underline';
   error?: string;
   isInvalid?: boolean;
+  hint?: ReactNode;
   defaultVisible?: boolean;
   sanitize?: (value: string) => string;
+  'data-wds-state'?: string;
   'data-testid'?: string;
 }
-
-const iconSizeStyles: Record<string, string> = {
-  sm: 'h-4 w-4',
-  md: 'h-5 w-5',
-  lg: 'h-5 w-5',
-};
-
-const sizeStyles: Record<string, string> = {
-  sm: 'px-3 py-1.5 text-xs',
-  md: 'px-4 py-2.5 text-sm',
-  lg: 'px-5 py-3 text-base',
-};
 
 function EyeOpen({ className }: { className?: string }) {
   return (
@@ -62,93 +53,30 @@ function EyeClosed({ className }: { className?: string }) {
   );
 }
 
-function PasswordField({
-  size = 'md',
-  error,
-  isInvalid,
-  disabled,
-  defaultVisible = false,
-  sanitize,
-  className = '',
-  onChange,
-  'data-testid': testId,
-  ...rest
-}: PasswordFieldProps) {
+/** Password WDS: `InputField` dengan tombol tampil/sembunyi di slot trailing. */
+function PasswordField({ defaultVisible = false, disabled, 'data-testid': testId, ...rest }: PasswordFieldProps) {
   const [visible, setVisible] = useState(defaultVisible);
-
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    const cleaned = stripNonAscii(e.target.value);
-    if (cleaned !== e.target.value) {
-      e.target.value = cleaned;
-    }
-    if (sanitize) {
-      const raw = sanitize(e.target.value);
-      if (raw !== e.target.value) {
-        e.target.value = raw;
-      }
-    }
-    onChange?.(e);
-  }
-
   return (
-    <div>
-      <div
-        className={[
-          'flex items-center overflow-hidden rounded-lg border bg-background transition-colors',
-          error || isInvalid
-            ? 'border-danger focus-within:border-danger focus-within:ring-2 focus-within:ring-danger/20'
-            : 'border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30',
-          disabled ? 'cursor-not-allowed bg-muted' : '',
-          className,
-        ].join(' ')}
-      >
-        <input
-          data-testid={testId}
-          type={visible ? 'text' : 'password'}
-          disabled={disabled}
-          onChange={handleChange}
-          className={[
-            'w-full flex-1 border-none bg-transparent outline-none placeholder:text-muted-foreground',
-            '[&:-webkit-autofill]:[-webkit-text-fill-color:currentColor]',
-            sizeStyles[size],
-            disabled ? 'cursor-not-allowed text-muted-foreground disabled:bg-muted' : '',
-          ].join(' ')}
-          {...rest}
-        />
+    <InputField
+      {...rest}
+      data-testid={testId}
+      disabled={disabled}
+      type={visible ? 'text' : 'password'}
+      append={
         <button
           data-testid={testId ? `${testId}-toggle` : undefined}
           type="button"
           onClick={() => setVisible((v) => !v)}
           disabled={disabled}
-          className={[
-            'flex cursor-pointer items-center text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none',
-            disabled ? 'cursor-not-allowed opacity-50' : '',
-            error || isInvalid ? 'pr-1' : 'pr-3',
-          ].join(' ')}
+          aria-label={visible ? 'Hide password' : 'Show password'}
           tabIndex={-1}
+          className="wds-field__action"
+          style={{ display: 'inline-flex', width: '100%', height: '100%' }}
         >
-          {visible ? (
-            <EyeOpen className={iconSizeStyles[size]} />
-          ) : (
-            <EyeClosed className={iconSizeStyles[size]} />
-          )}
+          {visible ? <EyeOpen /> : <EyeClosed />}
         </button>
-        {(error || isInvalid) && (
-          <span className="flex items-center pr-3">
-            <DangerCircle className="h-3.5 w-3.5" />
-          </span>
-        )}
-      </div>
-      {error && (
-        <p
-          data-testid={testId ? `${testId}-error` : undefined}
-          className="mt-1 text-xs text-danger"
-          role="alert"
-        >
-          {error}
-        </p>
-      )}
-    </div>
+      }
+    />
   );
 }
 

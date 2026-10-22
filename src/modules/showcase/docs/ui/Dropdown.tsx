@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { AltArrowDown, Check } from '../../../../shared/components/icons';
 
 interface DropdownProps {
@@ -10,20 +11,45 @@ interface DropdownProps {
   renderOption?: (option: string) => ReactNode;
 }
 
-/** Dropdown custom (listbox): panah/Home/End/Enter/Esc, klik di luar menutup. */
+interface ListPosition {
+  top: number;
+  left: number;
+  width: number;
+}
+
+/**
+ * Dropdown custom (listbox): panah/Home/End/Enter/Esc, klik di luar menutup. Daftar dirender di
+ * portal (fixed) supaya tidak terpotong panel yang bisa discroll; menutup saat scroll/resize.
+ */
 function Dropdown({ value, options, onChange, label, renderOption }: DropdownProps) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
-  const root = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<ListPosition | null>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const list = useRef<HTMLUListElement>(null);
   const listId = useId();
+
+  useLayoutEffect(() => {
+    if (!open || !button.current) return;
+    const rect = button.current.getBoundingClientRect();
+    setPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
-    const close = (e: MouseEvent) => {
-      if (root.current && !root.current.contains(e.target as Node)) setOpen(false);
+    const close = (e: Event) => {
+      const target = e.target as Node;
+      if (button.current?.contains(target) || list.current?.contains(target)) return;
+      setOpen(false);
     };
     document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
   }, [open]);
 
   const openList = () => {
@@ -53,8 +79,9 @@ function Dropdown({ value, options, onChange, label, renderOption }: DropdownPro
   };
 
   return (
-    <div ref={root} className="relative">
+    <div className="relative">
       <button
+        ref={button}
         type="button"
         role="combobox"
         aria-label={label}
@@ -75,38 +102,43 @@ function Dropdown({ value, options, onChange, label, renderOption }: DropdownPro
         </span>
         <AltArrowDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
-      {open && (
-        <ul
-          id={listId}
-          role="listbox"
-          aria-label={label}
-          className="absolute z-20 mt-1 max-h-60 w-full min-w-40 overflow-auto rounded-lg border border-border bg-background py-1 shadow-lg"
-        >
-          {options.map((option, index) => (
-            <li
-              key={option}
-              role="option"
-              aria-selected={option === value}
-              onMouseEnter={() => setActive(index)}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                pick(option);
-              }}
-              className={[
-                'flex cursor-pointer items-center justify-between gap-2 px-3 py-1.5 text-xs',
-                index === active ? 'bg-muted' : '',
-                option === value ? 'font-medium text-primary' : 'text-foreground',
-              ].join(' ')}
-            >
-              <span className="flex min-w-0 items-center gap-2 truncate">
-                {renderOption?.(option)}
-                {option}
-              </span>
-              {option === value && <Check className="h-4 w-4 shrink-0" />}
-            </li>
-          ))}
-        </ul>
-      )}
+      {open &&
+        pos &&
+        createPortal(
+          <ul
+            ref={list}
+            id={listId}
+            role="listbox"
+            aria-label={label}
+            style={{ position: 'fixed', top: pos.top, left: pos.left, width: pos.width, zIndex: 60 }}
+            className="max-h-60 overflow-auto rounded-lg border border-border bg-background py-1 shadow-lg"
+          >
+            {options.map((option, index) => (
+              <li
+                key={option}
+                role="option"
+                aria-selected={option === value}
+                onMouseEnter={() => setActive(index)}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  pick(option);
+                }}
+                className={[
+                  'flex cursor-pointer items-center justify-between gap-2 px-3 py-1.5 text-xs',
+                  index === active ? 'bg-muted' : '',
+                  option === value ? 'font-medium text-primary' : 'text-foreground',
+                ].join(' ')}
+              >
+                <span className="flex min-w-0 items-center gap-2 truncate">
+                  {renderOption?.(option)}
+                  {option}
+                </span>
+                {option === value && <Check className="h-4 w-4 shrink-0" />}
+              </li>
+            ))}
+          </ul>,
+          document.body,
+        )}
     </div>
   );
 }

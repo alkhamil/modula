@@ -1,8 +1,8 @@
-import { isValidElement, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { isValidElement, type ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AltArrowLeft, AltArrowRight, DangerTriangle } from '../icons';
+import { DangerTriangle } from '../icons';
 import { formatNumber } from '../../utils';
-import Select from './fields/Select';
+import Pagination from './Pagination';
 import Button from './Button';
 import Tooltip from './Tooltip';
 
@@ -74,6 +74,8 @@ interface TableProps<T> {
   retryLabel?: string;
   /** Padding vertikal sel body lebih rapat (`py-1` alih-alih `py-3`). */
   dense?: boolean;
+  /** Style header WDS (token Table styles): white | gray. */
+  headerStyle?: 'white' | 'gray';
   testId?: string;
 }
 
@@ -101,101 +103,6 @@ function SortIcon({ active, direction }: { active: boolean; direction: 'asc' | '
   );
 }
 
-function buildPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
-  if (total <= 7) {
-    return Array.from({ length: total }, (_, i) => i + 1);
-  }
-  // Lampiran A (7-slot window): awal 1-4, akhir T-3..T, selain itu tengah.
-  if (current <= 4) {
-    return [1, 2, 3, 4, 5, 'ellipsis', total];
-  }
-  if (current >= total - 3) {
-    return [1, 'ellipsis', total - 4, total - 3, total - 2, total - 1, total];
-  }
-  return [1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total];
-}
-
-interface PaginationProps {
-  page: number;
-  totalPages: number;
-  pageSize: number;
-  onPageChange: (page: number) => void;
-  onPageSizeChange: (size: number) => void;
-}
-
-function Pagination({
-  page,
-  totalPages,
-  pageSize,
-  onPageChange,
-  onPageSizeChange,
-}: PaginationProps) {
-  const { t } = useTranslation();
-  const pages = useMemo(() => buildPageNumbers(page, totalPages), [page, totalPages]);
-
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-4 py-4">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Select
-          clearable={false}
-          value={String(pageSize)}
-          onChange={(val) => onPageSizeChange(Number(val))}
-          options={[10, 20, 50, 100].map((n) => ({ label: String(n), value: String(n) }))}
-          className="w-16"
-        />
-        <span>{t('table.rowsPerPage')}</span>
-      </div>
-
-      <div className="flex items-center gap-1">
-        <button
-          data-testid="pagination-prev"
-          onClick={() => onPageChange(page - 1)}
-          disabled={page <= 1}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-primary transition-colors hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed border border-transparent hover:border-primary"
-        >
-          <AltArrowLeft className="h-4 w-4" />
-        </button>
-
-        {pages.map((p, i) =>
-          p === 'ellipsis' ? (
-            <span
-              key={`e-${i}`}
-              data-testid="pagination-ellipsis"
-              className="flex h-8 min-w-8 items-center justify-center px-1 text-sm text-muted-foreground"
-            >
-              …
-            </span>
-          ) : (
-            <button
-              key={p}
-              data-testid={`pagination-page-${p}`}
-              onClick={() => {
-                if (p !== page) onPageChange(p);
-              }}
-              className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-1 text-sm font-medium transition-colors border ${
-                p === page
-                  ? 'border-primary text-primary bg-background'
-                  : 'border-transparent text-muted-foreground hover:bg-primary/10 hover:border-primary'
-              }`}
-            >
-              {p}
-            </button>
-          ),
-        )}
-
-        <button
-          data-testid="pagination-next"
-          onClick={() => onPageChange(page + 1)}
-          disabled={page >= totalPages}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-primary transition-colors hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed border border-transparent hover:border-primary"
-        >
-          <AltArrowRight className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function bc(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
 }
@@ -207,11 +114,9 @@ function bc(...classes: (string | false | undefined | null)[]) {
  * `color-mix` menghasilkan warna solid yang setara dengan tint di atas
  * background, sehingga sel sticky tetap menutup konten di bawahnya.
  */
-const STICKY_ROW_BG = 'bg-background';
-const STICKY_ROW_HOVER_BG =
-  'group-hover:bg-[color-mix(in_srgb,var(--theme-primary)_5%,var(--theme-background))]';
-const STICKY_ROW_HIGHLIGHT_BG =
-  'bg-[color-mix(in_srgb,var(--theme-primary)_15%,var(--theme-background))]';
+const STICKY_ROW_BG = 'bg-(--wds-bg-surface)';
+const STICKY_ROW_HOVER_BG = 'group-hover:bg-(--wds-bg-subtle)';
+const STICKY_ROW_HIGHLIGHT_BG = 'bg-(--wds-bg-brand-subtle)';
 
 /** Nilai sel kosong (null/undefined/string kosong) ditampilkan sebagai `-`. */
 function renderCellValue(value: unknown): ReactNode {
@@ -304,12 +209,12 @@ function Table<T>({
   isRowHighlighted,
   alwaysShowScrollbar = false,
   stickyHeader = false,
+  headerStyle = 'white',
   scrollBodyClassName,
   alwaysShowVerticalScrollbar = false,
   testId,
 }: TableProps<T>) {
   const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
-  const cellPy = dense ? 'py-1' : 'py-3';
   const actionRight = actionPosition === 'right';
   const { t } = useTranslation();
   const resolvedActionHeader = actionHeader ?? t('table.action');
@@ -423,7 +328,7 @@ function Table<T>({
   }
 
   return (
-    <div data-testid={testId} className="w-full">
+    <div data-testid={testId} data-table-style={headerStyle} className="wds-table-root w-full">
       {!loading && !error && !hideTotalRecords && (
         <div className="flex items-center gap-6 py-3">
           <span className="text-sm text-muted-foreground">
@@ -436,7 +341,7 @@ function Table<T>({
 
       <div
         className={bc(
-          'border-y border-border bg-background overflow-hidden',
+          'wds-table__frame overflow-hidden',
           alwaysShowVerticalScrollbar && scrollBodyClassName ? 'flex' : '',
         )}
       >
@@ -450,18 +355,19 @@ function Table<T>({
           )}
         >
           <table
+            data-dense={dense || undefined}
             className={bc(
-              'border-separate border-spacing-0',
+              'wds-table border-separate border-spacing-0',
               fixedLayout ? 'table-fixed w-full' : 'min-w-full',
             )}
           >
             <thead>
-              <tr className="bg-surface">
+              <tr className="bg-(--tbl-header-bg)">
                 {showRowNumber && (
                   <th
                     className={bc(
-                      'px-4 py-3 text-center text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-b border-border w-12',
-                      stickyHeader ? 'sticky top-0 z-20 bg-surface' : 'bg-surface',
+                      'wds-th w-12 text-center',
+                      stickyHeader ? 'sticky top-0 z-20 bg-(--tbl-header-bg)' : 'bg-(--tbl-header-bg)',
                     )}
                   >
                     {resolvedRowNumberHeader}
@@ -470,8 +376,8 @@ function Table<T>({
                 {showAction && !actionRight && (
                   <th
                     className={bc(
-                      `px-4 py-3 text-center text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-b border-border`,
-                      stickyHeader ? 'sticky top-0 z-20 bg-surface' : 'bg-surface',
+                      'wds-th text-center',
+                      stickyHeader ? 'sticky top-0 z-20 bg-(--tbl-header-bg)' : 'bg-(--tbl-header-bg)',
                       stickyAction && 'sticky left-0 z-30',
                       showLeftActionShadow && leftActionShadow,
                       actionWidth,
@@ -488,11 +394,11 @@ function Table<T>({
                       ...(col.width ? { width: col.width } : {}),
                     }}
                     className={bc(
-                      'px-5 py-3 text-left text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-b border-border',
-                      stickyHeader ? 'sticky top-0 z-20 bg-surface' : '',
-                      col.stickyLeft ? 'sticky z-20 bg-surface' : '',
+                      'wds-th text-left',
+                      stickyHeader ? 'sticky top-0 z-20 bg-(--tbl-header-bg)' : '',
+                      col.stickyLeft ? 'sticky z-20 bg-(--tbl-header-bg)' : '',
                       
-                      col.sortable ? 'cursor-pointer select-none hover:text-foreground' : '',
+                      col.sortable ? 'cursor-pointer select-none' : '',
                       col.className,
                     )}
                     onClick={() => col.sortable && onSort?.(col.key)}
@@ -511,8 +417,8 @@ function Table<T>({
                 {showAction && actionRight && (
                   <th
                     className={bc(
-                      `px-4 py-3 text-center text-sm font-medium tracking-wider text-muted-foreground whitespace-nowrap border-b border-border`,
-                      stickyHeader ? 'sticky top-0 z-20 bg-surface' : 'bg-surface',
+                      'wds-th text-center',
+                      stickyHeader ? 'sticky top-0 z-20 bg-(--tbl-header-bg)' : 'bg-(--tbl-header-bg)',
                       stickyAction && 'sticky right-0 z-30',
                       showRightActionShadow && rightActionShadow,
                       actionWidth,
@@ -528,13 +434,13 @@ function Table<T>({
                 skeletonRows.map((rowIdx) => (
                   <tr key={`skeleton-${rowIdx}`}>
                     {showRowNumber && (
-                      <td className={`w-12 border-b border-border px-4 ${cellPy}`}>
+                      <td className={'wds-td w-12'}>
                         <div className="mx-auto h-4 animate-pulse rounded bg-muted" />
                       </td>
                     )}
                     {showAction && !actionRight && (
                       <td
-                        className={`${actionWidth} border-b border-border px-4 ${cellPy}`}
+                        className={`wds-td ${actionWidth}`}
                       >
                         <div className="mx-auto h-4 animate-pulse rounded bg-muted" />
                       </td>
@@ -542,14 +448,14 @@ function Table<T>({
                     {columns.map((col) => (
                       <td
                         key={col.key}
-                        className={`border-b border-border px-5 ${cellPy}`}
+                        className={'wds-td'}
                       >
                         <div className="h-4 animate-pulse rounded bg-muted" />
                       </td>
                     ))}
                     {showAction && actionRight && (
                       <td
-                        className={`${actionWidth} border-b border-border px-4 ${cellPy}`}
+                        className={`wds-td ${actionWidth}`}
                       >
                         <div className="mx-auto h-4 animate-pulse rounded bg-muted" />
                       </td>
@@ -614,13 +520,14 @@ function Table<T>({
                   return (
                     <tr
                       key={rowKey(item, rowIdx)}
-                      className={highlighted ? 'group bg-primary/15' : 'group hover:bg-primary/5'}
+                      data-selected={highlighted || undefined}
+                      className={'group wds-tr'}
                     >
                       {showRowNumber && (
                         <td
                           className={bc(
-                            `w-12 px-4 ${cellPy} text-center text-sm text-muted-foreground whitespace-nowrap`,
-                            isLast ? '' : 'border-b border-border',
+                            'wds-td w-12 text-center',
+                            isLast && 'wds-td--last',
                           )}
                         >
                           {rowNumberOf(rowIdx)}
@@ -632,10 +539,10 @@ function Table<T>({
                             highlighted
                               ? STICKY_ROW_HIGHLIGHT_BG
                               : `${STICKY_ROW_BG} ${STICKY_ROW_HOVER_BG}`,
-                            `${actionWidth} px-4 ${cellPy} whitespace-nowrap border-border`,
+                            `wds-td ${actionWidth}`,
                             stickyAction && 'sticky left-0 z-10',
                             showLeftActionShadow && leftActionShadow,
-                            isLast ? '' : 'border-b border-border',
+                            isLast && 'wds-td--last',
                           )}
                         >
                           <div className="flex items-center justify-center gap-1">
@@ -648,10 +555,10 @@ function Table<T>({
                           key={col.key}
                           style={col.stickyLeft ? { left: col.stickyLeftOffset ?? '0' } : undefined}
                           className={bc(
-                            `px-5 ${cellPy} text-sm font-normal text-foreground`,
+                            'wds-td',
                             fixedLayout ? 'truncate' : 'whitespace-nowrap',
                             
-                            isLast ? '' : 'border-b border-border',
+                            isLast && 'wds-td--last',
                             col.stickyLeft
                               ? highlighted
                                 ? `sticky z-10 ${STICKY_ROW_HIGHLIGHT_BG}`
@@ -673,10 +580,10 @@ function Table<T>({
                             highlighted
                               ? STICKY_ROW_HIGHLIGHT_BG
                               : `${STICKY_ROW_BG} ${STICKY_ROW_HOVER_BG}`,
-                            `${actionWidth} px-4 ${cellPy} whitespace-nowrap border-border`,
+                            `wds-td ${actionWidth}`,
                             stickyAction && 'sticky right-0 z-10',
                             showRightActionShadow && rightActionShadow,
-                            isLast ? '' : 'border-b border-border',
+                            isLast && 'wds-td--last',
                           )}
                         >
                           <div className="flex items-center justify-center gap-1">

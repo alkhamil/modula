@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Checkbox, RadioButton, Toggle } from '../../../../shared/components/ui';
+import { Checkbox, CheckboxGroup, RadioButton, RadioButtonGroup, Toggle } from '../../../../shared/components/ui';
 
 type Rest<T> = Omit<T, 'value' | 'onChange' | 'checked'>;
 
@@ -22,4 +22,26 @@ export function ToggleDemo({ checked = false, ...rest }: { checked?: boolean } &
   const [value, setValue] = useState(checked);
   useEffect(() => setValue(checked), [checked]);
   return <Toggle value={value} onChange={setValue} {...rest} />;
+}
+
+export const GROUP_OPTIONS = [
+  { label: 'Admin', value: 'admin', hint: 'Full access' },
+  { label: 'Editor', value: 'editor', hint: 'Can edit content' },
+  { label: 'Viewer', value: 'viewer', hint: 'Read only' },
+];
+
+type GroupRest<T> = Omit<T, 'value' | 'onChange' | 'options'>;
+
+/** Demo interaktif CheckboxGroup: `value` hanya nilai awal (array). */
+export function CheckboxGroupDemo({ value = [], ...rest }: { value?: string[] } & GroupRest<React.ComponentProps<typeof CheckboxGroup>>) {
+  const [selected, setSelected] = useState<string[]>(value);
+  useEffect(() => setSelected(value), [value]);
+  return <CheckboxGroup options={GROUP_OPTIONS} value={selected} onChange={setSelected} {...rest} />;
+}
+
+/** Demo interaktif RadioButtonGroup: `value` hanya nilai awal. */
+export function RadioGroupDemo({ value = '', ...rest }: { value?: string } & GroupRest<React.ComponentProps<typeof RadioButtonGroup>>) {
+  const [selected, setSelected] = useState(value);
+  useEffect(() => setSelected(value), [value]);
+  return <RadioButtonGroup options={GROUP_OPTIONS} value={selected} onChange={setSelected} {...rest} />;
 }

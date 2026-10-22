@@ -1,0 +1,67 @@
+/* GENERATED oleh scripts/build-wds-tokens.mjs — jangan edit manual (npm run tokens:build). */
+
+@layer components {
+
+.wds-menu {
+  --m-bg: var(--wds-bg-elevated);
+  --m-stroke: var(--wds-stroke-subtle);
+  --m-radius: var(--wds-radius-12);
+  --m-stroke-w: var(--wds-stroke-1);
+  --m-pad: var(--wds-padding-8) var(--wds-padding-8) var(--wds-padding-8) var(--wds-padding-8);
+  --m-gap: var(--wds-spacing-4);
+}
+
+.wds-menu__item[data-state="default"] {
+  --mi-bg: transparent;
+  --mi-fg: var(--wds-text-primary);
+  --mi-support: var(--wds-text-secondary);
+  --mi-icon: var(--wds-icons-primary);
+}
+
+.wds-menu__item[data-state="pressed"] {
+  --mi-bg: var(--wds-bg-pressed);
+  --mi-fg: var(--wds-text-primary);
+  --mi-support: var(--wds-text-secondary);
+  --mi-icon: var(--wds-icons-primary);
+}
+
+.wds-menu__item[data-state="selected"] {
+  --mi-bg: var(--wds-bg-brand-subtle);
+  --mi-fg: var(--wds-text-primary);
+  --mi-support: var(--wds-text-secondary);
+  --mi-icon: var(--wds-icons-primary);
+}
+
+.wds-menu__item[data-state="disabled"] {
+  --mi-bg: transparent;
+  --mi-fg: var(--wds-text-disabled);
+  --mi-support: var(--wds-text-disabled);
+  --mi-icon: var(--wds-icons-disabled);
+}
+
+.wds-menu__item[data-state="destructive"] {
+  --mi-bg: transparent;
+  --mi-fg: var(--wds-text-danger);
+  --mi-support: var(--wds-text-danger);
+  --mi-icon: var(--wds-icons-danger);
+}
+
+.wds-cal[data-appearance="box"] {
+  --c-bg: var(--wds-bg-page);
+  --c-radius: var(--wds-radius-12);
+  --c-header: var(--wds-text-primary);
+  --c-weekday: var(--wds-text-secondary);
+  --c-nav: var(--wds-icons-primary);
+  --c-divider: var(--wds-stroke-subtle);
+}
+
+.wds-cal[data-appearance="underline"] {
+  --c-bg: var(--wds-bg-page);
+  --c-radius: var(--wds-radius-12);
+  --c-header: var(--wds-text-primary);
+  --c-weekday: var(--wds-text-secondary);
+  --c-nav: var(--wds-icons-primary);
+  --c-divider: var(--wds-stroke-subtle);
+}
+
+}

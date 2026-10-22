@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import type { ComponentDoc, DocControl, FigmaMapping } from '../types';
+import type { ComponentDoc, DocControl, FigmaMapping, GroupDoc } from '../types';
 
 const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'];
 const FOCUS_ROW: FigmaMapping = {
@@ -8,6 +8,15 @@ const FOCUS_ROW: FigmaMapping = {
   values: '1px stroke outside, 2px gap',
   prop: '— (CSS)',
 };
+
+function horizontalRow(group: string): FigmaMapping {
+  return {
+    id: 'horizontal',
+    figma: group === 'CheckboxGroup' ? 'Horizontal Checkbox' : 'Horizontal Radio Button',
+    values: 'Description, Options (slot)',
+    prop: group,
+  };
+}
 
 interface SelectionDocConfig {
   slug: 'checkbox' | 'radio-button' | 'toggle';
@@ -26,6 +35,8 @@ interface SelectionDocConfig {
   appearance: boolean;
   indeterminate?: boolean;
   figma: FigmaMapping[];
+  /** Komponen grup (CheckboxGroup / RadioButtonGroup) yang didokumentasikan di halaman ini. */
+  group?: GroupDoc;
   valueProp: string;
   valueType: string;
   onChangeType: string;
@@ -77,7 +88,7 @@ export function selectionDoc(c: SelectionDocConfig): ComponentDoc {
     defaults: { size: 'md', ...(c.appearance ? { appearance: 'outline' } : {}) },
     baseProps,
     controls,
-    figmaMapping: [...c.figma, FOCUS_ROW],
+    figmaMapping: [...c.figma, ...(c.group ? [horizontalRow(c.group.name)] : []), FOCUS_ROW],
     examples: [
       ...(c.appearance
         ? [
@@ -114,6 +125,7 @@ export function selectionDoc(c: SelectionDocConfig): ComponentDoc {
       { id: 'className', name: 'className', type: 'string' },
       { id: 'testId', name: 'testId', type: 'string' },
     ],
+    group: c.group,
     tokens: [
       '--wds-stroke-default',
       '--wds-stroke-info',

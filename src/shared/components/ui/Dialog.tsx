@@ -1,17 +1,27 @@
-import { useState, useEffect, useRef, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import { Cross } from '../icons';
 
 interface DialogProps {
   open: boolean;
   onClose: () => void;
   title?: string;
-  children: ReactNode;
+  /** Teks pendukung di bawah judul (Figma "Supporting text"). */
+  description?: ReactNode;
+  /** Featured icon di atas judul (Figma Dialog styles = icon). */
+  icon?: ReactNode;
+  children?: ReactNode;
   footer?: ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   hideCloseButton?: boolean;
   disableCloseButton?: boolean;
   closeOnBackdropClick?: boolean;
   closeOnEscape?: boolean;
+  /** Render panel inline tanpa portal/backdrop (untuk dokumentasi). */
+  static?: boolean;
   testId?: string;
 }
 
@@ -27,102 +37,104 @@ function Dialog({
   open,
   onClose,
   title,
+  description,
+  icon,
   children,
   footer,
   maxWidth = 'md',
+  size = 'md',
   hideCloseButton = false,
   disableCloseButton = false,
   closeOnBackdropClick = true,
   closeOnEscape = true,
+  static: isStatic = false,
   testId,
 }: DialogProps) {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const live = open && !isStatic;
 
   useEffect(() => {
-    if (!open) return;
+    if (!live) return;
     const frame = requestAnimationFrame(() => setVisible(true));
     return () => {
       cancelAnimationFrame(frame);
       setVisible(false);
     };
-  }, [open]);
+  }, [live]);
 
   useEffect(() => {
-    if (!open || !closeOnEscape) return;
+    if (!live || !closeOnEscape) return;
     function handleKey(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose();
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [open, closeOnEscape, onClose]);
+  }, [live, closeOnEscape, onClose]);
 
   useEffect(() => {
-    if (open) {
+    if (live) {
       document.body.style.overflow = 'hidden';
     }
     return () => {
       document.body.style.overflow = '';
     };
-  }, [open]);
+  }, [live]);
 
   if (!open) return null;
+
+  const panel = (
+    <div
+      data-testid={testId}
+      data-wds-size={size}
+      data-static={isStatic || undefined}
+      role="dialog"
+      aria-modal={isStatic ? undefined : true}
+      className={[
+        'wds-dialog',
+        maxWidthStyles[maxWidth],
+        isStatic ? '' : visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0',
+      ].join(' ')}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {(title || description || icon) && (
+        <div className="wds-dialog__header">
+          <div className="wds-dialog__heading">
+            {icon && <span className="wds-dialog__icon">{icon}</span>}
+            <div className="wds-dialog__text">
+              {title && <h2 className="wds-dialog__title">{title}</h2>}
+              {description && <p className="wds-dialog__description">{description}</p>}
+            </div>
+          </div>
+          {!hideCloseButton && (
+            <button
+              data-testid={testId ? `${testId}-close` : undefined}
+              type="button"
+              onClick={onClose}
+              disabled={disableCloseButton}
+              aria-label={t('common.close')}
+              className="wds-dialog__close"
+            >
+              <Cross />
+            </button>
+          )}
+        </div>
+      )}
+      {children && <div className="wds-dialog__content">{children}</div>}
+      {footer && <div className="wds-dialog__footer">{footer}</div>}
+    </div>
+  );
+
+  if (isStatic) return panel;
 
   return createPortal(
     <div data-dialog="true" className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         data-testid={testId ? `${testId}-backdrop` : undefined}
-        className={[
-          'fixed inset-0 bg-black/50 transition-opacity duration-200',
-          visible ? 'opacity-100' : 'opacity-0',
-        ].join(' ')}
+        className={['wds-overlay__backdrop', visible ? 'opacity-100' : 'opacity-0'].join(' ')}
         onClick={closeOnBackdropClick ? onClose : undefined}
       />
-      <div
-        data-testid={testId}
-        ref={panelRef}
-        className={[
-          'relative z-10 flex max-h-[90vh] w-full flex-col rounded-xl bg-background shadow-xl transition-all duration-200',
-          maxWidthStyles[maxWidth],
-          visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0',
-        ].join(' ')}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {title && (
-          <div className="flex items-center justify-between border-b border-border px-6 py-4">
-            <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-            {!hideCloseButton && (
-              <button
-                data-testid={testId ? `${testId}-close` : undefined}
-                type="button"
-                onClick={onClose}
-                disabled={disableCloseButton}
-                className={[
-                  'flex items-center rounded-md p-1 text-muted-foreground transition-colors',
-                  disableCloseButton
-                    ? 'cursor-not-allowed opacity-50'
-                    : 'cursor-pointer hover:bg-muted hover:text-foreground',
-                ].join(' ')}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="h-5 w-5"
-                >
-                  <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                </svg>
-              </button>
-            )}
-          </div>
-        )}
-        <div className="min-h-0 flex-1 overflow-y-auto p-6">{children}</div>
-        {footer && (
-          <div className="flex items-center justify-end gap-2 border-t border-border px-6 py-4">
-            {footer}
-          </div>
-        )}
-      </div>
+      <div className="relative z-10 flex w-full justify-center">{panel}</div>
     </div>,
     document.body,
   );

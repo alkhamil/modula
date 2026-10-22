@@ -58,7 +58,7 @@ export const fieldTypeRegistry: Record<FieldType, FieldTypeDef> = {
   },
   dateRangeField: {
     label: 'Date Range Field',
-    component: 'DateRangePicker',
+    component: 'DatePicker',
     valueType: 'string',
     formType: 'string',
     description: 'Date range input ("start,end" ISO).',
@@ -72,7 +72,7 @@ export const fieldTypeRegistry: Record<FieldType, FieldTypeDef> = {
   },
   selectMultipleField: {
     label: 'Select Multiple Field',
-    component: 'SelectMultiple',
+    component: 'Select',
     valueType: 'stringArray',
     formType: 'stringArray',
     description: 'Multi-select dropdown; string[] value.',

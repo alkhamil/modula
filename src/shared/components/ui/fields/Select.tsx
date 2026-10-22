@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { createPortal } from 'react-dom';
 import { useDebounce, useClickOutside, useSelectDropdown } from '../../../hooks';
 import { stripNonAscii } from '../../../utils';
-import { DangerCircle } from '../../icons';
+import { AltArrowDown, AltArrowUp, Check, CloseCircle } from '../../icons';
+import type { FieldSize } from './fieldState';
+import { MenuItem, MenuPanel, SelectSpinner } from './SelectParts';
+import SelectMultiple, { type MultipleSelectProps } from './SelectMultiple';
 
 export interface SelectOption {
   label: string;
@@ -14,10 +16,22 @@ export interface SelectOption {
 
 export type LoadOptionsFn = (search?: string, page?: number) => Promise<SelectOption[]>;
 
-interface SelectProps {
-  size?: 'sm' | 'md' | 'lg';
+interface SingleSelectProps {
+  /** Mode single (default). `multiple` memilih mode multiple. */
+  multiple?: false;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: FieldSize;
+  /** Style WDS (mode "Select styles"): box (default) atau underline. */
+  appearance?: 'box' | 'underline';
   disabled?: boolean;
+  /** State read-only: tampil seperti disabled tetapi nilainya tetap terbaca. */
+  readOnly?: boolean;
+  /** Pesan error: state error + teks di slot hint (warna danger). */
   error?: string;
+  /** Teks pendukung di bawah field (digantikan `error`). */
+  hint?: React.ReactNode;
+  /** Hanya dokumentasi: paksa state `selected` (terbuka) atau `focused` (cincin fokus). */
+  'data-wds-state'?: string;
   placeholder?: string;
   options?: SelectOption[];
   loadOptions?: LoadOptionsFn;
@@ -65,22 +79,14 @@ interface SelectProps {
   isLoading?: boolean;
 }
 
-const sizeStyles: Record<string, string> = {
-  sm: 'px-3 py-1.5 text-xs min-h-[34px]',
-  md: 'pl-4 pr-3 py-2.5 text-sm min-h-[44px]',
-  lg: 'pl-5 pr-3 py-3 text-base min-h-[52px]',
-};
-
-const iconSizeStyles: Record<string, string> = {
-  sm: 'h-4 w-4',
-  md: 'h-5 w-5',
-  lg: 'h-5 w-5',
-};
-
-function Select({
+function SelectSingle({
   size = 'md',
+  appearance = 'box',
   disabled = false,
+  readOnly = false,
   error,
+  hint,
+  'data-wds-state': forcedState,
   placeholder = 'Select...',
   options: staticOptions,
   loadOptions,
@@ -99,7 +105,7 @@ function Select({
   showValueOnly = false,
   isLoading = false,
   isOptionDisabled,
-}: SelectProps) {
+}: Omit<SingleSelectProps, 'multiple'>) {
   const { t } = useTranslation();
   const resolvedEmptyText = emptyOptionsText ?? t('fields.noOptions');
   const [isOpen, setIsOpen] = useState(false);
@@ -329,26 +335,64 @@ function Select({
 
   const inputValue = searchable && isOpen ? searchTerm : value ? selectedLabel : '';
 
-  const triggerBaseClass = [
-    'flex w-full items-center rounded-lg border outline-none transition-colors',
-    error
-      ? 'border-danger focus:border-danger focus:ring-2 focus:ring-danger/20 focus-visible:border-danger focus-visible:ring-2 focus-visible:ring-danger/20 focus-within:border-danger focus-within:ring-2 focus-within:ring-danger/20'
-      : 'border-border focus:border-primary focus:ring-2 focus:ring-primary/30 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30',
-    disabled ? 'cursor-not-allowed' : 'bg-background',
-  ].join(' ');
+  const invalid = Boolean(error);
+  const slot = error ?? hint;
+  const open = isOpen || forcedState === 'selected';
+  const state = disabled
+    ? 'disabled'
+    : readOnly
+      ? 'read-only'
+      : invalid
+        ? value
+          ? 'error-filled'
+          : 'error-empty'
+        : open
+          ? 'selected'
+          : value
+            ? 'filled'
+            : 'default';
+  const interactive = !disabled && !readOnly;
+
+  function handleToggle() {
+    if (interactive) toggle();
+  }
+
+  const icons = (
+    <>
+      {showLoading ? (
+        <span className="wds-field__icon">
+          <SelectSpinner />
+        </span>
+      ) : value && interactive && clearable ? (
+        <button
+          type="button"
+          onClick={clear}
+          aria-label="Clear"
+          tabIndex={-1}
+          className="wds-field__icon wds-field__action"
+        >
+          <CloseCircle />
+        </button>
+      ) : null}
+      <span className="wds-field__icon" onClick={searchable ? undefined : handleToggle} aria-hidden="true">
+        {open ? <AltArrowUp /> : <AltArrowDown />}
+      </span>
+    </>
+  );
 
   return (
-    <div data-testid={dataTestId ?? testId} className={className}>
-      <div ref={wrapperRef} className="relative">
+    <div
+      data-testid={dataTestId ?? testId}
+      className={['wds-field', className].filter(Boolean).join(' ')}
+      data-kind="select"
+      data-appearance={appearance}
+      data-state={state}
+      data-wds-size={size}
+      data-wds-state={forcedState}
+    >
+      <div ref={wrapperRef} className="wds-field__box">
         {searchable ? (
-          <div
-            className={[
-              triggerBaseClass,
-              'overflow-hidden',
-              disabled ? 'bg-muted' : '',
-              sizeStyles[size],
-            ].join(' ')}
-          >
+          <div className="wds-field__content">
             <input
               ref={searchInputRef}
               type="text"
@@ -356,233 +400,126 @@ function Select({
               onChange={handleSearchInput}
               onKeyDown={handleSearchKeyDown}
               onFocus={() => {
-                if (!isOpen) toggle();
+                if (!isOpen && interactive) toggle();
               }}
               placeholder={placeholder}
               disabled={disabled}
-              className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:text-muted-foreground"
+              readOnly={readOnly}
+              aria-invalid={invalid ? true : undefined}
+              className="wds-field__input"
             />
-            <span className="flex shrink-0 items-center text-muted-foreground">
-              {showLoading ? (
-                <svg
-                  className={[iconSizeStyles[size], 'animate-spin'].join(' ')}
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-              ) : value && !disabled && clearable ? (
-                <button
-                  type="button"
-                  onClick={clear}
-                  className="flex cursor-pointer items-center rounded-sm transition-colors hover:text-foreground focus-visible:outline-none"
-                  tabIndex={-1}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className={iconSizeStyles[size]}
-                  >
-                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                  </svg>
-                </button>
-              ) : null}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className={iconSizeStyles[size]}
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.22 8.22a.75.75 0 011.06 0L10 11.94l3.72-3.72a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.22 9.28a.75.75 0 010-1.06z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              {error && <DangerCircle className="h-3.5 w-3.5" />}
-            </span>
+            {icons}
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={toggle}
-            disabled={disabled}
-            className={[
-              triggerBaseClass,
-              'justify-between',
-              disabled ? 'bg-muted text-muted-foreground' : 'cursor-pointer',
-              sizeStyles[size],
-            ].join(' ')}
-          >
-            <span
-              className={
-                value
-                  ? disabled
-                    ? 'text-muted-foreground'
-                    : 'text-foreground'
-                  : 'text-muted-foreground'
-              }
+          <div className="wds-field__content">
+            <button
+              type="button"
+              onClick={handleToggle}
+              disabled={disabled}
+              aria-haspopup="listbox"
+              aria-expanded={isOpen}
+              aria-invalid={invalid ? true : undefined}
+              className="wds-field__trigger"
             >
-              {value ? selectedLabel : placeholder}
-            </span>
-            <span className="flex shrink-0 items-center text-muted-foreground">
-              {showLoading ? (
-                <svg
-                  className={[iconSizeStyles[size], 'animate-spin'].join(' ')}
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-              ) : value && !disabled && clearable ? (
-                <button
-                  type="button"
-                  onClick={clear}
-                  className="flex cursor-pointer items-center rounded-sm transition-colors hover:text-foreground focus-visible:outline-none"
-                  tabIndex={-1}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className={iconSizeStyles[size]}
-                  >
-                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                  </svg>
-                </button>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className={iconSizeStyles[size]}
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.22 8.22a.75.75 0 011.06 0L10 11.94l3.72-3.72a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.22 9.28a.75.75 0 010-1.06z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-              {error && <DangerCircle className="h-3.5 w-3.5" />}
-            </span>
-          </button>
+              <span className="wds-field__value">{value ? selectedLabel : placeholder}</span>
+            </button>
+            {icons}
+          </div>
         )}
-
-        {isOpen &&
-          dropdownPosition &&
-          createPortal(
-            <div
-              ref={dropdownRef}
-              data-select-dropdown
-              onMouseDown={(e) => e.stopPropagation()}
-              style={{
-                position: 'fixed',
-                top: dropdownPosition.top,
-                left: dropdownPosition.left,
-                width: dropdownPosition.width,
-                zIndex: 50,
-              }}
-              className="rounded-lg border border-border bg-background shadow-lg mt-2"
-            >
-              <div ref={listRef} onScroll={handleListScroll} className="max-h-60 overflow-y-auto">
-                {showLoading && loadedOptions.length === 0 ? (
-                  <div className="flex items-center justify-center py-6">
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-primary" />
-                  </div>
-                ) : loadError ? (
-                  <div className="flex flex-col items-center gap-2 px-3 py-6 text-sm">
-                    <span className="text-danger">{loadError}</span>
-                    <button
-                      type="button"
-                      onClick={() => load(searchTerm || undefined)}
-                      className="text-sm font-medium text-primary hover:text-primary/80"
-                    >
-                      Retry
-                    </button>
-                  </div>
-                ) : !showLoading && listOptions.length === 0 ? (
-                    <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-                      {resolvedEmptyText}
-                    </p>
-                ) : (
-                  <>
-                    {listOptions.map((opt, index) => {
-                      const disabled = isOptionDisabled?.(opt) ?? false;
-                      const focused = highlightedIndex === index;
-                      const isSelected = opt.value === value;
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          data-focused-index={index}
-                          disabled={disabled}
-                          onClick={() => select(opt)}
-                          onMouseMove={() => {
-                            if (!disabled) setHighlightedIndex(index);
-                          }}
-                          className={[
-                            'flex w-full px-3 py-2 text-left text-sm transition-colors',
-                            disabled
-                              ? 'cursor-not-allowed text-muted-foreground'
-                              : focused && !isSelected
-                                ? 'cursor-pointer bg-muted text-foreground'
-                                : isSelected
-                                  ? 'cursor-pointer bg-primary/10 text-primary font-medium'
-                                  : 'cursor-pointer text-foreground hover:bg-muted',
-                          ].join(' ')}
-                        >
-                          {opt.label}
-                          {disabled && <span className="ml-2 text-xs"></span>}
-                        </button>
-                      );
-                    })}
-                    {showLoading && (
-                      <div className="flex items-center justify-center py-2">
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-primary" />
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>,
-            document.body,
-          )}
       </div>
-      {error && (
-        <p className="mt-1 text-xs text-danger" role="alert">
-          {error}
+
+      {isOpen && dropdownPosition && (
+        <MenuPanel
+          dropdownRef={dropdownRef}
+          position={dropdownPosition}
+          size={size}
+          listRef={listRef}
+          onScroll={handleListScroll}
+        >
+          {showLoading && loadedOptions.length === 0 ? (
+            <div className="flex items-center justify-center py-6 text-[var(--wds-icons-secondary)]">
+              <span className="wds-field__icon">
+                <SelectSpinner />
+              </span>
+            </div>
+          ) : loadError ? (
+            <div className="flex flex-col items-center gap-2 p-4">
+              <span className="wds-menu__empty !p-0 !text-[var(--wds-text-danger)]">{loadError}</span>
+              <button
+                type="button"
+                data-state="default"
+                onClick={() => load(searchTerm || undefined)}
+                className="wds-menu__item !w-auto"
+              >
+                Retry
+              </button>
+            </div>
+          ) : !showLoading && listOptions.length === 0 ? (
+            <p className="wds-menu__empty">{resolvedEmptyText}</p>
+          ) : (
+            <>
+              {listOptions.map((opt, index) => (
+                <MenuItem
+                  key={opt.value}
+                  index={index}
+                  disabled={isOptionDisabled?.(opt) ?? false}
+                  selected={opt.value === value}
+                  highlighted={highlightedIndex === index && opt.value !== value}
+                  trailing={opt.value === value ? <Check /> : undefined}
+                  onClick={() => select(opt)}
+                  onMouseMove={() => {
+                    if (!(isOptionDisabled?.(opt) ?? false)) setHighlightedIndex(index);
+                  }}
+                >
+                  {opt.label}
+                </MenuItem>
+              ))}
+              {showLoading && (
+                <div className="flex items-center justify-center py-2 text-[var(--wds-icons-secondary)]">
+                  <span className="wds-field__icon">
+                    <SelectSpinner />
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+        </MenuPanel>
+      )}
+
+      {slot && (
+        <p className="wds-field__hint" role={error ? 'alert' : undefined} data-testid={error && (dataTestId ?? testId) ? `${dataTestId ?? testId}-error` : undefined}>
+          {slot}
         </p>
       )}
     </div>
   );
+}
+
+export type SelectProps = SingleSelectProps | MultipleSelectProps;
+
+/**
+ * Props longgar untuk pemanggil generik (`FormItem component={Select}`): semua props mode single
+ * dan multiple tersedia, `multiple` memilih mode. Pemakaian langsung memakai overload yang ketat.
+ */
+type SelectLooseProps = Omit<SingleSelectProps, 'multiple' | 'value' | 'onChange'> &
+  Partial<Omit<MultipleSelectProps, 'multiple' | 'value' | 'onChange' | keyof SingleSelectProps>> & {
+    multiple?: boolean;
+    value: string | string[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onChange: (value: any) => void;
+  };
+
+/**
+ * Select WDS. Mode single (default) memilih satu opsi; `multiple` memilih banyak opsi
+ * (tag, tombol hapus, checkbox di opsi) — sama seperti mode "Select modes" di Figma.
+ */
+function Select(props: SingleSelectProps): React.ReactElement;
+function Select(props: MultipleSelectProps): React.ReactElement;
+function Select(props: SelectLooseProps): React.ReactElement;
+function Select(props: SelectLooseProps): React.ReactElement {
+  const { multiple, ...rest } = props;
+  if (multiple) return <SelectMultiple {...(rest as Omit<MultipleSelectProps, 'multiple'>)} />;
+  return <SelectSingle {...(rest as Omit<SingleSelectProps, 'multiple'>)} />;
 }
 
 export default Select;

@@ -25,15 +25,18 @@ const STYLES = [
 
 /** Ikon yang diekspor lewat barrel `shared/components/icons` (dipakai langsung di app). */
 const CURATED = [
-  'AddCircle', 'AltArrowDown', 'AltArrowLeft', 'AltArrowRight', 'Bolt', 'Box', 'Calendar',
-  'CalendarDate', 'Camera', 'Check', 'CheckCircle', 'CheckSquare', 'Checklist', 'ChecklistMinimalistic',
+  'AddCircle', 'AltArrowDown', 'AltArrowLeft', 'AltArrowRight', 'AltArrowUp', 'Bolt', 'Box', 'Calendar',
+  'CalendarDate', 'Camera', 'Check', 'CheckCircle', 'Cross', 'CheckSquare', 'Checklist', 'ChecklistMinimalistic',
   'ClockCircle', 'CloseCircle', 'Command', 'DangerCircle', 'DangerTriangle', 'Database', 'Dollar',
   'DoubleAltArrowLeft', 'DoubleAltArrowRight', 'Download', 'Eye', 'File', 'FileText', 'Filter', 'Global',
   'HamburgerMenu', 'Hashtag', 'InfoCircle', 'Layers', 'LinkMinimalistic', 'Lock', 'Logout2', 'Magnifer',
-  'MenuDotsVertical', 'Minus', 'Palette', 'Pen', 'Pen2', 'Planet', 'Power', 'Record', 'Restart', 'Settings',
+  'MenuDotsVertical', 'Minus', 'Palette', 'Pen', 'Pen2', 'Planet', 'Power', 'QuestionCircle', 'Record', 'Restart', 'Settings',
   'Text', 'TextBold', 'TextField', 'TrashBinTrash', 'Tuning2', 'Upload', 'UsersGroupRounded', 'Widget',
   'Widget2',
 ];
+
+/** Ikon yang juga diekspor versi Bold Duotone ("filled") dengan akhiran `Bold` (mis. `InfoCircleBold`). */
+const BOLD_CURATED = ['InfoCircle', 'CheckCircle', 'DangerTriangle', 'DangerCircle', 'CloseCircle'];
 
 /** Nama yang menimpa global JS (dilarang lint) — diberi prefix `Icon`. */
 const GLOBAL_NAMES = new Set(['Infinity', 'NaN', 'undefined']);
@@ -112,7 +115,12 @@ const coreBody = [...CURATED]
   .sort()
   .map((name) => `export const ${name} = /*#__PURE__*/ createIcon(${JSON.stringify(name)}, ${JSON.stringify(markupOf.get(name))});`)
   .join('\n');
-writeFileSync(join(OUT, 'core.tsx'), `${HEADER}import { createIcon } from './createIcon';\n\n${coreBody}\n`);
+const boldMarkupOf = new Map();
+for (const items of collected[1].byCategory.values()) for (const { name, markup } of items) boldMarkupOf.set(name, markup);
+const boldBody = BOLD_CURATED.map(
+  (name) => `export const ${name}Bold = /*#__PURE__*/ createIcon(${JSON.stringify(`${name}Bold`)}, ${JSON.stringify(boldMarkupOf.get(name))});`,
+).join('\n');
+writeFileSync(join(OUT, 'core.tsx'), `${HEADER}import { createIcon } from './createIcon';\n\n${coreBody}\n${boldBody}\n`);
 writeFileSync(
   join(OUT, 'index.ts'),
   `${HEADER}export { createIcon } from './createIcon';\nexport type { IconComponent, IconProps } from './createIcon';\nexport { default as WdsIcon } from './WdsIcon';\nexport type { WdsIconVariant } from './WdsIcon';\nexport * from './core';\n`,

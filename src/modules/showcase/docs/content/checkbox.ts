@@ -1,4 +1,4 @@
-import { CheckboxDemo } from './selectionDemos';
+import { CheckboxDemo, CheckboxGroupDemo } from './selectionDemos';
 import { selectionDoc } from './selectionDoc';
 
 export const checkboxDoc = selectionDoc({
@@ -11,6 +11,30 @@ export const checkboxDoc = selectionDoc({
   codeExtra: ['value={checked}', 'onChange={setChecked}'],
   appearance: true,
   indeterminate: true,
+  group: {
+    name: 'CheckboxGroup',
+    importStatement: "import { CheckboxGroup } from 'shared/components/ui';",
+    component: CheckboxGroupDemo,
+    codeExtra: ['options={options}', 'value={value}', 'onChange={setValue}'],
+    codeOmit: ['value'],
+    baseProps: { value: ['admin'] },
+    examples: [
+      { id: 'basic', variants: [{ label: 'basic', props: {} }] },
+      { id: 'solid', variants: [{ label: 'solid', props: { appearance: 'solid' } }] },
+      { id: 'sizes', variants: [{ label: 'sm', props: { size: 'sm' } }, { label: 'lg', props: { size: 'lg' } }] },
+      { id: 'error', variants: [{ label: 'error', props: { value: [], error: 'Select at least one role' } }] },
+    ],
+    props: [
+      { id: 'options', name: 'options', type: '{ label, value, hint?, disabled? }[]' },
+      { id: 'value', name: 'value', type: 'string[]' },
+      { id: 'onChange', name: 'onChange', type: '(value: string[]) => void' },
+      { id: 'appearance', name: 'appearance', type: "'outline' | 'solid'", default: "'outline'" },
+      { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
+      { id: 'disabled', name: 'disabled', type: 'boolean', default: 'false' },
+      { id: 'error', name: 'error', type: 'string' },
+      { id: 'testId', name: 'testId', type: 'string' },
+    ],
+  },
   valueProp: 'value',
   valueType: 'boolean',
   onChangeType: '(value: boolean) => void',

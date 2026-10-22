@@ -17,14 +17,12 @@ import {
   Textarea,
   PasswordField,
   Select,
-  SelectMultiple,
   RadioButtonGroup,
   RadioButton,
   Checkbox,
   CheckboxGroup,
   Toggle,
   DatePicker,
-  DateRangePicker,
   FileUpload,
   type Column,
 } from '../../../shared/components/ui';
@@ -295,8 +293,9 @@ function UiPage() {
             />
             <FormItem
               name="tags"
-              component={SelectMultiple}
-              label="SelectMultiple"
+              component={Select}
+              multiple
+              label="Select multiple"
               options={ROLE_OPTIONS}
               placeholder="Select multiple"
             />
@@ -307,7 +306,7 @@ function UiPage() {
               options={GENDER_OPTIONS}
             />
             <FormItem name="birthDate" component={DatePicker} label="DatePicker" />
-            <FormItem name="period" component={DateRangePicker} label="DateRangePicker" />
+            <FormItem name="period" component={DatePicker} range label="Date Picker range" />
             <FormItem
               name="newsletter"
               component={Toggle}

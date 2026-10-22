@@ -16,6 +16,8 @@ export { default as FormDefaultValuesWatcher } from './FormDefaultValuesWatcher'
 export { default as TableToolbar } from './TableToolbar';
 export { default as Dialog } from './Dialog';
 export { default as Drawer } from './Drawer';
+export { default as EmptyState } from './EmptyState';
+export { default as Pagination } from './Pagination';
 export { default as LoadingOverlay } from './LoadingOverlay';
 export { default as DetailCard } from './DetailCard';
 export type { DetailRow } from './DetailCard';
@@ -32,11 +34,9 @@ export { default as NavigationGuard } from './NavigationGuard';
 export {
   InputField,
   Select,
-  SelectMultiple,
   Checkbox,
   RadioButton,
   DatePicker,
-  DateRangePicker,
   Textarea,
   Toggle,
   FileUpload,

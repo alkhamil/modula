@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
-import { CloseCircle } from '../icons';
+import { Cross } from '../icons';
 
 interface DrawerProps {
   open: boolean;
@@ -14,6 +14,8 @@ interface DrawerProps {
   modal?: boolean;
   closeOnBackdropClick?: boolean;
   closeOnEscape?: boolean;
+  /** Render panel inline tanpa portal/backdrop (untuk dokumentasi). */
+  static?: boolean;
   testId?: string;
 }
 
@@ -33,6 +35,7 @@ function Drawer({
   modal = true,
   closeOnBackdropClick = true,
   closeOnEscape = true,
+  static: isStatic = false,
   testId,
 }: DrawerProps) {
   const { t } = useTranslation();
@@ -71,7 +74,7 @@ function Drawer({
   }, [open ]);
 
   useEffect(() => {
-    if (!open || !closeOnEscape) return;
+    if (!open || isStatic || !closeOnEscape) return;
     function handleKey(e: KeyboardEvent) {
       if (e.key !== 'Escape') return;
       // Dialog di atas drawer menangani Escape sendiri — drawer non-modal
@@ -81,22 +84,22 @@ function Drawer({
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [open, closeOnEscape, modal, onClose]);
+  }, [open, isStatic, closeOnEscape, modal, onClose]);
 
   useEffect(() => {
-    if (open && modal) {
+    if (open && modal && !isStatic) {
       document.body.style.overflow = 'hidden';
     }
     return () => {
       document.body.style.overflow = '';
     };
-  }, [open, modal]);
+  }, [open, modal, isStatic]);
 
   // Mode non-modal (kanvas tetap interaktif): klik di luar panel menutup
   // drawer. Klik di dropdown select / dialog yang di-portal ke body
   // diabaikan agar memilih option / mengisi modal tidak ikut menutup drawer.
   useEffect(() => {
-    if (!open || modal || !closeOnBackdropClick) return;
+    if (!open || isStatic || modal || !closeOnBackdropClick) return;
     function handlePointerDown(e: PointerEvent) {
       const target = e.target as HTMLElement | null;
       if (!target) return;
@@ -108,8 +111,41 @@ function Drawer({
     }
     document.addEventListener('pointerdown', handlePointerDown);
     return () => document.removeEventListener('pointerdown', handlePointerDown);
-  }, [open, modal, closeOnBackdropClick, onClose]);
+  }, [open, isStatic, modal, closeOnBackdropClick, onClose]);
 
+  const panel = (
+    <aside
+      ref={asideRef}
+      data-static={isStatic || undefined}
+      data-wds-size="md"
+      className={[
+        'wds-drawer',
+        isStatic ? '' : 'absolute top-0 right-0 h-full',
+        !isStatic && !modal ? 'pointer-events-auto' : '',
+        widthStyles[width],
+        isStatic ? '' : visible ? 'translate-x-0' : 'translate-x-full',
+      ].join(' ')}
+    >
+      {title && (
+        <div className="wds-drawer__header">
+          <h2 className="wds-drawer__title">{title}</h2>
+          <button
+            data-testid={testId ? `${testId}-close` : undefined}
+            type="button"
+            onClick={onClose}
+            aria-label={t('common.close')}
+            className="wds-dialog__close"
+          >
+            <Cross />
+          </button>
+        </div>
+      )}
+      <div className="wds-drawer__body">{children}</div>
+      {footer && <div className="wds-drawer__footer">{footer}</div>}
+    </aside>
+  );
+
+  if (isStatic) return panel;
   if (!render) return null;
 
   return createPortal(
@@ -120,43 +156,11 @@ function Drawer({
       {modal && (
         <div
           data-testid={testId ? `${testId}-backdrop` : undefined}
-          className={[
-            'fixed inset-0 bg-black/50 transition-opacity duration-200',
-            visible ? 'opacity-100' : 'opacity-0',
-          ].join(' ')}
+          className={['wds-overlay__backdrop', visible ? 'opacity-100' : 'opacity-0'].join(' ')}
           onClick={closeOnBackdropClick ? onClose : undefined}
         />
       )}
-      <aside
-        ref={asideRef}
-        className={[
-          'absolute top-0 right-0 flex h-full max-w-[92vw] flex-col border-l border-border bg-background shadow-xl transition-transform duration-200',
-          modal ? '' : 'pointer-events-auto',
-          widthStyles[width],
-          visible ? 'translate-x-0' : 'translate-x-full',
-        ].join(' ')}
-      >
-        {title && (
-          <div className="flex items-center justify-between border-b border-border px-5 py-4">
-            <h2 className="text-base font-semibold text-foreground">{title}</h2>
-            <button
-              data-testid={testId ? `${testId}-close` : undefined}
-              type="button"
-              onClick={onClose}
-              aria-label={t('common.close')}
-              className="flex cursor-pointer items-center rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <CloseCircle className="h-5 w-5" />
-            </button>
-          </div>
-        )}
-        <div className="min-h-0 flex-1 overflow-y-auto p-5">{children}</div>
-        {footer && (
-          <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-4">
-            {footer}
-          </div>
-        )}
-      </aside>
+      {panel}
     </div>,
     document.body,
   );

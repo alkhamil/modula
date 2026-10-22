@@ -1,0 +1,233 @@
+/* GENERATED oleh scripts/build-wds-tokens.mjs — jangan edit manual (npm run tokens:build). */
+
+@layer components {
+
+.wds-badge[data-style="neutral"] {
+  --b-bg: var(--wds-bg-subtle);
+  --b-fg: var(--wds-text-secondary);
+  --b-icon: var(--wds-icons-secondary);
+  --b-counter-fg: var(--wds-text-inverse);
+}
+
+.wds-badge[data-style="primary"] {
+  --b-bg: var(--wds-bg-brand-subtle);
+  --b-fg: var(--wds-text-brand);
+  --b-icon: var(--wds-icons-brand);
+  --b-counter-fg: var(--wds-text-inverse);
+}
+
+.wds-badge[data-style="info"] {
+  --b-bg: var(--wds-bg-info-subtle);
+  --b-fg: var(--wds-text-info);
+  --b-icon: var(--wds-icons-info);
+  --b-counter-fg: var(--wds-text-info-subtle);
+}
+
+.wds-badge[data-style="success"] {
+  --b-bg: var(--wds-bg-success-subtle);
+  --b-fg: var(--wds-text-success);
+  --b-icon: var(--wds-icons-success);
+  --b-counter-fg: var(--wds-text-success-subtle);
+}
+
+.wds-badge[data-style="warning"] {
+  --b-bg: var(--wds-bg-warning-subtle);
+  --b-fg: var(--wds-text-warning);
+  --b-icon: var(--wds-icons-warning);
+  --b-counter-fg: var(--wds-text-warning-subtle);
+}
+
+.wds-badge[data-style="danger"] {
+  --b-bg: var(--wds-bg-danger-subtle);
+  --b-fg: var(--wds-text-danger);
+  --b-icon: var(--wds-icons-danger);
+  --b-counter-fg: var(--wds-text-danger-subtle);
+}
+
+.wds-alert[data-style="info"][data-appearance="basic"] {
+  --a-bg: var(--wds-bg-surface);
+  --a-title: var(--wds-text-primary);
+  --a-support: var(--wds-text-secondary);
+  --a-icon: var(--wds-icons-info);
+  --a-close: var(--wds-icons-secondary);
+  --a-action: var(--wds-text-info);
+  --a-stroke: var(--wds-stroke-info);
+  --a-bw: var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1);
+}
+
+.wds-alert[data-style="info"][data-appearance="solid"] {
+  --a-bg: var(--wds-bg-info);
+  --a-title: var(--wds-text-inverse);
+  --a-support: var(--wds-text-inverse);
+  --a-icon: var(--wds-icons-inverse);
+  --a-close: var(--wds-icons-inverse);
+  --a-action: var(--wds-text-inverse);
+  --a-stroke: var(--wds-bg-info);
+  --a-bw: var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0);
+}
+
+.wds-alert[data-style="info"][data-appearance="light"] {
+  --a-bg: var(--wds-bg-info-subtle);
+  --a-title: var(--wds-text-primary);
+  --a-support: var(--wds-text-secondary);
+  --a-icon: var(--wds-icons-info);
+  --a-close: var(--wds-icons-secondary);
+  --a-action: var(--wds-text-info);
+  --a-stroke: var(--wds-stroke-info-subtle);
+  --a-bw: var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1);
+}
+
+.wds-alert[data-style="info"][data-appearance="left-stroke"] {
+  --a-bg: var(--wds-bg-info-subtle);
+  --a-title: var(--wds-text-primary);
+  --a-support: var(--wds-text-secondary);
+  --a-icon: var(--wds-icons-info);
+  --a-close: var(--wds-icons-secondary);
+  --a-action: var(--wds-text-info);
+  --a-stroke: var(--wds-stroke-info);
+  --a-bw: var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-3);
+}
+
+.wds-alert[data-style="success"][data-appearance="basic"] {
+  --a-bg: var(--wds-bg-surface);
+  --a-title: var(--wds-text-primary);
+  --a-support: var(--wds-text-secondary);
+  --a-icon: var(--wds-icons-success);
+  --a-close: var(--wds-icons-secondary);
+  --a-action: var(--wds-text-success);
+  --a-stroke: var(--wds-stroke-success);
+  --a-bw: var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1);
+}
+
+.wds-alert[data-style="success"][data-appearance="solid"] {
+  --a-bg: var(--wds-bg-success);
+  --a-title: var(--wds-text-inverse);
+  --a-support: var(--wds-text-inverse);
+  --a-icon: var(--wds-icons-inverse);
+  --a-close: var(--wds-icons-inverse);
+  --a-action: var(--wds-text-inverse);
+  --a-stroke: var(--wds-bg-success);
+  --a-bw: var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0);
+}
+
+.wds-alert[data-style="success"][data-appearance="light"] {
+  --a-bg: var(--wds-bg-success-subtle);
+  --a-title: var(--wds-text-primary);
+  --a-support: var(--wds-text-secondary);
+  --a-icon: var(--wds-icons-success);
+  --a-close: var(--wds-icons-secondary);
+  --a-action: var(--wds-text-success);
+  --a-stroke: var(--wds-stroke-success-subtle);
+  --a-bw: var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1);
+}
+
+.wds-alert[data-style="success"][data-appearance="left-stroke"] {
+  --a-bg: var(--wds-bg-success-subtle);
+  --a-title: var(--wds-text-primary);
+  --a-support: var(--wds-text-secondary);
+  --a-icon: var(--wds-icons-success);
+  --a-close: var(--wds-icons-secondary);
+  --a-action: var(--wds-text-success);
+  --a-stroke: var(--wds-stroke-success);
+  --a-bw: var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-3);
+}
+
+.wds-alert[data-style="warning"][data-appearance="basic"] {
+  --a-bg: var(--wds-bg-surface);
+  --a-title: var(--wds-text-primary);
+  --a-support: var(--wds-text-secondary);
+  --a-icon: var(--wds-icons-warning);
+  --a-close: var(--wds-icons-secondary);
+  --a-action: var(--wds-text-warning);
+  --a-stroke: var(--wds-stroke-warning);
+  --a-bw: var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1);
+}
+
+.wds-alert[data-style="warning"][data-appearance="solid"] {
+  --a-bg: var(--wds-bg-warning);
+  --a-title: var(--wds-text-inverse);
+  --a-support: var(--wds-text-inverse);
+  --a-icon: var(--wds-icons-inverse);
+  --a-close: var(--wds-icons-inverse);
+  --a-action: var(--wds-text-inverse);
+  --a-stroke: var(--wds-bg-warning);
+  --a-bw: var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0);
+}
+
+.wds-alert[data-style="warning"][data-appearance="light"] {
+  --a-bg: var(--wds-bg-warning-subtle);
+  --a-title: var(--wds-text-primary);
+  --a-support: var(--wds-text-secondary);
+  --a-icon: var(--wds-icons-warning);
+  --a-close: var(--wds-icons-secondary);
+  --a-action: var(--wds-text-warning);
+  --a-stroke: var(--wds-stroke-warning-subtle);
+  --a-bw: var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1);
+}
+
+.wds-alert[data-style="warning"][data-appearance="left-stroke"] {
+  --a-bg: var(--wds-bg-warning-subtle);
+  --a-title: var(--wds-text-primary);
+  --a-support: var(--wds-text-secondary);
+  --a-icon: var(--wds-icons-warning);
+  --a-close: var(--wds-icons-secondary);
+  --a-action: var(--wds-text-warning);
+  --a-stroke: var(--wds-stroke-warning);
+  --a-bw: var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-3);
+}
+
+.wds-alert[data-style="danger"][data-appearance="basic"] {
+  --a-bg: var(--wds-bg-surface);
+  --a-title: var(--wds-text-primary);
+  --a-support: var(--wds-text-secondary);
+  --a-icon: var(--wds-icons-danger);
+  --a-close: var(--wds-icons-secondary);
+  --a-action: var(--wds-text-danger);
+  --a-stroke: var(--wds-stroke-danger);
+  --a-bw: var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1);
+}
+
+.wds-alert[data-style="danger"][data-appearance="solid"] {
+  --a-bg: var(--wds-bg-danger);
+  --a-title: var(--wds-text-inverse);
+  --a-support: var(--wds-text-inverse);
+  --a-icon: var(--wds-icons-inverse);
+  --a-close: var(--wds-icons-inverse);
+  --a-action: var(--wds-text-inverse);
+  --a-stroke: var(--wds-bg-danger);
+  --a-bw: var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0);
+}
+
+.wds-alert[data-style="danger"][data-appearance="light"] {
+  --a-bg: var(--wds-bg-danger-subtle);
+  --a-title: var(--wds-text-primary);
+  --a-support: var(--wds-text-secondary);
+  --a-icon: var(--wds-icons-danger);
+  --a-close: var(--wds-icons-secondary);
+  --a-action: var(--wds-text-danger);
+  --a-stroke: var(--wds-stroke-danger-subtle);
+  --a-bw: var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1) var(--wds-stroke-1);
+}
+
+.wds-alert[data-style="danger"][data-appearance="left-stroke"] {
+  --a-bg: var(--wds-bg-danger-subtle);
+  --a-title: var(--wds-text-primary);
+  --a-support: var(--wds-text-secondary);
+  --a-icon: var(--wds-icons-danger);
+  --a-close: var(--wds-icons-secondary);
+  --a-action: var(--wds-text-danger);
+  --a-stroke: var(--wds-stroke-danger);
+  --a-bw: var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-0) var(--wds-stroke-3);
+}
+
+.wds-alert {
+  --a-radius: var(--wds-radius-8);
+  --a-text-gap: var(--wds-spacing-4);
+}
+
+.wds-tooltip {
+  --t-bg: var(--wds-bg-brand);
+  --t-fg: var(--wds-text-on-brand);
+}
+
+}
