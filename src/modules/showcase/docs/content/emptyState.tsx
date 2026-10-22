@@ -16,6 +16,7 @@ export const emptyStateDoc: ComponentDoc = {
     illustration: icon('Magnifer'),
   },
   controls: [
+    { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
     { prop: 'title', kind: 'text' },
     { prop: 'description', kind: 'text' },
     { prop: 'illustration', kind: 'icon', options: ['Magnifer', 'Database', 'InfoCircle', 'DangerTriangle'] },
@@ -38,6 +39,7 @@ export const emptyStateDoc: ComponentDoc = {
     },
   ],
   props: [
+    { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'title', name: 'title', type: 'string' },
     { id: 'description', name: 'description', type: 'ReactNode' },
     { id: 'illustration', name: 'illustration', type: 'ReactNode' },

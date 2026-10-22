@@ -1289,7 +1289,8 @@
         "appearance": "Variant Alert Figma.",
         "action": "Tombol teks dengan label dan handler klik.",
         "onClose": "Menampilkan tombol tutup.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size."
       },
       "tokens": {
         "--wds-bg-info-subtle": "Latar light.",
@@ -1347,7 +1348,8 @@
         "maxWidth": "Batas lebar dalam px.",
         "open": "Memaksa tooltip terbuka (terkontrol).",
         "className": "Class pada tooltip.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size."
       },
       "tokens": {
         "--wds-bg-brand": "Latar dan panah.",
@@ -1668,7 +1670,8 @@
         "description": "Teks pendukung.",
         "illustration": "Ikon atau gambar di atas judul.",
         "actions": "Tombol di bawah teks.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size."
       },
       "tokens": {
         "--wds-text-primary": "Judul.",

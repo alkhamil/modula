@@ -15,6 +15,7 @@ export const tooltipDoc: ComponentDoc = {
   defaults: { placement: 'top' },
   baseProps: { content: 'Helpful contextual information.', placement: 'top' },
   controls: [
+    { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
     { prop: 'content', kind: 'text' },
     { prop: 'placement', kind: 'select', options: PLACEMENTS },
     { prop: 'leading', kind: 'icon', options: ['InfoCircle', 'QuestionCircle', 'CheckCircle'] },
@@ -30,6 +31,7 @@ export const tooltipDoc: ComponentDoc = {
     { id: 'leading', variants: [{ label: 'leading', props: { leading: icon('InfoCircle') } }] },
   ],
   props: [
+    { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'content', name: 'content', type: 'ReactNode' },
     { id: 'placement', name: 'placement', type: "'top' | 'bottom' | 'left' | 'right'", default: "'top'" },
     { id: 'leading', name: 'leading', type: 'ReactNode' },

@@ -15,6 +15,7 @@ export const alertDoc: ComponentDoc = {
   defaults: { appearance: 'light' },
   baseProps: { variant: 'info', appearance: 'light', message: 'This is the alert text' },
   controls: [
+    { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
     { prop: 'variant', kind: 'select', options: STYLES },
     { prop: 'appearance', kind: 'select', options: APPEARANCES },
     { prop: 'title', kind: 'text' },
@@ -40,6 +41,7 @@ export const alertDoc: ComponentDoc = {
     },
   ],
   props: [
+    { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'variant', name: 'variant', type: "'info' | 'success' | 'warning' | 'danger'" },
     { id: 'legacy', name: 'variant (lama)', type: "'error'" },
     { id: 'message', name: 'message', type: 'ReactNode' },

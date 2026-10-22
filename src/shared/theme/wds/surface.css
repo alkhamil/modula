@@ -138,6 +138,7 @@
     align-items: center;
     justify-content: center;
     border-radius: var(--wds-sz-empty-state-placeholder-radius);
+    background-color: var(--wds-bg-subtle);
     color: var(--wds-icons-secondary);
   }
 

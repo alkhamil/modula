@@ -71,10 +71,15 @@
   }
 
   .wds-upload__title {
-    color: var(--u-text);
-    font-weight: var(--wds-font-weight-medium);
+    color: var(--u-hint);
+    font-weight: var(--wds-font-weight-regular);
     font-size: var(--wds-sz-text-body-font-size);
     line-height: var(--wds-sz-text-body-line-height);
+  }
+
+  .wds-upload__action {
+    color: var(--u-action);
+    font-weight: var(--wds-font-weight-medium);
   }
 
   .wds-upload__hint {

@@ -190,7 +190,9 @@ function FileUpload({
             <span className="wds-upload__icon">
               <Upload />
             </span>
-            <span className="wds-upload__title">{t('upload.dropHint')}</span>
+            <span className="wds-upload__title">
+              <span className="wds-upload__action">{t('upload.clickToUpload')}</span> {t('upload.orDragDrop')}
+            </span>
             {hint && <span className="wds-upload__hint">{hint}</span>}
           </>
         )}

@@ -11,6 +11,8 @@ interface TooltipProps {
   /** Ikon di awal teks (Figma "Show leading"). */
   leading?: ReactNode;
   maxWidth?: number;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   minWidth?: number;
   className?: string;
   /** Paksa tampil (mis. dokumentasi); tanpa ini tampil saat hover/fokus/klik. */
@@ -38,6 +40,7 @@ function Tooltip({
   placement = 'top',
   leading,
   maxWidth = 300,
+  size = 'md',
   minWidth,
   className = '',
   open,
@@ -81,6 +84,7 @@ function Tooltip({
           role="tooltip"
           data-testid={testId}
           data-placement={placement}
+          data-wds-size={size}
           className="wds-tooltip"
           style={{
             left: layout?.left ?? 0,

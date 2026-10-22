@@ -1289,7 +1289,8 @@
         "appearance": "Figma Alert variant.",
         "action": "Text button with label and click handler.",
         "onClose": "Shows a close button.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens."
       },
       "tokens": {
         "--wds-bg-info-subtle": "Light background.",
@@ -1347,7 +1348,8 @@
         "maxWidth": "Width limits in px.",
         "open": "Forces the tooltip open (controlled).",
         "className": "Class on the tooltip.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens."
       },
       "tokens": {
         "--wds-bg-brand": "Background and arrow.",
@@ -1668,7 +1670,8 @@
         "description": "Supporting text.",
         "illustration": "Icon or image above the title.",
         "actions": "Buttons below the text.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens."
       },
       "tokens": {
         "--wds-text-primary": "Title.",

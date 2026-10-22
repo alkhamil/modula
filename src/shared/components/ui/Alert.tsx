@@ -23,6 +23,8 @@ interface AlertProps {
   title?: ReactNode;
   /** Varian tampilan WDS (default `light`). */
   appearance?: AlertAppearance;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   /** Tombol aksi di sisi kanan (Alert types: action). */
   action?: { label: string; onClick?: () => void };
   /** Menampilkan tombol tutup (Alert types: close). */
@@ -50,7 +52,7 @@ const ICONS = {
  * Alert WDS: pesan blok dengan ikon status. Warna dan garis dari token (style × varian);
  * judul, tombol aksi, dan tombol tutup opsional.
  */
-function Alert({ variant, message, title, appearance = 'light', action, onClose, testId }: AlertProps) {
+function Alert({ variant, message, title, appearance = 'light', size = 'md', action, onClose, testId }: AlertProps) {
   const style = STYLE_OF[variant];
   const Icon = ICONS[style][appearance === 'basic' ? 'outline' : 'filled'];
   return (
@@ -58,6 +60,7 @@ function Alert({ variant, message, title, appearance = 'light', action, onClose,
       data-testid={testId}
       data-style={style}
       data-appearance={appearance}
+      data-wds-size={size}
       data-has-title={title ? 'true' : 'false'}
       role={style === 'danger' || style === 'warning' ? 'alert' : 'status'}
       className="wds-alert"

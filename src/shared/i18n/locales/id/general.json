@@ -63,7 +63,9 @@
     "fileCount": "{{count}} file",
     "removeFile": "Hapus {{name}}",
     "viewFile": "Lihat {{name}}",
-    "addMore": "Klik atau drop untuk menambah file"
+    "addMore": "Klik atau drop untuk menambah file",
+    "clickToUpload": "Klik untuk mengunggah",
+    "orDragDrop": "atau seret dan lepas"
   },
   "guard": {
     "title": "Yakin ingin meninggalkan halaman ini?",

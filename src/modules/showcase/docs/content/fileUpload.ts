@@ -10,7 +10,7 @@ export const fileUploadDoc: ComponentDoc = {
   component: FileUploadDemo,
   codeName: 'FileUpload',
   codeExtra: ['value={file}', 'onChange={setFile}'],
-  baseProps: { hint: 'PDF or PNG, up to 10 MB' },
+  baseProps: { hint: 'SVG, PNG, JPG or GIF (max. 800×400px)' },
   controls: [
     { prop: 'hint', kind: 'text' },
     { prop: 'error', kind: 'text' },

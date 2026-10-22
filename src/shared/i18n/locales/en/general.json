@@ -63,7 +63,9 @@
     "fileCount": "{{count}} files",
     "removeFile": "Remove {{name}}",
     "viewFile": "View {{name}}",
-    "addMore": "Click or drop to add more files"
+    "addMore": "Click or drop to add more files",
+    "clickToUpload": "Click to upload",
+    "orDragDrop": "or drag and drop"
   },
   "guard": {
     "title": "Are you sure you want to leave this page?",

@@ -85,8 +85,8 @@
     display: flex;
     width: 100%;
     align-items: flex-start;
-    gap: var(--wds-spacing-8);
-    padding: var(--wds-padding-12) var(--wds-padding-16);
+    gap: var(--wds-sz-gap);
+    padding: var(--wds-sz-padding-top) var(--wds-sz-padding-right) var(--wds-sz-padding-bottom) var(--wds-sz-padding-left);
     border-style: solid;
     border-color: var(--a-stroke);
     border-width: var(--a-bw);
