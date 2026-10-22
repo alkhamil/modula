@@ -29,6 +29,7 @@ export const tableToolbarDoc: ComponentDoc = {
     { id: 'states', figma: 'Table Toolbar states (mode)', values: 'default, filtered', prop: 'filterValues' },
     { id: 'search', figma: 'Search', values: 'search field', prop: 'searchValue · onSearchChange' },
     { id: 'filter', figma: 'Filter button + panel', values: 'drawer', prop: 'filterFields · onApply · onReset' },
+    { id: 'buttons', figma: 'Button (Export) · Reset Filter · Calendar type', values: 'slots', prop: 'actions · leading' },
   ],
   examples: [
     {
@@ -47,6 +48,7 @@ export const tableToolbarDoc: ComponentDoc = {
     { id: 'onApply', name: 'onApply · onReset', type: 'function' },
     { id: 'filterTitle', name: 'filterTitle', type: 'string' },
     { id: 'withFilterButton', name: 'withFilterButton', type: 'boolean', default: 'true' },
+    { id: 'actions', name: 'actions · leading', type: 'ReactNode' },
     { id: 'debounce', name: 'debounceMs · searchParamName', type: 'number · string', default: '300' },
     { id: 'testId', name: 'testId', type: 'string' },
   ],

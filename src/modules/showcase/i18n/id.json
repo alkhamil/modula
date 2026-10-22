@@ -1548,6 +1548,9 @@
         },
         "filter": {
           "note": "Field ditampilkan di drawer samping dengan Reset dan Apply."
+        },
+        "buttons": {
+          "note": "`actions` menambah tombol di samping Filter; `leading` mengisi sisi kiri untuk tipe Calendar. Tombol teks Reset Filter muncul saat filter aktif."
         }
       },
       "examples": {
@@ -1564,7 +1567,8 @@
         "filterTitle": "Judul tombol dan drawer.",
         "withFilterButton": "Sembunyikan tombol filter bila false.",
         "debounce": "Debounce pencarian dan nama param URL.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "actions": "Tombol tambahan di kanan (mis. Export) dan konten sebelum pencarian (mis. segmented control)."
       },
       "tokens": {
         "--wds-bg-surface": "Latar toolbar.",
@@ -1746,7 +1750,7 @@
       "summary": "Avatar WDS dengan inisial, ikon, atau gambar, dalam style default (lingkaran) atau rounded dan indikator online opsional.",
       "figma": {
         "styles": {
-          "note": "Default berupa lingkaran; rounded berupa kotak membulat."
+          "note": "Default berupa kotak membulat (radius mengikuti token Size); rounded berupa lingkaran."
         },
         "content": {
           "note": "Prioritas: gambar, ikon, lalu inisial."
@@ -1834,7 +1838,7 @@
           "note": "Hover dan state terbuka memakai isi brand lembut; chevron berbalik saat terbuka."
         },
         "user": {
-          "note": "Sapaan memakai nama depan; avatar menampilkan inisial."
+          "note": "Sapaan memakai nama depan, dengan peran di bawahnya; avatar tampil di menu yang terbuka."
         }
       },
       "examples": {},

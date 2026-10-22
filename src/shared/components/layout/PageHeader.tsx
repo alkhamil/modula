@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { NavLink } from 'react-router';
-import { HamburgerMenu } from '../icons';
+import { AltArrowRight, HamburgerMenu } from '../icons';
 
 export interface BreadcrumbItem {
   label: string;
@@ -47,7 +47,11 @@ function PageHeader({
           <nav aria-label="Breadcrumb" className="wds-header__crumbs">
             {breadcrumb.map((item, i) => (
               <span key={item.label} className="wds-header__crumb">
-                {i > 0 && <span className="wds-header__sep">/</span>}
+                {i > 0 && (
+                  <span className="wds-header__sep" aria-hidden="true">
+                    <AltArrowRight />
+                  </span>
+                )}
                 {item.path ? (
                   <NavLink to={item.path} className="wds-header__link">
                     {item.label}

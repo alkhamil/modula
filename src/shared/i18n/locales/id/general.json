@@ -80,7 +80,8 @@
     "minPh": "Minimal…",
     "maxPh": "Maksimal…",
     "yes": "Ya",
-    "no": "Tidak"
+    "no": "Tidak",
+    "resetFilter": "Reset Filter"
   },
   "table": {
     "action": "Aksi",

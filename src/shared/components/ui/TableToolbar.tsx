@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router';
@@ -58,6 +58,10 @@ interface TableToolbarProps {
   filterTitle?: string;
   testId?: string;
   withFilterButton?: boolean;
+  /** Tombol aksi tambahan di kanan, mis. Export (Figma Table Toolbar "Button"). */
+  actions?: ReactNode;
+  /** Konten di kiri sebelum pencarian, mis. Tabs / SegmentedControl (Figma "Calendar" type). */
+  leading?: ReactNode;
 }
 
 function validateRangeErrors(
@@ -88,6 +92,8 @@ function TableToolbar({
   filterTitle,
   testId,
   withFilterButton = true,
+  actions,
+  leading,
 }: TableToolbarProps) {
   const { t } = useTranslation();
   const resolvedSearchPlaceholder = searchPlaceholder ?? t('filter.search');
@@ -230,6 +236,8 @@ function TableToolbar({
       data-filtered={hasActive || undefined}
       className={`wds-toolbar ${className}`}
     >
+      <div className="wds-toolbar__group">
+        {leading}
       <div className="w-80">
         <InputField
           size="md"
@@ -242,6 +250,13 @@ function TableToolbar({
           sanitize={(value) => value.replace(/[^A-Za-z0-9 ._@-]/g, '').trimStart()}
         />
       </div>
+      </div>
+      <div className="wds-toolbar__group">
+        {hasActive && (
+          <Button hierarchy="text" size="md" onClick={handleReset}>
+            {t('filter.resetFilter', { defaultValue: 'Reset Filter' })}
+          </Button>
+        )}
       <div className={withFilterButton ? 'visible' : 'hidden'}>
         <Button
           hierarchy={hasActive ? 'tonal' : 'secondary'}
@@ -448,6 +463,8 @@ function TableToolbar({
             </div>,
             document.body,
           )}
+      </div>
+        {actions}
       </div>
     </div>
   );

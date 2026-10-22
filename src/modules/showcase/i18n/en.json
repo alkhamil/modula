@@ -1548,6 +1548,9 @@
         },
         "filter": {
           "note": "Fields are rendered in a side drawer with Reset and Apply."
+        },
+        "buttons": {
+          "note": "`actions` adds buttons next to Filter; `leading` replaces the left side for the Calendar type. A Reset Filter text button appears while filters are active."
         }
       },
       "examples": {
@@ -1564,7 +1567,8 @@
         "filterTitle": "Title of the button and drawer.",
         "withFilterButton": "Hide the filter button when false.",
         "debounce": "Search debounce and URL param name.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "actions": "Extra buttons on the right (e.g. Export) and content before the search (e.g. a segmented control)."
       },
       "tokens": {
         "--wds-bg-surface": "Toolbar background.",
@@ -1746,7 +1750,7 @@
       "summary": "WDS avatar with initials, an icon or an image, in default (circle) or rounded style and an optional online indicator.",
       "figma": {
         "styles": {
-          "note": "Default is a circle; rounded uses a rounded square."
+          "note": "Default is a rounded square (radius follows the Size tokens); rounded is a circle."
         },
         "content": {
           "note": "Priority: image, icon, then initials."
@@ -1834,7 +1838,7 @@
           "note": "Hover and the open state use the brand subtle fill; the chevron flips when open."
         },
         "user": {
-          "note": "Greeting uses the first name; the avatar shows the initial."
+          "note": "Greeting uses the first name, with the role underneath; the avatar appears in the opened menu."
         }
       },
       "examples": {},

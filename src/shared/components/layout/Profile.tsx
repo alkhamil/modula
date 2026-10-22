@@ -55,12 +55,11 @@ function Profile({
         data-state={dropdownOpen ? 'active' : undefined}
         className="wds-profile"
       >
-        <div className="wds-profile__text hidden text-right sm:block">
+        <div className="wds-profile__text text-center">
           <p className="wds-profile__title">Hi, {firstName}</p>
           <p className="wds-profile__support">{user?.roleName ?? 'User'}</p>
         </div>
-        <Avatar name={user?.name ?? initial} size="sm" />
-        <span className="wds-profile__chevron max-sm:hidden">
+        <span className="wds-profile__chevron">
           {dropdownOpen ? <AltArrowUp /> : <AltArrowDown />}
         </span>
       </button>
