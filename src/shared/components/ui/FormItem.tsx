@@ -86,12 +86,12 @@ function FormItem<TForm extends FieldValues, TComponent extends React.ElementTyp
     const labelContent = label ? (
       <>
         {label}
-        {isRequired && <span className="wds-form-item__mandatory">*</span>}
         {labelTooltip && (
           <Tooltip content={labelTooltip}>
             <QuestionCircle className="h-4 w-4 cursor-pointer" />
           </Tooltip>
         )}
+        {isRequired && <span className="wds-form-item__mandatory">*</span>}
       </>
     ) : null;
 

@@ -2416,6 +2416,7 @@
         }
       },
       "props": {
+        "size": "Size from the Size tokens.",
         "value": "Controlled code and change handler.",
         "length": "Number of characters.",
         "appearance": "Figma OTP style.",
@@ -2451,6 +2452,7 @@
       },
       "examples": {},
       "props": {
+        "size": "Size from the Size tokens.",
         "value": "Controlled PIN and change handler.",
         "length": "Number of characters.",
         "appearance": "Figma PIN style.",
@@ -2514,7 +2516,7 @@
           "note": "Medium is the default."
         },
         "mandatory": {
-          "note": "Shows a red asterisk."
+          "note": "The red asterisk comes after the optional info icon."
         }
       },
       "examples": {
@@ -2902,6 +2904,7 @@
       },
       "examples": {},
       "props": {
+        "size": "Size from the Size tokens.",
         "children": "Scrollable content.",
         "appearance": "Figma Scrollbar style.",
         "maxHeight": "Height at which scrolling starts.",

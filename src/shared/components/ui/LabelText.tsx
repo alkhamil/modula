@@ -29,8 +29,8 @@ function LabelText({
   return (
     <label htmlFor={htmlFor} data-testid={testId} data-weight={weight} data-wds-size={size} className={`wds-label-text ${className}`}>
       {children}
-      {required && <span className="wds-label-text__mandatory">*</span>}
       {trailing && <span className="wds-label-text__icon">{trailing}</span>}
+      {required && <span className="wds-label-text__mandatory">*</span>}
     </label>
   );
 }

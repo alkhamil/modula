@@ -8,6 +8,8 @@ interface CodeInputProps {
   appearance?: 'box' | 'underline';
   /** Mode PIN: karakter disamarkan. */
   masked?: boolean;
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   status?: 'default' | 'error' | 'success';
   disabled?: boolean;
   /** Hanya angka (default true). */
@@ -23,6 +25,7 @@ function CodeInput({
   onChange,
   length = 6,
   appearance = 'box',
+  size = 'md',
   masked = false,
   status = 'default',
   disabled = false,
@@ -88,6 +91,7 @@ function CodeInput({
       data-testid={testId}
       data-appearance={appearance}
       data-status={status}
+      data-wds-size={size}
       className={`wds-code ${className}`}
     >
       {chars.map((c, i) => (

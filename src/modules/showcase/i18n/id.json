@@ -2416,6 +2416,7 @@
         }
       },
       "props": {
+        "size": "Ukuran dari token Size.",
         "value": "Kode terkontrol dan handler perubahan.",
         "length": "Jumlah karakter.",
         "appearance": "Style OTP Figma.",
@@ -2451,6 +2452,7 @@
       },
       "examples": {},
       "props": {
+        "size": "Ukuran dari token Size.",
         "value": "PIN terkontrol dan handler perubahan.",
         "length": "Jumlah karakter.",
         "appearance": "Style PIN Figma.",
@@ -2514,7 +2516,7 @@
           "note": "Medium adalah default."
         },
         "mandatory": {
-          "note": "Menampilkan tanda bintang merah."
+          "note": "Tanda bintang merah muncul setelah ikon info opsional."
         }
       },
       "examples": {
@@ -2902,6 +2904,7 @@
       },
       "examples": {},
       "props": {
+        "size": "Ukuran dari token Size.",
         "children": "Konten yang di-scroll.",
         "appearance": "Style Scrollbar Figma.",
         "maxHeight": "Tinggi saat scroll dimulai.",

@@ -37,13 +37,14 @@ export const otpInputDoc: ComponentDoc = {
   codeName: "OtpInput",
   codeExtra: ["value={code}", "onChange={setCode}"],
   baseProps: { appearance: 'box', status: 'default' },
-  controls: [{ prop: 'appearance', kind: 'select', options: ['box', 'underline'] }, { prop: 'status', kind: 'select', options: ['default', 'error', 'success'] }, { prop: 'length', kind: 'text' }, { prop: 'disabled', kind: 'boolean' }],
+  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'appearance', kind: 'select', options: ['box', 'underline'] }, { prop: 'status', kind: 'select', options: ['default', 'error', 'success'] }, { prop: 'length', kind: 'text' }, { prop: 'disabled', kind: 'boolean' }],
   figmaMapping: [
     { id: "styles", figma: "OTP styles (mode)", values: "box, underline", prop: "appearance" },
     { id: "states", figma: "OTP states", values: "empty, filled, error, success", prop: "value · status" },
   ],
   examples: [{ id: 'status', variants: ['default', 'error', 'success'].map((s) => ({ label: s, props: { status: s } })) }],
   props: [
+    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: "value", name: "value · onChange", type: "string · (value: string) => void" },
     { id: "length", name: "length", type: "number", default: "6" },
     { id: "appearance", name: "appearance", type: "'box' | 'underline'", default: "'box'" },
@@ -64,13 +65,14 @@ export const pinInputDoc: ComponentDoc = {
   codeName: "PinInput",
   codeExtra: ["value={pin}", "onChange={setPin}"],
   baseProps: { appearance: 'box', status: 'default' },
-  controls: [{ prop: 'appearance', kind: 'select', options: ['box', 'underline'] }, { prop: 'status', kind: 'select', options: ['default', 'error', 'success'] }, { prop: 'length', kind: 'text' }, { prop: 'disabled', kind: 'boolean' }],
+  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'appearance', kind: 'select', options: ['box', 'underline'] }, { prop: 'status', kind: 'select', options: ['default', 'error', 'success'] }, { prop: 'length', kind: 'text' }, { prop: 'disabled', kind: 'boolean' }],
   figmaMapping: [
     { id: "styles", figma: "PIN styles (mode)", values: "box, underline", prop: "appearance" },
     { id: "states", figma: "PIN states", values: "empty, filled, error, success", prop: "value · status" },
   ],
   examples: [],
   props: [
+    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: "value", name: "value · onChange", type: "string · (value: string) => void" },
     { id: "length", name: "length", type: "number", default: "4" },
     { id: "appearance", name: "appearance", type: "'box' | 'underline'", default: "'box'" },
@@ -120,7 +122,7 @@ export const labelTextDoc: ComponentDoc = {
   controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'weight', kind: 'select', options: ['regular', 'medium', 'semibold'] }, { prop: 'required', kind: 'boolean' }],
   figmaMapping: [
     { id: "weight", figma: "Label text (mode)", values: "Regular, Medium, Semi Bold", prop: "weight" },
-    { id: "mandatory", figma: "Mandatory (visible)", values: "boolean", prop: "required" },
+    { id: "mandatory", figma: "Mandatory · Info icon", values: "boolean", prop: "required · trailing" },
   ],
   examples: [{ id: 'weights', variants: ['regular', 'medium', 'semibold'].map((w) => ({ label: w, props: { weight: w } })) }],
   props: [
@@ -419,12 +421,13 @@ export const scrollAreaDoc: ComponentDoc = {
   component: ScrollAreaDemo,
   codeName: "ScrollArea",
   baseProps: { appearance: 'default' },
-  controls: [{ prop: 'appearance', kind: 'select', options: ['default', 'grey', 'outline'] }],
+  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'appearance', kind: 'select', options: ['default', 'grey', 'outline'] }],
   figmaMapping: [
     { id: "styles", figma: "Scrollbar styles (mode)", values: "default, grey background, outline", prop: "appearance" },
   ],
   examples: [],
   props: [
+    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: "children", name: "children", type: "ReactNode" },
     { id: "appearance", name: "appearance", type: "'default' | 'grey' | 'outline'", default: "'default'" },
     { id: "maxHeight", name: "maxHeight", type: "number | string", default: "200" },
