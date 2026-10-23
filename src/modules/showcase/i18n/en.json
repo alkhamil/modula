@@ -180,7 +180,8 @@
       "feedback": "Feedback",
       "data": "Data",
       "layout": "Layout",
-      "navigation": "Navigation"
+      "navigation": "Navigation",
+      "charts": "Charts"
     },
     "button": {
       "summary": "WDS action button. Hierarchy sets visual emphasis (primary → text), the destructive style is for dangerous actions, and states (hover, pressed, focus, disabled) and sizes come from design tokens.",

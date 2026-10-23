@@ -180,7 +180,8 @@
       "feedback": "Umpan balik",
       "data": "Data",
       "layout": "Layout",
-      "navigation": "Navigasi"
+      "navigation": "Navigasi",
+      "charts": "Grafik"
     },
     "button": {
       "summary": "Tombol aksi WDS. Hierarchy menentukan penekanan visual (primary → text), gaya destruktif dipakai untuk aksi berbahaya, dan state (hover, pressed, fokus, disabled) serta ukuran datang dari token desain.",

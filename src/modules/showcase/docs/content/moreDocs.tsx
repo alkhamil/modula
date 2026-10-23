@@ -519,7 +519,7 @@ export const chatInputDoc: ComponentDoc = {
 export const barLineChartDoc: ComponentDoc = {
   slug: "bar-line-chart",
   name: "BarLineChart",
-  category: "data",
+  category: "charts",
   importStatement: "import { BarLineChart } from 'shared/components/ui';",
   figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11348-5",
   component: BarLineChartDemo,
@@ -546,7 +546,7 @@ export const barLineChartDoc: ComponentDoc = {
 export const pieChartDoc: ComponentDoc = {
   slug: "pie-chart",
   name: "PieChart",
-  category: "data",
+  category: "charts",
   importStatement: "import { PieChart } from 'shared/components/ui';",
   figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11348-5",
   component: PieChartDemo,
@@ -570,7 +570,7 @@ export const pieChartDoc: ComponentDoc = {
 export const radarChartDoc: ComponentDoc = {
   slug: "radar-chart",
   name: "RadarChart",
-  category: "data",
+  category: "charts",
   importStatement: "import { RadarChart } from 'shared/components/ui';",
   figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11348-5",
   component: RadarChartDemo,
@@ -594,7 +594,7 @@ export const radarChartDoc: ComponentDoc = {
 export const activityGaugeDoc: ComponentDoc = {
   slug: "activity-gauge",
   name: "ActivityGauge",
-  category: "data",
+  category: "charts",
   importStatement: "import { ActivityGauge } from 'shared/components/ui';",
   figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11348-5",
   component: ActivityGaugeDemo,
@@ -617,7 +617,7 @@ export const activityGaugeDoc: ComponentDoc = {
 export const legendDoc: ComponentDoc = {
   slug: "legend",
   name: "Legend",
-  category: "data",
+  category: "charts",
   importStatement: "import { Legend } from 'shared/components/ui';",
   figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11348-5",
   component: LegendDemo,
