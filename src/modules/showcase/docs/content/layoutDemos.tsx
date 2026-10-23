@@ -22,14 +22,17 @@ export function AvatarDemo(props: ComponentProps<typeof Avatar>) {
   return <Avatar {...props} />;
 }
 
-export function PageHeaderDemo(props: Omit<ComponentProps<typeof PageHeader>, 'title'> & { title?: string }) {
+export function PageHeaderDemo(props: Omit<ComponentProps<typeof PageHeader>, 'title'> & { title?: string; showProfile?: boolean }) {
+  const { showProfile = true, ...rest } = props;
   return (
-    <div className="w-full overflow-hidden rounded-lg border border-(--wds-stroke-subtle)">
+    <div className="min-w-0 max-w-[760px] flex-1 overflow-hidden rounded-lg border border-(--wds-stroke-subtle)">
       <PageHeader
-        {...props}
-        title={props.title ?? 'Users'}
-        breadcrumb={[{ label: 'Home', path: '/' }, { label: 'Users' }]}
-      />
+        {...rest}
+        title={rest.title ?? 'Page Name'}
+        breadcrumb={[{ label: 'Dashboard', path: '/' }, { label: 'Feature Name', path: '/' }, { label: 'Add Company' }]}
+      >
+        {showProfile && <Profile user={{ name: 'Mikel Hasan', roleName: 'Superadmin' }} />}
+      </PageHeader>
     </div>
   );
 }

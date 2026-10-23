@@ -232,6 +232,7 @@
 
   .wds-header__crumbs {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--wds-spacing-4);
     color: var(--wds-text-tertiary);
@@ -241,6 +242,7 @@
 
   .wds-header__crumb {
     display: inline-flex;
+    white-space: nowrap;
     align-items: center;
     gap: var(--wds-spacing-4);
   }

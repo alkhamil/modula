@@ -9,9 +9,14 @@ export const pageHeaderDoc: ComponentDoc = {
   figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11287-681',
   component: PageHeaderDemo,
   codeName: 'PageHeader',
-  codeExtra: ["breadcrumb={[{ label: 'Home', path: '/' }, { label: 'Users' }]}"],
-  baseProps: { title: 'Users' },
-  controls: [{ prop: 'title', kind: 'text' }],
+  codeExtra: ["breadcrumb={[{ label: 'Dashboard', path: '/' }, { label: 'Feature Name', path: '/' }, { label: 'Add Company' }]}"],
+  codeChildren: "<Profile user={{ name: 'Mikel Hasan', roleName: 'Superadmin' }} />",
+  codeOmit: ['showProfile'],
+  baseProps: { title: 'Page Name', showProfile: true },
+  controls: [
+    { prop: 'title', kind: 'text' },
+    { prop: 'showProfile', kind: 'boolean' },
+  ],
   figmaMapping: [
     { id: 'title', figma: 'Title (TEXT)', values: 'free text', prop: 'title' },
     { id: 'breadcrumb', figma: 'Breadcrumb', values: 'items', prop: 'breadcrumb' },
