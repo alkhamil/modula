@@ -18,8 +18,12 @@ import {
 import { PageHeader, Profile, SideNavbar } from '../../../../shared/components/layout';
 import { Database, Settings, UsersGroupRounded } from '../../../../shared/components/icons';
 
-export function AvatarDemo(props: ComponentProps<typeof Avatar>) {
-  return <Avatar {...props} />;
+// Foto contoh (data URI) agar docs tidak bergantung pada jaringan.
+const PHOTO =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' fill='%23d9c9b8'/><circle cx='20' cy='16' r='7' fill='%23b08968'/><path d='M6 40c0-9 6-14 14-14s14 5 14 14z' fill='%23c4574c'/></svg>";
+
+export function AvatarDemo({ type, ...props }: ComponentProps<typeof Avatar>) {
+  return <Avatar {...props} type={type} src={type === 'photo' ? PHOTO : undefined} />;
 }
 
 export function PageHeaderDemo(props: Omit<ComponentProps<typeof PageHeader>, 'title'> & { title?: string; showProfile?: boolean }) {

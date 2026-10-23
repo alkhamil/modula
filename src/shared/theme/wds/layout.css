@@ -381,40 +381,24 @@
 
   /* ---- Avatar ---- */
   .wds-avatar {
-    --av-size: 40px;
     position: relative;
     display: inline-flex;
-    width: var(--av-size);
-    height: var(--av-size);
+    width: var(--wds-sz-width);
+    height: var(--wds-sz-height);
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
     border-radius: var(--wds-sz-radius-all);
     background-color: var(--wds-bg-brand-subtle);
     color: var(--wds-text-brand);
-    font-family: var(--wds-sz-text-body-font-family);
-    font-weight: var(--wds-font-weight-semi-bold);
-    font-size: calc(var(--av-size) * 0.4);
+    font-family: var(--wds-sz-text-initials-font-family);
+    font-weight: var(--wds-sz-text-initials-font-weight);
+    font-size: var(--wds-sz-text-initials-font-size);
+    line-height: var(--wds-sz-text-initials-line-height);
   }
 
   .wds-avatar[data-appearance='rounded'] {
     border-radius: var(--wds-sz-radius-rounded);
-  }
-
-  .wds-avatar[data-size='xs'] {
-    --av-size: 24px;
-  }
-
-  .wds-avatar[data-size='sm'] {
-    --av-size: 36px;
-  }
-
-  .wds-avatar[data-size='lg'] {
-    --av-size: 48px;
-  }
-
-  .wds-avatar[data-size='xl'] {
-    --av-size: 64px;
   }
 
   .wds-avatar__img {
@@ -430,8 +414,8 @@
   }
 
   .wds-avatar__icon > svg {
-    width: 50%;
-    height: 50%;
+    width: var(--wds-sz-icon-size);
+    height: var(--wds-sz-icon-size);
   }
 
   .wds-avatar__online {

@@ -12,17 +12,20 @@ export const avatarDoc: ComponentDoc = {
   component: AvatarDemo,
   codeName: 'Avatar',
   defaults: { size: 'md', appearance: 'default' },
-  baseProps: { name: 'Ayu Lestari', size: 'md', appearance: 'default' },
+  codeOmit: ['type'],
+  baseProps: { name: 'Olivia Rhye', type: 'initials', size: 'md', appearance: 'default', online: true },
   controls: [
+    { prop: 'type', kind: 'select', options: ['photo', 'initials', 'icon'] },
     { prop: 'name', kind: 'text' },
     { prop: 'size', kind: 'select', options: SIZES },
     { prop: 'appearance', kind: 'select', options: ['default', 'rounded'] },
     { prop: 'online', kind: 'boolean' },
   ],
   figmaMapping: [
-    { id: 'styles', figma: 'Avatar styles (mode)', values: 'default, rounded', prop: 'appearance' },
-    { id: 'content', figma: 'Initials · icon · image', values: 'one of', prop: 'name · icon · src' },
-    { id: 'online', figma: 'Online indicator', values: 'boolean', prop: 'online' },
+    { id: 'type', figma: 'Type (variant)', values: 'Photo, Initials, Icons', prop: 'src · name · icon (or type)' },
+    { id: 'online', figma: 'Online indicator (BOOLEAN)', values: 'boolean', prop: 'online' },
+    { id: 'styles', figma: 'Avatar style (mode)', values: 'default, rounded', prop: 'appearance' },
+    { id: 'size', figma: 'Size Modes', values: 'xs, sm, md, lg, xl', prop: 'size' },
   ],
   examples: [
     { id: 'sizes', variants: SIZES.map((s) => ({ label: s, props: { size: s, name: 'Ayu' } })) },
@@ -37,6 +40,7 @@ export const avatarDoc: ComponentDoc = {
   props: [
     { id: 'name', name: 'name', type: 'string' },
     { id: 'src', name: 'src · icon', type: 'string · ReactNode' },
+    { id: 'type', name: 'type', type: "'photo' | 'initials' | 'icon'" },
     { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'appearance', name: 'appearance', type: "'default' | 'rounded'", default: "'default'" },
     { id: 'online', name: 'online', type: 'boolean', default: 'false' },

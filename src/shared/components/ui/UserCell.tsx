@@ -13,7 +13,7 @@ interface UserCellProps {
 }
 
 /** User Cell WDS: avatar + nama + teks pendukung, dipakai di sel Table dan daftar. */
-function UserCell({ name, supporting, src, online, size = 'md', className = '', testId }: UserCellProps) {
+function UserCell({ name, supporting, src, online, size = 'sm', className = '', testId }: UserCellProps) {
   return (
     <div data-testid={testId} className={`wds-user-cell ${className}`}>
       <Avatar name={name} src={src} online={online} size={size} />

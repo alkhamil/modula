@@ -1751,16 +1751,19 @@
       ]
     },
     "avatar": {
-      "summary": "WDS avatar with initials, an icon or an image, in default (circle) or rounded style and an optional online indicator.",
+      "summary": "WDS avatar with a photo, initials or an icon, in the default (rounded square) or rounded (circle) style and an optional online indicator. Sizes follow the Size tokens.",
       "figma": {
+        "type": {
+          "note": "Photo uses `src`, Initials use the first letters of the first two words of `name` (e.g. \"OR\"), Icons show `icon` (default: a person)."
+        },
+        "online": {
+          "note": "Green presence dot at the bottom right with a white ring."
+        },
         "styles": {
           "note": "Default is a rounded square (radius follows the Size tokens); rounded is a circle."
         },
-        "content": {
-          "note": "Priority: image, icon, then initials."
-        },
-        "online": {
-          "note": "Green dot with an inverse ring at the bottom right."
+        "size": {
+          "note": "Width and height follow the Size tokens: 36 / 40 / 44 / 48 / 52px; initials and icon scale with them."
         }
       },
       "examples": {
@@ -1772,12 +1775,13 @@
         }
       },
       "props": {
-        "name": "Name for the initial.",
-        "src": "Image URL or an icon replacing the initial.",
-        "size": "Avatar size.",
+        "name": "Name for the initials (first letters of the first two words).",
+        "src": "Photo URL (type photo) or an icon (type icon).",
+        "size": "Size from the Size tokens (36–52px).",
         "appearance": "Figma Avatar style.",
         "online": "Shows the online indicator.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "type": "Force the content type; defaults to photo with `src`, icon with `icon`, otherwise initials."
       },
       "tokens": {
         "--wds-bg-brand-subtle": "Background.",

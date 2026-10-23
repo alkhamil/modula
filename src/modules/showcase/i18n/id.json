@@ -1751,16 +1751,19 @@
       ]
     },
     "avatar": {
-      "summary": "Avatar WDS dengan inisial, ikon, atau gambar, dalam style default (lingkaran) atau rounded dan indikator online opsional.",
+      "summary": "Avatar WDS dengan foto, inisial, atau ikon, dalam style default (kotak membulat) atau rounded (lingkaran) dan indikator online opsional. Ukuran mengikuti token Size.",
       "figma": {
+        "type": {
+          "note": "Photo memakai `src`, Initials memakai huruf pertama dari dua kata pertama `name` (mis. \"OR\"), Icons menampilkan `icon` (default: ikon orang)."
+        },
+        "online": {
+          "note": "Titik hadir hijau di kanan bawah dengan cincin putih."
+        },
         "styles": {
           "note": "Default berupa kotak membulat (radius mengikuti token Size); rounded berupa lingkaran."
         },
-        "content": {
-          "note": "Prioritas: gambar, ikon, lalu inisial."
-        },
-        "online": {
-          "note": "Titik hijau dengan cincin inverse di kanan bawah."
+        "size": {
+          "note": "Lebar dan tinggi mengikuti token Size: 36 / 40 / 44 / 48 / 52px; inisial dan ikon ikut menyesuaikan."
         }
       },
       "examples": {
@@ -1772,12 +1775,13 @@
         }
       },
       "props": {
-        "name": "Nama untuk inisial.",
-        "src": "URL gambar atau ikon pengganti inisial.",
-        "size": "Ukuran avatar.",
+        "name": "Nama untuk inisial (huruf pertama dari dua kata pertama).",
+        "src": "URL foto (tipe photo) atau ikon (tipe icon).",
+        "size": "Ukuran dari token Size (36–52px).",
         "appearance": "Style Avatar Figma.",
         "online": "Menampilkan indikator online.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "type": "Paksa tipe konten; default photo bila ada `src`, icon bila ada `icon`, selain itu initials."
       },
       "tokens": {
         "--wds-bg-brand-subtle": "Latar.",
