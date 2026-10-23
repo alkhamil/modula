@@ -32,7 +32,7 @@ const CURATED = [
   'HamburgerMenu', 'Hashtag', 'InfoCircle', 'Layers', 'LinkMinimalistic', 'Lock', 'Logout2', 'Magnifer',
   'MenuDotsVertical', 'Minus', 'Palette', 'Pen', 'Pen2', 'Planet', 'Power', 'QuestionCircle', 'Record', 'Restart', 'Settings',
   'Text', 'TextBold', 'TextField', 'TrashBinTrash', 'Tuning2', 'Upload', 'UsersGroupRounded', 'Widget',
-  'Widget2', 'Plus', 'Star', 'Paperclip', 'Gallery', 'SendSquare', 'Bell', 'ChatRoundDots', 'Clipboard', 'Microphone', 'SmileCircle',
+  'Widget2', 'Plus', 'Star', 'Paperclip', 'Gallery', 'SendSquare', 'Bell', 'ChatRoundDots', 'Clipboard', 'Microphone', 'SmileCircle', 'Sun', 'Moon',
 ];
 
 /** Ikon yang juga diekspor versi Bold Duotone ("filled") dengan akhiran `Bold` (mis. `InfoCircleBold`). */

@@ -5,6 +5,7 @@ import { AltArrowDown, AltArrowUp, Logout2, Settings } from '../icons';
 import Avatar from '../ui/Avatar';
 import { useClickOutside } from '../../hooks';
 import LanguageSwitch from '../../i18n/LanguageSwitch';
+import ThemeSwitch from '../../theme/ThemeSwitch';
 
 export interface AvatarUserData {
   name: string;
@@ -92,6 +93,10 @@ function Profile({
           <div className="wds-profile__language">
             <span>{t('auth.language')}</span>
             <LanguageSwitch testId={testId ? `${testId}-language` : undefined} />
+          </div>
+          <div className="wds-profile__language">
+            <span>{t('theme.label')}</span>
+            <ThemeSwitch testId={testId ? `${testId}-theme` : undefined} />
           </div>
           {onLogout && (
             <button type="button" role="menuitem" data-state="destructive" onClick={onLogout} className="wds-menu__item">

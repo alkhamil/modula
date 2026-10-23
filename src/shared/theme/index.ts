@@ -9,3 +9,4 @@ export {
   themes,
 } from './theme';
 export type { ThemeName, ThemeOverrides, ThemeTokens } from './theme';
+export { default as ThemeSwitch } from './ThemeSwitch';

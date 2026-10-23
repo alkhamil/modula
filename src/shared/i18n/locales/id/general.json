@@ -43,7 +43,10 @@
   },
   "theme": {
     "resetToDefault": "Kembalikan ke default",
-    "settings": "Pengaturan tema"
+    "settings": "Pengaturan tema",
+    "label": "Tema",
+    "light": "Terang",
+    "dark": "Gelap"
   },
   "error": {
     "forbiddenTitle": "Akses Ditolak",

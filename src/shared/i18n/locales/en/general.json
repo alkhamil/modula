@@ -43,7 +43,10 @@
   },
   "theme": {
     "resetToDefault": "Reset to default",
-    "settings": "Theme settings"
+    "settings": "Theme settings",
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark"
   },
   "error": {
     "forbiddenTitle": "Access Denied",
