@@ -292,11 +292,6 @@
     font-family: var(--wds-sz-text-body-font-family);
   }
 
-  .wds-profile:hover,
-  .wds-profile[data-state='active'] {
-    background-color: var(--wds-bg-brand-subtle);
-  }
-
   .wds-profile:focus-visible {
     outline: 1px solid var(--wds-stroke-focus);
     outline-offset: 2px;

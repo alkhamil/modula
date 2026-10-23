@@ -1835,7 +1835,7 @@
       "summary": "Pemicu profil WDS dengan avatar, nama, dan peran, membuka menu bahasa, pengaturan, dan keluar.",
       "figma": {
         "states": {
-          "note": "Hover dan state terbuka memakai isi brand lembut; chevron berbalik saat terbuka."
+          "note": "Hover dan state terbuka tetap berlatar polos (hanya kursor); chevron berbalik saat terbuka."
         },
         "user": {
           "note": "Sapaan memakai nama depan dengan peran di bawahnya; tambahkan avatar dengan showAvatar."

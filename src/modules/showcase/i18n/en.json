@@ -1835,7 +1835,7 @@
       "summary": "WDS profile trigger with avatar, name and role, opening a menu with language, settings and logout.",
       "figma": {
         "states": {
-          "note": "Hover and the open state use the brand subtle fill; the chevron flips when open."
+          "note": "Hover and the open state keep a plain background (cursor only); the chevron flips when open."
         },
         "user": {
           "note": "Greeting uses the first name with the role underneath; add the avatar with showAvatar."
