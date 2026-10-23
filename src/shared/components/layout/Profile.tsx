@@ -13,7 +13,7 @@ export interface AvatarUserData {
 
 interface ProfileProps {
   user: AvatarUserData | null;
-  /** Avatar di sebelah nama (Figma Profile: instance Avatar, bisa disembunyikan). Default tampil. */
+  /** Avatar di sebelah nama (Figma Profile: instance Avatar, bisa disembunyikan). Default disembunyikan, seperti di Figma. */
   showAvatar?: boolean;
   onLogout?: () => void;
   settingsPath?: string;
@@ -24,7 +24,7 @@ interface ProfileProps {
 
 function Profile({
   user,
-  showAvatar = true,
+  showAvatar = false,
   onLogout,
   settingsPath = '/settings',
   settingsLabel,

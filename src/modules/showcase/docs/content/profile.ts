@@ -10,8 +10,8 @@ export const profileDoc: ComponentDoc = {
   component: ProfileDemo,
   codeName: 'Profile',
   codeExtra: ["user={{ name: 'Ayu Lestari', roleName: 'Admin' }}", 'onLogout={logout}'],
-  defaults: { showAvatar: true },
-  baseProps: { showAvatar: true },
+  defaults: { showAvatar: false },
+  baseProps: { showAvatar: false },
   controls: [{ prop: 'showAvatar', kind: 'boolean' }],
   figmaMapping: [
     { id: 'states', figma: 'Profile states', values: 'default, hover, active', prop: '— (interaction)' },
@@ -21,7 +21,7 @@ export const profileDoc: ComponentDoc = {
   examples: [],
   props: [
     { id: 'user', name: 'user', type: '{ name: string; roleName?: string } | null' },
-    { id: 'showAvatar', name: 'showAvatar', type: 'boolean', default: 'true' },
+    { id: 'showAvatar', name: 'showAvatar', type: 'boolean', default: 'false' },
     { id: 'onLogout', name: 'onLogout', type: '() => void' },
     { id: 'settings', name: 'settingsPath · settingsLabel · logoutLabel', type: 'string' },
     { id: 'testId', name: 'testId', type: 'string' },
