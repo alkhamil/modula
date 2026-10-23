@@ -1253,19 +1253,22 @@
       "summary": "WDS alert for inline messages. Four styles in four appearances, optional title, action and close button.",
       "figma": {
         "message": {
-          "note": "Alert text."
+          "note": "The message shown in the alert."
         },
         "title": {
-          "note": "Shown above the message."
+          "note": "Optional heading above the message; omit `title` to hide it."
         },
         "styles": {
-          "note": "Info, success, warning and danger set colors and icon."
+          "note": "Status color: info, success, warning or danger."
         },
         "variant": {
-          "note": "Basic: plain with border. Solid: filled. Light: subtle fill. Left stroke: accent bar."
+          "note": "Basic: outlined icon on a white surface with a border. Solid: filled color. Light: subtle fill. Left stroke: 3px accent bar."
         },
         "types": {
-          "note": "Action renders a text button; onClose renders a close icon."
+          "note": "Controls on the right: `action` renders a text button, `onClose` a close icon. Figma shows one at a time; both may be combined here."
+        },
+        "size": {
+          "note": "Padding, gap and text follow the Size tokens."
         }
       },
       "examples": {

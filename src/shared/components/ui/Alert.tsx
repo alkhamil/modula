@@ -1,15 +1,5 @@
 import { type ReactNode } from 'react';
-import {
-  CheckCircle,
-  CheckCircleBold,
-  CloseCircle,
-  CloseCircleBold,
-  Cross,
-  DangerTriangle,
-  DangerTriangleBold,
-  InfoCircle,
-  InfoCircleBold,
-} from '../icons';
+import { CheckCircle, CloseCircle, Cross, DangerTriangle, InfoCircle } from '../icons';
 
 /** Style Alert WDS (mode "Alert styles"); `error` = nama lama dari `danger`. */
 export type AlertVariant = 'success' | 'error' | 'danger' | 'warning' | 'info';
@@ -40,13 +30,41 @@ const STYLE_OF: Record<AlertVariant, 'success' | 'danger' | 'warning' | 'info'> 
   info: 'info',
 };
 
-// Outline untuk varian `basic`, filled (Bold Duotone) untuk varian lain — sesuai token `alert-icons`.
-const ICONS = {
-  success: { outline: CheckCircle, filled: CheckCircleBold },
-  danger: { outline: CloseCircle, filled: CloseCircleBold },
-  warning: { outline: DangerTriangle, filled: DangerTriangleBold },
-  info: { outline: InfoCircle, filled: InfoCircleBold },
+// Outline untuk varian `basic`; varian lain memakai ikon solid (token `alert-icons`: *-filled).
+const OUTLINE = {
+  success: CheckCircle,
+  danger: CloseCircle,
+  warning: DangerTriangle,
+  info: InfoCircle,
 } as const;
+
+/** Ikon status solid Figma ("*-filled"): bentuk berwarna ikon dengan simbol berwarna latar alert. */
+function FilledIcon({ status }: { status: 'success' | 'danger' | 'warning' | 'info' }) {
+  const cut = { fill: 'none', stroke: 'var(--a-bg)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      {status === 'warning' ? (
+        <path d="M10.3 3.9a2 2 0 0 1 3.4 0l8 13.7A2 2 0 0 1 20 20.6H4a2 2 0 0 1-1.7-3z" fill="currentColor" />
+      ) : (
+        <circle cx="12" cy="12" r="10" fill="currentColor" />
+      )}
+      {status === 'info' && (
+        <>
+          <circle cx="12" cy="7.6" r="1.3" fill="var(--a-bg)" />
+          <path d="M12 11v6" {...cut} />
+        </>
+      )}
+      {status === 'success' && <path d="M7.5 12.4l3 3 6-6.4" {...cut} />}
+      {status === 'danger' && <path d="M8.6 8.6l6.8 6.8M15.4 8.6l-6.8 6.8" {...cut} />}
+      {status === 'warning' && (
+        <>
+          <path d="M12 9.6v4.4" {...cut} />
+          <circle cx="12" cy="17.2" r="1.2" fill="var(--a-bg)" />
+        </>
+      )}
+    </svg>
+  );
+}
 
 /**
  * Alert WDS: pesan blok dengan ikon status. Warna dan garis dari token (style × varian);
@@ -54,7 +72,7 @@ const ICONS = {
  */
 function Alert({ variant, message, title, appearance = 'light', size = 'md', action, onClose, testId }: AlertProps) {
   const style = STYLE_OF[variant];
-  const Icon = ICONS[style][appearance === 'basic' ? 'outline' : 'filled'];
+  const Outline = OUTLINE[style];
   return (
     <div
       data-testid={testId}
@@ -66,7 +84,7 @@ function Alert({ variant, message, title, appearance = 'light', size = 'md', act
       className="wds-alert"
     >
       <span className="wds-alert__icon" aria-hidden="true">
-        <Icon />
+        {appearance === 'basic' ? <Outline /> : <FilledIcon status={style} />}
       </span>
       <div className="wds-alert__text">
         {title && <p className="wds-alert__title">{title}</p>}

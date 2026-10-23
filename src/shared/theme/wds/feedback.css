@@ -100,8 +100,8 @@
 
   .wds-alert__icon {
     display: inline-flex;
-    width: 20px;
-    height: 20px;
+    width: var(--wds-sz-icon-size);
+    height: var(--wds-sz-icon-size);
     flex-shrink: 0;
     color: var(--a-icon);
   }
@@ -139,7 +139,6 @@
 
   .wds-alert[data-has-title='false'] .wds-alert__message {
     color: var(--a-title);
-    font-weight: var(--wds-font-weight-medium);
   }
 
   .wds-alert__action {

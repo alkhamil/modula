@@ -1253,19 +1253,22 @@
       "summary": "Alert WDS untuk pesan inline. Empat style dalam empat tampilan, dengan judul, aksi, dan tombol tutup opsional.",
       "figma": {
         "message": {
-          "note": "Teks alert."
+          "note": "Pesan yang ditampilkan di alert."
         },
         "title": {
-          "note": "Tampil di atas pesan."
+          "note": "Judul opsional di atas pesan; kosongkan `title` untuk menyembunyikannya."
         },
         "styles": {
-          "note": "Info, success, warning, dan danger menentukan warna dan ikon."
+          "note": "Warna status: info, success, warning, atau danger."
         },
         "variant": {
-          "note": "Basic: polos dengan border. Solid: terisi. Light: isi lembut. Left stroke: garis aksen di kiri."
+          "note": "Basic: ikon outline di atas surface putih dengan border. Solid: warna penuh. Light: isi lembut. Left stroke: garis aksen 3px."
         },
         "types": {
-          "note": "Action menampilkan tombol teks; onClose menampilkan ikon tutup."
+          "note": "Kontrol di kanan: `action` menampilkan tombol teks, `onClose` ikon tutup. Figma menampilkan satu per satu; di sini keduanya boleh digabung."
+        },
+        "size": {
+          "note": "Padding, jarak, dan teks mengikuti token Size."
         }
       },
       "examples": {

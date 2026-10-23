@@ -23,10 +23,11 @@ export const alertDoc: ComponentDoc = {
   ],
   figmaMapping: [
     { id: 'message', figma: 'Alert text (TEXT)', values: 'free text', prop: 'message' },
-    { id: 'title', figma: 'Show title · Title (TEXT)', values: 'boolean + text', prop: 'title' },
-    { id: 'styles', figma: 'Alert styles (mode)', values: STYLES.join(', '), prop: 'variant' },
+    { id: 'title', figma: 'Title (TEXT) · Show title (BOOLEAN)', values: 'text + boolean', prop: 'title' },
+    { id: 'styles', figma: 'Alert style (mode)', values: STYLES.join(', '), prop: 'variant' },
     { id: 'variant', figma: 'Alert variant (mode)', values: APPEARANCES.join(', '), prop: 'appearance' },
-    { id: 'types', figma: 'Alert types (mode)', values: 'default, action, close', prop: 'action · onClose' },
+    { id: 'types', figma: 'Alert type (mode)', values: 'default, action, close', prop: 'action · onClose' },
+    { id: 'size', figma: 'Size Modes', values: 'xs, sm, md, lg, xl', prop: 'size' },
   ],
   examples: [
     { id: 'styles', variants: STYLES.map((v) => ({ label: v, props: { variant: v } })) },
