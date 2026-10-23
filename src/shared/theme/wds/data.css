@@ -31,10 +31,10 @@
   .wds-feed__item[data-connector]::before {
     content: '';
     position: absolute;
-    top: calc(var(--wds-sz-avatar-online-indicator) + 40px);
-    bottom: 0;
-    left: 21px;
-    border-left: 1.5px dashed var(--wds-stroke-default);
+    top: calc(40px + var(--wds-sz-activity-feed-avatar-container-gap));
+    bottom: var(--wds-sz-activity-feed-avatar-container-gap);
+    left: calc(20px - 1px);
+    border-left: 2px dashed var(--wds-stroke-default);
   }
 
   .wds-feed__body {

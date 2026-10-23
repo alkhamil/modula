@@ -213,7 +213,8 @@ export function ActivityFeedDemo({ type = 'default', ...props }: P<typeof Activi
             labels: [<Badge key="a" variant="neutral">Label</Badge>, <Badge key="b" variant="info">Label</Badge>, <Badge key="c" variant="success" counter={12}>Label</Badge>],
             text: type === 'chat' ? "I'm message you right now." : '"Lorem ipsum dolor sit amet consectetur. Lorem ipsum dolor sit amet consectetur."',
           },
-          { name: 'Budi Santoso', time: '5 mins ago', description: 'Description' },
+          { name: 'Budi Santoso', time: '5 mins ago', description: 'Description', online: true },
+          { name: 'Citra Dewi', time: '1 hour ago', description: 'Description' },
         ]}
       />
     </div>
