@@ -256,12 +256,14 @@
   .wds-banner__icon {
     display: inline-flex;
     flex-shrink: 0;
+    /* jarak ikon–teks = icon-gap (container gap tetap untuk teks–aksi) */
+    margin-right: calc(var(--wds-sz-banner-icon-gap) - var(--wds-sz-banner-gap));
     color: var(--bn-icon);
   }
 
   .wds-banner__icon > svg {
-    width: var(--wds-sz-icon-size);
-    height: var(--wds-sz-icon-size);
+    width: var(--wds-sz-banner-icon-size);
+    height: var(--wds-sz-banner-icon-size);
   }
 
   .wds-banner__text {
@@ -283,8 +285,8 @@
   .wds-banner__message {
     margin: 0;
     color: var(--wds-text-secondary);
-    font-size: var(--wds-sz-text-body-font-size);
-    line-height: var(--wds-sz-text-body-line-height);
+    font-size: var(--wds-sz-text-caption-font-size);
+    line-height: var(--wds-sz-text-caption-line-height);
   }
 
   .wds-banner__actions {
