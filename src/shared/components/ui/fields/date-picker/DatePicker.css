@@ -548,36 +548,6 @@ button.wds-cal__title:hover {
   font-weight: var(--wds-sz-text-caption-font-weight);
 }
 
-/* Panel bawah (Figma "bottom-panel"): pemisah + jam/menit. */
-.wds-cal__bottom {
-  display: flex;
-  flex-direction: column;
-  gap: var(--wds-sz-calendar-bottom-panel-gap);
-  border-top: var(--wds-sz-calendar-divider-stroke) solid var(--c-divider, var(--wds-stroke-subtle));
-  padding: var(--wds-sz-calendar-bottom-panel-padding-top) var(--wds-sz-calendar-bottom-panel-padding-right)
-    var(--wds-sz-calendar-bottom-panel-padding-bottom) var(--wds-sz-calendar-bottom-panel-padding-left);
-}
-
-.wds-cal__time {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--wds-sz-calendar-month-and-year-gap);
-  color: var(--wds-text-secondary);
-}
-
-.wds-cal__time-select {
-  height: 40px;
-  width: 4rem;
-  border: var(--wds-stroke-1) solid var(--wds-stroke-default);
-  border-radius: var(--wds-radius-8);
-  background-color: var(--wds-bg-surface);
-  padding: 0 0.5rem;
-  color: var(--wds-text-primary);
-  font-size: var(--wds-sz-text-body-font-size);
-  text-align: center;
-}
-
 .wds-field__content .react-datepicker-wrapper {
   min-width: 0;
   flex: 1;

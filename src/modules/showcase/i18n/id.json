@@ -3225,13 +3225,10 @@
       ]
     },
     "calendar": {
-      "summary": "Calendar WDS: panel date picker mandiri dengan tampilan Date, Month, dan Year serta pemilih waktu opsional.",
+      "summary": "Calendar WDS: panel date picker mandiri dengan tampilan Date, Month, dan Year.",
       "figma": {
         "type": {
           "note": "Tampilan awal: grid hari, bulan, atau tahun."
-        },
-        "timePicker": {
-          "note": "Pilihan jam dan menit di tampilan Date; waktu ikut dalam nilai."
         },
         "size": {
           "note": "Skala teks dan padding dari token Size."
@@ -3246,8 +3243,7 @@
         "range": "Rentang yang bisa dipilih.",
         "testId": "Dipetakan ke data-testid.",
         "type": "Tampilan awal.",
-        "size": "Ukuran dari token Size.",
-        "timePicker": "Tampilkan pilihan jam dan menit."
+        "size": "Ukuran dari token Size."
       },
       "tokens": {
         "--wds-bg-page": "Latar kalender.",
@@ -3255,8 +3251,7 @@
         "--wds-text-primary": "Angka hari.",
         "--wds-stroke-subtle": "Pemisah.",
         "--wds-sz-calendar-content-padding-top": "Padding kalender.",
-        "--wds-sz-calendar-month-cell-size": "Lingkaran terpilih di tampilan Bulan dan Tahun.",
-        "--wds-sz-calendar-bottom-panel-gap": "Jarak di panel waktu."
+        "--wds-sz-calendar-month-cell-size": "Lingkaran terpilih di tampilan Bulan dan Tahun."
       },
       "behavior": [
         "Klik header untuk berpindah antara tampilan hari, bulan, dan tahun."

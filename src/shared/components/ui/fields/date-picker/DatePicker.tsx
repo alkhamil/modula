@@ -77,7 +77,11 @@ function formatDisplay(value: string, showTime = false): string {
   return toDisplay(toDate(value), showTime) || value;
 }
 
-const timeSelectClasses = 'wds-cal__time-select';
+const timeSelectClasses = [
+  'h-9 w-16 rounded-lg border border-border bg-background px-2 text-center text-sm text-foreground outline-none transition-colors',
+  'focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/30',
+  'disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground',
+].join(' ');
 
 function DateSingle({
   size = 'md',

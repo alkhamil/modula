@@ -3225,13 +3225,10 @@
       ]
     },
     "calendar": {
-      "summary": "WDS calendar: a standalone date picker panel with Date, Month and Year views and an optional time picker.",
+      "summary": "WDS calendar: a standalone date picker panel with Date, Month and Year views.",
       "figma": {
         "type": {
           "note": "Initial view: day grid, month grid or year grid."
-        },
-        "timePicker": {
-          "note": "Hour and minute selects in the Date view; the time is part of the value."
         },
         "size": {
           "note": "Scales text and paddings from the Size tokens."
@@ -3246,8 +3243,7 @@
         "range": "Selectable range.",
         "testId": "Mapped to data-testid.",
         "type": "Initial view.",
-        "size": "Size from the Size tokens.",
-        "timePicker": "Show the hour and minute selects."
+        "size": "Size from the Size tokens."
       },
       "tokens": {
         "--wds-bg-page": "Calendar background.",
@@ -3255,8 +3251,7 @@
         "--wds-text-primary": "Day numbers.",
         "--wds-stroke-subtle": "Divider.",
         "--wds-sz-calendar-content-padding-top": "Calendar padding.",
-        "--wds-sz-calendar-month-cell-size": "Selected circle in the Month and Year views.",
-        "--wds-sz-calendar-bottom-panel-gap": "Gap in the time panel."
+        "--wds-sz-calendar-month-cell-size": "Selected circle in the Month and Year views."
       },
       "behavior": [
         "Click the header to switch between day, month and year views."

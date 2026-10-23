@@ -659,11 +659,9 @@ export const calendarDoc: ComponentDoc = {
   controls: [
     { prop: 'type', kind: 'select', label: 'Type', options: ['date', 'month', 'year'] },
     { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
-    { prop: 'timePicker', kind: 'boolean', label: 'Time picker' },
   ],
   figmaMapping: [
     { id: "type", figma: "Type (variant)", values: "Date, Month, Year", prop: "type" },
-    { id: "timePicker", figma: "Time picker (BOOLEAN)", values: "true, false", prop: "timePicker" },
     { id: "size", figma: "Size (mode)", values: "xs, sm, md, lg, xl", prop: "size" },
     { id: "days", figma: "Day cell states", values: "default, selected, today, disabled", prop: "value · minDate · maxDate" },
   ],
@@ -673,10 +671,9 @@ export const calendarDoc: ComponentDoc = {
     { id: "range", name: "minDate · maxDate", type: "Date" },
     { id: "type", name: "type", type: "'date' | 'month' | 'year'", default: "'date'" },
     { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
-    { id: "timePicker", name: "timePicker", type: "boolean", default: "false" },
     { id: 'testId', name: 'testId', type: 'string' },
   ],
-  tokens: ["--wds-bg-page", "--wds-bg-brand", "--wds-text-primary", "--wds-stroke-subtle", "--wds-sz-calendar-content-padding-top", "--wds-sz-calendar-month-cell-size", "--wds-sz-calendar-bottom-panel-gap"].map((name) => ({ name })),
+  tokens: ["--wds-bg-page", "--wds-bg-brand", "--wds-text-primary", "--wds-stroke-subtle", "--wds-sz-calendar-content-padding-top", "--wds-sz-calendar-month-cell-size"].map((name) => ({ name })),
 };
 
 export const menuItemDoc: ComponentDoc = {
