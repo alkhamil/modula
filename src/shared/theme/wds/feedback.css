@@ -52,7 +52,7 @@
 
   .wds-badge__counter {
     display: inline-flex;
-    min-width: 1.5em;
+    min-width: var(--wds-sz-badge-counter-gap);
     align-items: center;
     justify-content: center;
     padding: var(--wds-sz-badge-counter-padding-top) var(--wds-sz-badge-counter-padding-right)
