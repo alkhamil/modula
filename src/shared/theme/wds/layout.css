@@ -328,14 +328,22 @@
   }
 
   .wds-profile__menu {
-    overflow: hidden;
-    padding: var(--wds-padding-4) 0;
-    border: var(--wds-sz-table-stroke) solid var(--wds-stroke-subtle);
-    border-radius: var(--wds-radius-12);
-    background-color: var(--wds-bg-elevated);
-    box-shadow:
-      0 2px 4px rgb(16 24 40 / 6%),
-      0 4px 8px rgb(16 24 40 / 10%);
+    max-height: none;
+    overflow: visible;
+  }
+
+  .wds-menu__item--current {
+    background-color: var(--wds-bg-brand-subtle);
+  }
+
+  .wds-profile__language {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--wds-spacing-8);
+    padding: var(--wds-padding-8) var(--wds-padding-12);
+    color: var(--wds-text-secondary);
+    font-size: var(--wds-sz-text-body-font-size);
   }
 
   /* ---- Avatar ---- */

@@ -70,51 +70,36 @@ function Profile({
 
       {dropdownOpen && (
         <div
+          role="menu"
           className={[
-            'wds-profile__menu absolute right-0 z-50 w-60',
+            'wds-menu wds-profile__menu absolute right-0 z-50 w-60',
             dropdownAbove ? 'bottom-full mb-2' : 'top-full mt-2',
           ].join(' ')}
         >
-          <div className="flex items-center gap-3 px-4 py-3">
-            <Avatar name={user?.name ?? initial} size="md" />
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-(--wds-text-primary)">{user?.name ?? 'User'}</p>
-              <p className="truncate text-xs text-(--wds-text-secondary)">
-                {user?.roleName ?? 'User'}
-              </p>
-            </div>
-          </div>
-          <div className="my-1 border-t border-(--wds-stroke-subtle)" />
-          <div className="flex items-center justify-between gap-2 px-4 py-2">
-            <span className="whitespace-nowrap text-sm text-(--wds-text-secondary)">{t('auth.language')}</span>
-            <LanguageSwitch testId={testId ? `${testId}-language` : undefined} />
-          </div>
-          <div className="my-1 border-t border-(--wds-stroke-subtle)" />
           <NavLink
             to={settingsPath}
             end
+            role="menuitem"
             onClick={() => setDropdownOpen(false)}
-            className={({ isActive }) =>
-              [
-                'flex items-center gap-2 px-4 py-2 text-sm text-(--wds-text-primary) transition-colors hover:bg-(--wds-bg-brand-subtle)',
-                isActive ? 'bg-(--wds-bg-brand-subtle) font-medium' : '',
-              ].join(' ')
-            }
+            data-state="default"
+            className={({ isActive }) => `wds-menu__item ${isActive ? 'wds-menu__item--current' : ''}`}
           >
-            <Settings className="h-4 w-4 text-(--wds-text-secondary)" />
-            {resolvedSettingsLabel}
+            <span className="wds-menu__icon">
+              <Settings />
+            </span>
+            <span className="wds-menu__text">{resolvedSettingsLabel}</span>
           </NavLink>
+          <div className="wds-profile__language">
+            <span>{t('auth.language')}</span>
+            <LanguageSwitch testId={testId ? `${testId}-language` : undefined} />
+          </div>
           {onLogout && (
-            <>
-              <div className="my-1 border-t border-(--wds-stroke-subtle)" />
-              <button
-                onClick={onLogout}
-                className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-(--wds-text-primary) transition-colors hover:bg-(--wds-bg-brand-subtle)"
-              >
-                <Logout2 className="h-4 w-4 text-(--wds-text-secondary)" />
-                {resolvedLogoutLabel}
-              </button>
-            </>
+            <button type="button" role="menuitem" data-state="destructive" onClick={onLogout} className="wds-menu__item">
+              <span className="wds-menu__icon">
+                <Logout2 />
+              </span>
+              <span className="wds-menu__text">{resolvedLogoutLabel}</span>
+            </button>
           )}
         </div>
       )}
