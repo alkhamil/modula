@@ -4,8 +4,7 @@ import { AltArrowDown } from '../icons';
 export interface AccordionItem {
   value: string;
   title: ReactNode;
-  /** Teks pendukung di bawah judul header. */
-  description?: ReactNode;
+  /** Isi yang tampil saat terbuka (Figma "Description"). */
   content: ReactNode;
   /** Ikon di awal judul (Figma "Leading icon"). */
   icon?: ReactNode;
@@ -24,6 +23,9 @@ interface AccordionProps {
   multiple?: boolean;
   /** Item terbuka awal (tidak terkontrol). */
   defaultOpen?: string[];
+  /** Item terbuka (terkontrol; Figma "Expand"). */
+  value?: string[];
+  onChange?: (value: string[]) => void;
   className?: string;
   testId?: string;
 }
@@ -36,16 +38,18 @@ function Accordion({
   flipIcon = false,
   multiple = false,
   defaultOpen = [],
+  value,
+  onChange,
   className = '',
   testId,
 }: AccordionProps) {
-  const [open, setOpen] = useState<string[]>(defaultOpen);
+  const [inner, setInner] = useState<string[]>(defaultOpen);
+  const open = value ?? inner;
 
-  function toggle(value: string) {
-    setOpen((prev) => {
-      if (prev.includes(value)) return prev.filter((v) => v !== value);
-      return multiple ? [...prev, value] : [value];
-    });
+  function toggle(v: string) {
+    const next = open.includes(v) ? open.filter((x) => x !== v) : multiple ? [...open, v] : [v];
+    if (value === undefined) setInner(next);
+    onChange?.(next);
   }
 
   return (
@@ -72,12 +76,12 @@ function Accordion({
                 onClick={() => toggle(item.value)}
                 className="wds-accordion__header"
               >
+                {flipIcon && <AltArrowDown className="wds-accordion__chevron" />}
                 {item.icon && <span className="wds-accordion__lead">{item.icon}</span>}
                 <span className="wds-accordion__text">
                   <span className="wds-accordion__title">{item.title}</span>
-                  {item.description && <span className="wds-accordion__desc">{item.description}</span>}
                 </span>
-                <AltArrowDown className="wds-accordion__chevron" />
+                {!flipIcon && <AltArrowDown className="wds-accordion__chevron" />}
               </button>
             </h3>
             {expanded && (

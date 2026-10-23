@@ -2028,22 +2028,28 @@
       ]
     },
     "accordion": {
-      "summary": "WDS accordion with box or underline style, supporting text, disabled items and single or multiple expansion.",
+      "summary": "WDS accordion with box or underline style, optional leading icon, flipped chevron, disabled items and single or multiple expansion.",
       "figma": {
-        "styles": {
-          "note": "Box has a bordered card per item; underline separates items with a line."
+        "title": {
+          "note": "The header text of the accordion item."
         },
-        "states": {
-          "note": "Hover and pressed tint the header; disabled mutes it; focus shows a ring."
-        },
-        "supporting": {
-          "note": "Shown under the title in the header."
+        "description": {
+          "note": "The content revealed when the item is expanded."
         },
         "leading": {
-          "note": "Optional icon before the title (`items[].icon`)."
+          "note": "Optional icon before the title."
+        },
+        "expand": {
+          "note": "Open items: `defaultOpen` (uncontrolled) or `value` + `onChange` (controlled)."
         },
         "flip": {
-          "note": "Chevron before the title instead of after."
+          "note": "Moves the chevron to the leading position."
+        },
+        "styles": {
+          "note": "Box has a bordered card per item; underline separates items with a bottom line."
+        },
+        "states": {
+          "note": "Hover and pressed tint the header; focus shows a border and ring; disabled mutes it."
         },
         "size": {
           "note": "Padding and text follow the Size tokens."
@@ -2055,10 +2061,10 @@
         }
       },
       "props": {
-        "items": "Sections: value, title, optional description, content.",
+        "items": "Sections: value, title, content (the Figma Description), optional icon, disabled.",
         "appearance": "Figma Accordion style.",
         "multiple": "Allow several open items.",
-        "defaultOpen": "Initially open values.",
+        "defaultOpen": "Initially open values, or controlled `value` with `onChange`.",
         "testId": "Mapped to data-testid.",
         "size": "Size from the Size tokens; `flipIcon` moves the chevron to the start."
       },

@@ -2028,22 +2028,28 @@
       ]
     },
     "accordion": {
-      "summary": "Accordion WDS dengan style box atau underline, teks pendukung, item nonaktif, dan pembukaan tunggal atau banyak.",
+      "summary": "Accordion WDS dengan style box atau underline, ikon awal opsional, chevron dibalik, item nonaktif, dan pembukaan tunggal atau banyak.",
       "figma": {
-        "styles": {
-          "note": "Box memiliki kartu berborder per item; underline memisahkan item dengan garis."
+        "title": {
+          "note": "Teks header item accordion."
         },
-        "states": {
-          "note": "Hover dan pressed memberi tint pada header; disabled meredupkannya; fokus menampilkan cincin."
-        },
-        "supporting": {
-          "note": "Tampil di bawah judul pada header."
+        "description": {
+          "note": "Isi yang tampil saat item terbuka."
         },
         "leading": {
-          "note": "Ikon opsional sebelum judul (`items[].icon`)."
+          "note": "Ikon opsional sebelum judul."
+        },
+        "expand": {
+          "note": "Item terbuka: `defaultOpen` (tidak terkontrol) atau `value` + `onChange` (terkontrol)."
         },
         "flip": {
-          "note": "Chevron di depan judul, bukan di belakang."
+          "note": "Memindahkan chevron ke posisi awal."
+        },
+        "styles": {
+          "note": "Box memiliki kartu berborder per item; underline memisahkan item dengan garis bawah."
+        },
+        "states": {
+          "note": "Hover dan pressed memberi tint pada header; fokus menampilkan border dan cincin; disabled meredupkannya."
         },
         "size": {
           "note": "Padding dan teks mengikuti token Size."
@@ -2055,10 +2061,10 @@
         }
       },
       "props": {
-        "items": "Section: value, title, description opsional, content.",
+        "items": "Section: value, title, content (Description di Figma), ikon opsional, disabled.",
         "appearance": "Style Accordion Figma.",
         "multiple": "Izinkan beberapa item terbuka.",
-        "defaultOpen": "Nilai yang terbuka awalnya.",
+        "defaultOpen": "Nilai yang terbuka awalnya, atau `value` terkontrol dengan `onChange`.",
         "testId": "Dipetakan ke data-testid.",
         "size": "Ukuran dari token Size; `flipIcon` memindahkan chevron ke awal."
       },

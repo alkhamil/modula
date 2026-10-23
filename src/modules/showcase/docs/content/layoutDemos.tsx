@@ -121,15 +121,16 @@ export function DividerDemo(props: ComponentProps<typeof Divider>) {
 }
 
 const ACCORDION_ITEMS = [
-  { value: 'a', title: 'What is Modula?', description: 'Platform overview', content: 'A dynamic module platform: modules are data, rendered at runtime.' },
+  { value: 'a', title: 'What is Modula?', content: 'A dynamic module platform: modules are data, rendered at runtime.' },
   { value: 'b', title: 'How do I publish a module?', content: 'Use the generator wizard and press Publish.' },
   { value: 'c', title: 'Archived question', content: 'Not available.', disabled: true },
 ];
 
-export function AccordionDemo(props: Partial<ComponentProps<typeof Accordion>>) {
+export function AccordionDemo({ showIcon, ...props }: Partial<ComponentProps<typeof Accordion>> & { showIcon?: boolean }) {
+  const items = ACCORDION_ITEMS.map((item) => (showIcon ? { ...item, icon: <Database /> } : item));
   return (
     <div className="w-[min(100%,460px)]">
-      <Accordion {...props} items={ACCORDION_ITEMS} defaultOpen={['a']} />
+      <Accordion {...props} items={items} defaultOpen={['a']} />
     </div>
   );
 }
