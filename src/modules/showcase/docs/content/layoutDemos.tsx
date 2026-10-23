@@ -25,7 +25,7 @@ export function AvatarDemo(props: ComponentProps<typeof Avatar>) {
 export function PageHeaderDemo(props: Omit<ComponentProps<typeof PageHeader>, 'title'> & { title?: string; showProfile?: boolean }) {
   const { showProfile = true, ...rest } = props;
   return (
-    <div className="min-w-0 max-w-[760px] flex-1 overflow-hidden rounded-lg border border-(--wds-stroke-subtle)">
+    <div className="h-[22rem] min-w-0 max-w-[760px] flex-1 self-start border-y border-(--wds-stroke-subtle)">
       <PageHeader
         {...rest}
         title={rest.title ?? 'Page Name'}
