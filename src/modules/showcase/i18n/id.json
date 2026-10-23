@@ -3225,27 +3225,42 @@
       ]
     },
     "calendar": {
-      "summary": "Calendar WDS: grid bulan mandiri yang dipakai di dalam date picker, dengan tampilan bulan dan tahun.",
+      "summary": "Calendar WDS: panel date picker mandiri dengan tampilan Date, Month, dan Year, pemilih waktu opsional, dan footer Cancel / Apply.",
       "figma": {
-        "styles": {
-          "note": "Box memiliki latar kartu; underline datar."
+        "type": {
+          "note": "Tampilan awal: grid hari, bulan, atau tahun."
+        },
+        "timePicker": {
+          "note": "Pilihan jam dan menit di tampilan Date; waktu ikut dalam nilai."
+        },
+        "apply": {
+          "note": "Footer Cancel / Apply; pilihan jadi draf sampai Apply ditekan."
+        },
+        "size": {
+          "note": "Skala teks dan padding dari token Size."
         },
         "days": {
-          "note": "Tanggal di luar min / max dinonaktifkan."
+          "note": "Sel hari default, terpilih, hari ini, dan nonaktif."
         }
       },
       "examples": {},
       "props": {
         "value": "Tanggal terpilih dan handler perubahan.",
         "range": "Rentang yang bisa dipilih.",
-        "appearance": "Style Calendar Figma.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "type": "Tampilan awal.",
+        "size": "Ukuran dari token Size.",
+        "timePicker": "Tampilkan pilihan jam dan menit.",
+        "showApply": "Tampilkan footer Cancel dan Apply; `onChange` terpanggil saat Apply."
       },
       "tokens": {
         "--wds-bg-page": "Latar kalender.",
         "--wds-bg-brand": "Hari terpilih.",
         "--wds-text-primary": "Angka hari.",
-        "--wds-stroke-subtle": "Pemisah."
+        "--wds-stroke-subtle": "Pemisah.",
+        "--wds-sz-calendar-content-padding-top": "Padding kalender.",
+        "--wds-sz-calendar-month-cell-size": "Lingkaran terpilih di tampilan Bulan dan Tahun.",
+        "--wds-sz-calendar-bottom-panel-gap": "Jarak di panel jam dan Cancel / Apply."
       },
       "behavior": [
         "Klik header untuk berpindah antara tampilan hari, bulan, dan tahun."

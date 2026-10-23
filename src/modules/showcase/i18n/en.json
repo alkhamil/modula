@@ -3225,27 +3225,42 @@
       ]
     },
     "calendar": {
-      "summary": "WDS calendar: the standalone month grid used inside the date picker, with month and year views.",
+      "summary": "WDS calendar: a standalone date picker panel with Date, Month and Year views, an optional time picker and a Cancel / Apply footer.",
       "figma": {
-        "styles": {
-          "note": "Box has a card background; underline is flat."
+        "type": {
+          "note": "Initial view: day grid, month grid or year grid."
+        },
+        "timePicker": {
+          "note": "Hour and minute selects in the Date view; the time is part of the value."
+        },
+        "apply": {
+          "note": "Cancel / Apply footer; the selection is a draft until Apply."
+        },
+        "size": {
+          "note": "Scales text and paddings from the Size tokens."
         },
         "days": {
-          "note": "Dates outside min / max are disabled."
+          "note": "Default, selected, today and disabled day cells."
         }
       },
       "examples": {},
       "props": {
         "value": "Selected date and change handler.",
         "range": "Selectable range.",
-        "appearance": "Figma Calendar style.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "type": "Initial view.",
+        "size": "Size from the Size tokens.",
+        "timePicker": "Show the hour and minute selects.",
+        "showApply": "Show the Cancel and Apply footer; `onChange` fires on Apply."
       },
       "tokens": {
         "--wds-bg-page": "Calendar background.",
         "--wds-bg-brand": "Selected day.",
         "--wds-text-primary": "Day numbers.",
-        "--wds-stroke-subtle": "Divider."
+        "--wds-stroke-subtle": "Divider.",
+        "--wds-sz-calendar-content-padding-top": "Calendar padding.",
+        "--wds-sz-calendar-month-cell-size": "Selected circle in the Month and Year views.",
+        "--wds-sz-calendar-bottom-panel-gap": "Gap in the time and Cancel / Apply panel."
       },
       "behavior": [
         "Click the header to switch between day, month and year views."

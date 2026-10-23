@@ -372,11 +372,216 @@
 }
 
 .wds-cal .datepicker-inline-reset {
-  padding: var(--wds-padding-16);
+  padding: var(--wds-sz-calendar-content-padding-top) var(--wds-sz-calendar-content-padding-right)
+    var(--wds-sz-calendar-content-padding-bottom) var(--wds-sz-calendar-content-padding-left);
 }
 
+/* Header: tombol navigasi 40px + title button (Figma "Month & Year"). */
+.wds-cal__header {
+  display: flex;
+  align-items: center;
+  gap: var(--wds-sz-calendar-month-gap);
+  margin-bottom: var(--wds-sz-calendar-calendar-gap);
+}
+
+.wds-cal__nav {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--wds-radius-6);
+  background: transparent;
+  color: var(--c-nav, var(--wds-icons-primary));
+}
+
+.wds-cal__nav:hover {
+  background-color: var(--wds-bg-brand-subtle);
+}
+
+.wds-cal__nav > svg {
+  width: 18px;
+  height: 18px;
+}
+
+.wds-cal__titles {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wds-sz-calendar-month-and-year-gap);
+}
+
+.wds-cal__title {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--c-header, var(--wds-text-primary));
+  font-family: var(--wds-sz-text-link-font-family);
+  font-weight: var(--wds-sz-text-link-font-weight);
+  font-size: var(--wds-sz-text-link-font-size);
+  line-height: var(--wds-sz-text-link-line-height);
+}
+
+button.wds-cal__title {
+  cursor: pointer;
+}
+
+button.wds-cal__title:hover {
+  color: var(--wds-text-brand);
+}
+
+/* Hari / nama hari: tipografi caption per ukuran, jarak dari token calendar. */
 .wds-cal .react-datepicker__day-name {
+  margin: 0;
+  padding: var(--wds-sz-calendar-weekday-padding-top) 0 var(--wds-sz-calendar-weekday-padding-bottom);
   color: var(--c-weekday, var(--wds-text-secondary));
+  font-weight: var(--wds-sz-text-caption-font-weight);
+  font-size: var(--wds-sz-text-caption-font-size);
+  line-height: var(--wds-sz-text-caption-line-height);
+}
+
+.wds-cal .react-datepicker__day-names {
+  margin: 0 0 var(--wds-sz-calendar-dates-gap);
+}
+
+.wds-cal .react-datepicker__month {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wds-sz-calendar-days-gap);
+  margin: 0;
+}
+
+.wds-cal .react-datepicker__day {
+  margin: 0;
+  font-size: var(--wds-sz-text-caption-font-size);
+  line-height: var(--wds-sz-text-caption-line-height);
+  font-weight: var(--wds-sz-text-caption-font-weight);
+}
+
+.wds-cal .react-datepicker__day::after {
+  border-radius: var(--wds-sz-day-cell-base-root-radius);
+}
+
+.wds-cal .react-datepicker__day--selected {
+  font-weight: var(--wds-font-weight-regular);
+}
+
+.wds-cal .react-datepicker__day--outside-month {
+  color: var(--wds-text-disabled);
+}
+
+/* Tampilan bulan/tahun: 3 kolom × 4 baris setinggi grid tanggal; lingkaran terpilih = month-cell-size. */
+.wds-cal .react-datepicker__monthPicker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wds-sz-calendar-months-gap);
+}
+
+/* Bulan: tiap baris (3 bulan) = seperempat tinggi grid; tahun: satu grid 3 × 4. */
+.wds-cal .react-datepicker__month-wrapper {
+  grid-template-columns: repeat(3, 1fr);
+  height: calc((296px - 3 * var(--wds-sz-calendar-months-gap)) / 4);
+  padding: 0;
+}
+
+.wds-cal .react-datepicker__year-wrapper {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: var(--wds-sz-calendar-months-gap) 0;
+  height: 296px;
+  padding: 0;
+}
+
+.wds-cal .react-datepicker__month:has(.react-datepicker__month-wrapper),
+.wds-cal .react-datepicker__year {
+  margin: 0;
+}
+
+.wds-cal .react-datepicker__month-text,
+.wds-cal .react-datepicker__year-text {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+  background-color: transparent !important;
+  line-height: var(--wds-sz-text-caption-line-height);
+  font-size: var(--wds-sz-text-caption-font-size);
+  font-weight: var(--wds-sz-text-caption-font-weight);
+}
+
+.wds-cal .react-datepicker__month-text::after,
+.wds-cal .react-datepicker__year-text::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: var(--wds-sz-calendar-month-cell-size);
+  height: var(--wds-sz-calendar-month-cell-size);
+  transform: translate(-50%, -50%);
+  border-radius: var(--wds-radius-full);
+}
+
+.wds-cal .react-datepicker__month-text:hover::after,
+.wds-cal .react-datepicker__year-text:hover::after {
+  background-color: var(--wds-bg-brand-subtle);
+}
+
+.wds-cal .react-datepicker__month-text--selected::after,
+.wds-cal .react-datepicker__month-text--keyboard-selected::after,
+.wds-cal .react-datepicker__year-text--selected::after,
+.wds-cal .react-datepicker__year-text--keyboard-selected::after {
+  background-color: var(--wds-bg-brand);
+}
+
+.wds-cal .react-datepicker__month-text--selected,
+.wds-cal .react-datepicker__month-text--keyboard-selected,
+.wds-cal .react-datepicker__year-text--selected,
+.wds-cal .react-datepicker__year-text--keyboard-selected {
+  font-weight: var(--wds-sz-text-caption-font-weight);
+}
+
+/* Panel bawah (Figma "bottom-panel"): pemisah, jam/menit, aksi Cancel/Apply. */
+.wds-cal__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wds-sz-calendar-bottom-panel-gap);
+  border-top: var(--wds-sz-calendar-divider-stroke) solid var(--c-divider, var(--wds-stroke-subtle));
+  padding: var(--wds-sz-calendar-bottom-panel-padding-top) var(--wds-sz-calendar-bottom-panel-padding-right)
+    var(--wds-sz-calendar-bottom-panel-padding-bottom) var(--wds-sz-calendar-bottom-panel-padding-left);
+}
+
+.wds-cal__time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wds-sz-calendar-month-and-year-gap);
+  color: var(--wds-text-secondary);
+}
+
+.wds-cal__time-select {
+  height: 40px;
+  width: 4rem;
+  border: var(--wds-stroke-1) solid var(--wds-stroke-default);
+  border-radius: var(--wds-radius-8);
+  background-color: var(--wds-bg-surface);
+  padding: 0 0.5rem;
+  color: var(--wds-text-primary);
+  font-size: var(--wds-sz-text-body-font-size);
+  text-align: center;
+}
+
+.wds-cal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--wds-sz-calendar-actions-gap);
 }
 
 .wds-field__content .react-datepicker-wrapper {

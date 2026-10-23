@@ -237,6 +237,8 @@ function DateRangePicker({
                 <ReactDatePicker
                   key={`${view}-${cursor.getTime()}`}
                   inline
+                  calendarStartDay={1}
+                  fixedHeight
                   selectsRange
                   swapRange
                   startDate={activeStart ?? undefined}

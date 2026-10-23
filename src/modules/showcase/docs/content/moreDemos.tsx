@@ -40,7 +40,8 @@ type P<T extends JSXElementConstructor<any>> = Partial<ComponentProps<T>>;
 
 export function CalendarDemo(props: P<typeof Calendar>) {
   const [value, setValue] = useState<Date | null>(new Date());
-  return <Calendar {...props} value={value} onChange={setValue} />;
+  // `key`: tampilan awal (`type`) hanya dibaca saat mount, jadi ganti type = mount ulang.
+  return <Calendar key={props.type} {...props} value={value} onChange={setValue} />;
 }
 
 export function OtpInputDemo(props: P<typeof OtpInput>) {

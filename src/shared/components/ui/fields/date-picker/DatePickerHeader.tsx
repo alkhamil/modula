@@ -39,55 +39,40 @@ function DatePickerHeader({
   onViewChange,
   testId,
 }: DatePickerHeaderProps) {
-  const navButtonClasses =
-    'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-[var(--c-nav,var(--wds-icons-primary))] transition-colors hover:bg-[var(--wds-bg-brand-subtle)]';
-  let label: ReactNode;
-  let labelTestId: string | undefined;
+  const titleClasses = 'wds-cal__title';
+  const id = (suffix: string) => (testId ? `${testId}-${suffix}` : undefined);
+  let title: ReactNode;
 
   if (view === 'date') {
-    label = `${MONTH_NAMES[cursor.getMonth()]} ${cursor.getFullYear()}`;
-    labelTestId = testId ? `${testId}-month-year-label` : undefined;
+    // Figma: "Month & Year" = dua title button terpisah (bulan → tampilan bulan, tahun → tampilan tahun).
+    title = (
+      <>
+        <button type="button" data-testid={id('month-label')} className={titleClasses} onClick={() => onViewChange('month')}>
+          {MONTH_NAMES[cursor.getMonth()]!.slice(0, 3)}
+        </button>
+        <button type="button" data-testid={id('year-button')} className={titleClasses} onClick={() => onViewChange('year')}>
+          {cursor.getFullYear()}
+        </button>
+      </>
+    );
   } else if (view === 'month') {
-    label = String(cursor.getFullYear());
-    labelTestId = testId ? `${testId}-year-label` : undefined;
+    title = (
+      <button type="button" data-testid={id('year-label')} className={titleClasses} onClick={() => onViewChange('year')}>
+        {cursor.getFullYear()}
+      </button>
+    );
   } else {
     const start = yearPageStart(cursor.getFullYear());
-    label = `${start} - ${start + YEAR_ITEM_COUNT - 1}`;
+    title = <span className={titleClasses}>{`${start} - ${start + YEAR_ITEM_COUNT - 1}`}</span>;
   }
 
   return (
-    <div
-      data-testid={testId ? `${testId}-header` : undefined}
-      className="flex items-center justify-between px-3 py-2"
-    >
-      <button
-        type="button"
-        data-testid={testId ? `${testId}-prev` : undefined}
-        className={navButtonClasses}
-        onClick={() => onNavigate(-1)}
-        aria-label="Previous"
-      >
+    <div data-testid={id('header')} className="wds-cal__header">
+      <button type="button" data-testid={id('prev')} className="wds-cal__nav" onClick={() => onNavigate(-1)} aria-label="Previous">
         <AltArrowLeft />
       </button>
-      {view === 'year' ? (
-        <span className="text-[length:var(--wds-sz-text-body-font-size)] font-medium text-[var(--c-header,var(--wds-text-primary))]">{label}</span>
-      ) : (
-        <button
-          type="button"
-          data-testid={labelTestId}
-          className="cursor-pointer text-[length:var(--wds-sz-text-body-font-size)] font-medium text-[var(--c-header,var(--wds-text-primary))]"
-          onClick={() => onViewChange(view === 'date' ? 'month' : 'year')}
-        >
-          {label}
-        </button>
-      )}
-      <button
-        type="button"
-        data-testid={testId ? `${testId}-next` : undefined}
-        className={navButtonClasses}
-        onClick={() => onNavigate(1)}
-        aria-label="Next"
-      >
+      <div className="wds-cal__titles">{title}</div>
+      <button type="button" data-testid={id('next')} className="wds-cal__nav" onClick={() => onNavigate(1)} aria-label="Next">
         <AltArrowRight />
       </button>
     </div>
