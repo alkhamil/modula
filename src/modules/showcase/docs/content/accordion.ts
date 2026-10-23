@@ -10,14 +10,13 @@ export const accordionDoc: ComponentDoc = {
   component: AccordionDemo,
   codeName: 'Accordion',
   codeExtra: ['items={items}'],
-  defaults: { appearance: 'box', multiple: false },
+  defaults: { appearance: 'box' },
   baseProps: { appearance: 'box' },
   controls: [
     { prop: 'appearance', kind: 'select', options: ['box', 'underline'] },
     { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
     { prop: 'showIcon', kind: 'boolean' },
     { prop: 'flipIcon', kind: 'boolean' },
-    { prop: 'multiple', kind: 'boolean' },
   ],
   figmaMapping: [
     { id: 'title', figma: 'Title (TEXT)', values: 'free text', prop: 'items[].title' },
@@ -36,7 +35,6 @@ export const accordionDoc: ComponentDoc = {
     { id: 'items', name: 'items', type: 'AccordionItem[] ({ value, title, content, icon?, disabled? })' },
     { id: 'size', name: 'size · flipIcon', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' · boolean", default: "'md' · false" },
     { id: 'appearance', name: 'appearance', type: "'box' | 'underline'", default: "'box'" },
-    { id: 'multiple', name: 'multiple', type: 'boolean', default: 'false' },
     { id: 'defaultOpen', name: 'defaultOpen · value · onChange', type: 'string[] · string[] · (value: string[]) => void', default: '[]' },
     { id: 'testId', name: 'testId', type: 'string' },
   ],

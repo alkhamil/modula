@@ -2063,7 +2063,6 @@
       "props": {
         "items": "Section: value, title, content (Description di Figma), ikon opsional, disabled.",
         "appearance": "Style Accordion Figma.",
-        "multiple": "Izinkan beberapa item terbuka.",
         "defaultOpen": "Nilai yang terbuka awalnya, atau `value` terkontrol dengan `onChange`.",
         "testId": "Dipetakan ke data-testid.",
         "size": "Ukuran dari token Size; `flipIcon` memindahkan chevron ke awal."
@@ -2080,8 +2079,8 @@
         "--wds-sz-accordion-header-gap": "Jarak di header."
       },
       "behavior": [
-        "Chevron berputar saat terbuka.",
-        "Tanpa `multiple`, membuka satu item menutup yang lain."
+        "Tiap item terbuka sendiri; membuka satu tidak menutup yang lain.",
+        "Chevron berputar saat terbuka."
       ],
       "accessibility": [
         "Header berupa button dengan aria-expanded dan aria-controls.",

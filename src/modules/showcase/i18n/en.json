@@ -2063,7 +2063,6 @@
       "props": {
         "items": "Sections: value, title, content (the Figma Description), optional icon, disabled.",
         "appearance": "Figma Accordion style.",
-        "multiple": "Allow several open items.",
         "defaultOpen": "Initially open values, or controlled `value` with `onChange`.",
         "testId": "Mapped to data-testid.",
         "size": "Size from the Size tokens; `flipIcon` moves the chevron to the start."
@@ -2080,8 +2079,8 @@
         "--wds-sz-accordion-header-gap": "Gap in the header."
       },
       "behavior": [
-        "The chevron rotates when open.",
-        "Without `multiple`, opening one item closes the others."
+        "Each item expands on its own; opening one does not close the others.",
+        "The chevron rotates when open."
       ],
       "accessibility": [
         "Headers are buttons with aria-expanded and aria-controls.",

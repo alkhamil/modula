@@ -19,8 +19,6 @@ interface AccordionProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   /** Pindahkan chevron ke awal (Figma "Flip icon"). */
   flipIcon?: boolean;
-  /** Boleh membuka banyak item sekaligus. */
-  multiple?: boolean;
   /** Item terbuka awal (tidak terkontrol). */
   defaultOpen?: string[];
   /** Item terbuka (terkontrol; Figma "Expand"). */
@@ -36,7 +34,6 @@ function Accordion({
   appearance = 'box',
   size = 'md',
   flipIcon = false,
-  multiple = false,
   defaultOpen = [],
   value,
   onChange,
@@ -47,7 +44,8 @@ function Accordion({
   const open = value ?? inner;
 
   function toggle(v: string) {
-    const next = open.includes(v) ? open.filter((x) => x !== v) : multiple ? [...open, v] : [v];
+    // Tiap item punya state Expand sendiri (Figma); membuka satu tidak menutup yang lain.
+    const next = open.includes(v) ? open.filter((x) => x !== v) : [...open, v];
     if (value === undefined) setInner(next);
     onChange?.(next);
   }
