@@ -33,7 +33,7 @@
   .wds-section-header__title {
     margin: 0;
     color: var(--wds-text-primary);
-    font-weight: var(--wds-font-weight-semi);
+    font-weight: var(--wds-font-weight-semi-bold);
     font-size: var(--wds-sz-text-title-font-size);
     line-height: var(--wds-sz-text-title-line-height);
   }

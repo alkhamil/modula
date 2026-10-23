@@ -66,7 +66,7 @@
   }
 
   .wds-feed__title strong {
-    font-weight: var(--wds-font-weight-semi);
+    font-weight: var(--wds-font-weight-semi-bold);
   }
 
   .wds-feed__time {
@@ -372,7 +372,7 @@
 
   .wds-chart__value {
     fill: var(--wds-text-primary);
-    font-weight: var(--wds-font-weight-semi);
+    font-weight: var(--wds-font-weight-semi-bold);
     font-size: 1.5rem;
   }
 

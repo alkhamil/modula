@@ -42,6 +42,7 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--wds-sz-accordion-header-gap);
+    min-height: var(--wds-sz-height);
     padding: var(--wds-sz-padding-top) var(--wds-sz-padding-right) var(--wds-sz-padding-bottom) var(--wds-sz-padding-left);
     border: 0;
     border-radius: var(--ac-radius);
@@ -51,6 +52,7 @@
   }
 
   .wds-accordion__item[data-open] .wds-accordion__header {
+    padding-bottom: var(--wds-sz-accordion-supporting-text-gap);
     border-radius: var(--ac-radius) var(--ac-radius) 0 0;
   }
 
@@ -101,9 +103,11 @@
 
   .wds-accordion__title {
     color: var(--wds-text-primary);
-    font-weight: var(--wds-font-weight-semi);
-    font-size: var(--wds-sz-text-body-font-size);
-    line-height: var(--wds-sz-text-body-line-height);
+    font-family: var(--wds-sz-text-title-font-family);
+    font-weight: var(--wds-font-weight-semi-bold);
+    font-size: var(--wds-sz-text-title-font-size);
+    /* Tinggi baris = token Size height - padding vertikal (md: 44 - 24 = 20), agar header setinggi token. */
+    line-height: calc(var(--wds-sz-height) - var(--wds-sz-padding-top) - var(--wds-sz-padding-bottom));
   }
 
   .wds-accordion__header:disabled .wds-accordion__title {
@@ -127,7 +131,9 @@
   }
 
   .wds-accordion__panel {
-    padding: 0 var(--wds-sz-padding-right) var(--wds-sz-padding-bottom) var(--wds-sz-padding-left);
+    padding: 0 var(--wds-sz-padding-right)
+      calc(var(--wds-sz-padding-bottom) + var(--wds-sz-accordion-container-padding-bottom))
+      var(--wds-sz-padding-left);
     color: var(--wds-text-secondary);
     font-size: var(--wds-sz-text-body-font-size);
     line-height: var(--wds-sz-text-body-line-height);
@@ -269,7 +275,7 @@
   .wds-banner__title {
     margin: 0;
     color: var(--wds-text-primary);
-    font-weight: var(--wds-font-weight-semi);
+    font-weight: var(--wds-font-weight-semi-bold);
     font-size: var(--wds-sz-text-body-font-size);
     line-height: var(--wds-sz-text-body-line-height);
   }

@@ -223,7 +223,7 @@
     overflow: hidden;
     margin: 0;
     color: var(--wds-text-primary);
-    font-weight: var(--wds-font-weight-semi);
+    font-weight: var(--wds-font-weight-semi-bold);
     font-size: var(--wds-sz-text-title-font-size);
     line-height: var(--wds-sz-text-title-line-height);
     text-overflow: ellipsis;
@@ -393,7 +393,7 @@
     background-color: var(--wds-bg-brand-subtle);
     color: var(--wds-text-brand);
     font-family: var(--wds-sz-text-body-font-family);
-    font-weight: var(--wds-font-weight-semi);
+    font-weight: var(--wds-font-weight-semi-bold);
     font-size: calc(var(--av-size) * 0.4);
   }
 

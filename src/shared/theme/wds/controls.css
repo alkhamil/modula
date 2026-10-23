@@ -112,7 +112,7 @@
 
   .wds-step__title {
     color: var(--st-title);
-    font-weight: var(--wds-font-weight-semi);
+    font-weight: var(--wds-font-weight-semi-bold);
     font-size: var(--wds-sz-text-body-font-size);
     line-height: var(--wds-sz-text-body-line-height);
   }
