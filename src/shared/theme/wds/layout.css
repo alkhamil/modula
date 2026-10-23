@@ -24,7 +24,6 @@
   }
 
   .wds-sidenav__header {
-    position: relative;
     display: flex;
     min-height: 2.5rem;
     flex-shrink: 0;
@@ -62,7 +61,13 @@
     background-color: var(--wds-bg-brand);
   }
 
+  /* Tombol collapse overlap di tepi kanan sidebar, sejajar logo (Figma Side navbar). */
   .wds-sidenav__toggle {
+    position: absolute;
+    top: calc(var(--wds-sz-side-navbar-padding-top) + 6px);
+    right: 0;
+    z-index: 1;
+    transform: translateX(50%);
     display: inline-flex;
     width: 28px;
     height: 28px;

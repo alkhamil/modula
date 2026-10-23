@@ -104,10 +104,7 @@ function SideNavbar({
             onClick={onToggle}
             type="button"
             aria-label={t('common.toggleSidebar', { defaultValue: 'Toggle sidebar' })}
-            className={[
-              'wds-sidenav__toggle max-md:hidden',
-              collapsed ? 'absolute left-1/2 -translate-x-1/2' : 'absolute right-0 translate-x-1/2',
-            ].join(' ')}
+            className="wds-sidenav__toggle max-md:hidden"
           >
             {collapsed ? (
               <DoubleAltArrowRight className="h-3.5 w-3.5" />
