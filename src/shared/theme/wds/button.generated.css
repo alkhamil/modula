@@ -404,7 +404,7 @@
 .wds-btn[data-hierarchy="tonal"][data-destructive="true"]:disabled,
 .wds-btn[data-hierarchy="tonal"][data-destructive="true"][data-wds-state="disabled"] {
   --btn-bg: var(--wds-bg-danger-subtle);
-  --btn-fg: var(--wds-text-danger-subtle);
+  --btn-fg: var(--wds-text-danger-disabled);
   --btn-icon: var(--wds-icons-danger-disabled);
   --btn-stroke: transparent;
 }
@@ -487,7 +487,7 @@
 .wds-btn[data-hierarchy="elevated"][data-destructive="true"]:disabled,
 .wds-btn[data-hierarchy="elevated"][data-destructive="true"][data-wds-state="disabled"] {
   --btn-bg: var(--wds-bg-disabled);
-  --btn-fg: var(--wds-text-danger-subtle);
+  --btn-fg: var(--wds-text-danger-disabled);
   --btn-icon: var(--wds-icons-danger-disabled);
   --btn-stroke: transparent;
 }

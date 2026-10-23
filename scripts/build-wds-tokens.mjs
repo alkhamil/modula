@@ -218,10 +218,13 @@ for (const h of HIERARCHIES) {
       const selector = STATE_SELECTORS[state]
         .map((suffix) => `.wds-btn[data-hierarchy="${h}"]` + (destructive ? '[data-destructive="true"]' : '') + suffix)
         .join(',\n');
+      // Token Figma tonal/elevated destructive+disabled memakai `text.danger-subtle` (= warna latar tonal,
+      // hampir sama dengan latar elevated) sehingga teks tak terbaca; pakai `text.danger-disabled` seperti hierarchy lain.
+      const fg = destructive && state === 'disabled' ? get('text').replace('text-danger-subtle', 'text-danger-disabled') : get('text');
       btn.push(
         `${selector} {`,
         `  --btn-bg: ${get('background')};`,
-        `  --btn-fg: ${get('text')};`,
+        `  --btn-fg: ${fg};`,
         `  --btn-icon: ${get('icons')};`,
         `  --btn-stroke: ${get('stroke')};`,
         '}',
