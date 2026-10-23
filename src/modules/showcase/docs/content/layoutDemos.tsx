@@ -31,7 +31,7 @@ export function PageHeaderDemo(props: Omit<ComponentProps<typeof PageHeader>, 't
         title={rest.title ?? 'Page Name'}
         breadcrumb={[{ label: 'Dashboard', path: '/' }, { label: 'Feature Name', path: '/' }, { label: 'Add Company' }]}
       >
-        {showProfile && <Profile user={{ name: 'Mikel Hasan', roleName: 'Superadmin' }} />}
+        {showProfile && <Profile user={{ name: 'Mikel Hasan', roleName: 'Superadmin' }} onLogout={() => {}} />}
       </PageHeader>
     </div>
   );

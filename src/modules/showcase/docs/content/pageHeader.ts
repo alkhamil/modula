@@ -10,7 +10,7 @@ export const pageHeaderDoc: ComponentDoc = {
   component: PageHeaderDemo,
   codeName: 'PageHeader',
   codeExtra: ["breadcrumb={[{ label: 'Dashboard', path: '/' }, { label: 'Feature Name', path: '/' }, { label: 'Add Company' }]}"],
-  codeChildren: "<Profile user={{ name: 'Mikel Hasan', roleName: 'Superadmin' }} />",
+  codeChildren: "<Profile user={{ name: 'Mikel Hasan', roleName: 'Superadmin' }} onLogout={logout} />",
   codeOmit: ['showProfile'],
   baseProps: { title: 'Page Name', showProfile: true },
   controls: [
