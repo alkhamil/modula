@@ -3,6 +3,9 @@ import { BannerDemo } from './layoutDemos';
 
 const VARIANTS = ['info', 'success', 'warning', 'danger', 'default'];
 
+const ACTION = raw("{ label: 'Button CTA', onClick }", { label: 'Button CTA' });
+const SECONDARY = raw("{ label: 'Secondary', onClick }", { label: 'Secondary' });
+
 export const bannerDoc: ComponentDoc = {
   slug: 'banner',
   name: 'Banner',
@@ -12,17 +15,33 @@ export const bannerDoc: ComponentDoc = {
   component: BannerDemo,
   codeName: 'Banner',
   defaults: { variant: 'info' },
-  baseProps: { variant: 'info', message: 'A new version is available.' },
+  baseProps: {
+    variant: 'info',
+    title: 'Banner title',
+    message: 'Brief description providing additional context about this message.',
+    action: ACTION,
+    onClose: fn('handleClose'),
+  },
   controls: [
-    { prop: 'variant', kind: 'select', options: VARIANTS },
+    { prop: 'variant', kind: 'select', label: 'Banner style', options: VARIANTS },
     { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
-    { prop: 'title', kind: 'text' },
-    { prop: 'message', kind: 'text' },
+    { prop: 'message', kind: 'text', label: 'Banner text' },
+    { prop: 'title', kind: 'text', label: 'Title' },
+    { prop: 'title', kind: 'toggle', label: 'Show title', onValue: 'Banner title' },
+    { prop: 'icon', kind: 'toggle', label: 'Show icon', onValue: undefined, offValue: raw('false', false) },
+    { prop: 'action', kind: 'toggle', label: 'Action-1', onValue: ACTION },
+    { prop: 'secondaryAction', kind: 'toggle', label: 'Action-2', onValue: SECONDARY },
+    { prop: 'onClose', kind: 'toggle', label: 'Close', onValue: fn('handleClose') },
   ],
   figmaMapping: [
-    { id: 'styles', figma: 'Banner styles (mode)', values: VARIANTS.join(', '), prop: 'variant' },
-    { id: 'content', figma: 'Title · supporting text', values: 'free text', prop: 'title · message' },
-    { id: 'actions', figma: 'Action-1 · Action-2 · Close', values: 'buttons, icon', prop: 'action · secondaryAction · onClose' },
+    { id: 'text', figma: 'Banner text (TEXT)', values: 'free text', prop: 'message' },
+    { id: 'title', figma: 'Title (TEXT)', values: 'free text', prop: 'title' },
+    { id: 'showTitle', figma: 'Show title (BOOLEAN)', values: 'true, false', prop: 'title (empty = hidden)' },
+    { id: 'showIcon', figma: 'Show Icon (BOOLEAN)', values: 'true, false', prop: 'icon={false}' },
+    { id: 'action1', figma: 'Action-1 (BOOLEAN)', values: 'true, false', prop: 'action' },
+    { id: 'action2', figma: 'Action-2 (BOOLEAN)', values: 'true, false', prop: 'secondaryAction' },
+    { id: 'close', figma: 'Close (BOOLEAN)', values: 'true, false', prop: 'onClose' },
+    { id: 'styles', figma: 'Banner style (mode)', values: VARIANTS.join(', '), prop: 'variant' },
     { id: 'size', figma: 'Size Modes', values: 'xs, sm, md, lg, xl', prop: 'size' },
   ],
   examples: [

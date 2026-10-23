@@ -2148,14 +2148,29 @@
         "styles": {
           "note": "Info, success, warning, dan danger memakai isi lembut; default putih dengan border."
         },
-        "content": {
-          "note": "Judul bersifat opsional."
-        },
-        "actions": {
-          "note": "Dirender sebagai Button kecil: `action` primer, `secondaryAction` sekunder."
-        },
         "size": {
           "note": "Padding dan ukuran ikon mengikuti token Size."
+        },
+        "text": {
+          "note": "Deskripsi di bawah judul."
+        },
+        "title": {
+          "note": "Judul banner."
+        },
+        "showTitle": {
+          "note": "Disembunyikan bila `title` kosong."
+        },
+        "showIcon": {
+          "note": "`icon={false}` menyembunyikan ikon status di depan."
+        },
+        "action1": {
+          "note": "Aksi pertama: Button primary."
+        },
+        "action2": {
+          "note": "Aksi kedua: Button secondary."
+        },
+        "close": {
+          "note": "Tampil bila `onClose` diberikan."
         }
       },
       "examples": {

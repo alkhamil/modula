@@ -20,7 +20,12 @@ export const isIconRef = (value: unknown): value is IconRef =>
 
 export interface DocControl {
   prop: string;
-  kind: 'select' | 'boolean' | 'text' | 'icon';
+  kind: 'select' | 'boolean' | 'text' | 'icon' | 'toggle';
+  /** Teks baris kontrol (default: nama prop) — dipakai untuk properti Figma seperti "Show title". */
+  label?: string;
+  /** Untuk `toggle`: nilai prop saat aktif / nonaktif (default nonaktif: tidak diset). */
+  onValue?: unknown;
+  offValue?: unknown;
   /** Untuk `select`; untuk `icon` daftar nama ikon (opsi "none" otomatis). */
   options?: string[];
 }

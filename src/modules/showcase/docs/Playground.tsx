@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import * as Icons from '../../../shared/components/icons';
 import CodeBlock from './CodeBlock';
 import { docCode, resolveProps } from './render';
-import { icon, type ComponentDoc, type DocControl } from './types';
+import { icon, isRawRef, type ComponentDoc, type DocControl } from './types';
 import Dropdown from './ui/Dropdown';
 import Segmented from './ui/Segmented';
 import Toggle from './ui/Toggle';
@@ -22,6 +22,12 @@ const BG_CLASS: Record<Background, string> = {
 const inputClass =
   'w-full rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:border-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary';
 
+/** Bandingkan nilai kontrol; string kosong dianggap sama dengan tidak diset, RawRef dibandingkan lewat kodenya. */
+function sameValue(a: unknown, b: unknown): boolean {
+  const norm = (v: unknown) => (v === '' || v === null ? undefined : isRawRef(v) ? `raw:${v.$raw}` : v);
+  return norm(a) === norm(b);
+}
+
 function ControlRow({
   control,
   value,
@@ -31,7 +37,20 @@ function ControlRow({
   value: unknown;
   onChange: (next: unknown) => void;
 }) {
-  const name = <span className="font-mono text-[11px] text-foreground">{control.prop}</span>;
+  const name = <span className="font-mono text-[11px] text-foreground">{control.label ?? control.prop}</span>;
+  if (control.kind === 'toggle') {
+    const off = sameValue(value, control.offValue);
+    return (
+      <div className="flex items-center justify-between gap-3 py-1">
+        {name}
+        <Toggle
+          checked={!off}
+          onChange={(on) => onChange(on ? control.onValue : control.offValue)}
+          label={control.label ?? control.prop}
+        />
+      </div>
+    );
+  }
   if (control.kind === 'boolean') {
     return (
       <div className="flex items-center justify-between gap-3 py-1">
@@ -149,7 +168,7 @@ function Playground({ doc }: { doc: ComponentDoc }) {
         )}
         {doc.controls.map((control) => (
           <ControlRow
-            key={control.prop}
+            key={control.label ?? control.prop}
             control={control}
             value={props[control.prop]}
             onChange={(next) => setProps((prev) => ({ ...prev, [control.prop]: next }))}

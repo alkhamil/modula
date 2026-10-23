@@ -2148,14 +2148,29 @@
         "styles": {
           "note": "Info, success, warning and danger use subtle fills; default is white with a border."
         },
-        "content": {
-          "note": "Title is optional."
-        },
-        "actions": {
-          "note": "Rendered as small Buttons: `action` primary, `secondaryAction` secondary."
-        },
         "size": {
           "note": "Padding and icon size follow the Size tokens."
+        },
+        "text": {
+          "note": "The description shown under the title."
+        },
+        "title": {
+          "note": "The headline of the banner."
+        },
+        "showTitle": {
+          "note": "Hidden when `title` is empty."
+        },
+        "showIcon": {
+          "note": "`icon={false}` hides the leading status icon."
+        },
+        "action1": {
+          "note": "First action: a primary Button."
+        },
+        "action2": {
+          "note": "Second action: a secondary Button."
+        },
+        "close": {
+          "note": "Shown when `onClose` is passed."
         }
       },
       "examples": {
