@@ -3225,16 +3225,13 @@
       ]
     },
     "calendar": {
-      "summary": "Calendar WDS: panel date picker mandiri dengan tampilan Date, Month, dan Year, pemilih waktu opsional, dan footer Cancel / Apply.",
+      "summary": "Calendar WDS: panel date picker mandiri dengan tampilan Date, Month, dan Year serta pemilih waktu opsional.",
       "figma": {
         "type": {
           "note": "Tampilan awal: grid hari, bulan, atau tahun."
         },
         "timePicker": {
           "note": "Pilihan jam dan menit di tampilan Date; waktu ikut dalam nilai."
-        },
-        "apply": {
-          "note": "Footer Cancel / Apply; pilihan jadi draf sampai Apply ditekan."
         },
         "size": {
           "note": "Skala teks dan padding dari token Size."
@@ -3250,8 +3247,7 @@
         "testId": "Dipetakan ke data-testid.",
         "type": "Tampilan awal.",
         "size": "Ukuran dari token Size.",
-        "timePicker": "Tampilkan pilihan jam dan menit.",
-        "showApply": "Tampilkan footer Cancel dan Apply; `onChange` terpanggil saat Apply."
+        "timePicker": "Tampilkan pilihan jam dan menit."
       },
       "tokens": {
         "--wds-bg-page": "Latar kalender.",
@@ -3260,7 +3256,7 @@
         "--wds-stroke-subtle": "Pemisah.",
         "--wds-sz-calendar-content-padding-top": "Padding kalender.",
         "--wds-sz-calendar-month-cell-size": "Lingkaran terpilih di tampilan Bulan dan Tahun.",
-        "--wds-sz-calendar-bottom-panel-gap": "Jarak di panel jam dan Cancel / Apply."
+        "--wds-sz-calendar-bottom-panel-gap": "Jarak di panel waktu."
       },
       "behavior": [
         "Klik header untuk berpindah antara tampilan hari, bulan, dan tahun."

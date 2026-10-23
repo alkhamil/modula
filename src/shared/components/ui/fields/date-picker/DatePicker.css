@@ -548,7 +548,7 @@ button.wds-cal__title:hover {
   font-weight: var(--wds-sz-text-caption-font-weight);
 }
 
-/* Panel bawah (Figma "bottom-panel"): pemisah, jam/menit, aksi Cancel/Apply. */
+/* Panel bawah (Figma "bottom-panel"): pemisah + jam/menit. */
 .wds-cal__bottom {
   display: flex;
   flex-direction: column;
@@ -576,12 +576,6 @@ button.wds-cal__title:hover {
   color: var(--wds-text-primary);
   font-size: var(--wds-sz-text-body-font-size);
   text-align: center;
-}
-
-.wds-cal__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--wds-sz-calendar-actions-gap);
 }
 
 .wds-field__content .react-datepicker-wrapper {
