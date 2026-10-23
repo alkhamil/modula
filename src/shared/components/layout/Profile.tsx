@@ -13,6 +13,8 @@ export interface AvatarUserData {
 
 interface ProfileProps {
   user: AvatarUserData | null;
+  /** Avatar di sebelah nama (Figma Profile: instance Avatar, bisa disembunyikan). Default tampil. */
+  showAvatar?: boolean;
   onLogout?: () => void;
   settingsPath?: string;
   settingsLabel?: string;
@@ -22,6 +24,7 @@ interface ProfileProps {
 
 function Profile({
   user,
+  showAvatar = true,
   onLogout,
   settingsPath = '/settings',
   settingsLabel,
@@ -55,6 +58,7 @@ function Profile({
         data-state={dropdownOpen ? 'active' : undefined}
         className="wds-profile"
       >
+        {showAvatar && <Avatar name={user?.name ?? initial} size="md" />}
         <div className="wds-profile__text text-center">
           <p className="wds-profile__title">Hi, {firstName}</p>
           <p className="wds-profile__support">{user?.roleName ?? 'User'}</p>

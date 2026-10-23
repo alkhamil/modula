@@ -1838,7 +1838,10 @@
           "note": "Hover dan state terbuka memakai isi brand lembut; chevron berbalik saat terbuka."
         },
         "user": {
-          "note": "Sapaan memakai nama depan, dengan peran di bawahnya; avatar tampil di menu yang terbuka."
+          "note": "Sapaan memakai nama depan dengan peran di bawahnya; avatar ada di depannya dan menu juga menampilkannya."
+        },
+        "avatar": {
+          "note": "Avatar adalah instance opsional di Figma; tampil secara default, sembunyikan dengan showAvatar={false}."
         }
       },
       "examples": {},
@@ -1846,7 +1849,8 @@
         "user": "User saat ini (nama dan peran opsional).",
         "onLogout": "Menampilkan item keluar.",
         "settings": "Override path dan label pengaturan.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "showAvatar": "Menampilkan avatar sebelum nama."
       },
       "tokens": {
         "--wds-bg-brand-subtle": "Latar hover / terbuka.",

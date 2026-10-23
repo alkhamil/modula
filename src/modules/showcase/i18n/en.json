@@ -1838,7 +1838,10 @@
           "note": "Hover and the open state use the brand subtle fill; the chevron flips when open."
         },
         "user": {
-          "note": "Greeting uses the first name, with the role underneath; the avatar appears in the opened menu."
+          "note": "Greeting uses the first name with the role underneath; the avatar sits before it and the menu shows it too."
+        },
+        "avatar": {
+          "note": "The avatar is an optional instance in Figma; shown by default, hide it with showAvatar={false}."
         }
       },
       "examples": {},
@@ -1846,7 +1849,8 @@
         "user": "Current user (name and optional role).",
         "onLogout": "Shows the logout item.",
         "settings": "Settings link path and label overrides.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "showAvatar": "Shows the avatar before the name."
       },
       "tokens": {
         "--wds-bg-brand-subtle": "Hover / open background.",
