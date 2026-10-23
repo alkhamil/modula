@@ -1,16 +1,26 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { NavLink } from 'react-router';
+import { NavLink, useLocation } from 'react-router';
 import { docs } from './registry';
 
 /** Kerangka dokumentasi: daftar komponen (per kategori) di kiri, isi di kanan. */
 function DocsLayout({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   const categories = [...new Set(docs.map((d) => d.category))];
+  const { pathname } = useLocation();
+  const navRef = useRef<HTMLElement>(null);
+
+  // Daftar panjang: jaga item aktif tetap terlihat saat berpindah halaman.
+  useEffect(() => {
+    navRef.current?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest' });
+  }, [pathname]);
   return (
     <div className="flex flex-col gap-8 lg:flex-row">
       <aside className="shrink-0 lg:w-52" aria-label={t('docs.nav.componentList')}>
-        <nav className="flex flex-col gap-5 lg:sticky lg:top-4">
+        <nav
+          ref={navRef}
+          className="wds-scroll flex flex-col gap-5 lg:sticky lg:top-4 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-2"
+        >
           <NavLink
             to="/components"
             end
