@@ -63,12 +63,12 @@ function Banner({
       {(action || secondaryAction) && (
         <div className="wds-banner__actions">
           {secondaryAction && (
-            <Button size="sm" hierarchy="secondary" onClick={secondaryAction.onClick}>
+            <Button size="md" hierarchy="secondary" onClick={secondaryAction.onClick}>
               {secondaryAction.label}
             </Button>
           )}
           {action && (
-            <Button size="sm" onClick={action.onClick}>
+            <Button size="md" onClick={action.onClick}>
               {action.label}
             </Button>
           )}
