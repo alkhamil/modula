@@ -176,8 +176,9 @@
     margin-left: auto;
   }
 
-  /* Cincin fokus (Figma "Focus indicator"): stroke token di luar kotak, jarak 2px. */
-  .wds-field:has(.wds-field__input:focus-visible) .wds-field__box,
+  /* Cincin fokus (Figma "Focus indicator"): stroke token di luar kotak, jarak 2px; hanya untuk fokus keyboard
+     (klik mouse = border selected/typing saja). */
+  :root[data-input='keyboard'] .wds-field:has(.wds-field__input:focus-visible) .wds-field__box,
   .wds-field[data-wds-state='focused'] .wds-field__box {
     outline: var(--wds-sz-focus-stroke) solid var(--wds-stroke-focus);
     outline-offset: 2px;
