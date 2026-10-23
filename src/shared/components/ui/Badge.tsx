@@ -56,12 +56,13 @@ function Badge({
   testId,
   'aria-label': ariaLabel,
 }: BadgeProps) {
+  const hasCounter = counter !== undefined && counter !== null && counter !== false && counter !== '';
   return (
     <span
       data-testid={testId}
       data-style={variant === 'custom' ? undefined : STYLE_OF[variant]}
       data-wds-size={size}
-      data-counter={counter !== undefined ? 'true' : undefined}
+      data-counter={hasCounter ? 'true' : undefined}
       data-icon-only={iconOnly ? 'true' : undefined}
       aria-label={ariaLabel}
       className={['wds-badge', className].filter(Boolean).join(' ')}
@@ -70,7 +71,7 @@ function Badge({
       {leadingIcon && <span className="wds-badge__icon">{leadingIcon}</span>}
       {!iconOnly && children}
       {!iconOnly && trailingIcon && <span className="wds-badge__icon">{trailingIcon}</span>}
-      {!iconOnly && counter !== undefined && <span className="wds-badge__counter">{counter}</span>}
+      {!iconOnly && hasCounter && <span className="wds-badge__counter">{counter}</span>}
       {!iconOnly && onRemove && (
         <button type="button" aria-label="Remove" className="wds-badge__remove" onClick={onRemove}>
           <Cross />
