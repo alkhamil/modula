@@ -97,19 +97,18 @@ export function TabsDemo(props: Partial<ComponentProps<typeof Tabs>>) {
   );
 }
 
-export function BreadcrumbsDemo(props: Partial<ComponentProps<typeof Breadcrumbs>>) {
-  return (
-    <Breadcrumbs
-      {...props}
-      items={[
-        { label: 'Home', to: '/' },
-        { label: 'Company', to: '/' },
-        { label: 'Team', to: '/' },
-        { label: 'Users', to: '/user-management/users' },
-        { label: 'Detail' },
-      ]}
-    />
-  );
+const CRUMBS = [
+  { label: 'Menu', to: '/', icon: <Database /> },
+  { label: 'Menu', to: '/', icon: <Database /> },
+  { label: 'Menu', to: '/', icon: <Database /> },
+  { label: 'Menu', to: '/', icon: <Database /> },
+  { label: 'Menu', icon: <Database /> },
+];
+
+/** `levels` = mode Figma "No. of Menu" (3, 4, atau 5 level); bukan prop komponen. */
+export function BreadcrumbsDemo({ levels = 3, ...props }: Partial<ComponentProps<typeof Breadcrumbs>> & { levels?: number | string }) {
+  const count = Number(levels);
+  return <Breadcrumbs {...props} items={[...CRUMBS.slice(0, count - 1), CRUMBS[CRUMBS.length - 1]!]} />;
 }
 
 export function LinkDemo(props: ComponentProps<typeof Link>) {

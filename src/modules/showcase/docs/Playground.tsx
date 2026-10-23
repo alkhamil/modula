@@ -55,7 +55,7 @@ function ControlRow({
     return (
       <div className="flex items-center justify-between gap-3 py-1">
         {name}
-        <Toggle checked={Boolean(value)} onChange={onChange} label={control.prop} />
+        <Toggle checked={Boolean(value)} onChange={onChange} label={control.label ?? control.prop} />
       </div>
     );
   }

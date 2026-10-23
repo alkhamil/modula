@@ -1930,7 +1930,13 @@
           "note": "A chevron icon separates items."
         },
         "truncated": {
-          "note": "Keeps the first item and the last ones, with \"…\" in between."
+          "note": "Keeps the first and last level with a single \"…\" between them."
+        },
+        "levels": {
+          "note": "How many levels are shown; it is the number of `items`, not a prop."
+        },
+        "showIcons": {
+          "note": "Placement of each item's `icon`: off, leading, trailing, icon only or both sides."
         }
       },
       "examples": {},
@@ -1938,7 +1944,8 @@
         "items": "Trail items; the last one is current.",
         "testId": "Mapped to data-testid.",
         "size": "Size from the Size tokens.",
-        "maxItems": "Collapses the middle of a long trail into an ellipsis once it exceeds this number."
+        "truncated": "Collapses the middle levels into one ellipsis.",
+        "showIcons": "Icon placement on each level."
       },
       "tokens": {
         "--wds-text-tertiary": "Link text.",
@@ -1946,7 +1953,8 @@
         "--wds-text-brand-pressed": "Pressed text.",
         "--wds-text-disabled": "Disabled text.",
         "--wds-icons-tertiary": "Chevrons and icons.",
-        "--wds-sz-breadcrumbs-gap": "Gap between parts."
+        "--wds-sz-breadcrumbs-gap": "Gap between parts.",
+        "--wds-sz-link-gap": "Gap between icon and label."
       },
       "behavior": [
         "Items without `to` render as plain text.",

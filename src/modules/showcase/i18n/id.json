@@ -1930,7 +1930,13 @@
           "note": "Ikon chevron memisahkan item."
         },
         "truncated": {
-          "note": "Mempertahankan item pertama dan terakhir, dengan \"…\" di antaranya."
+          "note": "Menyisakan level pertama dan terakhir dengan satu \"…\" di antaranya."
+        },
+        "levels": {
+          "note": "Jumlah level yang tampil; itu jumlah `items`, bukan prop."
+        },
+        "showIcons": {
+          "note": "Penempatan `icon` tiap item: off, leading, trailing, hanya ikon, atau kedua sisi."
         }
       },
       "examples": {},
@@ -1938,7 +1944,8 @@
         "items": "Item jejak; yang terakhir adalah saat ini.",
         "testId": "Dipetakan ke data-testid.",
         "size": "Ukuran dari token Size.",
-        "maxItems": "Meringkas bagian tengah jejak panjang menjadi elipsis bila melebihi jumlah ini."
+        "truncated": "Meringkas level tengah menjadi satu elipsis.",
+        "showIcons": "Penempatan ikon pada tiap level."
       },
       "tokens": {
         "--wds-text-tertiary": "Teks tautan.",
@@ -1946,7 +1953,8 @@
         "--wds-text-brand-pressed": "Teks pressed.",
         "--wds-text-disabled": "Teks disabled.",
         "--wds-icons-tertiary": "Chevron dan ikon.",
-        "--wds-sz-breadcrumbs-gap": "Jarak antar bagian."
+        "--wds-sz-breadcrumbs-gap": "Jarak antar bagian.",
+        "--wds-sz-link-gap": "Jarak ikon dan label."
       },
       "behavior": [
         "Item tanpa `to` dirender sebagai teks biasa.",

@@ -164,10 +164,16 @@
   .wds-breadcrumbs__link {
     display: inline-flex;
     align-items: center;
-    gap: var(--wds-spacing-4);
+    gap: var(--wds-sz-link-gap);
     color: var(--wds-text-tertiary);
     font-weight: var(--wds-font-weight-medium);
+    font-size: var(--wds-sz-text-link-font-size);
+    line-height: var(--wds-sz-text-link-line-height);
     text-decoration: none;
+  }
+
+  .wds-breadcrumbs__ellipsis > svg {
+    transform: rotate(90deg);
   }
 
   .wds-breadcrumbs__link > svg {
