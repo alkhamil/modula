@@ -33,7 +33,7 @@ import {
   SectionHeader,
   useToast,
 } from '../../../../shared/components/ui';
-import { Database, Settings, InfoCircle, MenuDotsVertical, Pen, TrashBinTrash, Download } from '../../../../shared/components/icons';
+import { Database, Settings, InfoCircle, Pen, TrashBinTrash, Download } from '../../../../shared/components/icons';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type P<T extends JSXElementConstructor<any>> = Partial<ComponentProps<T>>;
@@ -197,15 +197,23 @@ export function ScrollAreaDemo(props: P<typeof ScrollArea>) {
   );
 }
 
-export function ActivityFeedDemo(props: P<typeof ActivityFeed>) {
+export function ActivityFeedDemo({ type = 'default', ...props }: P<typeof ActivityFeed> & { type?: 'default' | 'text' | 'file' | 'labels' | 'chat' }) {
   return (
-    <div className="w-[min(100%,420px)]">
+    <div className="w-[min(100%,440px)]">
       <ActivityFeed
         {...props}
         items={[
-          { name: 'Ayu', action: 'Created the module', time: '2 min ago', menu: <MenuDotsVertical className="h-4 w-4 text-(--wds-icons-tertiary)" /> },
-          { name: 'Budi', action: 'attached a file', time: '1 h ago', type: 'file', file: { name: 'spec.pdf', size: '240 KB' } },
-          { name: 'Citra', action: 'commented', time: 'Yesterday', type: 'chat', text: 'Looks good to me!' },
+          {
+            name: 'Jane Doe',
+            time: '00 mins ago',
+            description: 'Description',
+            online: true,
+            type,
+            file: { name: 'File name.format', size: 'File size' },
+            labels: [<Badge key="a" variant="neutral">Label</Badge>, <Badge key="b" variant="info">Label</Badge>, <Badge key="c" variant="success" counter={12}>Label</Badge>],
+            text: type === 'chat' ? "I'm message you right now." : '"Lorem ipsum dolor sit amet consectetur. Lorem ipsum dolor sit amet consectetur."',
+          },
+          { name: 'Budi Santoso', time: '5 mins ago', description: 'Description' },
         ]}
       />
     </div>

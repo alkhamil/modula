@@ -2942,32 +2942,48 @@
       ]
     },
     "activity-feed": {
-      "summary": "Activity feed WDS: linimasa aksi dengan avatar, garis konektor, dan konten per tipe (file, labels, text, chat).",
+      "summary": "Activity feed WDS: daftar entri dengan avatar (titik online), nama dan waktu, deskripsi, konektor putus-putus, titik status, aksi, dan konten per tipe (text, file, labels, chat).",
       "figma": {
-        "types": {
-          "note": "Tiap tipe menambah blok konten sendiri."
+        "connector": {
+          "note": "Garis vertikal putus-putus dari avatar ke entri berikutnya."
         },
-        "styles": {
-          "note": "Konektor dan border file memakai stroke default."
+        "dot": {
+          "note": "Titik status biru di samping entri."
+        },
+        "action": {
+          "note": "Aksi titik tiga di ujung; ganti dengan items[].action."
+        },
+        "types": {
+          "note": "Konten di bawah judul: kutipan teks, baris file, badge label, atau kotak chat."
+        },
+        "avatar": {
+          "note": "Dua bentuk yang sama dengan Avatar."
+        },
+        "size": {
+          "note": "Teks dan jarak mengikuti token Size."
         }
       },
       "examples": {},
       "props": {
-        "items": "Entri: name, action, time, avatar, type, dan konten.",
+        "items": "Entri: name, time, description, avatarSrc, online, type, dan konten.",
+        "flags": "Properti Boolean Figma.",
+        "avatarStyle": "Style Avatar Figma.",
+        "size": "Ukuran dari token Size.",
         "testId": "Dipetakan ke data-testid."
       },
       "tokens": {
-        "--wds-stroke-default": "Konektor dan border file.",
-        "--wds-text-primary": "Judul.",
-        "--wds-text-tertiary": "Waktu / petunjuk.",
-        "--wds-bg-subtle": "Gelembung chat.",
-        "--wds-sz-activity-feed-gap": "Jarak avatar ke teks."
+        "--wds-stroke-default": "Konektor dan border chat.",
+        "--wds-text-primary": "Nama, deskripsi, nama file.",
+        "--wds-text-tertiary": "Waktu dan petunjuk.",
+        "--wds-bg-brand": "Titik status.",
+        "--wds-sz-activity-feed-gap": "Jarak avatar ke teks.",
+        "--wds-sz-activity-feed-chat-container-padding-top": "Padding kotak chat."
       },
       "behavior": [
         "Entri terakhir tanpa konektor."
       ],
       "accessibility": [
-        "Dirender sebagai daftar berurutan."
+        "Dirender sebagai daftar berurutan; tombol aksi punya nama yang bisa diakses."
       ]
     },
     "chat-message": {

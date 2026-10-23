@@ -451,18 +451,26 @@ export const activityFeedDoc: ComponentDoc = {
   component: ActivityFeedDemo,
   codeName: "ActivityFeed",
   codeExtra: ["items={items}"],
-  baseProps: {},
-  controls: [],
+  codeOmit: ['type'],
+  baseProps: { type: 'default', showConnector: true, showDot: true, showAction: true, avatarStyle: 'default' },
+  controls: [{ prop: 'type', kind: 'select', options: ['default', 'text', 'file', 'labels', 'chat'] }, { prop: 'showConnector', kind: 'boolean' }, { prop: 'showDot', kind: 'boolean' }, { prop: 'showAction', kind: 'boolean' }, { prop: 'avatarStyle', kind: 'select', options: ['default', 'rounded'] }, { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }],
   figmaMapping: [
-    { id: "types", figma: "Activity feed types (mode)", values: "default, file, labels, text, chat", prop: "items[].type" },
-    { id: "styles", figma: "Activity feed styles", values: "default", prop: "— (CSS)" },
+    { id: "connector", figma: "Show Connector (BOOLEAN)", values: "boolean", prop: "showConnector" },
+    { id: "dot", figma: "Show _Dot (BOOLEAN)", values: "boolean", prop: "showDot" },
+    { id: "action", figma: "Show Action (BOOLEAN)", values: "boolean", prop: "showAction · items[].action" },
+    { id: "types", figma: "Activity feed type (mode)", values: "default, text, file, labels, chat", prop: "items[].type" },
+    { id: "avatar", figma: "Avatar style (mode)", values: "default, rounded", prop: "avatarStyle" },
+    { id: "size", figma: "Size Modes", values: "xs, sm, md, lg, xl", prop: "size" },
   ],
   examples: [],
   props: [
     { id: "items", name: "items", type: "ActivityItem[]" },
+    { id: "flags", name: "showConnector · showDot · showAction", type: "boolean", default: "true" },
+    { id: "avatarStyle", name: "avatarStyle", type: "'default' | 'rounded'", default: "'default'" },
+    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'testId', name: 'testId', type: 'string' },
   ],
-  tokens: ["--wds-stroke-default", "--wds-text-primary", "--wds-text-tertiary", "--wds-bg-subtle", "--wds-sz-activity-feed-gap"].map((name) => ({ name })),
+  tokens: ["--wds-stroke-default", "--wds-text-primary", "--wds-text-tertiary", "--wds-bg-brand", "--wds-sz-activity-feed-gap", "--wds-sz-activity-feed-chat-container-padding-top"].map((name) => ({ name })),
 };
 
 export const chatMessageDoc: ComponentDoc = {

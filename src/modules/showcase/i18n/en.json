@@ -2942,32 +2942,48 @@
       ]
     },
     "activity-feed": {
-      "summary": "WDS activity feed: a timeline of actions with avatars, a connector line and content per type (file, labels, text, chat).",
+      "summary": "WDS activity feed: a list of entries with an avatar (online dot), name and time, description, a dashed connector, a status dot, an action and content per type (text, file, labels, chat).",
       "figma": {
-        "types": {
-          "note": "Each type adds its own content block."
+        "connector": {
+          "note": "Dashed vertical line from the avatar to the next entry."
         },
-        "styles": {
-          "note": "Connector and file border use the default stroke."
+        "dot": {
+          "note": "Blue status dot beside the entry."
+        },
+        "action": {
+          "note": "Three-dot action at the end; replace it with items[].action."
+        },
+        "types": {
+          "note": "Content under the title: text quote, file row, label badges or a chat box."
+        },
+        "avatar": {
+          "note": "Same two shapes as Avatar."
+        },
+        "size": {
+          "note": "Text and gaps follow the Size tokens."
         }
       },
       "examples": {},
       "props": {
-        "items": "Entries: name, action, time, avatar, type and content.",
+        "items": "Entries: name, time, description, avatarSrc, online, type and content.",
+        "flags": "Figma Boolean properties.",
+        "avatarStyle": "Figma Avatar style.",
+        "size": "Size from the Size tokens.",
         "testId": "Mapped to data-testid."
       },
       "tokens": {
-        "--wds-stroke-default": "Connector and file border.",
-        "--wds-text-primary": "Title.",
-        "--wds-text-tertiary": "Time / hint.",
-        "--wds-bg-subtle": "Chat bubble.",
-        "--wds-sz-activity-feed-gap": "Gap avatar to text."
+        "--wds-stroke-default": "Connector and chat border.",
+        "--wds-text-primary": "Name, description, file name.",
+        "--wds-text-tertiary": "Time and hint.",
+        "--wds-bg-brand": "Status dot.",
+        "--wds-sz-activity-feed-gap": "Gap avatar to text.",
+        "--wds-sz-activity-feed-chat-container-padding-top": "Chat box padding."
       },
       "behavior": [
         "The last entry has no connector."
       ],
       "accessibility": [
-        "Rendered as an ordered list."
+        "Rendered as an ordered list; the action button has an accessible name."
       ]
     },
     "chat-message": {
