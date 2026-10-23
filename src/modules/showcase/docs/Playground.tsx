@@ -103,8 +103,8 @@ function Playground({ doc }: { doc: ComponentDoc }) {
   const dirty = props !== doc.baseProps || children !== (doc.baseChildren ?? '');
 
   return (
-    <div className="grid rounded-xl border border-border bg-background lg:h-[34rem] lg:grid-cols-[minmax(0,1fr)_300px]">
-      <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-t-xl lg:rounded-l-xl lg:rounded-tr-none">
+    <div className="grid rounded-xl border border-border bg-background xl:h-[46rem] xl:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-t-xl xl:rounded-l-xl xl:rounded-tr-none">
         <div className="flex items-center justify-between gap-2 border-b border-border bg-surface px-4 py-2">
           <span className="text-[11px] font-medium text-muted-foreground">{t('docs.playground.preview')}</span>
           <Segmented
@@ -119,14 +119,14 @@ function Playground({ doc }: { doc: ComponentDoc }) {
             onChange={(b) => setBackground(b as Background)}
           />
         </div>
-        <div className={`flex h-72 min-h-0 flex-1 items-center justify-center overflow-auto p-8 lg:h-auto ${BG_CLASS[background]}`}>
+        <div className={`flex h-[26rem] min-h-0 shrink-0 items-center xl:flex-1 justify-center overflow-auto p-10 xl:h-auto ${BG_CLASS[background]}`}>
           <Component {...resolved} aria-label={iconOnly ? doc.name : undefined}>
             {doc.baseChildren !== undefined && !iconOnly ? children : undefined}
           </Component>
         </div>
-        <CodeBlock code={code} flush height="11rem" />
+        <CodeBlock code={code} flush height="9rem" />
       </div>
-      <aside className="flex min-h-0 flex-col gap-4 overflow-y-auto border-t border-border p-4 lg:border-l lg:border-t-0" aria-label={t('docs.playground.controlsLabel')}>
+      <aside className="flex min-h-0 flex-col gap-4 overflow-y-auto border-t border-border p-4 xl:border-l xl:border-t-0" aria-label={t('docs.playground.controlsLabel')}>
         <div className="flex items-center justify-between">
           <h3 className="text-[13px] font-semibold text-foreground">{t('docs.playground.controls')}</h3>
           <button
