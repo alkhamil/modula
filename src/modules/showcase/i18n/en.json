@@ -266,7 +266,7 @@
         "--wds-sz-radius-all": "Radius of the box shape.",
         "--wds-sz-gap": "Icon–label gap.",
         "--wds-sz-icon-size": "Icon size.",
-        "--wds-sz-text-label-font-size": "Label text size.",
+        "--wds-sz-text-cta-font-size": "Label text size.",
         "--wds-sz-width": "Minimum button width.",
         "--wds-sz-focus-stroke": "Focus ring thickness."
       },

@@ -19,11 +19,10 @@
     background-color: var(--btn-bg, transparent);
     color: var(--btn-fg, inherit);
     box-shadow: var(--btn-shadow, none);
-    font-family: var(--wds-sz-text-label-font-family);
-    /* Node Figma Button memakai Medium (500); token text.label bawaan Regular. */
-    font-weight: var(--wds-font-weight-medium);
-    font-size: var(--wds-sz-text-label-font-size);
-    line-height: var(--wds-sz-text-label-line-height);
+    font-family: var(--wds-sz-text-cta-font-family);
+    font-weight: var(--wds-sz-text-cta-font-weight);
+    font-size: var(--wds-sz-text-cta-font-size);
+    line-height: var(--wds-sz-text-cta-line-height);
     min-width: var(--wds-sz-width);
     white-space: nowrap;
     cursor: pointer;

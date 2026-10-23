@@ -106,7 +106,7 @@ export const buttonDoc: ComponentDoc = {
     '--wds-sz-radius-all',
     '--wds-sz-gap',
     '--wds-sz-icon-size',
-    '--wds-sz-text-label-font-size',
+    '--wds-sz-text-cta-font-size',
     '--wds-sz-width',
     '--wds-sz-focus-stroke',
   ].map((name) => ({ name })),

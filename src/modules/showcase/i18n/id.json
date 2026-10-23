@@ -266,7 +266,7 @@
         "--wds-sz-radius-all": "Radius bentuk box.",
         "--wds-sz-gap": "Jarak ikon–label.",
         "--wds-sz-icon-size": "Ukuran ikon.",
-        "--wds-sz-text-label-font-size": "Ukuran teks label.",
+        "--wds-sz-text-cta-font-size": "Ukuran teks label.",
         "--wds-sz-width": "Lebar minimum tombol.",
         "--wds-sz-focus-stroke": "Tebal cincin fokus."
       },
