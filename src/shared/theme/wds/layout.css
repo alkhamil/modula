@@ -45,6 +45,16 @@
     text-align: center;
   }
 
+  /* Logo ringkas saat collapse: kotak kecil berisi inisial (Figma Side navbar collapsed). */
+  .wds-sidenav__logo--mini {
+    display: inline-flex;
+    width: 40px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    padding: var(--wds-padding-8) 0;
+  }
+
   .wds-sidenav__section {
     margin: var(--wds-sz-side-navbar-others-gap) 0 0;
     padding-left: var(--wds-sz-side-navbar-label-padding-left);

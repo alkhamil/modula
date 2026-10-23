@@ -15,6 +15,8 @@ interface SideNavbarProps {
   onMobileClose: () => void;
   /** Logo custom di kepala sidebar. Default: inisial `appName`. */
   logo?: ReactNode;
+  /** Logo ringkas saat sidebar diciutkan. Default: huruf pertama `appName`. */
+  collapsedLogo?: ReactNode;
   appName?: string;
   testId?: string;
 }
@@ -27,6 +29,7 @@ function SideNavbar({
   onToggle,
   onMobileClose,
   logo,
+  collapsedLogo,
   appName = 'App',
   testId,
 }: SideNavbarProps) {
@@ -94,10 +97,9 @@ function SideNavbar({
         ].join(' ')}
       >
         <div className="wds-sidenav__header">
-          {!collapsed &&
-            (logo ?? (
-              <span className="wds-sidenav__logo">{appName}</span>
-            ))}
+          {collapsed
+            ? (collapsedLogo ?? <span className="wds-sidenav__logo wds-sidenav__logo--mini">{appName.charAt(0)}</span>)
+            : (logo ?? <span className="wds-sidenav__logo">{appName}</span>)}
 
           <button
             data-testid="sidebar-toggle"
