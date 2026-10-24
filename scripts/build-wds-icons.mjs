@@ -28,7 +28,7 @@ const CURATED = [
   'AddCircle', 'AltArrowDown', 'AltArrowLeft', 'AltArrowRight', 'AltArrowUp', 'Bolt', 'Box', 'Calendar',
   'CalendarDate', 'Camera', 'Check', 'CheckCircle', 'Cross', 'CheckSquare', 'Checklist', 'ChecklistMinimalistic',
   'ClockCircle', 'CloseCircle', 'Command', 'DangerCircle', 'DangerTriangle', 'Database', 'Dollar',
-  'DoubleAltArrowLeft', 'DoubleAltArrowRight', 'Download', 'Eye', 'File', 'FileText', 'Filter', 'Global',
+  'DoubleAltArrowLeft', 'DoubleAltArrowRight', 'Download', 'Eye', 'EyeClosed', 'File', 'FileText', 'Filter', 'Global',
   'HamburgerMenu', 'Hashtag', 'InfoCircle', 'Layers', 'LinkMinimalistic', 'Lock', 'Logout2', 'Magnifer',
   'MenuDotsVertical', 'Minus', 'Palette', 'Pen', 'Pen2', 'Planet', 'Power', 'QuestionCircle', 'Record', 'Restart', 'Settings',
   'Text', 'TextBold', 'TextField', 'TrashBinTrash', 'Tuning2', 'Upload', 'UsersGroupRounded', 'Widget',

@@ -88,7 +88,6 @@ export {
   Toggle,
   FileUpload,
   FileUploadCard,
-  PasswordField,
   RadioButtonGroup,
   CheckboxGroup,
 } from './fields';

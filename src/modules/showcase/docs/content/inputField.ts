@@ -82,6 +82,10 @@ export const inputFieldDoc: ComponentDoc = {
       ],
     },
     {
+      id: 'password',
+      variants: [{ label: 'password', props: { type: 'password', placeholder: 'Password', value: 'secret123' } }],
+    },
+    {
       id: 'validation',
       variants: [
         { label: 'hint', props: { hint: 'We will never share it' } },
@@ -100,6 +104,7 @@ export const inputFieldDoc: ComponentDoc = {
     { id: 'value', name: 'value', type: 'string | number' },
     { id: 'onChange', name: 'onChange', type: '(e: ChangeEvent) => void' },
     { id: 'placeholder', name: 'placeholder', type: 'string' },
+    { id: 'type', name: 'type', type: "'text' | 'password' | …", default: "'text'" },
     { id: 'appearance', name: 'appearance', type: "'box' | 'underline'", default: "'box'" },
     { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'hint', name: 'hint', type: 'ReactNode' },

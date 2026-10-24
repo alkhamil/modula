@@ -741,6 +741,10 @@
         },
         "validation": {
           "title": "Hint and error"
+        },
+        "password": {
+          "title": "Password",
+          "description": "`type=\"password\"` adds a show / hide button at the end of the field."
         }
       },
       "matrices": {
@@ -762,7 +766,8 @@
         "clearable": "Shows a clear button while there is text.",
         "currency": "Formats digits as currency (id-ID); onChange receives the raw digits.",
         "invalid": "Error state without a message.",
-        "rest": "type, name, maxLength, aria-*, etc. are passed to the <input>."
+        "rest": "type, name, maxLength, aria-*, etc. are passed to the <input>.",
+        "type": "`type=\"password\"` masks the value and shows a show / hide toggle."
       },
       "tokens": {
         "--wds-bg-surface": "Field background.",

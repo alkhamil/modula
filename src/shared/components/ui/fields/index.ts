@@ -1,4 +1,3 @@
-export { default as PasswordField } from './PasswordField';
 export { default as InputField } from './InputField';
 export { default as Select } from './Select';
 export { default as Checkbox } from './Checkbox';

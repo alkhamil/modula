@@ -1,5 +1,5 @@
 import { type ChangeEvent, type InputHTMLAttributes, type ReactNode, forwardRef, useState } from 'react';
-import { CloseCircle, DangerCircle, QuestionCircle } from '../../icons';
+import { CloseCircle, DangerCircle, Eye, EyeClosed, QuestionCircle } from '../../icons';
 import { stripNonAscii } from '../../../utils';
 import Tooltip from '../Tooltip';
 import { fieldSlot, fieldState, type FieldSize } from './fieldState';
@@ -82,11 +82,15 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       defaultValue,
       'data-wds-state': forcedState,
       'data-testid': testId,
+      type,
       ...rest
     },
     ref,
   ) => {
     const [focused, setFocused] = useState(false);
+    // `type="password"`: tombol tampil/sembunyikan di slot trailing.
+    const isPassword = type === 'password';
+    const [passwordVisible, setPasswordVisible] = useState(false);
     const [uncontrolledFilled, setUncontrolledFilled] = useState(
       defaultValue !== undefined && String(defaultValue).length > 0,
     );
@@ -140,6 +144,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             <input
               data-testid={testId}
               ref={ref}
+              type={isPassword && passwordVisible ? 'text' : type}
               disabled={disabled}
               readOnly={readOnly}
               value={displayValue}
@@ -166,6 +171,20 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                 className="wds-field__icon wds-field__action"
               >
                 <CloseCircle />
+              </button>
+            )}
+            {isPassword && (
+              <button
+                type="button"
+                data-testid={testId ? `${testId}-toggle` : undefined}
+                onClick={() => setPasswordVisible((v) => !v)}
+                disabled={disabled}
+                aria-label={passwordVisible ? 'Hide password' : 'Show password'}
+                aria-pressed={passwordVisible}
+                tabIndex={-1}
+                className="wds-field__icon wds-field__action"
+              >
+                {passwordVisible ? <Eye /> : <EyeClosed />}
               </button>
             )}
             {invalid && (

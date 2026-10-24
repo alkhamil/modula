@@ -741,6 +741,10 @@
         },
         "validation": {
           "title": "Hint dan error"
+        },
+        "password": {
+          "title": "Password",
+          "description": "`type=\"password\"` menambah tombol tampil / sembunyikan di ujung field."
         }
       },
       "matrices": {
@@ -762,7 +766,8 @@
         "clearable": "Menampilkan tombol hapus selama ada teks.",
         "currency": "Memformat angka sebagai mata uang (id-ID); onChange menerima angka mentahnya.",
         "invalid": "State error tanpa pesan.",
-        "rest": "type, name, maxLength, aria-*, dst. diteruskan ke <input>."
+        "rest": "type, name, maxLength, aria-*, dst. diteruskan ke <input>.",
+        "type": "`type=\"password\"` menyamarkan nilai dan menampilkan tombol tampil / sembunyikan."
       },
       "tokens": {
         "--wds-bg-surface": "Latar field.",
