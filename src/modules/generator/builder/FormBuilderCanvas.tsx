@@ -33,7 +33,7 @@ import {
   FormGroup,
   InputField,
 } from '../../../shared/components/ui';
-import { AltArrowDown, Calendar, CalendarDate, CheckSquare, Checklist, ChecklistMinimalistic, Hashtag, LinkMinimalistic, Lock, MenuDotsVertical, Minus, Palette as PaletteIcon, Pen2, Power, Record, Text, TextBold, TextField as TextFieldIcon, TrashBinTrash, Upload, Widget2 } from '../../../shared/components/icons';
+import { AltArrowDown, Calendar, CalendarDate, CheckSquare, Checklist, ChecklistMinimalistic, Hashtag, LinkMinimalistic, MenuDotsVertical, Minus, Power, Record, Text, TextBold, TextField as TextFieldIcon, TrashBinTrash, Upload } from '../../../shared/components/icons';
 import type { IconComponent } from '../../../shared/components/icons';
 import type { GeneratorFieldConfig } from '../types';
 import { deriveFieldNaming, isReservedFieldName, uniqueFieldName } from '../parser';
@@ -73,7 +73,6 @@ type PaletteKind =
   | 'text'
   | 'number'
   | 'textarea'
-  | 'password'
   | 'select'
   | 'multiselect'
   | 'radio'
@@ -83,9 +82,6 @@ type PaletteKind =
   | 'daterange'
   | 'switch'
   | 'upload'
-  | 'color'
-  | 'editor'
-  | 'array'
   | 'relation'
   | 'section'
   | 'divider';
@@ -94,9 +90,9 @@ const PALETTE_SECTIONS: { titleKey: string; items: PaletteKind[] }[] = [
   {
     titleKey: 'builder.paletteSections.fields',
     items: [
-      'text', 'number', 'textarea', 'password', 'select', 'multiselect',
+      'text', 'number', 'textarea', 'select', 'multiselect',
       'radio', 'checkbox', 'checkboxgroup', 'date', 'daterange', 'switch', 'upload',
-      'color', 'editor', 'array', 'relation',
+      'relation',
     ],
   },
   {
@@ -111,8 +107,6 @@ function presetForKind(kind: PaletteKind): FieldFormPreset {
       return { type: 'numberField', label: 'Number' };
     case 'textarea':
       return { type: 'textareaField', label: 'Textarea' };
-    case 'password':
-      return { type: 'passwordField', label: 'Password' };
     case 'select':
       return { type: 'selectField', source: 'mockStatic', label: 'Select' };
     case 'multiselect':
@@ -131,12 +125,6 @@ function presetForKind(kind: PaletteKind): FieldFormPreset {
       return { type: 'switchField', label: 'Switch' };
     case 'upload':
       return { type: 'fileUploadField', label: 'Upload' };
-    case 'color':
-      return { type: 'colorField', label: 'Color' };
-    case 'editor':
-      return { type: 'editorField', label: 'Editor' };
-    case 'array':
-      return { type: 'formArrayField', label: 'Array' };
     case 'relation':
       return { type: 'selectField', source: 'relation', label: 'Relation' };
     default:
@@ -149,7 +137,6 @@ const PALETTE_ICONS: Record<PaletteKind, IconComponent> = {
   text: TextFieldIcon,
   number: Hashtag,
   textarea: Text,
-  password: Lock,
   select: AltArrowDown,
   multiselect: Checklist,
   radio: Record,
@@ -159,9 +146,6 @@ const PALETTE_ICONS: Record<PaletteKind, IconComponent> = {
   daterange: CalendarDate,
   switch: Power,
   upload: Upload,
-  color: PaletteIcon,
-  editor: Pen2,
-  array: Widget2,
   relation: LinkMinimalistic,
   section: TextBold,
   divider: Minus,
