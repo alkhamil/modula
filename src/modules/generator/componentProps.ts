@@ -8,9 +8,7 @@ import type {
 const TYPE_PROPS_KEY: Record<FieldType, keyof FieldComponentProps> = {
   textField: 'text',
   numberField: 'text',
-  currencyField: 'text',
   textareaField: 'textarea',
-  passwordField: 'password',
   selectField: 'select',
   selectMultipleField: 'selectMultiple',
   dateField: 'date',
@@ -20,9 +18,6 @@ const TYPE_PROPS_KEY: Record<FieldType, keyof FieldComponentProps> = {
   checkboxGroupField: 'checkboxGroup',
   switchField: 'switch',
   fileUploadField: 'upload',
-  colorField: 'color',
-  editorField: 'editor',
-  formArrayField: 'array',
 };
 
 /** Kunci `componentProps` yang relevan untuk tipe field ini. */
@@ -116,13 +111,6 @@ export function pruneComponentProps(
         const days = clampPositiveInt(cleaned.maxRangeDays);
         if (days === undefined) delete cleaned.maxRangeDays;
         else cleaned.maxRangeDays = days;
-      }
-    }
-    if (key === 'array') {
-      if ('maxRows' in cleaned) {
-        const rows = clampPositiveInt(cleaned.maxRows);
-        if (rows === undefined) delete cleaned.maxRows;
-        else cleaned.maxRows = rows;
       }
     }
     if (!isEmptyObject(cleaned)) {

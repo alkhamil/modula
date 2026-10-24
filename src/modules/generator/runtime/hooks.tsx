@@ -23,7 +23,6 @@ import {
   isConnectionError,
   mapSubmitError,
   splitFieldErrors,
-  stripHtml,
 } from '../../../shared/utils';
 import type { GeneratorFieldConfig } from '../types';
 import type { ModuleDefinition } from '../definitions';
@@ -210,7 +209,6 @@ export function detailValue(
   const value = item[field.name];
   switch (field.type) {
     case 'numberField':
-    case 'currencyField':
       return formatNumber(Number(value ?? 0));
     case 'dateField':
       return formatDate(String(value ?? ''));
@@ -251,26 +249,6 @@ export function detailValue(
           return options?.find((o) => o.value === raw)?.label ?? raw;
         })
         .join(', ');
-    }
-    case 'passwordField':
-      return '••••••';
-    case 'colorField':
-      return value ? (
-        <span className="inline-flex items-center gap-1.5">
-          <span
-            className="inline-block h-4 w-4 rounded border border-border"
-            style={{ backgroundColor: String(value) }}
-          />
-          <span>{String(value)}</span>
-        </span>
-      ) : (
-        '-'
-      );
-    case 'editorField':
-      return stripHtml(String(value ?? '')) || '-';
-    case 'formArrayField': {
-      const count = Array.isArray(value) ? value.length : 0;
-      return count > 0 ? `${count} baris` : '-';
     }
     default:
       if (value instanceof File) return value.name;

@@ -20,7 +20,7 @@ function splitRule(rule: string): { name: string; arg?: string } {
 
 function isArrayField(field: GeneratorFieldConfig): boolean {
   const formType = fieldTypeRegistry[field.type].formType;
-  return formType === 'stringArray' || formType === 'rowArray';
+  return formType === 'stringArray';
 }
 
 /** RHF RegisterOptions dari rules generator (`label` = label tampil, bisa override terjemahan). */
@@ -28,7 +28,7 @@ export function fieldRulesToRHF(field: GeneratorFieldConfig, label: string = fie
   if (field.rules.length === 0) return {};
   const rules: RegisterOptions = {};
   const isArray = isArrayField(field);
-  const isNumber = field.type === 'numberField' || field.type === 'currencyField';
+  const isNumber = field.type === 'numberField';
   for (const raw of field.rules) {
     const { name, arg } = splitRule(raw);
     switch (name) {
@@ -155,37 +155,9 @@ export function maxLengthOf(field: GeneratorFieldConfig): number | null {
 export function formDefaultValue(field: GeneratorFieldConfig): unknown {
   const formType = fieldTypeRegistry[field.type].formType;
   if (formType === 'boolean') return false;
-  if (formType === 'stringArray' || formType === 'rowArray') return [];
+  if (formType === 'stringArray') return [];
   if (formType === 'file') return null;
   return '';
-}
-
-/** Nilai form editor baris dari baris data (number→string, file→null, default aman). */
-export function rowFormValues(
-  subs: GeneratorFieldConfig[],
-  row: Record<string, unknown> | null,
-): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  for (const sub of subs) {
-    const valueType = fieldTypeRegistry[sub.type].valueType;
-    const raw = row?.[sub.name];
-    if (valueType === 'number') out[sub.name] = String(raw ?? '');
-    else if (valueType === 'file') out[sub.name] = null;
-    else if (valueType === 'stringArray') out[sub.name] = Array.isArray(raw) ? [...raw] : [];
-    else if (valueType === 'boolean') out[sub.name] = (raw ?? false) as boolean;
-    else out[sub.name] = (raw ?? '') as string;
-  }
-  return out;
-}
-
-/** Baris data dari nilai form editor (number→parseCurrency, file→nama file). */
-export function rowPayloadValues(
-  subs: GeneratorFieldConfig[],
-  formRow: Record<string, unknown>,
-): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  for (const sub of subs) out[sub.name] = payloadValue(sub, formRow[sub.name]);
-  return out;
 }
 
 /** Nilai edit dari record detail. */

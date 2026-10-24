@@ -8,7 +8,6 @@ import {
   loadLabelHelpers,
   payloadMapping,
   relationLoaders,
-  rowTypeName,
   tsFormType,
 } from '../../engine/fieldGenerator';
 
@@ -215,9 +214,6 @@ export function formHookTemplate(ctx: TemplateContext): string {
   const base = ctx.config.permissionKey;
   const fieldLabelKey = (name: string): string => `${base}.fields.${name}.label`;
   const optionsFields = fields.filter((f) => f.isOptionsQuery);
-  const rowTypes = fields
-    .filter((f) => f.config.type === 'formArrayField')
-    .map((f) => rowTypeName(f));
   // Helper label paging untuk baris detail (`getXOptionLabel` dari api).
   const detailLabelHelpers = loadLabelHelpers(fields);
   // Loader + RelationLabel untuk baris detail relasi.
@@ -226,7 +222,6 @@ export function formHookTemplate(ctx: TemplateContext): string {
   const needFormatNumber = ctx.hasNumberFields;
   const needFormatDate = fields.some((f) => f.config.type === 'dateField');
   const needFormatDateRange = fields.some((f) => f.config.type === 'dateRangeField');
-  const needStripHtml = fields.some((f) => f.config.type === 'editorField');
 
   const detailRows = fields
     .map((f) => detailRowSnippet(f, fieldLabelKey(f.name)).replace(/item\./g, `${names.camel}.`))
@@ -244,7 +239,6 @@ export function formHookTemplate(ctx: TemplateContext): string {
     ...(needFormatNumber ? ['formatNumber'] : []),
     ...(needFormatDate ? ['formatDate'] : []),
     ...(needFormatDateRange ? ['formatDateRange'] : []),
-    ...(needStripHtml ? ['stripHtml'] : []),
   ];
 
   return `import { useMemo } from 'react';
@@ -256,7 +250,7 @@ import type { SubmitResult } from '${names.sharedPrefix}shared/types';
 import {
   ${utilImports.join(',\n  ')},
 } from '${names.sharedPrefix}shared/utils';
-import type { ${names.entity}${rowTypes.map((t) => `, ${t}`).join('')} } from '../types';
+import type { ${names.entity} } from '../types';
 import { use${names.entity}DetailQuery, useUpsert${names.entity}${optionsFields.map((f) => `, ${f.optionsQueryHook}`).join('')}${detailLabelHelpers.map((h) => `, ${h}`).join('')}${detailRelationLoaders.map((h) => `, ${h}`).join('')} } from '../api';
 
 export interface FormValues {

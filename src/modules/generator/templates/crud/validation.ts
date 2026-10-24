@@ -29,15 +29,12 @@ function bulkExampleValue(field: FieldModel): string | number {
   const options = field.config.options ?? [];
   switch (field.config.type) {
     case 'numberField':
-    case 'currencyField':
       return 100;
     case 'dateField':
       return '2024-01-15';
     case 'checkboxField':
     case 'switchField':
       return 'Yes';
-    case 'passwordField':
-      return 'secret123';
     case 'selectField':
     case 'radioGroupField':
       return options[0]?.value ?? `${field.name.toUpperCase()}_1`;
@@ -56,7 +53,6 @@ type BulkKind = 'string' | 'number' | 'date' | 'dateRange' | 'multi' | 'bool';
 function bulkKind(field: FieldModel): BulkKind {
   switch (field.config.type) {
     case 'numberField':
-    case 'currencyField':
       return 'number';
     case 'dateField':
       return 'date';
@@ -241,9 +237,7 @@ function bulkFieldChecks(ctx: TemplateContext, field: FieldModel): string {
 
 export function bulkValidationTemplate(ctx: TemplateContext): string {
   const { names, fields } = ctx;
-  const bulkFields = fields.filter(
-    (f) => f.config.type !== 'fileUploadField' && f.config.type !== 'formArrayField',
-  );
+  const bulkFields = fields.filter((f) => f.config.type !== 'fileUploadField');
   const needUtils = needsEmoticonUtils(bulkFields);
   const needEmailRe = bulkFields.some((f) => f.config.rules.includes('email'));
   const constName = names.entity.toUpperCase();
@@ -278,7 +272,6 @@ export function bulkValidationTemplate(ctx: TemplateContext): string {
   const payloadLines = fields
     .map((f) => {
       if (f.config.type === 'fileUploadField') return `    ${f.name}: '',`;
-      if (f.config.type === 'formArrayField') return `    ${f.name}: [],`;
       if (f.valueType === 'boolean') return `    ${f.name}: ${f.name}Value ?? false,`;
       return `    ${f.name}: ${f.name}Value,`;
     })

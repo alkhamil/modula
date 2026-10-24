@@ -1,18 +1,8 @@
 import type { TemplateContext } from '../../engine/context';
 import {
-  arrayColumnsSnippet,
-  arrayColumnUtils,
-  arrayInputSnippet,
-  arrayNeedsParseCurrency,
-  arraySubLoadModels,
-  arraySubRelationModels,
   formItemSnippet,
   loadLabelHelpers,
   relationLoaders,
-  rowFormTypeName,
-  rowMappersSnippet,
-  rowTypeName,
-  subOptionsSnippet,
   tableColumnSnippet,
 } from '../../engine/fieldGenerator';
 import type { FormLayoutItem } from '../../types';
@@ -69,13 +59,11 @@ export function tableTemplate(ctx: TemplateContext): string {
   const needFormatNumber = ctx.hasNumberFields;
   const needFormatDate = fields.some((f) => f.config.type === 'dateField');
   const needFormatDateRange = fields.some((f) => f.config.type === 'dateRangeField');
-  const needStripHtml = fields.some((f) => f.config.type === 'editorField');
   const utilImports = [
     'formatDateTime',
     ...(needFormatNumber ? ['formatNumber'] : []),
     ...(needFormatDate ? ['formatDate'] : []),
     ...(needFormatDateRange ? ['formatDateRange'] : []),
-    ...(needStripHtml ? ['stripHtml'] : []),
   ];
 
   const tableWidths = ctx.config.tableWidths ?? {};
@@ -219,32 +207,11 @@ export default ${names.entity}Table;
 export function formTemplate(ctx: TemplateContext): string {
   const { names, fields } = ctx;
   const base = ctx.config.permissionKey;
-  const arrayFields = fields.filter((f) => f.config.type === 'formArrayField');
-  const usedComponents = [
-    ...new Set([
-      ...fields.map((f) => fieldTypeRegistry[f.config.type].component),
-      ...arrayFields.flatMap((f) =>
-        (f.config.subFields ?? []).map((sub) => fieldTypeRegistry[sub.type].component),
-      ),
-    ]),
-  ];
+  const usedComponents = [...new Set(fields.map((f) => fieldTypeRegistry[f.config.type].component))];
   const optionsFields = fields.filter((f) => f.isOptionsQuery);
   // Loader form: paging + relasi (relasi memakai loadOptions + RelationLabel).
   const loadFields = fields.filter((f) => f.isLoadOptions || f.isRelationOptions);
-  const subLoadFields = arraySubLoadModels(fields);
-  const allLoadFns = [...new Set([...loadFields, ...subLoadFields].map((f) => f.loadOptionsFn))];
-  // Kolom tabel array (sub-field) memakai helper label; field top-level tidak.
-  const apiLabelHelpers = loadLabelHelpers(subLoadFields);
-  const apiRelationLoaders = relationLoaders(arraySubRelationModels(fields));
-  const apiImports = [...allLoadFns, ...apiLabelHelpers, ...apiRelationLoaders];
-  const rowTypeImports = arrayFields.flatMap((f) => [rowTypeName(f), rowFormTypeName(f)]);
-  const arrayUtils = [...new Set(arrayFields.flatMap((f) => arrayColumnUtils(f)))];
-  if (arrayFields.some((f) => arrayNeedsParseCurrency(f))) arrayUtils.push('parseCurrency');
-  // Aturan sub-field di-inline di editor baris (buildRulesObject) — `withoutemoticon`
-  // butuh import utils di file form (field utama memakai file validation).
-  const needEmoticonUtils = arrayFields.some((f) =>
-    (f.config.subFields ?? []).some((sub) => (sub.rules ?? []).includes('withoutemoticon')),
-  );
+  const apiImports = [...new Set(loadFields.map((f) => f.loadOptionsFn))];
 
   const fieldLabelKey = (name: string): string => `${base}.fields.${name}.label`;
   const fieldPlaceholderKey = (name: string): string => `${base}.fields.${name}.placeholder`;
@@ -280,20 +247,8 @@ export function formTemplate(ctx: TemplateContext): string {
     })
     .join('\n\n');
   const rulesImports = fields.map((f) => `get${f.pascal}Rules`).join(', ');
-  const arrayBlocks = arrayFields
-    .map((f) =>
-      [
-        subOptionsSnippet(f),
-        rowMappersSnippet(f),
-        arrayColumnsSnippet(f, `${base}.fields.${f.name}`),
-        arrayInputSnippet(ctx, f),
-      ]
-        .filter(Boolean)
-        .join('\n\n'),
-    )
-    .join('\n\n');
 
-  return `${arrayFields.length > 0 ? `import { t } from 'i18next';\nimport '${names.sharedPrefix}shared/i18n';\n` : ''}import { useCallback, useState, useRef } from 'react';
+  return `import { useCallback, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AltArrowLeft } from '${names.sharedPrefix}shared/components/icons';
 import {
@@ -304,12 +259,11 @@ import {
   FormDefaultValuesWatcher,
   ${usedComponents.join(',\n  ')},
   NavigationGuard,
-${apiRelationLoaders.length > 0 ? '  RelationLabel,\n' : ''}} from '${names.sharedPrefix}shared/components/ui';
+} from '${names.sharedPrefix}shared/components/ui';
 import type { FormValues } from '../hooks';
 import type { SubmitResult } from '${names.sharedPrefix}shared/types';
 import { type UseFormReturn } from 'react-hook-form';
-${optionsFields.length > 0 ? `import type { ${optionsFields.map((f) => f.optionType).join(', ')} } from '../types';\n` : ''}${rowTypeImports.length > 0 ? `import type { ${rowTypeImports.join(', ')} } from '../types';\n` : ''}${arrayFields.length > 0 ? `import type { Column } from '${names.sharedPrefix}shared/components/ui/Table';\n` : ''}${apiImports.length > 0 ? `import { ${apiImports.join(', ')} } from '../api';\n` : ''}${arrayUtils.length > 0 ? `import { ${arrayUtils.join(', ')} } from '${names.sharedPrefix}shared/utils';\n` : ''}${needEmoticonUtils ? `import { hasEmoticon } from '${names.sharedPrefix}shared/utils';\n` : ''}import { ${rulesImports} } from '../validation/${names.camel}Validation';
-${arrayBlocks ? `${arrayBlocks}\n\n` : ''}
+${optionsFields.length > 0 ? `import type { ${optionsFields.map((f) => f.optionType).join(', ')} } from '../types';\n` : ''}${apiImports.length > 0 ? `import { ${apiImports.join(', ')} } from '../api';\n` : ''}import { ${rulesImports} } from '../validation/${names.camel}Validation';
 interface ${names.entity}FormProps {
   defaultValues: FormValues;
   onSubmit: (data: FormValues) => Promise<SubmitResult>;
@@ -434,7 +388,7 @@ export function bulkDialogTemplate(ctx: TemplateContext): string {
   const { names, fields } = ctx;
   const base = ctx.config.permissionKey;
   const columns = fields
-    .filter((f) => f.config.type !== 'fileUploadField' && f.config.type !== 'formArrayField')
+    .filter((f) => f.config.type !== 'fileUploadField')
     .flatMap((f) =>
       f.config.type === 'dateRangeField' ? [`${f.label} Start`, `${f.label} End`] : [f.label],
     )

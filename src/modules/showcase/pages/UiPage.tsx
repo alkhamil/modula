@@ -15,7 +15,6 @@ import {
   useToast,
   InputField,
   Textarea,
-  PasswordField,
   Select,
   RadioButtonGroup,
   RadioButton,
@@ -46,7 +45,6 @@ const ALL_USERS: User[] = Array.from({ length: 27 }, (_, i) => ({
 interface GalleryForm {
   name: string;
   description: string;
-  password: string;
   role: string;
   tags: string[];
   gender: string;
@@ -249,7 +247,6 @@ function UiPage() {
           defaultValues={{
             name: '',
             description: '',
-            password: '',
             role: '',
             tags: [],
             gender: '',
@@ -277,12 +274,6 @@ function UiPage() {
               component={Textarea}
               label="Textarea"
               placeholder="Deskripsi panjang"
-            />
-            <FormItem
-              name="password"
-              component={PasswordField}
-              label="PasswordField"
-              placeholder="Kata sandi"
             />
             <FormItem
               name="role"

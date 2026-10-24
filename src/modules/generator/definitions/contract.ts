@@ -39,7 +39,6 @@ export interface ApiContract {
 function baseContractType(type: FieldType): 'string' | 'number' | 'boolean' {
   switch (type) {
     case 'numberField':
-    case 'currencyField':
       return 'number';
     case 'checkboxField':
     case 'switchField':
@@ -50,16 +49,12 @@ function baseContractType(type: FieldType): 'string' | 'number' | 'boolean' {
 }
 
 function isArrayType(type: FieldType): boolean {
-  return (
-    type === 'selectMultipleField' ||
-    type === 'checkboxGroupField' ||
-    type === 'formArrayField'
-  );
+  return type === 'selectMultipleField' || type === 'checkboxGroupField';
 }
 
-/** Search keyword runtime mencakup field string/string[] + id (bukan array baris). */
+/** Search keyword runtime mencakup field string/string[] + id. */
 function isSearchable(type: FieldType): boolean {
-  return type !== 'formArrayField' && baseContractType(type) === 'string';
+  return baseContractType(type) === 'string';
 }
 
 function toModelField(field: GeneratorFieldConfig): ContractModelField {

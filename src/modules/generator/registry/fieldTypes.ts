@@ -1,6 +1,6 @@
 import type { FieldType } from '../types';
 
-export type FieldValueType = 'string' | 'number' | 'boolean' | 'stringArray' | 'file' | 'rowArray';
+export type FieldValueType = 'string' | 'number' | 'boolean' | 'stringArray' | 'file';
 
 export interface FieldTypeDef {
   label: string;
@@ -28,26 +28,12 @@ export const fieldTypeRegistry: Record<FieldType, FieldTypeDef> = {
     formType: 'string',
     description: 'Multi-line text input.',
   },
-  passwordField: {
-    label: 'Password Field',
-    component: 'PasswordField',
-    valueType: 'string',
-    formType: 'string',
-    description: 'Password input with show/hide toggle; masked in tables.',
-  },
   numberField: {
     label: 'Number Field',
     component: 'InputField',
     valueType: 'number',
     formType: 'string',
-    description: 'Number input (currency); string in form, number in payload.',
-  },
-  currencyField: {
-    label: 'Currency Field',
-    component: 'InputField',
-    valueType: 'number',
-    formType: 'string',
-    description: 'Currency input (always currency-formatted + symbol, default Rp).',
+    description: 'Number input; string in form, number in payload.',
   },
   dateField: {
     label: 'Date Field',
@@ -111,27 +97,6 @@ export const fieldTypeRegistry: Record<FieldType, FieldTypeDef> = {
     valueType: 'file',
     formType: 'file',
     description: 'File upload; File|null in form (File[] when multiple), file name in payload.',
-  },
-  colorField: {
-    label: 'Color Field',
-    component: 'ColorField',
-    valueType: 'string',
-    formType: 'string',
-    description: 'Color picker; hex `#rrggbb` value.',
-  },
-  editorField: {
-    label: 'Editor Field',
-    component: 'EditorField',
-    valueType: 'string',
-    formType: 'string',
-    description: 'Rich text (TipTap); HTML value.',
-  },
-  formArrayField: {
-    label: 'Form Array Field',
-    component: 'FormArrayField',
-    valueType: 'rowArray',
-    formType: 'rowArray',
-    description: 'Embedded row table; sub-fields become columns.',
   },
 };
 

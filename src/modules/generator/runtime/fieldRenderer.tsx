@@ -1,16 +1,11 @@
 /** Render satu field definisi menjadi FormItem — dipakai form runtime + kartu kanvas. */
 import type { ReactNode } from 'react';
-import { FormGroup, FormItem } from '../../../shared/components/ui';
-import type { Column } from '../../../shared/components/ui/Table';
+import { FormItem } from '../../../shared/components/ui';
 import {
   Checkbox,
   CheckboxGroup,
-  ColorField,
   DatePicker,
-  EditorField,
   FileUpload,
-  FormArrayField,
-  PasswordField,
   RadioButtonGroup,
   Select,
   Toggle,
@@ -22,8 +17,7 @@ import type { ModuleDefinition } from '../definitions';
 import { moduleFieldLabel, moduleFieldPlaceholder } from './moduleI18n';
 import { parseConfigDate, resolveFormItemLayout } from '../componentProps';
 import type { DynamicOption } from './types';
-import { columnRenderForType, staticOptionsOf } from './cellRender';
-import { fieldRulesToRHF, maxLengthOf, rowFormValues, rowPayloadValues } from './validation';
+import { fieldRulesToRHF, maxLengthOf } from './validation';
 import type { LoadOptionsFn } from '../../../shared/components/ui/fields/Select';
 
 export interface FieldRenderContext {
@@ -74,23 +68,6 @@ export function renderDynamicField(
         />
       );
     }
-    case 'currencyField': {
-      // Selalu format currency; simbol via prefix (default Rp).
-      const p = props?.text;
-      return (
-        <FormItem
-          label={label}
-          {...common}
-          component={InputField}
-          currency
-          placeholder={placeholderFor('Enter')}
-          prepend={p?.prefix?.trim() || 'Rp'}
-          {...(p?.size ? { size: p.size } : {})}
-          {...(p?.clearable !== undefined ? { clearable: p.clearable } : {})}
-          {...(p?.suffix?.trim() ? { append: p.suffix.trim() } : {})}
-        />
-      );
-    }
     case 'textareaField': {
       const p = props?.textarea;
       return (
@@ -101,21 +78,6 @@ export function renderDynamicField(
           placeholder={placeholderFor('Enter')}
           {...(p?.size ? { size: p.size } : {})}
           {...(field.rows && field.rows > 0 ? { rows: field.rows } : {})}
-        />
-      );
-    }
-    case 'passwordField': {
-      const maxLength = maxLengthOf(field);
-      const p = props?.password;
-      return (
-        <FormItem
-          label={label}
-          {...common}
-          component={PasswordField}
-          {...(maxLength !== null ? { maxLength } : {})}
-          placeholder={placeholderFor('Enter')}
-          {...(p?.size ? { size: p.size } : {})}
-          {...(p?.defaultVisible !== undefined ? { defaultVisible: p.defaultVisible } : {})}
         />
       );
     }
@@ -303,77 +265,6 @@ export function renderDynamicField(
           {...(p?.size ? { size: p.size } : {})}
           {...(p?.multiple !== undefined ? { multiple: p.multiple } : {})}
           {...(field.accept?.trim() ? { accept: field.accept.trim() } : {})}
-        />
-      );
-    }
-    case 'colorField': {
-      const p = props?.color;
-      return (
-        <FormItem
-          label={label}
-          {...common}
-          component={ColorField}
-          {...(p?.size ? { size: p.size } : {})}
-        />
-      );
-    }
-    case 'editorField': {
-      const p = props?.editor;
-      return (
-        <FormItem
-          label={label}
-          {...common}
-          component={EditorField}
-          {...(p?.size ? { size: p.size } : {})}
-        />
-      );
-    }
-    case 'formArrayField': {
-      const p = props?.array;
-      const subs = field.subFields ?? [];
-      const columns: Column<Record<string, unknown>>[] = subs.map((sub) => {
-        const column: Column<Record<string, unknown>> = { key: sub.name, header: sub.label };
-        const render = columnRenderForType(
-          sub.type,
-          sub.name,
-          staticOptionsOf(sub),
-          ctx.loaderOf(sub as GeneratorFieldConfig),
-        );
-        if (render) column.render = render;
-        return column;
-      });
-      return (
-        <FormItem
-          label={label}
-          {...common}
-          component={FormArrayField}
-          columns={columns}
-          renderEditor={({ initial, onSave, formId }) => (
-            <FormGroup<Record<string, unknown>>
-              testId={`${testId}-row-form`}
-              id={formId}
-              defaultValues={rowFormValues(subs, initial)}
-              onSubmit={(formRow) => onSave(rowPayloadValues(subs, formRow))}
-            >
-              <div className="flex flex-col section-gap">
-                {subs.map((sub) =>
-                  renderDynamicField(sub, {
-                    def: ctx.def,
-                    testPrefix: `${testId}-row`,
-                    optionsOf: ctx.optionsOf,
-                    loaderOf: ctx.loaderOf,
-                  }),
-                )}
-              </div>
-            </FormGroup>
-          )}
-          {...(p?.size ? { size: p.size } : {})}
-          {...(p?.addLabel?.trim() ? { addLabel: p.addLabel.trim() } : {})}
-          editorTitle={p?.editorTitle?.trim() || label}
-          {...(p?.emptyTitle?.trim() ? { emptyTitle: p.emptyTitle.trim() } : {})}
-          {...(p?.emptyDescription?.trim() ? { emptyDescription: p.emptyDescription.trim() } : {})}
-          {...(p?.maxRows ? { maxRows: p.maxRows } : {})}
-          {...(p?.lockFirstRow !== undefined ? { lockFirstRow: p.lockFirstRow } : {})}
         />
       );
     }

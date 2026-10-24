@@ -1,6 +1,6 @@
 import { t } from 'i18next';
 import '../../shared/i18n';
-import type { GeneratorConfig, GeneratorFieldConfig } from './types';
+import type { FieldType, GeneratorConfig, GeneratorFieldConfig } from './types';
 import { isWdsIcon } from '../../shared/components/icons/names';
 import { pruneComponentProps } from './componentProps';
 import { toCamelCase, toPascalCase } from './naming';
@@ -156,7 +156,7 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
   }
   if (
     config.features.bulkUpload &&
-    !config.fields.some((field) => field.type !== 'fileUploadField' && field.type !== 'formArrayField')
+    !config.fields.some((field) => field.type !== 'fileUploadField')
   ) {
     issues.push({
       path: 'features',
@@ -230,85 +230,6 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
         message: t('configValidate.fieldCriteria', { name: field.name, type: field.type, criteria }),
       });
     }
-    if (field.type === 'formArrayField') {
-      const subs = field.subFields ?? [];
-      if (subs.length === 0) {
-        issues.push({
-          path: `${path}.subFields`,
-          message: t('configValidate.fieldSubs', { name: field.name }),
-        });
-      }
-      const seenSub = new Set<string>();
-      subs.forEach((sub, subIndex) => {
-        const subPath = `${path}.subFields[${subIndex}]`;
-        if (!sub.name) {
-          issues.push({ path: `${subPath}.name`, message: t('configValidate.subNameRequired') });
-        } else if (seenSub.has(sub.name)) {
-          issues.push({
-            path: `${subPath}.name`,
-            message: t('configValidate.subNameDup', { name: sub.name }),
-          });
-        } else if (isReservedFieldName(sub.name)) {
-          issues.push({
-            path: `${subPath}.name`,
-            message: t('configValidate.subNameReserved', { name: sub.name }),
-          });
-        } else {
-          seenSub.add(sub.name);
-        }
-        if (!sub.label?.trim()) {
-          issues.push({ path: `${subPath}.label`, message: t('configValidate.subLabelRequired') });
-        }
-        checkFieldRules(sub.rules, subPath, sub.name, issues);
-        if (sub.type === 'formArrayField') {
-          issues.push({
-            path: `${subPath}.type`,
-            message: t('configValidate.subNoNested'),
-          });
-        }
-        const allowedSubSources = (
-          Object.keys(dataSourceRegistry) as (keyof typeof dataSourceRegistry)[]
-        ).filter((source) => dataSourceRegistry[source].appliesTo.includes(sub.type));
-        if (!allowedSubSources.includes(sub.source)) {
-          issues.push({
-            path: `${subPath}.source`,
-            message: t('configValidate.subSource', { name: sub.name, type: sub.type, sources: allowedSubSources.join(', ') }),
-          });
-        }
-        if (
-          sub.source === 'mockStatic' &&
-          (!sub.options || sub.options.length === 0) &&
-          ['selectField', 'selectMultipleField', 'radioGroupField', 'checkboxGroupField'].includes(
-            sub.type,
-          )
-        ) {
-          issues.push({
-            path: `${subPath}.options`,
-            message: t('configValidate.subOptions', { name: sub.name }),
-          });
-        }
-        if (sub.source === 'api' && !sub.api?.endpoint) {
-          issues.push({
-            path: `${subPath}.api.endpoint`,
-            message: t('configValidate.subApi', { name: sub.name }),
-          });
-        }
-        if (sub.source === 'relation') {
-          if (!sub.relation?.definitionKey) {
-            issues.push({
-              path: `${subPath}.relation.definitionKey`,
-              message: t('configValidate.subRelationTarget', { name: sub.name }),
-            });
-          }
-          if (!sub.relation?.labelField) {
-            issues.push({
-              path: `${subPath}.relation.labelField`,
-              message: t('configValidate.subRelationLabel', { name: sub.name }),
-            });
-          }
-        }
-      });
-    }
   });
 
   // Ikon menu: nama ikon WDS (PascalCase, mis. `Database`).
@@ -321,37 +242,38 @@ export function validateConfig(config: GeneratorConfig): ConfigIssue[] {
   return issues;
 }
 
-/** Normalisasi satu sub-field array: satu level, source penuh per tipe (paritas parent). */
-function normalizeSubField(sub: GeneratorFieldConfig): GeneratorFieldConfig {
-  const allowedSources = (Object.keys(dataSourceRegistry) as (keyof typeof dataSourceRegistry)[]).filter(
-    (source) => dataSourceRegistry[source].appliesTo.includes(sub.type),
-  );
-  const source = allowedSources.includes(sub.source) ? sub.source : 'none';
-  const keepOptions = source === 'mockStatic' || source === 'api';
-  return {
-    ...sub,
-    name: toCamelCase(sub.name),
-    label: sub.label.trim(),
-    rules: sub.rules.map((rule) => rule.trim()).filter(Boolean),
-    source,
-    options: keepOptions ? sub.options : undefined,
-    api: source === 'api' ? sub.api : undefined,
-    relation: source === 'relation' ? sub.relation : undefined,
-    placeholder: sub.placeholder?.trim() ? sub.placeholder.trim() : undefined,
-    disabled: sub.disabled === true ? true : undefined,
-    rows:
-      sub.type === 'textareaField' && sub.rows && sub.rows > 0
-        ? Math.min(20, Math.floor(sub.rows))
-        : undefined,
-    accept: sub.type === 'fileUploadField' && sub.accept?.trim() ? sub.accept.trim() : undefined,
-    subFields: undefined,
-    componentProps: pruneComponentProps(sub.type, sub.componentProps),
-  };
+/**
+ * Tipe field yang sudah dihapus (tidak ada di komponen WDS) → padanan terdekat, agar
+ * definisi tersimpan lama tetap terbuka. `null` = field dibuang (tabel baris embedded).
+ */
+const LEGACY_FIELD_TYPES: Record<string, FieldType | null> = {
+  passwordField: 'textField',
+  currencyField: 'numberField',
+  colorField: 'textField',
+  editorField: 'textareaField',
+  formArrayField: null,
+};
+
+/** Petakan tipe field lama (lihat `LEGACY_FIELD_TYPES`); komponen props dari tipe lama dibuang. */
+function migrateLegacyFields(fields: GeneratorFieldConfig[]): GeneratorFieldConfig[] {
+  const out: GeneratorFieldConfig[] = [];
+  for (const field of fields) {
+    const legacy = (field as { type: string }).type;
+    if (!(legacy in LEGACY_FIELD_TYPES)) {
+      out.push(field);
+      continue;
+    }
+    const mapped = LEGACY_FIELD_TYPES[legacy];
+    if (mapped === null || mapped === undefined) continue;
+    const { subFields: _subFields, ...rest } = field as GeneratorFieldConfig & { subFields?: unknown };
+    out.push({ ...rest, type: mapped, componentProps: undefined });
+  }
+  return out;
 }
 
 /** Normalisasi ringan sebelum generate (trim label/nama, buang rules kosong, default tabel/filter). */
 export function normalizeConfig(config: GeneratorConfig): GeneratorConfig {
-  const fields: GeneratorFieldConfig[] = config.fields.map((field) => ({
+  const fields: GeneratorFieldConfig[] = migrateLegacyFields(config.fields).map((field) => ({
     ...field,
     name: toCamelCase(field.name),
     label: field.label.trim(),
@@ -371,12 +293,6 @@ export function normalizeConfig(config: GeneratorConfig): GeneratorConfig {
         : undefined,
     accept:
       field.type === 'fileUploadField' && field.accept?.trim() ? field.accept.trim() : undefined,
-    subFields:
-      field.type === 'formArrayField'
-        ? (field.subFields ?? [])
-            .filter((sub) => sub.type !== 'formArrayField')
-            .map(normalizeSubField)
-        : undefined,
     componentProps: pruneComponentProps(field.type, field.componentProps),
   }));
   return {

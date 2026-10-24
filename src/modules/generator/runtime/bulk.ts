@@ -42,7 +42,6 @@ type BulkKind = 'string' | 'number' | 'date' | 'dateRange' | 'multi' | 'bool';
 function bulkKind(type: string): BulkKind {
   switch (type) {
     case 'numberField':
-    case 'currencyField':
       return 'number';
     case 'dateField':
       return 'date';
@@ -67,7 +66,7 @@ function splitRule(rule: string): { name: string; arg?: string } {
 
 export function bulkableFields(fields: GeneratorFieldConfig[]): GeneratorFieldConfig[] {
   return fields.filter(
-    (field) => field.type !== 'fileUploadField' && field.type !== 'formArrayField',
+    (field) => field.type !== 'fileUploadField',
   );
 }
 
@@ -97,7 +96,6 @@ export function bulkExampleRow(fields: GeneratorFieldConfig[]): (string | number
     }
     switch (field.type) {
       case 'numberField':
-      case 'currencyField':
         row.push(100);
         break;
       case 'dateField':
@@ -106,9 +104,6 @@ export function bulkExampleRow(fields: GeneratorFieldConfig[]): (string | number
       case 'checkboxField':
       case 'switchField':
         row.push('Ya');
-        break;
-      case 'passwordField':
-        row.push('secret123');
         break;
       case 'selectField':
       case 'radioGroupField': {
@@ -145,10 +140,6 @@ export function exportCellValue(
   const kind = bulkKind(type);
   if (kind === 'bool') return value ? 'Yes' : 'No';
   if (kind === 'multi') return Array.isArray(value) ? value.join(', ') : '';
-  if (type === 'formArrayField') {
-    const count = Array.isArray(value) ? value.length : 0;
-    return count > 0 ? `${count} baris` : '';
-  }
   if (value === null || value === undefined) return '';
   if (typeof value === 'number' || typeof value === 'boolean') return value;
   return String(value);
@@ -168,10 +159,6 @@ export function validateBulkRow(
   for (const field of fields) {
     if (field.type === 'fileUploadField') {
       payload[field.name] = '';
-      continue;
-    }
-    if (field.type === 'formArrayField') {
-      payload[field.name] = [];
       continue;
     }
     const { label } = field;

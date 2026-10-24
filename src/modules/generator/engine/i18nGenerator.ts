@@ -100,41 +100,12 @@ export function buildModuleLocales(raw: GeneratorConfig): ModuleLocales {
   const singular = names.entity;
   const plural = names.entityPlural;
 
-  const arrayPropsOf = (f: (typeof fields)[number]): Record<string, string> => {
-    const array = f.config.componentProps?.array as
-      | { addLabel?: string; editorTitle?: string; emptyTitle?: string; emptyDescription?: string }
-      | undefined;
-    const out: Record<string, string> = {};
-    if (array?.addLabel?.trim()) out.addLabel = array.addLabel.trim();
-    out.editorTitle = array?.editorTitle?.trim() || f.label;
-    if (array?.emptyTitle?.trim()) out.emptyTitle = array.emptyTitle.trim();
-    if (array?.emptyDescription?.trim()) out.emptyDescription = array.emptyDescription.trim();
-    return out;
-  };
-
   const fieldEntries = Object.fromEntries(
     fields.map((f) => {
       const entry: Record<string, unknown> = {
         label: f.label,
         placeholder: autoPlaceholder(f.config.type, f.label, f.config.placeholder),
       };
-      const subFields =
-        f.config.type === 'formArrayField'
-          ? ((f.config as { subFields?: { name: string; label: string; type: string; placeholder?: string }[] }).subFields ?? [])
-          : [];
-      if (subFields.length > 0) {
-        entry.sub = Object.fromEntries(
-          subFields.map((s) => [
-            s.name,
-            {
-              label: s.label,
-              placeholder: autoPlaceholder(s.type, s.label, s.placeholder),
-            },
-          ]),
-        );
-        const array = arrayPropsOf(f);
-        if (Object.keys(array).length > 0) entry.array = array;
-      }
       return [f.name, entry];
     }),
   );

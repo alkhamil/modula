@@ -22,16 +22,14 @@ export interface ValidationRuleDef {
 }
 
 /** Field teks satu/multi-baris + editor rich text. */
-const stringFields: FieldType[] = ['textField', 'textareaField', 'passwordField', 'editorField'];
+const stringFields: FieldType[] = ['textField', 'textareaField'];
 /** Field angka (nilai, bukan panjang). */
-const numberFields: FieldType[] = ['numberField', 'currencyField'];
+const numberFields: FieldType[] = ['numberField'];
 /** Semua tipe field (untuk `required` yang universal). */
 const allFields: FieldType[] = [
   'textField',
   'textareaField',
-  'passwordField',
   'numberField',
-  'currencyField',
   'dateField',
   'dateRangeField',
   'selectField',
@@ -41,9 +39,6 @@ const allFields: FieldType[] = [
   'checkboxGroupField',
   'switchField',
   'fileUploadField',
-  'colorField',
-  'editorField',
-  'formArrayField',
 ];
 
 export const validationRegistry: Record<ValidationRuleName, ValidationRuleDef> = {
@@ -80,7 +75,7 @@ export const validationRegistry: Record<ValidationRuleName, ValidationRuleDef> =
     label: 'Without Emoticon',
     needsArg: false,
     description: 'Must not contain emoticons/emoji.',
-    appliesTo: ['textField', 'textareaField', 'editorField'],
+    appliesTo: ['textField', 'textareaField'],
   },
   email: {
     label: 'Email',
@@ -93,7 +88,7 @@ export const validationRegistry: Record<ValidationRuleName, ValidationRuleDef> =
     needsArg: true,
     description: 'Custom pattern, e.g. regex:^\\d+$',
     placeholder: 'regex:^\\d+$',
-    appliesTo: ['textField', 'textareaField', 'passwordField'],
+    appliesTo: ['textField', 'textareaField'],
   },
   unique: {
     label: 'Unique',
@@ -102,13 +97,10 @@ export const validationRegistry: Record<ValidationRuleName, ValidationRuleDef> =
     appliesTo: [
       'textField',
       'textareaField',
-      'passwordField',
       'numberField',
-      'currencyField',
       'dateField',
       'selectField',
       'radioGroupField',
-      'colorField',
       'fileUploadField',
     ],
   },

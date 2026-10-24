@@ -18,11 +18,7 @@ export function relationDependentsOf(
     for (const def of definitions) {
       if (visited.has(def.key)) continue;
       const depends = def.fields.some(
-        (field) =>
-          (field.source === 'relation' && field.relation?.definitionKey === current) ||
-          (field.subFields ?? []).some(
-            (sub) => sub.source === 'relation' && sub.relation?.definitionKey === current,
-          ),
+        (field) => field.source === 'relation' && field.relation?.definitionKey === current,
       );
       if (!depends) continue;
       visited.add(def.key);

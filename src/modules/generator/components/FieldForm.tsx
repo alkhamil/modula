@@ -4,7 +4,6 @@ import {
   Button,
   Card,
   Checkbox,
-  Dialog,
   Select,
   Textarea,
   InputField,
@@ -37,7 +36,7 @@ import {
   validationRegistry,
   validationRuleNames,
 } from '../registry';
-import { deriveFieldNaming, isReservedFieldName } from '../parser';
+import { deriveFieldNaming } from '../parser';
 import type { ValidationRuleName } from '../registry';
 
 /** Nilai form field: semua attr editable + default terisi (tanpa optional). */
@@ -61,162 +60,6 @@ export interface FieldFormValue {
   accept: string;
   /** Props komponen + FormItem (per tipe). */
   props: FieldComponentProps;
-  /** Draft sub-field kolom (formArrayField). */
-  subFields: SubFieldDraft[];
-}
-
-/** Satu sub-field kolom array: paritas penuh dengan parent (rules + source + tampilan + props). */
-export interface SubFieldDraft {
-  label: string;
-  name: string;
-  type: FieldType;
-  /** Rules penuh seperti parent (`required|min:3|...`). */
-  rules: string[];
-  source: DataSource;
-  options: FieldOption[];
-  api: Required<ApiSourceConfig>;
-  relation: { definitionKey: string; labelField: string; valueField: string; apiPlural?: string };
-  placeholder: string;
-  disabled: boolean;
-  /** String mentah input angka ('' = default). */
-  rows: string;
-  accept: string;
-  /** Props komponen + FormItem (layout vertical, dsb.) — diedit via modal. */
-  props: FieldComponentProps;
-}
-
-/** Draft kosong untuk tambah kolom baru via modal. */
-function blankSubDraft(): SubFieldDraft {
-  return {
-    label: '',
-    name: '',
-    type: 'textField',
-    rules: [],
-    source: 'none',
-    options: [],
-    api: { endpoint: '', method: 'GET', valueField: 'value', labelField: 'label' },
-    relation: { definitionKey: '', labelField: '', valueField: 'id' },
-    placeholder: '',
-    disabled: false,
-    rows: '',
-    accept: '',
-    props: {},
-  };
-}
-
-/** Sub draft → nilai FieldForm agar bisa diedit penuh di modal. */
-function subToFormValue(sub: SubFieldDraft): FieldFormValue {
-  return {
-    label: sub.label,
-    name: sub.name,
-    type: sub.type,
-    rules: [...sub.rules],
-    sortable: false,
-    filterable: false,
-    filterCriteria: null,
-    source: sub.source,
-    options: sub.options.map((o) => ({ ...o })),
-    api: { ...sub.api },
-    relation: { ...sub.relation },
-    placeholder: sub.placeholder,
-    disabled: sub.disabled,
-    rows: sub.rows,
-    accept: sub.accept,
-    props: structuredClone(sub.props),
-    subFields: [],
-  };
-}
-
-/** Nilai FieldForm modal → patch sub draft. */
-function formValueToSub(form: FieldFormValue): SubFieldDraft {
-  return {
-    label: form.label,
-    name: form.name,
-    type: form.type,
-    rules: [...form.rules],
-    source: form.source,
-    options: form.options.map((o) => ({ ...o })),
-    api: { ...form.api },
-    relation: { ...form.relation },
-    placeholder: form.placeholder,
-    disabled: form.disabled,
-    rows: form.rows,
-    accept: form.accept,
-    props: form.props ? structuredClone(form.props) : {},
-  };
-}
-
-function configToSubDraft(sub: GeneratorFieldConfig): SubFieldDraft {
-  return {
-    label: sub.label,
-    name: sub.name,
-    type: sub.type,
-    rules: [...sub.rules],
-    source: sub.source,
-    options: (sub.options ?? []).map((o) => ({ ...o })),
-    api: {
-      endpoint: sub.api?.endpoint ?? '',
-      method: sub.api?.method ?? 'GET',
-      valueField: sub.api?.valueField ?? 'value',
-      labelField: sub.api?.labelField ?? 'label',
-    },
-    relation: {
-      definitionKey: sub.relation?.definitionKey ?? '',
-      labelField: sub.relation?.labelField ?? '',
-      valueField: sub.relation?.valueField ?? 'id',
-      ...(sub.relation?.apiPlural ? { apiPlural: sub.relation.apiPlural } : {}),
-    },
-    placeholder: sub.placeholder ?? '',
-    disabled: sub.disabled ?? false,
-    rows: sub.rows ? String(sub.rows) : '',
-    accept: sub.accept ?? '',
-    props: sub.componentProps ? structuredClone(sub.componentProps) : {},
-  };
-}
-
-function subDraftToConfig(sub: SubFieldDraft): GeneratorFieldConfig {
-  const allowed = (Object.keys(dataSourceRegistry) as DataSource[]).filter((key) =>
-    dataSourceRegistry[key].appliesTo.includes(sub.type),
-  );
-  const source = allowed.includes(sub.source) ? sub.source : 'none';
-  const rows = Number.parseInt(sub.rows, 10);
-  const prunedProps = pruneComponentProps(sub.type, sub.props);
-  return {
-    name: sub.name,
-    label: sub.label.trim(),
-    type: sub.type,
-    rules: [...sub.rules],
-    source,
-    ...(source === 'mockStatic' || source === 'api' ? { options: sub.options } : {}),
-    ...(source === 'api'
-      ? {
-          api: {
-            endpoint: sub.api.endpoint.trim(),
-            method: sub.api.method,
-            valueField: sub.api.valueField,
-            labelField: sub.api.labelField,
-          },
-        }
-      : {}),
-    ...(source === 'relation'
-      ? {
-          relation: {
-            definitionKey: sub.relation.definitionKey,
-            labelField: sub.relation.labelField,
-            valueField: sub.relation.valueField.trim() || 'id',
-            ...(sub.relation.apiPlural ? { apiPlural: sub.relation.apiPlural } : {}),
-          },
-        }
-      : {}),
-    ...(sub.placeholder.trim() ? { placeholder: sub.placeholder.trim() } : {}),
-    ...(sub.disabled ? { disabled: true } : {}),
-    ...(sub.type === 'textareaField' && Number.isFinite(rows) && rows > 0 ? { rows } : {}),
-    ...(sub.type === 'fileUploadField' && sub.accept.trim() ? { accept: sub.accept.trim() } : {}),
-    ...(prunedProps ? { componentProps: prunedProps } : {}),
-    sortable: false,
-    filterable: false,
-    filterCriteria: null,
-  };
 }
 
 export interface FieldFormPreset {
@@ -305,9 +148,6 @@ export function initialFormValue(
     rows: field?.rows ? String(field.rows) : '',
     accept: field?.accept ?? '',
     props: field?.componentProps ? structuredClone(field.componentProps) : {},
-    subFields: (field?.subFields ?? [])
-      .filter((sub) => sub.type !== 'formArrayField')
-      .map(configToSubDraft),
   };
 }
 
@@ -348,7 +188,6 @@ export function buildFieldConfig(form: FieldFormValue): GeneratorFieldConfig {
     ...(form.disabled ? { disabled: true } : {}),
     ...(form.type === 'textareaField' && Number.isFinite(rows) && rows > 0 ? { rows } : {}),
     ...(form.type === 'fileUploadField' && form.accept.trim() ? { accept: form.accept.trim() } : {}),
-    ...(form.type === 'formArrayField' ? { subFields: form.subFields.map(subDraftToConfig) } : {}),
     ...(prunedProps ? { componentProps: prunedProps } : {}),
   };
 }
@@ -356,9 +195,7 @@ export function buildFieldConfig(form: FieldFormValue): GeneratorFieldConfig {
 const PLACEHOLDER_TYPES: FieldType[] = [
   'textField',
   'textareaField',
-  'passwordField',
   'numberField',
-  'currencyField',
   'dateField',
   'dateRangeField',
   'selectField',
@@ -369,8 +206,6 @@ function componentLabel(t: (key: string) => string, type: FieldType): string {
   switch (type) {
     case 'numberField':
       return t('field.compNumber');
-    case 'currencyField':
-      return t('field.compCurrency');
     case 'selectMultipleField':
       return 'Select (multiple)';
     case 'dateRangeField':
@@ -826,84 +661,10 @@ function SourceEditor({
 }
 
 /**
- * Modal editor satu sub-field kolom: FieldForm penuh (semua properti seperti
- * parent, tanpa kartu Tabel & Filter) + validasi nama saat simpan.
- * Dipakai dari daftar ringkas agar drawer parent tidak bertabrakan.
- */
-function SubFieldModal({
-  title,
-  initial,
-  siblingNames,
-  definitions,
-  onClose,
-  onSave,
-}: {
-  title: string;
-  initial: SubFieldDraft;
-  siblingNames: string[];
-  definitions: ModuleDefinition[];
-  onClose: () => void;
-  onSave: (next: SubFieldDraft) => void;
-}) {
-  const { t } = useTranslation();
-  const [draft, setDraft] = useState<FieldFormValue>(() => subToFormValue(initial));
-  const [error, setError] = useState<string | null>(null);
-
-  function handleSave(): void {
-    const name = draft.name.trim();
-    if (!name) {
-      setError(t('configValidate.subNameRequired'));
-      return;
-    }
-    if (isReservedFieldName(name)) {
-      setError(t('configValidate.subNameReserved', { name }));
-      return;
-    }
-    if (siblingNames.includes(name)) {
-      setError(t('configValidate.subNameDup', { name }));
-      return;
-    }
-    onSave({ ...formValueToSub(draft), name });
-  }
-
-  return (
-    <Dialog
-      open
-      onClose={onClose}
-      title={title}
-      maxWidth="lg"
-      testId="subfield-modal"
-      footer={
-        <>
-          <Button variant="secondary" onClick={onClose}>
-            {t('common.cancel')}
-          </Button>
-          <Button onClick={handleSave} testId="subfield-modal-save">
-            {t('common.save')}
-          </Button>
-        </>
-      }
-    >
-      {error && <p className="mb-3 text-sm text-danger">{error}</p>}
-      <FieldForm
-        value={draft}
-        onChange={(next) => {
-          setDraft(next);
-          setError(null);
-        }}
-        definitions={definitions}
-        hideTableFilter
-      />
-    </Dialog>
-  );
-}
-
-/**
  * Editor field terkontrol penuh — dipakai dialog tambah/edit maupun panel
  * properti kanvas. Induk remount via key tiap ganti field.
  */
 function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter = false, lockType = false, span }: FieldFormProps) {
-  const [subModal, setSubModal] = useState<{ mode: 'create' } | { mode: 'edit'; index: number } | null>(null);
   const { t } = useTranslation();
   const form = value;
   const patch = (part: Partial<FieldFormValue>): void => onChange({ ...form, ...part });
@@ -956,12 +717,6 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
     });
   }
 
-  function patchSub(index: number, part: Partial<SubFieldDraft>): void {
-    patch({
-      subFields: form.subFields.map((sub, i) => (i === index ? { ...sub, ...part } : sub)),
-    });
-  }
-
   function patchTypedProps(key: keyof FieldComponentProps, part: Record<string, unknown>): void {
     const current = (form.props[key] as Record<string, unknown> | undefined) ?? {};
     patch({ props: { ...form.props, [key]: { ...current, ...part } } as FieldComponentProps });
@@ -981,10 +736,8 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
   function renderTypedProps(): ReactNode {
     switch (form.type) {
       case 'textField':
-      case 'numberField':
-      case 'currencyField': {
+      case 'numberField': {
         const p = typedProps('text');
-        const isCurrency = form.type === 'currencyField';
         return (
           <>
             <SizeSelect value={p.size} onChange={(size) => patchTypedProps('text', { size })} />
@@ -998,7 +751,7 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               label="prefix"
               value={p.prefix ?? ''}
               onChange={(prefix) => patchTypedProps('text', { prefix })}
-              placeholder={isCurrency ? t('field.prefixRpDefault') : 'Rp'}
+              placeholder="Rp"
             />
             <PropText
               label="suffix"
@@ -1006,11 +759,6 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
               onChange={(suffix) => patchTypedProps('text', { suffix })}
               placeholder="Kg"
             />
-            {isCurrency && (
-              <p className="text-xs text-muted-foreground">
-                Selalu format currency; simbol prefix default Rp bila dikosongkan.
-              </p>
-            )}
           </>
         );
       }
@@ -1021,23 +769,6 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
             value={p.size}
             onChange={(size) => patchTypedProps('textarea', { size })}
           />
-        );
-      }
-      case 'passwordField': {
-        const p = typedProps('password');
-        return (
-          <>
-            <SizeSelect
-              value={p.size}
-              onChange={(size) => patchTypedProps('password', { size })}
-            />
-            <TriState
-              label="defaultVisible"
-              value={p.defaultVisible}
-              onChange={(defaultVisible) => patchTypedProps('password', { defaultVisible })}
-              hint={t('field.passwordVisible')}
-            />
-          </>
         );
       }
       case 'dateField': {
@@ -1213,62 +944,6 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
           </>
         );
       }
-      case 'colorField': {
-        const p = typedProps('color');
-        return (
-          <SizeSelect value={p.size} onChange={(size) => patchTypedProps('color', { size })} />
-        );
-      }
-      case 'editorField': {
-        const p = typedProps('editor');
-        return (
-          <SizeSelect value={p.size} onChange={(size) => patchTypedProps('editor', { size })} />
-        );
-      }
-      case 'formArrayField': {
-        const p = typedProps('array');
-        return (
-          <>
-            <SizeSelect value={p.size} onChange={(size) => patchTypedProps('array', { size })} />
-            <PropText
-              label="addLabel"
-              value={p.addLabel ?? ''}
-              onChange={(addLabel) => patchTypedProps('array', { addLabel })}
-              placeholder={t('field.arrayAddLabelPh')}
-            />
-            <PropText
-              label="editorTitle"
-              value={p.editorTitle ?? ''}
-              onChange={(editorTitle) => patchTypedProps('array', { editorTitle })}
-              placeholder={t('field.placeholderAuto')}
-            />
-            <PropText
-              label="emptyTitle"
-              value={p.emptyTitle ?? ''}
-              onChange={(emptyTitle) => patchTypedProps('array', { emptyTitle })}
-              placeholder={t('field.arrayEmptyTitlePh')}
-            />
-            <PropText
-              label="emptyDescription"
-              value={p.emptyDescription ?? ''}
-              onChange={(emptyDescription) => patchTypedProps('array', { emptyDescription })}
-              placeholder={t('field.arrayEmptyDescPh')}
-            />
-            <PropNumber
-              label="maxRows"
-              value={p.maxRows}
-              onChange={(maxRows) => patchTypedProps('array', { maxRows })}
-              placeholder={t('field.arrayNoLimit')}
-            />
-            <TriState
-              label="lockFirstRow"
-              value={p.lockFirstRow}
-              onChange={(lockFirstRow) => patchTypedProps('array', { lockFirstRow })}
-              hint={t('field.lockFirstRowHint')}
-            />
-          </>
-        );
-      }
     }
   }
 
@@ -1426,90 +1101,6 @@ function FieldForm({ value, onChange, definitions, onNameBlur, hideTableFilter =
           </div>
         </div>
       </Card>
-
-      {form.type === 'formArrayField' && (
-        <Card size="sm" title={t('field.subfields')} collapsible>
-          <div className="flex flex-col stack-gap">
-            {form.subFields.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                {t('field.subEmpty')}
-              </p>
-            )}
-            {form.subFields.map((sub, i) => {
-              const typeLabel =
-                fieldTypeOptions.find((opt) => opt.value === sub.type)?.label ?? sub.type;
-              return (
-                <div
-                  key={i}
-                  data-testid={`subfield-${i}`}
-                  role="button"
-                  tabIndex={0}
-                  title={t('field.clickToEdit')}
-                  onClick={() => setSubModal({ mode: 'edit', index: i })}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') setSubModal({ mode: 'edit', index: i });
-                  }}
-                  className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 hover:border-primary"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-medium text-foreground">
-                      {t('field.columnTitle', { index: i + 1, label: sub.label.trim() || t('field.noLabel') })}
-                    </p>
-                    <p className="truncate font-mono text-xs text-muted-foreground">
-                      {sub.name || t('field.noName')} · {typeLabel} ·{' '}
-                      {t(`registry.dataSources.${sub.source}`)}
-                      {sub.rules.length > 0 ? ` · ${sub.rules.join('|')}` : ''}
-                    </p>
-                  </div>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    title={t('field.deleteColumn')}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      patch({ subFields: form.subFields.filter((_, j) => j !== i) });
-                    }}
-                    icon={<TrashBinTrash className="h-4 w-4" />}
-                  />
-                </div>
-              );
-            })}
-            <div>
-              <Button variant="secondary" size="sm" onClick={() => setSubModal({ mode: 'create' })}>
-                {t('field.addSub')}
-              </Button>
-            </div>
-            {subModal && (
-              <SubFieldModal
-                key={subModal.mode === 'edit' ? `edit-${subModal.index}` : 'create'}
-                title={
-                  subModal.mode === 'edit'
-                    ? t('field.editColumn', { label: form.subFields[subModal.index]?.label || t('field.columnTitle', { index: subModal.index + 1, label: t('field.noLabel') }) })
-                    : t('field.addColumn')
-                }
-                initial={
-                  subModal.mode === 'edit'
-                    ? (form.subFields[subModal.index] ?? blankSubDraft())
-                    : blankSubDraft()
-                }
-                siblingNames={form.subFields
-                  .filter((_, j) => subModal.mode === 'create' || j !== subModal.index)
-                  .map((s) => s.name)}
-                definitions={definitions}
-                onClose={() => setSubModal(null)}
-                onSave={(next) => {
-                  if (subModal.mode === 'create') {
-                    patch({ subFields: [...form.subFields, next] });
-                  } else {
-                    patchSub(subModal.index, next);
-                  }
-                  setSubModal(null);
-                }}
-              />
-            )}
-          </div>
-        </Card>
-      )}
 
       <Card size="sm" title={t('field.appearance')} collapsible>
         <div className="flex flex-col stack-gap">

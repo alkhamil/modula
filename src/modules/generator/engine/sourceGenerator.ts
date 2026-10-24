@@ -107,7 +107,6 @@ export function mockRecordValue(field: FieldModel, indexVar = 'i'): string {
   const optionValues = options.map((o) => `'${o.value}'`).join(', ');
   switch (field.config.type) {
     case 'numberField':
-    case 'currencyField':
       return `100000 * (${indexVar} + 1)`;
     case 'dateField':
       return `\`2024-0\${(${indexVar} % 9) + 1}-\${10 + (${indexVar} % 9)}\``;
@@ -116,33 +115,8 @@ export function mockRecordValue(field: FieldModel, indexVar = 'i'): string {
     case 'checkboxField':
     case 'switchField':
       return `${indexVar} % 2 === 0`;
-    case 'passwordField':
-      return `\`P@ssw0rd-\${${indexVar} + 1}\``;
     case 'fileUploadField':
       return `\`document-\${${indexVar} + 1}.pdf\``;
-    case 'colorField':
-      return `['#EF4444','#22C55E','#3B82F6','#F59E0B','#8B5CF6'][${indexVar} % 5]`;
-    case 'editorField':
-      return `\`<p>${field.label} ${'${' + indexVar + ' + 1}'} description</p>\``;
-    case 'formArrayField': {
-      const subs = (field.config.subFields ?? []).filter((sub) => sub.type !== 'formArrayField');
-      if (subs.length === 0) return '[]';
-      const rows = [0, 1].map((rowIndex) => {
-        const cells = subs
-          .map((sub) => {
-            const subModel = {
-              ...field,
-              config: sub,
-              name: sub.name,
-              label: sub.label,
-            } as FieldModel;
-            return `${sub.name}: ${mockRecordValue(subModel, `(${indexVar} + ${rowIndex})`)}`;
-          })
-          .join(', ');
-        return `{ ${cells} }`;
-      });
-      return `[${rows.join(', ')}]`;
-    }
     case 'selectMultipleField':
     case 'checkboxGroupField': {
       if (options.length > 0) {

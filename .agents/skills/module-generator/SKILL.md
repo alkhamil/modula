@@ -89,24 +89,28 @@ dicegah `mergeNavItems` (statis menang, anak grup digabung per path).
 - `fields: GeneratorFieldConfig[]` — dipakai apa adanya oleh definisi:
   `name` camelCase (reserved, case-insensitive: `id`, `status`,
   `created_by`, `created_date` — kolom sistem, ditolak `validateConfig`
-  + `FieldDialog`), `label`, `type` (17 tipe kontrol di
-  `registry/fieldTypes.ts`: 14 dasar + `colorField` (hex `#rrggbb`),
-  `editorField` (rich text TipTap, nilai HTML), `formArrayField`
-  (tabel baris embedded, lihat § Form Array); `currencyField` =
-  angka bersimbol (selalu format currency, prefix default `Rp`,
-  semantik number: validasi/filter/bulk/contract), `rules` string
+  + `FieldDialog`), `label`, `type` (12 tipe kontrol di
+  `registry/fieldTypes.ts`, semuanya padanan komponen WDS: `textField`,
+  `numberField` (InputField, format angka), `textareaField`, `dateField`,
+  `dateRangeField`, `selectField`, `selectMultipleField`,
+  `radioGroupField`, `checkboxField`, `checkboxGroupField`,
+  `switchField` (Toggle), `fileUploadField`). Tipe lama `passwordField`,
+  `currencyField`, `colorField`, `editorField`, `formArrayField` sudah
+  dihapus; definisi tersimpan lama dimigrasi di `normalizeConfig`
+  (`parser.ts` → `LEGACY_FIELD_TYPES`: password/color → text, currency →
+  number, editor → textarea, form array → field dibuang)), `rules` string
   (`required|min:3|max:100|withoutemoticon`, 9 rule di
   `registry/validationRules.ts`), `source`
   (`none/mockStatic/mockPagingInfinityScroll/api`), `options`/`api`,
-  `sortable` (default true; array default false), `filterable`
-  (password/file/editor/array default false), `filterCriteria`
+  `sortable` (default true), `filterable`
+  (file default false), `filterCriteria`
   (12 kriteria di `registry/filterCriteria.ts`, opsi valid tergantung
   tipe field), `placeholder` (override auto), `disabled`, `rows`
-  (textarea), `accept` (upload), `subFields` (kolom array),
+  (textarea), `accept` (upload),
   `componentProps` (props FormItem + komponen per tipe:
-  `formItem/text/textarea/password/select/selectMultiple/date/
-  dateRange/radio/checkbox/checkboxGroup/switch/upload/color/editor/
-  array` — `numberField` dan `currencyField` berbagi key `text`;
+  `formItem/text/textarea/select/selectMultiple/date/
+  dateRange/radio/checkbox/checkboxGroup/switch/upload` —
+  `textField` dan `numberField` berbagi key `text`;
   tri-state — tak di-set = perilaku lama; prune + sanitasi di
   `componentProps.ts`, dipakai `normalizeConfig`). `upload.multiple`
   = multi-file (nilai `File[]`, payload nama join koma);
@@ -200,45 +204,6 @@ dicegah `mergeNavItems` (statis menang, anak grup digabung per path).
   statis (Dashboard/Generator/Component, login, 404) — jangan tambah
   route/nav statis per modul bisnis.
 
-## Form Array (`formArrayField`, `FormArrayField`)
-
-- Nilai = baris embedded `Record<string, unknown>[]` (data-shaped di
-  form maupun payload; konversi number/file hanya di batas editor
-  baris: runtime `rowFormValues`/`rowPayloadValues`, statis
-  `to<Pascal>RowForm`/`to<Pascal>Row` hasil generate).
-- `subFields: GeneratorFieldConfig[]` = kolom (satu level; nested
-  array dibuang normalize + ditolak validasi). Daftar sub ringkas di
-  drawer parent (klik = ubah, ikon trash = hapus); tambah/ubah via
-  modal `SubFieldModal` berisi `FieldForm` penuh paritas parent:
-  Umum (label/name auto/tipe) + Appearance + Props FormItem
-  (layout vertical, dsb.) + Props komponen per tipe + Validasi
-  (komponen `ValidationEditor` reuse) + Sumber Data
-  (none/mockStatic/paging/relation/api per tipe, komponen
-  `SourceEditor` reuse) + Tampilan
-  (placeholder/disabled/rows/accept). Tanpa kartu Tabel & Filter di
-  modal; nama divalidasi saat simpan (wajib/tidak reserved/tidak
-  duplikat). Minimal 1 sub (validasi publish).
-- UX `shared/ui/fields/FormArrayField.tsx` (generik, dipakai runtime
-  + kode hasil generate): empty state + tombol Add tengah; isi =
-  header `Total Record: N` + Add kanan-atas + `Table` + aksi
-  ubah/hapus per baris; editor baris = `Dialog` (header + divider,
-  body scroll max-height, footer fixed Batal/Simpan + divider) + form
-  RHF (`renderEditor` injeksi isi form saja; `formId` dari api
-  dipasang di form agar Simpan footer bisa submit via `form=`;
-  submit editor di-stopPropagation agar tak submit form induk). `maxRows` mematikan Add; min via rules.
-- Render sel/kolom per sub reuse `runtime/cellRender.tsx`
-  (`columnRenderForType`) dan `tableColumnSnippet` (statis).
-  Nilai array di list/detail/export tampil sebagai `N baris`
-  (`-`/kosong bila 0). Array tidak searchable/filterable/sortable
-  (default) dan dikecualikan dari bulk (payload `[]`).
-- Statis: interface `<Pascal>Row` + `<Pascal>RowForm` (extends
-  `Record<string, unknown>`), const options `${field}${Sub}Options`
-  (api memakai contoh options), mock loader `load${Parent}${Sub}Options`
-  + interface `${Parent}${Sub}Option` untuk sub paging, kolom
-  `${Pascal}ArrayColumns`, `<Pascal>RowEditor` +
-  `<Pascal>ArrayInput` di file form; rules sub inline. Sub relation
-  dicoerce ke `none` seperti parent (lihat `fromDefinition`).
-
 ## Bulk upload & export
 
 - Format file selalu Excel `.xlsx` via `shared/utils/excel.ts` (+ `xlsx`).
@@ -266,10 +231,6 @@ dicegah `mergeNavItems` (statis menang, anak grup digabung per path).
 
 ## Komponen field baru (shared)
 
-- `ColorField` — swatch picker + input hex `#rrggbb` (string).
-- `EditorField` — TipTap (`@tiptap/react` + starter-kit) bertema
-  design system; toolbar Bold/Italic/daftar/kutipan; nilai HTML.
-  Sel tabel/detail memakai `stripHtml` (shared/utils).
 - `FileUpload` — state initial → progress simulasi (mock-only)
   → uploaded (nama + ukuran + hapus per file); `multiple` menambah
   (append) dan menampilkan daftar; testid `data-testid` mengikuti

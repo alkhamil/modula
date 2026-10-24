@@ -46,14 +46,6 @@ export function definitionToConfig(def: ModuleDefinition): GeneratorConfig {
     i18n: def.i18n ? structuredClone(def.i18n) : undefined,
     tableProps: def.layout.table.props ? { ...def.layout.table.props } : undefined,
     tableWidths: sanitizeWidths(def.layout.table.widths),
-    fields: def.fields.map((field) => {
-      if (field.type !== 'formArrayField' || !field.subFields) return field;
-      return {
-        ...field,
-        subFields: field.subFields.map((sub) =>
-          sub.source === 'relation' ? { ...sub, source: 'none' as const } : sub,
-        ),
-      };
-    }),
+    fields: def.fields,
   };
 }

@@ -310,10 +310,6 @@ function FieldCanvasCard({
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.field,
   });
-  // Kartu array: konten pratinjau dibiarkan interaktif agar tombol
-  // Tambah/ubah/hapus membuka modal editor baris. Klik lain menggelembung
-  // ke kartu dan tetap memilih (drawer properti).
-  const interactivePreview = field.type === 'formArrayField';
   return (
     <div
       ref={setNodeRef}
@@ -347,7 +343,7 @@ function FieldCanvasCard({
           <MenuDotsVertical className="h-4 w-4" />
         </span>
         <div className="relative min-w-0 flex-1 p-3">
-          <div className={interactivePreview ? '' : 'pointer-events-none'}>
+          <div className="pointer-events-none">
             {renderDynamicField(field, {
               def: previewDef,
               testPrefix: 'canvas-preview',
@@ -362,20 +358,15 @@ function FieldCanvasCard({
             })}
           </div>
           {/* Konten pratinjau non-interaktif: lapisan ini menangkap klik (termasuk
-            tombol mati seperti Tambah) agar tetap memilih kartu. Kartu array
-            dikecualikan — tombol Tambah/ubah/hapus membuka modal editor baris
-            (demo pratinjau; data asli diisi di langkah Live Preview / runtime).
-            Drag via gagang. */}
-          {!interactivePreview && (
-            <button
-              type="button"
-              tabIndex={-1}
-              aria-label={t('builder.form.selectField', { label: field.label })}
-              title={t('builder.form.cardHint')}
-              onClick={onSelect}
-              className="absolute inset-0 h-full w-full cursor-pointer rounded-r-lg"
-            />
-          )}
+            tombol mati) agar tetap memilih kartu. Drag via gagang. */}
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label={t('builder.form.selectField', { label: field.label })}
+            title={t('builder.form.cardHint')}
+            onClick={onSelect}
+            className="absolute inset-0 h-full w-full cursor-pointer rounded-r-lg"
+          />
         </div>
         <ResizeHandle span={item.colSpan} onResize={onResize} label={field.label} />
       </div>
@@ -655,21 +646,6 @@ function FormBuilderCanvas({
     const base = deriveFieldNaming(preset.label ?? kind).name || kind;
     const name = uniqueFieldName(base, existingNames);
     const config = buildFieldConfig({ ...initialFormValue(null, preset), name });
-    // Array butuh minimal satu kolom agar bisa dipratinjau & lolos validasi publish.
-    if (config.type === 'formArrayField' && (config.subFields ?? []).length === 0) {
-      config.subFields = [
-        {
-          name: 'item',
-          label: 'Item',
-          type: 'textField',
-          rules: [],
-          source: 'none',
-          sortable: false,
-          filterable: false,
-          filterCriteria: null,
-        },
-      ];
-    }
     return config;
   }
 

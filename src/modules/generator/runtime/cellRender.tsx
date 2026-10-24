@@ -1,4 +1,4 @@
-/** Render sel tabel per tipe field — dipakai list runtime + kolom FormArrayField. */
+/** Render sel tabel per tipe field — dipakai list runtime. */
 import { t } from 'i18next';
 import '../../../shared/i18n';
 import type { ReactNode } from 'react';
@@ -10,7 +10,6 @@ import {
   formatDateRange,
   formatDateTime,
   formatNumber,
-  stripHtml,
 } from '../../../shared/utils';
 import type { DynamicListItem } from './types';
 import { RelationLabel, type RelationOptionLoader } from '../../../shared/components/ui';
@@ -54,7 +53,6 @@ export function columnRenderForType(
 ): ((row: Record<string, unknown>) => ReactNode) | undefined {
   switch (fieldType) {
     case 'numberField':
-    case 'currencyField':
       return (row) => formatNumber(Number(row[name] ?? 0));
     case 'dateField':
       return (row) => formatDate(String(row[name] ?? ''));
@@ -84,29 +82,6 @@ export function columnRenderForType(
         );
       }
       return (row) => multiLabel(options, row[name]);
-    case 'passwordField':
-      return () => '••••••';
-    case 'colorField':
-      return (row) =>
-        row[name] ? (
-          <span className="inline-flex items-center gap-1.5">
-            <span
-              className="inline-block h-4 w-4 rounded border border-border"
-              style={{ backgroundColor: String(row[name]) }}
-            />
-            <span>{String(row[name])}</span>
-          </span>
-        ) : (
-          '-'
-        );
-    case 'editorField':
-      return (row) => stripHtml(String(row[name] ?? '')) || '-';
-    case 'formArrayField':
-      return (row) => {
-        const rows = row[name];
-        const count = Array.isArray(rows) ? rows.length : 0;
-        return count > 0 ? t('system.rowCount', { count }) : '-';
-      };
     default:
       return undefined;
   }

@@ -1,10 +1,7 @@
-import { buildRulesObject, getMaxLength } from './validationGenerator';
+import { getMaxLength } from './validationGenerator';
 import { resolveFormItemLayout } from '../componentProps';
 import { loadLabelHelper } from './sourceGenerator';
 import type { FieldModel, TemplateContext } from './context';
-import { fieldTypeRegistry } from '../registry/fieldTypes';
-import { toPascalCase } from '../naming';
-import type { GeneratorFieldConfig } from '../types';
 
 /** Tipe TS skalar dari valueType (dipakai field top-level + sub-field array). */
 export function scalarDataType(valueType: string): string {
@@ -41,14 +38,11 @@ export function scalarFormType(valueType: string, multipleUpload = false): strin
 
 /** Tipe TS untuk types/payload/mock: file disimpan sebagai nama file (string). */
 export function tsDataType(field: FieldModel): string {
-  if (field.valueType === 'rowArray') return `${field.pascal}Row[]`;
   return scalarDataType(field.valueType);
 }
 
 /** Tipe TS untuk FormValues: number diinput sebagai string, file File|null (File[] bila multiple). */
 export function tsFormType(field: FieldModel): string {
-  // Nilai array selalu data-shaped (konversi di batas editor baris).
-  if (field.formType === 'rowArray') return `${field.pascal}Row[]`;
   return scalarFormType(
     field.formType,
     field.config.componentProps?.upload?.multiple === true,
@@ -58,7 +52,7 @@ export function tsFormType(field: FieldModel): string {
 /** Nilai default form: `''`, `false`, `[]`, atau `null` (file). */
 export function formDefaultValue(field: FieldModel): string {
   if (field.formType === 'boolean') return 'false';
-  if (field.formType === 'stringArray' || field.formType === 'rowArray') return '[]';
+  if (field.formType === 'stringArray') return '[]';
   if (field.formType === 'file') return 'null';
   return "''";
 }
@@ -187,27 +181,12 @@ export function formItemSnippet(
                   currency${sizeOpt(props?.text?.size)}${boolOpt('clearable', props?.text?.clearable)}${strOpt('prepend', props?.text?.prefix)}${strOpt('append', props?.text?.suffix)}
                   placeholder="${placeholderText('Enter')}"
                 />`;
-    case 'currencyField':
-      return `<FormItem
-                  label="${field.label}"
-                  ${common}
-                  component={InputField}
-                  currency${sizeOpt(props?.text?.size)}${boolOpt('clearable', props?.text?.clearable)}${strOpt('prepend', props?.text?.prefix?.trim() || 'Rp')}${strOpt('append', props?.text?.suffix)}
-                  placeholder="${placeholderText('Enter')}"
-                />`;
     case 'dateField':
       return `<FormItem
                   label="${field.label}"
                   ${common}
                   component={DatePicker}${sizeOpt(props?.date?.size)}${boolOpt('showTime', props?.date?.showTime)}${boolOpt('clearable', props?.date?.clearable)}${dateOpt('minDate', props?.date?.minDate)}${dateOpt('maxDate', props?.date?.maxDate)}
                   placeholder="${placeholderText('Select')}"
-                />`;
-    case 'passwordField':
-      return `<FormItem
-                  label="${field.label}"
-                  ${common}
-                  component={PasswordField}${maxLengthProp}${sizeOpt(props?.password?.size)}${boolOpt('defaultVisible', props?.password?.defaultVisible)}
-                  placeholder="${placeholderText('Enter')}"
                 />`;
     case 'dateRangeField':
       return `<FormItem
@@ -314,32 +293,6 @@ export function formItemSnippet(
                   ${common}
                   component={FileUpload}${acceptProp}${sizeOpt(props?.upload?.size)}${boolOpt('multiple', props?.upload?.multiple)}
                 />`;
-    case 'colorField':
-      return `<FormItem
-                  label="${field.label}"
-                  ${common}
-                  component={ColorField}${sizeOpt(props?.color?.size)}
-                />`;
-    case 'editorField':
-      return `<FormItem
-                  label="${field.label}"
-                  ${common}
-                  component={EditorField}${sizeOpt(props?.editor?.size)}
-                />`;
-    case 'formArrayField': {
-      const arrayProps = props?.array;
-      const arrayBase = opts?.labelKey?.replace(/\.label$/, '');
-      const arrayStrOpt = (name: string, value: string | undefined): string => {
-        if (!value) return '';
-        const tKey = arrayBase ? `t('${arrayBase}.array.${name}')` : null;
-        return `\n                  ${name}={${tKey ?? `"${attrEscape(value)}"`}}`;
-      };
-      return `<FormItem
-                  label="${field.label}"
-                  ${common}
-                  component={${field.pascal}ArrayInput}${sizeOpt(arrayProps?.size)}${arrayStrOpt('addLabel', arrayProps?.addLabel?.trim() || undefined)}${arrayBase ? `\n                  editorTitle={t('${arrayBase}.array.editorTitle')}` : strOpt('editorTitle', arrayProps?.editorTitle || field.label)}${arrayStrOpt('emptyTitle', arrayProps?.emptyTitle?.trim() || undefined)}${arrayStrOpt('emptyDescription', arrayProps?.emptyDescription?.trim() || undefined)}${numOpt('maxRows', arrayProps?.maxRows)}${boolOpt('lockFirstRow', arrayProps?.lockFirstRow)}
-                />`;
-    }
     case 'textField':
     default:
       return `<FormItem
@@ -416,7 +369,6 @@ export function tableColumnSnippet(field: FieldModel, width?: number, labelKey?:
   const open = `{ key: '${field.name}', header: ${header}${sort}${widthPart}`;
   switch (field.config.type) {
     case 'numberField':
-    case 'currencyField':
       return `${open}, render: (row: ROWTYPE) => formatNumber(row.${field.name}) },`;
     case 'dateField':
       return `${open}, render: (row: ROWTYPE) => formatDate(row.${field.name}) },`;
@@ -431,14 +383,6 @@ export function tableColumnSnippet(field: FieldModel, width?: number, labelKey?:
     case 'selectMultipleField':
     case 'checkboxGroupField':
       return `${open}, render: (row: ROWTYPE) => ${multiLabelExpr(field, `row.${field.name}`)} },`;
-    case 'passwordField':
-      return `${open}, render: () => '••••••' },`;
-    case 'colorField':
-      return `${open}, render: (row: ROWTYPE) => (row.${field.name} ? (<span className="inline-flex items-center gap-1.5"><span className="inline-block h-4 w-4 rounded border border-border" style={{ backgroundColor: row.${field.name} }} /><span>{row.${field.name}}</span></span>) : '-') },`;
-    case 'editorField':
-      return `${open}, render: (row: ROWTYPE) => stripHtml(row.${field.name} ?? '') || '-' },`;
-    case 'formArrayField':
-      return `${open}, render: (row: ROWTYPE) => { const count = (row.${field.name} ?? []).length; return count > 0 ? t('system.rowCount', { count }) : '-'; } },`;
     case 'textareaField':
     case 'fileUploadField':
     case 'textField':
@@ -453,7 +397,6 @@ export function detailRowSnippet(field: FieldModel, labelKey?: string): string {
   const yesNo = labelKey ? `t('filter.yes') : t('filter.no')` : `'Yes' : 'No'`;
   switch (field.config.type) {
     case 'numberField':
-    case 'currencyField':
       return `{ label: ${label}, value: formatNumber(item.${field.name}) },`;
     case 'dateField':
       return `{ label: ${label}, value: formatDate(item.${field.name}) },`;
@@ -468,14 +411,6 @@ export function detailRowSnippet(field: FieldModel, labelKey?: string): string {
     case 'selectMultipleField':
     case 'checkboxGroupField':
       return `{ label: ${label}, value: ${multiLabelExpr(field, `item.${field.name}`)} },`;
-    case 'passwordField':
-      return `{ label: ${label}, value: '••••••' },`;
-    case 'colorField':
-      return `{ label: ${label}, value: item.${field.name} ? (<span className="inline-flex items-center gap-1.5"><span className="inline-block h-4 w-4 rounded border border-border" style={{ backgroundColor: item.${field.name} }} /><span>{item.${field.name}}</span></span>) : '-' },`;
-    case 'editorField':
-      return `{ label: ${label}, value: stripHtml(item.${field.name} ?? '') || '-' },`;
-    case 'formArrayField':
-      return `{ label: ${label}, value: (() => { const count = (item.${field.name} ?? []).length; return count > 0 ? t('system.rowCount', { count }) : '-'; })() },`;
     default:
       return `{ label: ${label}, value: item.${field.name} },`;
   }
@@ -584,119 +519,6 @@ ${rows.join('\n')}
   }
 }
 
-/** Nama interface baris data untuk field array. */
-export function rowTypeName(field: FieldModel): string {
-  return `${field.pascal}Row`;
-}
-
-/** Nama interface baris form untuk field array. */
-export function rowFormTypeName(field: FieldModel): string {
-  return `${field.pascal}RowForm`;
-}
-
-/** Model sintetis untuk satu sub-field (emisi item/aturan/kolom statis). */
-function subFieldModel(parent: FieldModel, sub: GeneratorFieldConfig): FieldModel {
-  const def = fieldTypeRegistry[sub.type];
-  const pascal = `${parent.pascal}${toPascalCase(sub.name)}`;
-  const isOptionField =
-    sub.type === 'selectField' ||
-    sub.type === 'selectMultipleField' ||
-    sub.type === 'radioGroupField' ||
-    sub.type === 'checkboxGroupField';
-  return {
-    config: sub,
-    name: sub.name,
-    label: sub.label,
-    pascal,
-    valueType: def.valueType,
-    formType: def.formType,
-    isSelect: sub.type === 'selectField' || sub.type === 'radioGroupField',
-    isOptionField,
-    isMultiOption: sub.type === 'selectMultipleField' || sub.type === 'checkboxGroupField',
-    isOptionsQuery: isOptionField && (sub.source === 'mockStatic' || sub.source === 'api'),
-    isLoadOptions:
-      (sub.type === 'selectField' || sub.type === 'selectMultipleField') &&
-      sub.source === 'mockPagingInfinityScroll',
-    isRelationOptions: isOptionField && sub.source === 'relation',
-    rulesVar: `${sub.name}Rules`,
-    optionType: `${pascal}Option`,
-    mockOptionsVar: `mock${pascal}Options`,
-    optionsQueryHook: `use${pascal}OptionsQuery`,
-    loadOptionsFn: `load${pascal}Options`,
-    sortable: false,
-    filterable: false,
-    filterCriteria: null,
-  };
-}
-
-/** Sub-field efektif untuk emisi (nested array dibuang defensif). */
-function arraySubs(field: FieldModel): GeneratorFieldConfig[] {
-  return (field.config.subFields ?? []).filter((sub) => sub.type !== 'formArrayField');
-}
-
-/** Model loadOptions untuk sub-field paging di seluruh fields (emisi mock loader + wiring). */
-export function arraySubLoadModels(fields: FieldModel[]): FieldModel[] {
-  return fields
-    .filter((f) => f.config.type === 'formArrayField')
-    .flatMap((f) => arraySubs(f).map((sub) => subFieldModel(f, sub)))
-    .filter((model) => model.isLoadOptions);
-}
-
-/** Model sub-field relasi di seluruh fields (emisi loader target-backed). */
-export function arraySubRelationModels(fields: FieldModel[]): FieldModel[] {
-  return fields
-    .filter((f) => f.config.type === 'formArrayField')
-    .flatMap((f) => arraySubs(f).map((sub) => subFieldModel(f, sub)))
-    .filter((model) => model.isRelationOptions);
-}
-
-function isSubOptionType(type: string): boolean {
-  return (
-    type === 'selectField' ||
-    type === 'selectMultipleField' ||
-    type === 'radioGroupField' ||
-    type === 'checkboxGroupField'
-  );
-}
-
-/** Interface `${Pascal}Row` + `${Pascal}RowForm` untuk field array. */
-export function rowInterfacesSnippet(field: FieldModel): string {
-  const subs = arraySubs(field);
-  const dataLines = subs
-    .map((sub) => `  ${sub.name}: ${scalarDataType(fieldTypeRegistry[sub.type].valueType)};`)
-    .join('\n');
-  const formLines = subs
-    .map(
-      (sub) =>
-        `  ${sub.name}: ${scalarFormType(fieldTypeRegistry[sub.type].formType, sub.componentProps?.upload?.multiple === true)};`,
-    )
-    .join('\n');
-  return `export interface ${rowTypeName(field)} extends Record<string, unknown> {\n${dataLines}\n}\n\nexport interface ${rowFormTypeName(field)} extends Record<string, unknown> {\n${formLines}\n}`;
-}
-
-/** Const options statis tiap sub-field opsi (`${Parent}${Sub}Options`; api memakai contoh options). */
-export function subOptionsSnippet(field: FieldModel): string {
-  // Semua source kecuali paging (paging memakai loadOptions, bukan const).
-  // Termasuk `none`/sisa `relation` agar referensi options selalu terdefinisi.
-  const subs = arraySubs(field).filter(
-    (sub) => isSubOptionType(sub.type) && sub.source !== 'mockPagingInfinityScroll',
-  );
-  return subs
-    .map((sub) => {
-      const rows = (sub.options ?? []).map((o) => `  { label: '${o.label}', value: '${o.value}' },`);
-      return `const ${field.name}${toPascalCase(sub.name)}Options: { label: string; value: string }[] = [\n${rows.join('\n')}\n];`;
-    })
-    .join('\n\n');
-}
-
-/** True bila ada sub-field number (butuh import parseCurrency di file form). */
-export function arrayNeedsParseCurrency(field: FieldModel): boolean {
-  return arraySubs(field).some(
-    (sub) => fieldTypeRegistry[sub.type].valueType === 'number',
-  );
-}
-
-/** Util format yang dibutuhkan kolom array (`capitalize`, `format*`, `stripHtml`). */
 /**
  * True bila kolom tabel model ini memanggil `capitalize` — semua ekspresi
  * label kecuali helper paging dan `RelationLabel` (menelan fallback sendiri).
@@ -713,170 +535,4 @@ export function selectNeedsCapitalize(model: FieldModel): boolean {
     return false;
   }
   return optionLabelHelper(model) === null;
-}
-
-export function arrayColumnUtils(field: FieldModel): string[] {
-  const subs = arraySubs(field);
-  const utils: string[] = [];
-  if (subs.some((sub) => selectNeedsCapitalize(subFieldModel(field, sub)))) {
-    utils.push('capitalize');
-  }
-  if (subs.some((sub) => sub.type === 'numberField' || sub.type === 'currencyField'))
-    utils.push('formatNumber');
-  if (subs.some((sub) => sub.type === 'dateField')) utils.push('formatDate');
-  if (subs.some((sub) => sub.type === 'dateRangeField')) utils.push('formatDateRange');
-  if (subs.some((sub) => sub.type === 'editorField')) utils.push('stripHtml');
-  return utils;
-}
-
-/** Konversi baris data → form (`toXRowForm`) dan form → data (`toXRow`). */
-export function rowMappersSnippet(field: FieldModel): string {
-  const row = rowTypeName(field);
-  const rowForm = rowFormTypeName(field);
-  const subs = arraySubs(field);
-  const toFormLines = subs
-    .map((sub) => {
-      const valueType = fieldTypeRegistry[sub.type].valueType;
-      if (valueType === 'number') return `    ${sub.name}: String(row?.${sub.name} ?? ''),`;
-      if (valueType === 'file') return `    ${sub.name}: null,`;
-      if (valueType === 'stringArray')
-        return `    ${sub.name}: Array.isArray(row?.${sub.name}) ? [...(row?.${sub.name} as string[])] : [],`;
-      if (valueType === 'boolean') return `    ${sub.name}: (row?.${sub.name} ?? false),`;
-      return `    ${sub.name}: (row?.${sub.name} ?? ''),`;
-    })
-    .join('\n');
-  const toDataLines = subs
-    .map((sub) => {
-      const valueType = fieldTypeRegistry[sub.type].valueType;
-      if (valueType === 'number') return `    ${sub.name}: parseCurrency(form.${sub.name}),`;
-      if (valueType === 'file') {
-        if (sub.componentProps?.upload?.multiple === true) {
-          return `    ${sub.name}: (Array.isArray(form.${sub.name}) ? form.${sub.name}.map((f) => f.name).join(', ') : form.${sub.name} instanceof File ? form.${sub.name}.name : ''),`;
-        }
-        return `    ${sub.name}: (form.${sub.name} instanceof File ? form.${sub.name}.name : ''),`;
-      }
-      return `    ${sub.name}: form.${sub.name},`;
-    })
-    .join('\n');
-  return `function to${field.pascal}RowForm(row?: ${row} | null): ${rowForm} {
-  return {
-${toFormLines}
-  };
-}
-
-function to${field.pascal}Row(form: ${rowForm}): ${row} {
-  return {
-${toDataLines}
-  };
-}`;
-}
-
-/** Kolom tabel array dari sub-field (reuse render per tipe). */
-export function arrayColumnsSnippet(field: FieldModel, labelBase?: string): string {
-  const subs = arraySubs(field);
-  const columns = subs
-    .map((sub) =>
-      tableColumnSnippet(
-        subFieldModel(field, sub),
-        undefined,
-        labelBase ? `${labelBase}.sub.${sub.name}.label` : undefined,
-      ).replace(/ROWTYPE/g, rowTypeName(field)),
-    )
-    .map((line) => `  ${line}`)
-    .join('\n');
-  return `const ${field.pascal}ArrayColumns: Column<${rowTypeName(field)}>[] = [\n${columns}\n];`;
-}
-
-/** Editor baris + komponen input array untuk file form hasil generate. */
-export function arrayInputSnippet(ctx: TemplateContext, field: FieldModel): string {
-  const row = rowTypeName(field);
-  const rowForm = rowFormTypeName(field);
-  const subs = arraySubs(field);
-  const items = subs
-    .map((sub) => {
-      const model = subFieldModel(field, sub);
-      const subBase = `${ctx.config.permissionKey}.fields.${field.name}.sub.${sub.name}`;
-      const subLabelKey = `${subBase}.label`;
-      const snippet = formItemSnippet(ctx, model, {
-        testId: `${ctx.names.testId}-${field.name}-${sub.name}`,
-        rulesExpr: buildRulesObject(model, subLabelKey),
-        optionsVar: `${field.name}${toPascalCase(sub.name)}Options`,
-        labelKey: subLabelKey,
-        placeholderKey: `${subBase}.placeholder`,
-      }).replace(/\n                  /g, '\n            ');
-      return `          ${snippet}`;
-    })
-    .join('\n\n');
-  return `function ${field.pascal}RowEditor({
-  initial,
-  onSave,
-  formId,
-}: {
-  initial: ${row} | null;
-  onSave: (row: ${row}) => void;
-  onCancel: () => void;
-  formId: string;
-}) {
-  return (
-    <FormGroup<${rowForm}>
-      testId="${ctx.names.testId}-${field.name}-row-form"
-      id={formId}
-      defaultValues={to${field.pascal}RowForm(initial)}
-      onSubmit={(form) => onSave(to${field.pascal}Row(form))}
-    >
-      <div className="flex flex-col section-gap">
-${items}
-      </div>
-    </FormGroup>
-  );
-}
-
-function ${field.pascal}ArrayInput({
-  value,
-  onChange,
-  size,
-  addLabel,
-  editorTitle,
-  emptyTitle,
-  emptyDescription,
-  maxRows,
-  lockFirstRow,
-  disabled,
-  error,
-  'data-testid': testId,
-}: {
-  value?: ${row}[] | null;
-  onChange: (rows: ${row}[]) => void;
-  size?: 'sm' | 'md' | 'lg';
-  addLabel?: string;
-  editorTitle?: string;
-  emptyTitle?: string;
-  emptyDescription?: string;
-  maxRows?: number;
-  lockFirstRow?: boolean;
-  disabled?: boolean;
-  error?: string;
-  'data-testid'?: string;
-}) {
-  return (
-    <FormArrayField
-      value={value ?? []}
-      onChange={onChange}
-      columns={${field.pascal}ArrayColumns}
-      renderEditor={({ initial, onSave, onCancel, formId }) => (
-        <${field.pascal}RowEditor initial={initial} onSave={onSave} onCancel={onCancel} formId={formId} />
-      )}
-      size={size}
-      addLabel={addLabel}
-      editorTitle={editorTitle}
-      emptyTitle={emptyTitle}
-      emptyDescription={emptyDescription}
-      maxRows={maxRows}
-      lockFirstRow={lockFirstRow}
-      disabled={disabled}
-      error={error}
-      data-testid={testId}
-    />
-  );
-}`;
 }

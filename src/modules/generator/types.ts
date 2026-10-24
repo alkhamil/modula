@@ -43,9 +43,7 @@ export type FeatureKey =
 export type FieldType =
   | 'textField'
   | 'textareaField'
-  | 'passwordField'
   | 'numberField'
-  | 'currencyField'
   | 'dateField'
   | 'dateRangeField'
   | 'selectField'
@@ -54,10 +52,7 @@ export type FieldType =
   | 'checkboxField'
   | 'checkboxGroupField'
   | 'switchField'
-  | 'fileUploadField'
-  | 'colorField'
-  | 'editorField'
-  | 'formArrayField';
+  | 'fileUploadField';
 
 export type DataSource =
   | 'none'
@@ -138,8 +133,6 @@ export interface GeneratorFieldConfig {
   rows?: number;
   /** Filter file upload, mis. `.pdf,.png` (default semua). */
   accept?: string;
-  /** Sub-field kolom bila `type === 'formArrayField'` (satu level; nested array dibuang). */
-  subFields?: GeneratorFieldConfig[];
   /** Props komponen field + FormItem (per tipe; default = perilaku lama). */
   componentProps?: FieldComponentProps;
 }
@@ -172,12 +165,6 @@ export interface TextFieldPropsConfig {
 /** Props Textarea (textareaField). */
 export interface TextareaPropsConfig {
   size?: FieldSize;
-}
-
-/** Props PasswordField (passwordField). */
-export interface PasswordPropsConfig {
-  size?: FieldSize;
-  defaultVisible?: boolean;
 }
 
 /** Props Select (selectField). */
@@ -256,34 +243,6 @@ export interface UploadPropsConfig {
   multiple?: boolean;
 }
 
-/** Props ColorField (colorField). Nilai hex `#rrggbb` (string). */
-export interface ColorPropsConfig {
-  size?: FieldSize;
-}
-
-/** Props EditorField (editorField). Nilai HTML (string). */
-export interface EditorPropsConfig {
-  size?: FieldSize;
-}
-
-/** Props FormArrayField (formArrayField). Nilai baris embedded `Record<string, unknown>[]`. */
-export interface ArrayPropsConfig {
-  size?: FieldSize;
-  /** Add button label (defaults to `t('array.add')`). */
-  addLabel?: string;
-  /** Judul dialog editor (default label field). */
-  editorTitle?: string;
-  emptyTitle?: string;
-  emptyDescription?: string;
-  /** Batas baris: tombol tambah mati saat tercapai (validasi jumlah via rules min/max). */
-  maxRows?: number;
-  /**
-   * Kunci baris pertama: selalu ada satu baris (otomatis dibuat bila kosong)
-   * dan baris pertama tidak bisa dihapus.
-   */
-  lockFirstRow?: boolean;
-}
-
 /**
  * Props komponen per field — hanya kunci yang relevan untuk tipenya
  * yang dipakai (lihat `propsKeyForType`); sisanya di-strip normalize.
@@ -292,7 +251,6 @@ export interface FieldComponentProps {
   formItem?: FormItemPropsConfig;
   text?: TextFieldPropsConfig;
   textarea?: TextareaPropsConfig;
-  password?: PasswordPropsConfig;
   select?: SelectPropsConfig;
   selectMultiple?: SelectMultiplePropsConfig;
   date?: DatePickerPropsConfig;
@@ -302,9 +260,6 @@ export interface FieldComponentProps {
   checkboxGroup?: GroupPropsConfig;
   switch?: SwitchPropsConfig;
   upload?: UploadPropsConfig;
-  color?: ColorPropsConfig;
-  editor?: EditorPropsConfig;
-  array?: ArrayPropsConfig;
 }
 
 /** Props tampilan komponen Table yang bisa diatur per modul. */

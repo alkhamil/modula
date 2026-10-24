@@ -57,11 +57,7 @@ function expectEq(actual, expected, tag) {
   }
 }
 
-// --- Fase C: color/editor/upload-multiple ---
-const color = fg.formItemSnippet(ctx, F('warna', 'Warna', { type: 'colorField', componentProps: { color: { size: 'lg' } } }));
-expectIn(color, 'component={ColorField}', 'color-component');
-expectIn(color, 'size="lg"', 'color-size');
-expectIn(fg.formItemSnippet(ctx, F('deskripsi', 'Deskripsi', { type: 'editorField' })), 'component={EditorField}', 'editor-component');
+// --- Fase C: upload-multiple ---
 const upMulti = fg.formItemSnippet(ctx, F('lampiran', 'Lampiran', { type: 'fileUploadField', componentProps: { upload: { multiple: true } } }));
 expectIn(upMulti, 'multiple', 'upload-multiple');
 const upSingle = fg.formItemSnippet(ctx, F('dok', 'Dok', { type: 'fileUploadField' }));
@@ -69,56 +65,13 @@ if (upSingle.includes('multiple')) {
   fail++;
   console.log('UNEXPECTED multiple in single upload');
 }
-expectIn(fg.tableColumnSnippet(F('warna', 'Warna', { type: 'colorField' })), 'backgroundColor', 'color-cell');
-expectIn(fg.tableColumnSnippet(F('deskripsi', 'Deskripsi', { type: 'editorField' })), 'stripHtml', 'editor-cell');
-expectIn(fg.detailRowSnippet(F('warna', 'Warna', { type: 'colorField' })), 'backgroundColor', 'color-detail');
-expectIn(fg.detailRowSnippet(F('deskripsi', 'Deskripsi', { type: 'editorField' })), 'stripHtml', 'editor-detail');
 const multiModel = F('lampiran', 'Lampiran', { type: 'fileUploadField', componentProps: { upload: { multiple: true } } });
 multiModel.valueType = 'file';
 multiModel.formType = 'file';
 expectEq(fg.tsFormType(multiModel), 'File | File[] | null', 'tsFormType-multiple');
 expectIn(fg.payloadMapping(multiModel), 'Array.isArray', 'payload-multiple');
-expectEq(cp.propsKeyForType('colorField'), 'color', 'propsKey-color');
-expectEq(cp.propsKeyForType('editorField'), 'editor', 'propsKey-editor');
 expectEq(utils.stripHtml('<p>Halo <b>Dunia</b></p>'), 'Halo Dunia', 'stripHtml');
 
-// --- Fase D: form array ---
-const subName = { name: 'namaBarang', label: 'Nama Barang', type: 'textField', rules: ['required'], source: 'none' };
-const subQty = { name: 'qty', label: 'Qty', type: 'numberField', rules: [], source: 'none' };
-const subFile = { name: 'nota', label: 'Nota', type: 'fileUploadField', rules: [], source: 'none' };
-const arrayModel = {
-  ...base,
-  name: 'items',
-  label: 'Items',
-  pascal: 'Items',
-  valueType: 'rowArray',
-  formType: 'rowArray',
-  rulesVar: 'itemsRules',
-  config: {
-    name: 'items',
-    label: 'Items',
-    rules: ['required', 'min:1'],
-    type: 'formArrayField',
-    subFields: [subName, subQty, subFile],
-  },
-};
-expectIn(fg.formItemSnippet(ctx, arrayModel), 'component={ItemsArrayInput}', 'array-input');
-expectIn(fg.formItemSnippet(ctx, arrayModel), 'editorTitle="Items"', 'array-editor-title');
-expectIn(fg.rowInterfacesSnippet(arrayModel), 'export interface ItemsRow extends Record<string, unknown>', 'row-iface');
-expectIn(fg.rowInterfacesSnippet(arrayModel), 'qty: number;', 'row-iface-num');
-expectIn(fg.rowInterfacesSnippet(arrayModel), 'nota: File | null;', 'rowform-file');
-expectIn(fg.rowMappersSnippet(arrayModel), "String(row?.qty ?? '')", 'mapper-num-form');
-expectIn(fg.rowMappersSnippet(arrayModel), 'parseCurrency(form.qty)', 'mapper-num-data');
-expectIn(fg.arrayColumnsSnippet(arrayModel), 'const ItemsArrayColumns: Column<ItemsRow>[]', 'array-cols');
-expectIn(fg.arrayInputSnippet(ctx, arrayModel), 'function ItemsRowEditor', 'row-editor');
-expectIn(fg.arrayInputSnippet(ctx, arrayModel), 'testId="demo-items-namaBarang"', 'sub-testid');
-expectIn(
-  fg.arrayInputSnippet(ctx, arrayModel),
-  "t('validation.required', { label: t('demo.fields.items.sub.namaBarang.label') })",
-  'sub-rules',
-);
-expectIn(fg.tableColumnSnippet(arrayModel), "t('system.rowCount'", 'array-cell');
-expectIn(fg.detailRowSnippet(arrayModel), "t('system.rowCount'", 'array-detail');
 // Select tampil label opsi di tabel/detail: map statis → literal, paging → helper api.
 const selStatic = F('status', 'Status', {
   type: 'selectField',
@@ -141,22 +94,6 @@ const selLoad = {
 expectIn(fg.tableColumnSnippet(selLoad), 'getSellerOptionLabel(row.seller)', 'table-load-label');
 expectIn(fg.detailRowSnippet(selLoad), 'getSellerOptionLabel(item.seller)', 'detail-load-label');
 expectEq(fg.loadLabelHelpers([selLoad]).join(','), 'getSellerOptionLabel', 'label-helpers');
-// Sub-field paging: kolom array memakai helper, import capitalize tak ikut.
-const subLoad = { name: 'product', label: 'Product', type: 'selectField', rules: [], source: 'mockPagingInfinityScroll' };
-const arrayLoadModel = {
-  ...arrayModel,
-  config: { ...arrayModel.config, subFields: [subLoad] },
-};
-expectEq(fg.arrayColumnUtils(arrayLoadModel).includes('capitalize'), false, 'array-utils-no-cap-paging');
-expectIn(fg.arrayColumnsSnippet(arrayLoadModel), 'getItemsProductOptionLabel(row.product)', 'array-sub-load-label');
-// Sub-field opsi statis: map literal + fallback capitalize tetap butuh import.
-const subStatic = { name: 'kondisi', label: 'Kondisi', type: 'selectField', rules: [], source: 'mockStatic', options: [{ label: 'Baru', value: 'baru' }] };
-const arrayStaticModel = {
-  ...arrayModel,
-  config: { ...arrayModel.config, subFields: [subStatic] },
-};
-expectEq(fg.arrayColumnUtils(arrayStaticModel).includes('capitalize'), true, 'array-utils-cap-static');
-expectIn(fg.arrayColumnsSnippet(arrayStaticModel), "'baru': 'Baru'", 'array-sub-static-label');
 // Relasi: resolve target + kolom/detail memakai RelationLabel + loader terdaftar.
 const relTarget = naming.resolveRelationTarget({ definitionKey: 'catalogue/category', labelField: 'name', valueField: 'id' });
 expectEq(relTarget?.mockListFn, 'mockGetCategories', 'relation-mock-fn');
@@ -190,25 +127,18 @@ expectIn(
   "from '../../../catalogue/category/api/mock'",
   'relation-import-nested-consumer',
 );
-expectEq(fg.tsDataType(arrayModel), 'ItemsRow[]', 'tsDataType-array');
-expectEq(fg.tsFormType(arrayModel), 'ItemsRow[]', 'tsFormType-array');
-expectEq(fg.formDefaultValue(arrayModel), '[]', 'formDefault-array');
-expectEq(fg.payloadMapping(arrayModel), 'data.items', 'payload-array');
-expectIn(vg.buildRulesObject(arrayModel), 'value.length > 0', 'rules-array-required');
-expectIn(sg.mockRecordValue(arrayModel, 'i'), 'namaBarang:', 'mock-array');
-const form = vr.rowFormValues([subName, subQty, subFile], { namaBarang: 'Buku', qty: 3 });
-expectEq(`${form.namaBarang}|${form.qty}|${form.nota}`, 'Buku|3|null', 'rowFormValues');
-const rhf = vr.fieldRulesToRHF({ name: 'items', label: 'Items', type: 'formArrayField', rules: ['required'], source: 'none' });
-if (typeof rhf.validate?.required !== 'function' || rhf.validate.required([]) === true) {
-  fail++;
-  console.log('MISS rhf-array-required');
-}
+// Tipe field lama dimigrasi (password/currency/color/editor) atau dibuang (form array).
 const cfg = parser.normalizeConfig({
   parentName: null, moduleName: 'M', permissionKey: 'm', type: 'crud', features: {},
-  fields: [{ name: 'items', label: 'Items', type: 'formArrayField', rules: [], source: 'none',
-    subFields: [{ name: 'sub', label: 'Sub', type: 'formArrayField', rules: [], source: 'none' }] }],
+  fields: [
+    { name: 'secret', label: 'Secret', type: 'passwordField', rules: [], source: 'none' },
+    { name: 'price', label: 'Price', type: 'currencyField', rules: [], source: 'none' },
+    { name: 'tint', label: 'Tint', type: 'colorField', rules: [], source: 'none' },
+    { name: 'body', label: 'Body', type: 'editorField', rules: [], source: 'none' },
+    { name: 'items', label: 'Items', type: 'formArrayField', rules: [], source: 'none', subFields: [] },
+  ],
 });
-expectEq((cfg.fields[0].subFields ?? []).length, 0, 'normalize-strips-nested');
+expectEq(cfg.fields.map((f) => f.type).join(','), 'textField,numberField,textField,textareaField', 'legacy-types-migrated');
 
 // --- Fase E: i18n per-modul (Slice A) ---
 const mg = jiti(`${ROOT}/src/modules/generator/engine/moduleGenerator.ts`);
@@ -222,10 +152,6 @@ const probeConfig = {
   fields: [
     { name: 'nama', label: 'Nama', type: 'textField', rules: ['required', 'min:3'], sortable: true, filterable: true, filterCriteria: 'contains', source: 'none' },
     { name: 'tipe', label: 'Tipe', type: 'selectField', rules: ['required'], sortable: false, filterable: true, filterCriteria: 'optionExact', source: 'mockStatic', options: [{ label: 'A', value: 'a' }] },
-    {
-      name: 'items', label: 'Items', type: 'formArrayField', rules: ['required'], sortable: false, filterable: false, filterCriteria: null, source: 'none',
-      subFields: [{ name: 'barang', label: 'Barang', type: 'textField', rules: ['required'], source: 'none' }],
-    },
   ],
 };
 const emitted = mg.generateModule(probeConfig);
@@ -242,8 +168,6 @@ expectEq(typeof mod?.labelPlural, 'string', 'locale-labelPlural');
 expectEq(typeof mod?.breadcrumbs?.create, 'string', 'locale-crumb');
 expectEq(mod?.fields?.nama?.label, 'Nama', 'locale-field-label');
 expectEq(typeof mod?.fields?.nama?.placeholder, 'string', 'locale-field-placeholder');
-expectEq(mod?.fields?.items?.sub?.barang?.label, 'Barang', 'locale-sub-label');
-expectEq(typeof mod?.fields?.items?.array?.editorTitle, 'string', 'locale-array-title');
 expectEq(typeof mod?.toast?.created, 'string', 'locale-toast');
 // Semua key t('<base>...') statis di file hasil generate harus ada di en.json.
 const flat = {};

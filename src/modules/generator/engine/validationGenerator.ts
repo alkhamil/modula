@@ -16,7 +16,7 @@ export function buildRulesObject(field: FieldModel, labelKey?: string): string {
       : `'${label} is required.'${suffix}`;
   const tLabel = labelKey ? `t('${labelKey}')` : null;
   const isNumber = field.valueType === 'number';
-  const isArray = field.valueType === 'stringArray' || field.valueType === 'rowArray';
+  const isArray = field.valueType === 'stringArray';
   const lines: string[] = [];
 
   // Beberapa rule array memakai kunci `validate` yang sama — yang pertama menang.

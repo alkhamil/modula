@@ -1,18 +1,11 @@
 import type { TemplateContext } from '../../engine/context';
 import {
-  arraySubLoadModels,
-  arraySubRelationModels,
   filterParamKeys,
-  rowInterfacesSnippet,
   tsDataType,
 } from '../../engine/fieldGenerator';
 
 export function typesTemplate(ctx: TemplateContext): string {
   const { names, fields, features } = ctx;
-  const rowInterfaces = fields
-    .filter((f) => f.config.type === 'formArrayField')
-    .map((f) => rowInterfacesSnippet(f))
-    .join('\n\n');
   const fieldLines = (indent: string): string =>
     fields.map((f) => `${indent}${f.name}: ${tsDataType(f)};`).join('\n');
   const filterParamLines = fields
@@ -25,12 +18,6 @@ export function typesTemplate(ctx: TemplateContext): string {
     .map(
       (f) =>
         `export interface ${f.optionType} {\n  label: string;\n  value: string;\n}`,
-    )
-    .join('\n\n');
-  const subOptionTypes = [...arraySubLoadModels(fields), ...arraySubRelationModels(fields)]
-    .map(
-      (m) =>
-        `export interface ${m.optionType} {\n  label: string;\n  value: string;\n}`,
     )
     .join('\n\n');
 
@@ -63,7 +50,7 @@ ${filterParamLines ? `${filterParamLines}\n` : ''}  order?: string;
   size?: number;
 }
 ${optionTypes ? `\n${optionTypes}\n` : ''}
-${subOptionTypes ? `${subOptionTypes}\n` : ''}${rowInterfaces ? `${rowInterfaces}\n\n` : ''}export interface ${names.mutationResult}<T = ${names.entity}> {
+export interface ${names.mutationResult}<T = ${names.entity}> {
   message: string;
   data: T;
 }
