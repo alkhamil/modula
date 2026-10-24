@@ -33,7 +33,7 @@ import {
   FormGroup,
   InputField,
 } from '../../../shared/components/ui';
-import { AltArrowDown, Calendar, CalendarDate, CheckSquare, Checklist, ChecklistMinimalistic, Dollar, Hashtag, LinkMinimalistic, Lock, MenuDotsVertical, Minus, Palette as PaletteIcon, Pen2, Power, Record, Text, TextBold, TextField as TextFieldIcon, TrashBinTrash, Upload, Widget2 } from '../../../shared/components/icons';
+import { AltArrowDown, Calendar, CalendarDate, CheckSquare, Checklist, ChecklistMinimalistic, Hashtag, LinkMinimalistic, Lock, MenuDotsVertical, Minus, Palette as PaletteIcon, Pen2, Power, Record, Text, TextBold, TextField as TextFieldIcon, TrashBinTrash, Upload, Widget2 } from '../../../shared/components/icons';
 import type { IconComponent } from '../../../shared/components/icons';
 import type { GeneratorFieldConfig } from '../types';
 import { deriveFieldNaming, isReservedFieldName, uniqueFieldName } from '../parser';
@@ -72,7 +72,6 @@ interface FormBuilderCanvasProps {
 type PaletteKind =
   | 'text'
   | 'number'
-  | 'currency'
   | 'textarea'
   | 'password'
   | 'select'
@@ -95,7 +94,7 @@ const PALETTE_SECTIONS: { titleKey: string; items: PaletteKind[] }[] = [
   {
     titleKey: 'builder.paletteSections.fields',
     items: [
-      'text', 'number', 'currency', 'textarea', 'password', 'select', 'multiselect',
+      'text', 'number', 'textarea', 'password', 'select', 'multiselect',
       'radio', 'checkbox', 'checkboxgroup', 'date', 'daterange', 'switch', 'upload',
       'color', 'editor', 'array', 'relation',
     ],
@@ -110,8 +109,6 @@ function presetForKind(kind: PaletteKind): FieldFormPreset {
   switch (kind) {
     case 'number':
       return { type: 'numberField', label: 'Number' };
-    case 'currency':
-      return { type: 'currencyField', label: 'Currency' };
     case 'textarea':
       return { type: 'textareaField', label: 'Textarea' };
     case 'password':
@@ -151,7 +148,6 @@ function presetForKind(kind: PaletteKind): FieldFormPreset {
 const PALETTE_ICONS: Record<PaletteKind, IconComponent> = {
   text: TextFieldIcon,
   number: Hashtag,
-  currency: Dollar,
   textarea: Text,
   password: Lock,
   select: AltArrowDown,

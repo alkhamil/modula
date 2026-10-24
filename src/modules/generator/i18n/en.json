@@ -8,8 +8,6 @@
       "textHint": "Text input",
       "number": "Number",
       "numberHint": "Number input",
-      "currency": "Currency",
-      "currencyHint": "Currency input",
       "textarea": "Textarea",
       "textareaHint": "Multi-line text",
       "password": "Password",

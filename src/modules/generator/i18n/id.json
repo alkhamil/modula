@@ -8,8 +8,6 @@
       "textHint": "Input teks",
       "number": "Number",
       "numberHint": "Input angka",
-      "currency": "Currency",
-      "currencyHint": "Input mata uang",
       "textarea": "Textarea",
       "textareaHint": "Teks multi baris",
       "password": "Password",
