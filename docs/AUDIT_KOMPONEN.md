@@ -16,7 +16,7 @@ Satu komponen dianggap **sudah dicek manual** bila semua langkah ini dilakukan:
 4. Verifikasi di browser, lalu jalankan `npm run lint`, `npm run build`, `npm run i18n:check`,
    `npm run verify:generator`, dan commit.
 
-## Sudah dicek manual (16)
+## Sudah dicek manual (17)
 
 | Komponen | Slug | Ringkasan hasil |
 |---|---|---|
@@ -35,6 +35,7 @@ Satu komponen dianggap **sudah dicek manual** bila semua langkah ini dilakukan:
 | Checkbox | `checkbox` | Properti Figma (Label, Supporting/error, Style outline/solid, states, type, mode, Horizontal Checkbox) ada; ukuran 16–32, radius per ukuran, stroke, warna 7 state × 2 style, opacity disabled cocok token. Tidak ada perubahan kode; tautan Figma docs diarahkan ke halaman |
 | Toggle | `toggle` | Properti **Tick** (Figma "Toggle tick/check mark variant") sebelumnya salah dipetakan ke `value`; kini prop `tick` menampilkan centang di thumb saat aktif. Show hint, Style, Size, states, track 1,8×, opacity disabled cocok token |
 | DatePicker | `date-picker` | Properti Figma (Date/placeholder, Helper/error, Show hint, Show label/description, Layout, style, state, Size) ada (label/description/layout lewat `FormItem`); tinggi 44, radius 8, ikon 20, warna 7 state × 2 style cocok token; state `focused` (docs) kini berstroke fokus + cincin. Ikon kalender belum dibandingkan dengan glyph Figma. Panel kalender memakai komponen Calendar (sudah dicek) |
+| FileUpload | `file-upload` | Border dashed → solid 1px; ikon 40 → 44px; jarak ikon–teks `content-gap` (sebelumnya `text-gap`); teks pendukung ukuran body dan prop `supportingText` (di dalam area) dipisah dari `hint` (helper di bawah area, diganti `error`); state disabled mewarnai aksi dan teks pendukung `text.disabled`; progress upload kini kartu "uploading" di daftar (bukan di dalam area); `size` xs–xl. Layout horizontal/label lewat `FormItem` |
 | Calendar | `calendar` | `type`, `size`; header Month & Year terpisah; Senin hari pertama; 6 baris tetap; token jarak. Time picker dan Apply button sengaja tidak diimplementasikan |
 
 ### Penyimpangan yang disengaja dari Figma / token
@@ -64,7 +65,6 @@ dibuat), tetapi **belum** satu per satu dengan `tokens.json` dan tabel Propertie
 - (kosong; Button sudah dicek)
 
 ### Forms
-- FileUpload (`file-upload`)
 - SearchBar (`search-bar`), SegmentedControl (`segmented-control`), Slider (`slider`), Rating (`rating`)
 - OtpInput (`otp-input`), PinInput (`pin-input`), QuantitySelector (`quantity-selector`)
 - CompactSelect (`compact-select`)

@@ -1711,16 +1711,28 @@
       ]
     },
     "file-upload": {
-      "summary": "File upload WDS: area drop dengan featured icon, teks pendukung, progress bar simulasi, dan kartu file untuk file terpilih.",
+      "summary": "File upload WDS: area drop dengan featured icon dan teks pendukung; file terpilih (serta kartu upload dengan progress) ditampilkan sebagai kartu file di bawahnya.",
       "figma": {
         "states": {
           "note": "Hover (juga saat drag) memakai tint brand; error dan disabled mengikuti state field."
         },
         "hint": {
-          "note": "Tampil di bawah teks utama."
+          "note": "Teks bantu di bawah area (digantikan pesan error)."
         },
         "cards": {
-          "note": "File terpilih ditampilkan sebagai kartu dengan aksi lihat dan hapus."
+          "note": "File terpilih berupa kartu dengan aksi lihat dan hapus; saat upload tampil kartu upload dengan progress bar."
+        },
+        "supporting": {
+          "note": "Tampil di dalam area, di bawah teks utama."
+        },
+        "label": {
+          "note": "Label dirender oleh FormItem."
+        },
+        "layout": {
+          "note": "FormItem layout=\"horizontal\" menaruh label di samping area."
+        },
+        "size": {
+          "note": "Padding dan jarak dari token Size (xs–xl)."
         }
       },
       "examples": {
@@ -1734,10 +1746,12 @@
       "props": {
         "value": "File terpilih dan handler perubahan.",
         "multiple": "Izinkan banyak file; `accept` memfilter tipe.",
-        "hint": "Teks pendukung, mis. format dan ukuran yang diizinkan.",
-        "error": "Pesan error; area menjadi merah.",
+        "hint": "Teks bantu di bawah area; digantikan oleh error.",
+        "error": "Pesan error di bawah area; border area menjadi merah.",
         "disabled": "Menonaktifkan klik, drag, dan penghapusan.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Ukuran dari token Size.",
+        "supportingText": "Figma Supporting text, di dalam area (mis. format dan ukuran yang diizinkan)."
       },
       "tokens": {
         "--wds-bg-surface": "Latar area.",

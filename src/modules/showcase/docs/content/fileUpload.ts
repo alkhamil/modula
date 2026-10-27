@@ -10,8 +10,11 @@ export const fileUploadDoc: ComponentDoc = {
   component: FileUploadDemo,
   codeName: 'FileUpload',
   codeExtra: ['value={file}', 'onChange={setFile}'],
-  baseProps: { hint: 'SVG, PNG, JPG or GIF (max. 800×400px)' },
+  defaults: { size: 'md' },
+  baseProps: { supportingText: 'SVG, PNG, JPG or GIF (max. 800×400px)', size: 'md' },
   controls: [
+    { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
+    { prop: 'supportingText', kind: 'text' },
     { prop: 'hint', kind: 'text' },
     { prop: 'error', kind: 'text' },
     { prop: 'multiple', kind: 'boolean' },
@@ -19,8 +22,12 @@ export const fileUploadDoc: ComponentDoc = {
   ],
   figmaMapping: [
     { id: 'states', figma: 'File Upload Area states', values: 'default, focused, hover, disabled, error', prop: 'disabled · error · drag' },
-    { id: 'hint', figma: 'Supporting text', values: 'free text', prop: 'hint' },
-    { id: 'cards', figma: 'File Upload Cards states', values: 'filled', prop: 'value' },
+    { id: 'supporting', figma: 'Supporting text (TEXT)', values: 'free text', prop: 'supportingText' },
+    { id: 'hint', figma: 'Show hint · Helper / error (TEXT)', values: 'boolean + text', prop: 'hint · error' },
+    { id: 'label', figma: 'Show label · Label', values: 'boolean + text', prop: 'FormItem label' },
+    { id: 'layout', figma: 'Layout (variant)', values: 'Vertical, Horizontal', prop: 'FormItem layout' },
+    { id: 'size', figma: 'Size (mode)', values: 'xs, sm, md, lg, xl', prop: 'size' },
+    { id: 'cards', figma: 'File Upload Cards states', values: 'uploading, uploaded, error, filled, disabled', prop: 'value (an uploading card while uploading)' },
   ],
   examples: [
     {
@@ -36,6 +43,8 @@ export const fileUploadDoc: ComponentDoc = {
   props: [
     { id: 'value', name: 'value · onChange', type: 'File | File[] | null · function' },
     { id: 'multiple', name: 'multiple · accept', type: 'boolean · string' },
+    { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
+    { id: 'supportingText', name: 'supportingText', type: 'string' },
     { id: 'hint', name: 'hint', type: 'string' },
     { id: 'error', name: 'error', type: 'string' },
     { id: 'disabled', name: 'disabled', type: 'boolean', default: 'false' },

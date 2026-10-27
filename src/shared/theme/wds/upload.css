@@ -11,16 +11,16 @@
     --u-icon: var(--wds-icons-brand);
     --u-feat: var(--wds-neutral-200);
     --u-action: var(--wds-text-link);
+    --u-supporting: var(--wds-text-tertiary);
     box-sizing: border-box;
     display: flex;
     cursor: pointer;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--wds-sz-file-upload-area-text-gap);
     padding: var(--wds-sz-file-upload-area-padding-top) var(--wds-sz-file-upload-area-padding-right)
       var(--wds-sz-file-upload-area-padding-bottom) var(--wds-sz-file-upload-area-padding-left);
-    border: var(--wds-sz-table-stroke) dashed var(--u-stroke);
+    border: var(--wds-stroke-1) solid var(--u-stroke);
     border-radius: var(--wds-radius-8);
     background-color: var(--u-bg);
     font-family: var(--wds-sz-text-body-font-family);
@@ -37,9 +37,9 @@
   }
 
   .wds-upload:focus-visible {
-    outline: 1px solid var(--wds-stroke-focus);
+    --u-stroke: var(--wds-stroke-focus);
+    outline: var(--wds-stroke-1) solid var(--wds-stroke-focus);
     outline-offset: 2px;
-    border-color: var(--wds-stroke-focus);
   }
 
   .wds-upload[data-state='error'] {
@@ -51,13 +51,38 @@
     --u-text: var(--wds-text-disabled);
     --u-icon: var(--wds-icons-disabled);
     --u-feat: var(--wds-bg-disabled);
+    --u-action: var(--wds-text-disabled);
+    --u-supporting: var(--wds-text-disabled);
     cursor: not-allowed;
+  }
+
+  /* Ikon (44px) dan teks dipisah jarak content-gap; teks utama dan pendukung dipisah text-gap. */
+  .wds-upload__content {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--wds-sz-file-upload-area-content-gap);
+  }
+
+  .wds-upload__text {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--wds-sz-file-upload-area-text-gap);
+  }
+
+  .wds-upload__supporting {
+    color: var(--u-supporting);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
   }
 
   .wds-upload__icon {
     display: inline-flex;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     align-items: center;
     justify-content: center;
     border-radius: 9999px;
@@ -71,7 +96,7 @@
   }
 
   .wds-upload__title {
-    color: var(--u-hint);
+    color: var(--u-supporting);
     font-weight: var(--wds-font-weight-regular);
     font-size: var(--wds-sz-text-body-font-size);
     line-height: var(--wds-sz-text-body-line-height);
@@ -80,12 +105,6 @@
   .wds-upload__action {
     color: var(--u-action);
     font-weight: var(--wds-font-weight-medium);
-  }
-
-  .wds-upload__hint {
-    color: var(--u-hint);
-    font-size: var(--wds-sz-text-caption-font-size);
-    line-height: var(--wds-sz-text-caption-line-height);
   }
 
   .wds-upload__track {
@@ -104,11 +123,17 @@
     transition: width 150ms;
   }
 
-  .wds-upload__error {
-    margin: 4px 0 0;
+  /* Helper / error di bawah area (Figma "Show hint"): tipografi hint. */
+  .wds-upload__helper {
+    margin: var(--wds-spacing-8) 0 0;
+    color: var(--wds-text-tertiary);
+    font-family: var(--wds-sz-text-hint-font-family);
+    font-size: var(--wds-sz-text-hint-font-size);
+    line-height: var(--wds-sz-text-hint-line-height);
+  }
+
+  .wds-upload__helper[data-error='true'] {
     color: var(--wds-text-danger);
-    font-size: var(--wds-sz-text-caption-font-size);
-    line-height: var(--wds-sz-text-caption-line-height);
   }
 
   .wds-upload__files {

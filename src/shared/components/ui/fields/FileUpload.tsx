@@ -5,10 +5,14 @@ import RowActionButton from '../RowActionButton';
 import FileUploadCard from './FileUploadCard';
 
 interface FileUploadProps {
-  size?: 'sm' | 'md' | 'lg';
+  /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   disabled?: boolean;
+  /** Pesan error: state error + teks di bawah area (warna danger, menggantikan `hint`). */
   error?: string;
-  /** Teks pendukung di bawah area (mis. format dan ukuran maks). */
+  /** Figma "Supporting text": teks di dalam area (mis. format dan ukuran maks). */
+  supportingText?: string;
+  /** Figma "Show hint · Helper": teks bantu di bawah area (digantikan `error`). */
   hint?: string;
   accept?: string;
   multiple?: boolean;
@@ -29,6 +33,7 @@ function FileUpload({
   size = 'md',
   disabled = false,
   error,
+  supportingText,
   hint,
   accept,
   multiple = false,
@@ -155,7 +160,7 @@ function FileUpload({
         role="button"
         tabIndex={disabled || uploading ? -1 : 0}
         aria-disabled={disabled || undefined}
-        data-wds-size={size === 'lg' ? 'lg' : size === 'sm' ? 'sm' : 'md'}
+        data-wds-size={size}
         data-state={disabled ? 'disabled' : error ? 'error' : dragging ? 'hover' : 'default'}
         onClick={() => !disabled && !uploading && inputRef.current?.click()}
         onKeyDown={(e) => {
@@ -169,34 +174,17 @@ function FileUpload({
         onDragLeave={handleDragLeave}
         className="wds-upload"
       >
-        {uploading ? (
-          <div className="flex w-full flex-col items-center gap-2">
-            <span className="wds-upload__title">
-              {t('upload.uploading', { target: pendingLabel ?? '' })}
-            </span>
-            <div
-              data-testid={resolvedTestId ? `${resolvedTestId}-progress` : undefined}
-              className="wds-upload__track"
-              role="progressbar"
-              aria-valuenow={progress}
-              aria-valuemin={0}
-              aria-valuemax={100}
-            >
-              <div className="wds-upload__fill" style={{ width: `${progress}%` }} />
-            </div>
-            <span className="wds-upload__hint">{progress}%</span>
-          </div>
-        ) : (
-          <>
-            <span className="wds-upload__icon">
-              <Upload />
-            </span>
+        <div className="wds-upload__content">
+          <span className="wds-upload__icon">
+            <Upload />
+          </span>
+          <span className="wds-upload__text">
             <span className="wds-upload__title">
               <span className="wds-upload__action">{t('upload.clickToUpload')}</span> {t('upload.orDragDrop')}
             </span>
-            {hint && <span className="wds-upload__hint">{hint}</span>}
-          </>
-        )}
+            {supportingText && <span className="wds-upload__supporting">{supportingText}</span>}
+          </span>
+        </div>
       </div>
       <input
         data-testid={resolvedTestId ? `${resolvedTestId}-input` : undefined}
@@ -211,8 +199,16 @@ function FileUpload({
         }}
         className="hidden"
       />
-      {files.length > 0 && (
+      {(files.length > 0 || uploading) && (
         <div className="wds-upload__files">
+          {uploading && (
+            <FileUploadCard
+              testId={resolvedTestId ? `${resolvedTestId}-progress` : undefined}
+              name={pendingLabel ?? ''}
+              status="uploading"
+              progress={progress ?? 0}
+            />
+          )}
           {files.map((file, i) => (
             <FileUploadCard
               key={`${file.name}-${i}`}
@@ -235,13 +231,14 @@ function FileUpload({
           ))}
         </div>
       )}
-      {error && (
+      {(error || hint) && (
         <p
-          data-testid={resolvedTestId ? `${resolvedTestId}-error` : undefined}
-          className="wds-upload__error"
-          role="alert"
+          data-testid={error && resolvedTestId ? `${resolvedTestId}-error` : undefined}
+          className="wds-upload__helper"
+          data-error={error ? 'true' : undefined}
+          role={error ? 'alert' : undefined}
         >
-          {error}
+          {error ?? hint}
         </p>
       )}
     </div>

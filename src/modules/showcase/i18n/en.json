@@ -1711,16 +1711,28 @@
       ]
     },
     "file-upload": {
-      "summary": "WDS file upload: a drop area with a featured icon, supporting text, a simulated progress bar and file cards for the selected files.",
+      "summary": "WDS file upload: a drop area with a featured icon and supporting text; the selected files (and an uploading card with progress) are listed as file cards below.",
       "figma": {
         "states": {
           "note": "Hover (also while dragging) uses the brand tint; error and disabled follow the field states."
         },
         "hint": {
-          "note": "Shown under the main text."
+          "note": "Helper text under the area (the error message takes its place)."
         },
         "cards": {
-          "note": "Selected files are listed as cards with view and remove actions."
+          "note": "Selected files are cards with view and remove actions; while uploading, an uploading card with a progress bar is shown."
+        },
+        "supporting": {
+          "note": "Shown inside the area, under the main text."
+        },
+        "label": {
+          "note": "The label is rendered by FormItem."
+        },
+        "layout": {
+          "note": "FormItem layout=\"horizontal\" puts the label beside the area."
+        },
+        "size": {
+          "note": "Padding and gaps from the Size tokens (xs–xl)."
         }
       },
       "examples": {
@@ -1734,10 +1746,12 @@
       "props": {
         "value": "Selected file(s) and the change handler.",
         "multiple": "Allow several files; `accept` filters types.",
-        "hint": "Supporting text, e.g. allowed format and size.",
-        "error": "Error message; turns the area red.",
+        "hint": "Helper text below the area; replaced by the error.",
+        "error": "Error message below the area; turns the area border red.",
         "disabled": "Disables click, drag and removal.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Size from the Size tokens.",
+        "supportingText": "Figma Supporting text, inside the area (e.g. allowed format and size)."
       },
       "tokens": {
         "--wds-bg-surface": "Area background.",
