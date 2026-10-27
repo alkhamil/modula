@@ -33,6 +33,8 @@ export const dialogDoc: ComponentDoc = {
     { prop: 'icon', kind: 'icon', options: ['InfoCircle', 'DangerTriangle', 'CheckCircle'] },
     { prop: 'hideCloseButton', kind: 'boolean' },
     { prop: 'disableCloseButton', kind: 'boolean' },
+    { prop: 'closeOnBackdropClick', kind: 'toggle', offValue: raw('false', false) },
+    { prop: 'closeOnEscape', kind: 'toggle', offValue: raw('false', false) },
   ],
   figmaMapping: [
     { id: 'title', figma: 'Title (TEXT)', values: 'free text', prop: 'title' },

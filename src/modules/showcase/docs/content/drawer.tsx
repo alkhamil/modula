@@ -29,6 +29,8 @@ export const drawerDoc: ComponentDoc = {
     { prop: 'title', kind: 'text' },
     { prop: 'width', kind: 'select', options: ['sm', 'md', 'lg'] },
     { prop: 'modal', kind: 'boolean' },
+    { prop: 'closeOnBackdropClick', kind: 'toggle', offValue: raw('false', false) },
+    { prop: 'closeOnEscape', kind: 'toggle', offValue: raw('false', false) },
   ],
   figmaMapping: [
     { id: 'title', figma: 'Title (TEXT)', values: 'free text', prop: 'title' },
