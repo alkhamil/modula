@@ -2843,6 +2843,18 @@
         },
         "axes": {
           "note": "Sumbu Y menyesuaikan nilai terbesar."
+        },
+        "style": {
+          "note": "Bar atau garis; chart garis menambah gradien area di bawah seri pertama."
+        },
+        "legend": {
+          "note": "Legend di atas (default), di kanan sebagai daftar vertikal, atau di bawah."
+        },
+        "label": {
+          "note": "Menyembunyikan label sumbu X dan Y bila false."
+        },
+        "stacked": {
+          "note": "Sampai tiga seri; `stacked` menumpuk bar."
         }
       },
       "examples": {
@@ -2856,7 +2868,9 @@
         "data": "Titik atau batang.",
         "type": "Jenis chart.",
         "seriesName": "Label legend dan tinggi chart.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "legend": "Posisi legend (Figma Legend).",
+        "axisLabels": "Menampilkan label sumbu (Figma Label)."
       },
       "tokens": {
         "--wds-primary-500": "Garis / batang seri.",
@@ -2876,14 +2890,27 @@
       "figma": {
         "series": {
           "note": "Irisan menurun mengikuti skala primary."
+        },
+        "size": {
+          "note": "Diameter 120 / 160 / 200 / 240 / 280 px."
+        },
+        "hole": {
+          "note": "Diameter lubang dalam persen chart: 0 (pie penuh), 25, 50, atau 75."
+        },
+        "legend": {
+          "note": "Legend vertikal di kanan."
+        },
+        "seriesCount": {
+          "note": "2–6 irisan; warna mengikuti skala seri."
         }
       },
       "examples": {},
       "props": {
         "data": "Irisan.",
-        "donut": "Melubangi bagian tengah.",
-        "size": "Diameter dalam px.",
-        "testId": "Dipetakan ke data-testid."
+        "size": "Figma Size (xxs–lg).",
+        "testId": "Dipetakan ke data-testid.",
+        "hole": "Figma Hole: persen dari diameter.",
+        "legend": "Menampilkan legend."
       },
       "tokens": {
         "--wds-primary-500": "Irisan pertama.",
@@ -2903,6 +2930,12 @@
       "figma": {
         "series": {
           "note": "Seri memakai primary-500, secondary-500, dan warning-500."
+        },
+        "legend": {
+          "note": "Legend di bawah (default) atau di kanan."
+        },
+        "seriesCount": {
+          "note": "1–3 seri: warna primary, secondary, dan warning."
         }
       },
       "examples": {},
@@ -2910,7 +2943,8 @@
         "axes": "Label sumbu.",
         "series": "Dataset, satu nilai per sumbu.",
         "max": "Maksimum sumbu dan diameter.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "legend": "Posisi legend (Figma Legend)."
       },
       "tokens": {
         "--wds-primary-500": "Seri 1.",
@@ -2931,6 +2965,15 @@
       "figma": {
         "track": {
           "note": "Track adalah primary paling terang; busur adalah primary-500."
+        },
+        "size": {
+          "note": "Diameter 160 / 200 / 240 / 280 px."
+        },
+        "legend": {
+          "note": "Legend di bawah (default) atau di kanan; tampil bila cincin lebih dari satu."
+        },
+        "label": {
+          "note": "Nilai di tengah; `showLabel={false}` menyembunyikannya."
         }
       },
       "examples": {},
@@ -2938,7 +2981,10 @@
         "rings": "Cincin konsentris, dari luar ke dalam; menggantikan value.",
         "value": "Persentase isian.",
         "label": "Teks tengah (default: persen) dan diameter.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "size": "Figma Size (xs–lg).",
+        "legend": "Posisi legend (Figma Legend).",
+        "showLabel": "Figma Label: menampilkan teks di tengah."
       },
       "tokens": {
         "--wds-primary-500": "Busur.",

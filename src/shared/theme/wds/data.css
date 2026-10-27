@@ -194,8 +194,25 @@
     font-family: var(--wds-sz-text-body-font-family);
   }
 
-  .wds-chart--pie {
+  .wds-chart--pie,
+  .wds-chart[data-legend='right'] {
     flex-direction: row;
+  }
+
+  /* Jarak plot–legend dari token: bawah / atas 12, kanan 16 (root-gap). */
+  .wds-chart[data-legend='bottom'],
+  .wds-chart[data-legend='top'] {
+    gap: var(--wds-sz-activity-gauge-legend-bottom-gap);
+  }
+
+  .wds-chart[data-legend='right'] > .wds-chart__plot:not(.wds-chart__plot--fixed) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .wds-chart__plot--fixed {
+    flex-shrink: 0;
+    width: auto;
   }
 
   .wds-chart__plot {

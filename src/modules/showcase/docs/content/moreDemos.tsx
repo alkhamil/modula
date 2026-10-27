@@ -198,17 +198,13 @@ export function PieChartDemo(props: P<typeof PieChart>) {
   );
 }
 
-export function RadarChartDemo(props: P<typeof RadarChart>) {
-  return (
-    <RadarChart
-      axes={['Speed', 'Quality', 'Cost', 'Support', 'Scale']}
-      series={[
-        { name: 'Team A', values: [8, 6, 7, 9, 5] },
-        { name: 'Team B', values: [5, 8, 6, 6, 8] },
-      ]}
-      {...props}
-    />
-  );
+export function RadarChartDemo({ seriesCount = 2, ...props }: P<typeof RadarChart> & { seriesCount?: number }) {
+  const all = [
+    { name: 'Team A', values: [8, 6, 7, 9, 5] },
+    { name: 'Team B', values: [5, 8, 6, 6, 8] },
+    { name: 'Team C', values: [6, 5, 9, 4, 7] },
+  ];
+  return <RadarChart axes={['Speed', 'Quality', 'Cost', 'Support', 'Scale']} series={all.slice(0, seriesCount)} {...props} />;
 }
 
 export function ActivityGaugeDemo({ multi, ...props }: P<typeof ActivityGauge> & { multi?: boolean }) {
@@ -219,7 +215,7 @@ export function ActivityGaugeDemo({ multi, ...props }: P<typeof ActivityGauge> &
         { label: 'Exercise', value: 54 },
         { label: 'Stand', value: 32 },
       ]}
-      size={180}
+      size="md"
       {...props}
     />
   ) : (

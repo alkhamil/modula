@@ -2843,6 +2843,18 @@
         },
         "axes": {
           "note": "The Y axis scales to the largest value."
+        },
+        "style": {
+          "note": "Bar or line; the line chart adds an area gradient under the first series."
+        },
+        "legend": {
+          "note": "Legend above (default), at the right as a vertical list, or below."
+        },
+        "label": {
+          "note": "Hides the X and Y axis labels when false."
+        },
+        "stacked": {
+          "note": "Up to three series; `stacked` stacks the bars."
         }
       },
       "examples": {
@@ -2856,7 +2868,9 @@
         "data": "Points or bars.",
         "type": "Chart kind.",
         "seriesName": "Legend label and chart height.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "legend": "Legend position (Figma Legend).",
+        "axisLabels": "Shows the axis labels (Figma Label)."
       },
       "tokens": {
         "--wds-primary-500": "Series line / bars.",
@@ -2876,14 +2890,27 @@
       "figma": {
         "series": {
           "note": "Slices step down the primary scale."
+        },
+        "size": {
+          "note": "Diameter 120 / 160 / 200 / 240 / 280 px."
+        },
+        "hole": {
+          "note": "Hole diameter as a percent of the chart: 0 (full pie), 25, 50 or 75."
+        },
+        "legend": {
+          "note": "A vertical legend at the right."
+        },
+        "seriesCount": {
+          "note": "2–6 slices; colors follow the series scale."
         }
       },
       "examples": {},
       "props": {
         "data": "Slices.",
-        "donut": "Cuts out the centre.",
-        "size": "Diameter in px.",
-        "testId": "Mapped to data-testid."
+        "size": "Figma Size (xxs–lg).",
+        "testId": "Mapped to data-testid.",
+        "hole": "Figma Hole: percent of the diameter.",
+        "legend": "Shows the legend."
       },
       "tokens": {
         "--wds-primary-500": "First slice.",
@@ -2903,6 +2930,12 @@
       "figma": {
         "series": {
           "note": "Series use primary-500, secondary-500 and warning-500."
+        },
+        "legend": {
+          "note": "Legend below (default) or at the right."
+        },
+        "seriesCount": {
+          "note": "1–3 series: primary, secondary and warning colors."
         }
       },
       "examples": {},
@@ -2910,7 +2943,8 @@
         "axes": "Axis labels.",
         "series": "Datasets, one value per axis.",
         "max": "Axis maximum and diameter.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "legend": "Legend position (Figma Legend)."
       },
       "tokens": {
         "--wds-primary-500": "Series 1.",
@@ -2931,6 +2965,15 @@
       "figma": {
         "track": {
           "note": "The track is the lightest primary; the arc is primary-500."
+        },
+        "size": {
+          "note": "Diameter 160 / 200 / 240 / 280 px."
+        },
+        "legend": {
+          "note": "Legend below (default) or at the right; shown when there is more than one ring."
+        },
+        "label": {
+          "note": "The center value; `showLabel={false}` hides it."
         }
       },
       "examples": {},
@@ -2938,7 +2981,10 @@
         "rings": "Concentric rings, outside to inside; replaces value.",
         "value": "Fill percentage.",
         "label": "Centre text (default: percent) and diameter.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "size": "Figma Size (xs–lg).",
+        "legend": "Legend position (Figma Legend).",
+        "showLabel": "Figma Label: shows the center text."
       },
       "tokens": {
         "--wds-primary-500": "Arc.",

@@ -92,13 +92,14 @@ function ControlRow({
   }
   const options = control.options ?? [];
   const current = String(value ?? options[0] ?? '');
+  const emit = (next: string) => onChange(control.numeric ? Number(next) : next);
   return (
     <div className="flex flex-col gap-1.5">
       {name}
       {options.length <= 6 ? (
-        <Segmented label={control.prop} value={current} options={options} onChange={onChange} />
+        <Segmented label={control.prop} value={current} options={options} onChange={emit} />
       ) : (
-        <Dropdown label={control.prop} value={current} options={options} onChange={onChange} />
+        <Dropdown label={control.prop} value={current} options={options} onChange={emit} />
       )}
     </div>
   );

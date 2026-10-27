@@ -24,6 +24,10 @@ interface BarLineChartProps {
   height?: number;
   /** Nama seri untuk legend (mode `data`). */
   seriesName?: string;
+  /** Posisi legend (Figma "Legend"): top | right | bottom. */
+  legend?: 'top' | 'right' | 'bottom';
+  /** Label sumbu X dan Y (Figma "Label"). */
+  axisLabels?: boolean;
   className?: string;
   testId?: string;
 }
@@ -40,6 +44,8 @@ function BarLineChart({
   stacked = false,
   height = 220,
   seriesName = 'Series',
+  legend = 'top',
+  axisLabels = true,
   className = '',
   testId,
 }: BarLineChartProps) {
@@ -60,8 +66,16 @@ function BarLineChart({
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => Math.round(niceMax * t));
   const gid = `wds-area-${series.length}`;
 
+  const legendEl = (
+    <Legend
+      direction={legend === 'right' ? 'vertical' : 'horizontal'}
+      items={series.map((s, si) => ({ label: s.name, color: SERIES[si % SERIES.length]! }))}
+    />
+  );
+
   return (
-    <figure data-testid={testId} className={`wds-chart ${className}`}>
+    <figure data-testid={testId} data-legend={legend} className={`wds-chart wds-chart--line-bar ${className}`}>
+      {legend === 'top' && legendEl}
       <div className="wds-chart__plot">
         <svg viewBox={`0 0 ${W} ${height}`} role="img" aria-label={series.map((s) => s.name).join(', ')} className="wds-chart__svg">
           <defs>
@@ -73,9 +87,11 @@ function BarLineChart({
           {ticks.map((t) => (
             <g key={t}>
               <line x1={PAD.left} x2={W - PAD.right} y1={y(t)} y2={y(t)} className="wds-chart__grid" />
-              <text x={PAD.left - 8} y={y(t) + 4} textAnchor="end" className="wds-chart__axis">
-                {t}
-              </text>
+              {axisLabels && (
+                <text x={PAD.left - 8} y={y(t) + 4} textAnchor="end" className="wds-chart__axis">
+                  {t}
+                </text>
+              )}
             </g>
           ))}
           {type === 'bar'
@@ -119,9 +135,11 @@ function BarLineChart({
               })}
           {labels.map((label, i) => (
             <g key={label}>
-              <text x={x(i)} y={height - 8} textAnchor="middle" className="wds-chart__axis">
-                {label}
-              </text>
+              {axisLabels && (
+                <text x={x(i)} y={height - 8} textAnchor="middle" className="wds-chart__axis">
+                  {label}
+                </text>
+              )}
               <rect
                 x={x(i) - step / 2}
                 y={PAD.top}
@@ -146,7 +164,7 @@ function BarLineChart({
           </div>
         )}
       </div>
-      <Legend items={series.map((s, si) => ({ label: s.name, color: SERIES[si % SERIES.length]! }))} />
+      {legend !== 'top' && legendEl}
     </figure>
   );
 }

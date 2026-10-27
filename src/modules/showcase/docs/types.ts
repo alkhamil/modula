@@ -28,6 +28,8 @@ export interface DocControl {
   offValue?: unknown;
   /** Untuk `select`; untuk `icon` daftar nama ikon (opsi "none" otomatis). */
   options?: string[];
+  /** Untuk `select`: nilai prop berupa angka (opsi string dikonversi). */
+  numeric?: boolean;
 }
 
 /**
