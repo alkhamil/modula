@@ -6,6 +6,7 @@ export {
   getContrastForeground,
   getInitialTheme,
   getStoredOverrides,
+  persistTheme,
   themes,
 } from './theme';
 export type { ThemeName, ThemeOverrides, ThemeTokens } from './theme';

@@ -93,8 +93,12 @@ export interface ThemeOverrides {
   radiusLg?: string;
 }
 
-const STORAGE_KEY = 'app-theme';
-const OVERRIDES_KEY = 'app-theme-overrides';
+/** Prefix kunci localStorage bawaan; project hasil wizard memakai slug-nya agar tak bentrok antar-app di origin yang sama. */
+export const DEFAULT_STORAGE_PREFIX = 'app';
+
+function storageKeys(prefix: string): { theme: string; overrides: string } {
+  return { theme: `${prefix}-theme`, overrides: `${prefix}-theme-overrides` };
+}
 
 function toVarName(key: keyof ThemeTokens): string {
   return `--theme-${key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`;
@@ -159,7 +163,7 @@ function applyBrandOverride(root: HTMLElement, primary: string | undefined): voi
   BRAND_VARS.forEach((name) => root.style.setProperty(name, values[name]));
 }
 
-/** Terapkan thema: set `data-theme` + CSS variables dari token, lalu simpan pilihan. */
+/** Terapkan thema: set `data-theme` + CSS variables dari token (tanpa menyimpan; lihat `persistTheme`). */
 export function applyTheme(name: ThemeName, overrides: ThemeOverrides = {}): void {
   const root = document.documentElement;
   root.dataset.theme = name;
@@ -174,14 +178,23 @@ export function applyTheme(name: ThemeName, overrides: ThemeOverrides = {}): voi
     root.style.setProperty(toVarName(key), tokens[key]);
   });
   applyBrandOverride(root, overrides.primary);
-  localStorage.setItem(STORAGE_KEY, name);
-  localStorage.setItem(OVERRIDES_KEY, JSON.stringify(overrides));
+}
+
+/** Simpan pilihan pengguna (hanya dipanggil setelah pengguna mengubah thema, bukan saat default diterapkan). */
+export function persistTheme(name: ThemeName, overrides: ThemeOverrides, prefix = DEFAULT_STORAGE_PREFIX): void {
+  try {
+    const keys = storageKeys(prefix);
+    localStorage.setItem(keys.theme, name);
+    localStorage.setItem(keys.overrides, JSON.stringify(overrides));
+  } catch {
+    // storage diblokir: pilihan hanya berlaku di sesi ini
+  }
 }
 
 /** Thema awal: pilihan tersimpan pengguna, bila belum ada pakai `fallback` (default project). */
-export function getInitialTheme(fallback: ThemeName = 'light'): ThemeName {
+export function getInitialTheme(fallback: ThemeName = 'light', prefix = DEFAULT_STORAGE_PREFIX): ThemeName {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(storageKeys(prefix).theme);
     if (saved === 'light' || saved === 'dark') return saved;
   } catch {
     // storage diblokir: pakai fallback
@@ -190,9 +203,9 @@ export function getInitialTheme(fallback: ThemeName = 'light'): ThemeName {
 }
 
 /** Override tersimpan pengguna; bila belum ada pakai `fallback` (default project). */
-export function getStoredOverrides(fallback: ThemeOverrides = {}): ThemeOverrides {
+export function getStoredOverrides(fallback: ThemeOverrides = {}, prefix = DEFAULT_STORAGE_PREFIX): ThemeOverrides {
   try {
-    const raw = localStorage.getItem(OVERRIDES_KEY);
+    const raw = localStorage.getItem(storageKeys(prefix).overrides);
     if (!raw) return { ...fallback };
     const parsed = JSON.parse(raw) as ThemeOverrides;
     return { ...parsed };
@@ -201,6 +214,10 @@ export function getStoredOverrides(fallback: ThemeOverrides = {}): ThemeOverride
   }
 }
 
-export function clearStoredOverrides(): void {
-  localStorage.removeItem(OVERRIDES_KEY);
+export function clearStoredOverrides(prefix = DEFAULT_STORAGE_PREFIX): void {
+  try {
+    localStorage.removeItem(storageKeys(prefix).overrides);
+  } catch {
+    // storage diblokir
+  }
 }
