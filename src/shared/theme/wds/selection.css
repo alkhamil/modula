@@ -84,6 +84,24 @@
     transform: translate(calc(var(--wds-sz-selection-controls-height) * 0.8), -50%);
   }
 
+  /* Tick (Figma): centang di thumb, berwarna track (tersembunyi bila tidak aktif / tanpa tick). */
+  .wds-sc__tick {
+    display: none;
+    position: absolute;
+    inset: 12%;
+    width: 76%;
+    height: 76%;
+    fill: none;
+    stroke: var(--sc-fill, currentColor);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .wds-sc[data-tick='true'][data-checked='true'] .wds-sc__tick {
+    display: block;
+  }
+
   /* RadioButton: Outline = titik 0.5× berwarna; Solid = titik putih 0.333×. */
   .wds-sc__dot {
     position: absolute;

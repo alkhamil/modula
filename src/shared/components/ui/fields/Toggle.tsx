@@ -16,6 +16,8 @@ interface ToggleProps {
   showCheckedLabels?: boolean;
   /** Teks pendukung di bawah label. */
   hint?: string;
+  /** Figma "Tick": tanda centang di dalam thumb saat aktif. */
+  tick?: boolean;
   testId?: string;
   'data-testid'?: string;
   /** Hanya dokumentasi: paksa state fokus. */
@@ -35,6 +37,7 @@ function Toggle({
   switchLabel,
   showCheckedLabels = true,
   hint,
+  tick = false,
   testId,
   'data-testid': dataTestId,
   'data-wds-state': forcedState,
@@ -58,6 +61,7 @@ function Toggle({
       size={size}
       label={visibleLabel}
       hint={hint}
+      tick={tick}
       className={className}
       testId={resolvedTestId}
       data-wds-state={forcedState}

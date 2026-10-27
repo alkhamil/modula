@@ -468,7 +468,7 @@
           "note": "Hanya tampil untuk fokus keyboard."
         },
         "tick": {
-          "note": "Sama dengan prop value; tidak ada prop tambahan."
+          "note": "Tanda centang di dalam thumb saat toggle aktif (`tick`)."
         }
       },
       "examples": {
@@ -478,6 +478,10 @@
         "hint": {
           "title": "Hint",
           "description": "Dengan dan tanpa teks pendukung."
+        },
+        "tick": {
+          "title": "Tick",
+          "description": "Tanda centang di dalam thumb (Figma “Tick”)."
         }
       },
       "matrices": {
@@ -494,7 +498,8 @@
         "disabled": "State disabled (disabled-off / disabled-on, opasitas 40%).",
         "error": "Pesan error: state error + teks di slot hint.",
         "className": "Class pada pembungkus luar.",
-        "testId": "Dipetakan ke data-testid."
+        "testId": "Dipetakan ke data-testid.",
+        "tick": "Figma Tick: menampilkan tanda centang di dalam thumb saat aktif."
       },
       "tokens": {
         "--wds-stroke-default": "Border saat tidak dipilih.",

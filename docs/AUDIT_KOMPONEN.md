@@ -16,7 +16,7 @@ Satu komponen dianggap **sudah dicek manual** bila semua langkah ini dilakukan:
 4. Verifikasi di browser, lalu jalankan `npm run lint`, `npm run build`, `npm run i18n:check`,
    `npm run verify:generator`, dan commit.
 
-## Sudah dicek manual (13)
+## Sudah dicek manual (15)
 
 | Komponen | Slug | Ringkasan hasil |
 |---|---|---|
@@ -32,6 +32,8 @@ Satu komponen dianggap **sudah dicek manual** bila semua langkah ini dilakukan:
 | Textarea | `textarea` | `autoGrow` (salah tafsir) diganti `dynamic` = handle resize (Figma "Dynamic?"); `showScrollBar` ditambah (Figma "Show Scroll Bar"); default tinggi tetap 128px tanpa handle dan tanpa scrollbar; warna 8 state cocok token |
 | Select | `select` | Properti Figma hanya mode Style/State/Size — semuanya ada; warna 7 state × 2 style, tinggi 44, chevron 20px, tag multiple dari token cocok; state `focused` (docs) kini memakai panah atas sesuai token. Banyak prop fungsional di luar Figma (`searchable`, `clearable`, `loadOptions`, dst.) dipertahankan |
 | RadioButton | `radio-button` | Properti Figma (Show hint, Style outline/solid, Size, Types default/icon only) ada; ukuran ikon, jarak, tipografi, jarak teks pendukung (2), padding atas saat ada hint (2), stroke 1/1,5, opacity disabled 0,4, dan warna 6 state × 2 style cocok token. Tidak ada perubahan kode; hanya tautan Figma docs diarahkan ke halaman yang benar |
+| Checkbox | `checkbox` | Properti Figma (Label, Supporting/error, Style outline/solid, states, type, mode, Horizontal Checkbox) ada; ukuran 16–32, radius per ukuran, stroke, warna 7 state × 2 style, opacity disabled cocok token. Tidak ada perubahan kode; tautan Figma docs diarahkan ke halaman |
+| Toggle | `toggle` | Properti **Tick** (Figma "Toggle tick/check mark variant") sebelumnya salah dipetakan ke `value`; kini prop `tick` menampilkan centang di thumb saat aktif. Show hint, Style, Size, states, track 1,8×, opacity disabled cocok token |
 | Calendar | `calendar` | `type`, `size`; header Month & Year terpisah; Senin hari pertama; 6 baris tetap; token jarak. Time picker dan Apply button sengaja tidak diimplementasikan |
 
 ### Penyimpangan yang disengaja dari Figma / token
@@ -61,7 +63,6 @@ dibuat), tetapi **belum** satu per satu dengan `tokens.json` dan tabel Propertie
 - (kosong; Button sudah dicek)
 
 ### Forms
-- Checkbox (`checkbox`), Toggle (`toggle`)
 - DatePicker (`date-picker`) — memakai panel Calendar yang sudah diubah; perlu dicek ulang
 - FileUpload (`file-upload`)
 - SearchBar (`search-bar`), SegmentedControl (`segmented-control`), Slider (`slider`), Rating (`rating`)

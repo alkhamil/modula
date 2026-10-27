@@ -34,6 +34,8 @@ interface SelectionDocConfig {
   /** Style outline/solid (Checkbox & RadioButton). */
   appearance: boolean;
   indeterminate?: boolean;
+  /** Toggle: prop `tick` (Figma "Tick"). */
+  tick?: boolean;
   figma: FigmaMapping[];
   /** Komponen grup (CheckboxGroup / RadioButtonGroup) yang didokumentasikan di halaman ini. */
   group?: GroupDoc;
@@ -54,6 +56,7 @@ export function selectionDoc(c: SelectionDocConfig): ComponentDoc {
   const controls: DocControl[] = [
     { prop: 'checked', kind: 'boolean' },
     ...(c.indeterminate ? [{ prop: 'indeterminate', kind: 'boolean' } as DocControl] : []),
+    ...(c.tick ? [{ prop: 'tick', kind: 'boolean', label: 'Tick' } as DocControl] : []),
     { prop: 'disabled', kind: 'boolean' },
     ...(c.appearance ? [{ prop: 'appearance', kind: 'select', options: ['outline', 'solid'] } as DocControl] : []),
     { prop: 'size', kind: 'select', options: SIZES },
@@ -101,6 +104,9 @@ export function selectionDoc(c: SelectionDocConfig): ComponentDoc {
             },
           ]
         : []),
+      ...(c.tick
+        ? [{ id: 'tick', variants: [{ label: 'off', props: { checked: true } }, { label: 'on', props: { checked: true, tick: true } }] }]
+        : []),
       { id: 'sizes', variants: SIZES.map((s) => ({ label: s, props: { size: s, checked: true, hint: '' } })) },
       {
         id: 'hint',
@@ -120,6 +126,7 @@ export function selectionDoc(c: SelectionDocConfig): ComponentDoc {
       ...(c.appearance ? [{ id: 'appearance', name: 'appearance', type: "'outline' | 'solid'", default: "'outline'" }] : []),
       { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
       ...(c.indeterminate ? [{ id: 'indeterminate', name: 'indeterminate', type: 'boolean', default: 'false' }] : []),
+      ...(c.tick ? [{ id: 'tick', name: 'tick', type: 'boolean', default: 'false' }] : []),
       { id: 'disabled', name: 'disabled', type: 'boolean', default: 'false' },
       { id: 'error', name: 'error', type: 'string' },
       { id: 'className', name: 'className', type: 'string' },

@@ -468,7 +468,7 @@
           "note": "Shown for keyboard focus only."
         },
         "tick": {
-          "note": "Equals the value prop; no extra prop."
+          "note": "Check mark inside the thumb when the toggle is on (`tick`)."
         }
       },
       "examples": {
@@ -478,6 +478,10 @@
         "hint": {
           "title": "Hint",
           "description": "With and without supporting text."
+        },
+        "tick": {
+          "title": "Tick",
+          "description": "Check mark inside the thumb (Figma “Tick”)."
         }
       },
       "matrices": {
@@ -494,7 +498,8 @@
         "disabled": "Disabled state (disabled-off / disabled-on, 40% opacity).",
         "error": "Error message: error state + text in the hint slot.",
         "className": "Class on the outer wrapper.",
-        "testId": "Mapped to data-testid."
+        "testId": "Mapped to data-testid.",
+        "tick": "Figma Tick: shows a check mark inside the thumb when on."
       },
       "tokens": {
         "--wds-stroke-default": "Border when unselected.",

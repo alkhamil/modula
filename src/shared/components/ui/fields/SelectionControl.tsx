@@ -27,6 +27,8 @@ interface SelectionControlProps {
   name?: string;
   /** Toggle memakai role="switch". */
   inputRole?: 'switch';
+  /** Toggle (Figma "Tick"): tanda centang di dalam thumb saat aktif. */
+  tick?: boolean;
   /** Hanya dokumentasi: paksa state fokus (`focused`). */
   'data-wds-state'?: string;
 }
@@ -57,6 +59,7 @@ function SelectionControl({
   value,
   name,
   inputRole,
+  tick = false,
   'data-wds-state': forcedState,
 }: SelectionControlProps) {
   const isError = Boolean(error) || invalid;
@@ -87,6 +90,7 @@ function SelectionControl({
         data-indeterminate={indeterminate ? 'true' : 'false'}
         data-disabled={disabled ? 'true' : undefined}
         data-has-hint={slot ? 'true' : undefined}
+        data-tick={kind === 'toggle' && tick ? 'true' : undefined}
         data-wds-size={size}
         data-wds-state={forcedState}
       >
@@ -114,7 +118,13 @@ function SelectionControl({
               </svg>
             )}
             {kind === 'radio' && <span className="wds-sc__dot" />}
-            {kind === 'toggle' && <span className="wds-sc__thumb" />}
+            {kind === 'toggle' && (
+              <span className="wds-sc__thumb">
+                <svg className="wds-sc__tick" viewBox="0 0 24 24">
+                  <path d={CHECK_PATH} />
+                </svg>
+              </span>
+            )}
           </span>
         </span>
         {hasText && (

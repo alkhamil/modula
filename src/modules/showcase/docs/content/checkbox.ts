@@ -4,7 +4,7 @@ import { selectionDoc } from './selectionDoc';
 export const checkboxDoc = selectionDoc({
   slug: 'checkbox',
   name: 'Checkbox',
-  node: '9928-9343',
+  node: '9928-9344',
   component: CheckboxDemo,
   real: 'Checkbox',
   labelProp: 'checkboxLabel',
