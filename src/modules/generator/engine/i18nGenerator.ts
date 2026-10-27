@@ -1,6 +1,6 @@
 import type { GeneratorConfig } from '../types';
 import { normalizeConfig } from '../parser';
-import { normalizeParentPath, prettifyParent } from '../naming';
+import { humanizePascal, normalizeParentPath, prettifyParent } from '../naming';
 import { buildContext } from './context';
 
 export interface ModuleLocales {
@@ -97,8 +97,8 @@ export function buildModuleLocales(raw: GeneratorConfig): ModuleLocales {
   const ctx = buildContext(config);
   const { names, fields } = ctx;
   const base = config.permissionKey;
-  const singular = names.entity;
-  const plural = names.entityPlural;
+  const singular = humanizePascal(names.entity);
+  const plural = humanizePascal(names.entityPlural);
 
   const fieldEntries = Object.fromEntries(
     fields.map((f) => {

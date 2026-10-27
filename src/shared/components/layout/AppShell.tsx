@@ -16,6 +16,8 @@ interface AppShellProps {
   onLogout?: () => void;
   settingsPath?: string;
   logo?: ReactNode;
+  /** Logo ringkas saat sidebar diciutkan. Default: huruf pertama `appName`. */
+  collapsedLogo?: ReactNode;
   appName?: string;
   /** Judul header; default diselesaikan otomatis dari navigasi & pathname. */
   title?: string;
@@ -30,6 +32,7 @@ function AppShell({
   onLogout,
   settingsPath,
   logo,
+  collapsedLogo,
   appName,
   title: titleOverride,
   headerExtra,
@@ -105,6 +108,7 @@ function AppShell({
         onToggle={() => setStoredCollapsed(!sidebarCollapsed)}
         onMobileClose={() => setMobileSidebarOpen(false)}
         logo={logo}
+        collapsedLogo={collapsedLogo}
         appName={appName}
       />
 

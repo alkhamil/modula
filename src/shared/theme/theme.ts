@@ -178,20 +178,26 @@ export function applyTheme(name: ThemeName, overrides: ThemeOverrides = {}): voi
   localStorage.setItem(OVERRIDES_KEY, JSON.stringify(overrides));
 }
 
-export function getInitialTheme(): ThemeName {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved === 'light' || saved === 'dark') return saved;
-  return 'light';
+/** Thema awal: pilihan tersimpan pengguna, bila belum ada pakai `fallback` (default project). */
+export function getInitialTheme(fallback: ThemeName = 'light'): ThemeName {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === 'light' || saved === 'dark') return saved;
+  } catch {
+    // storage diblokir: pakai fallback
+  }
+  return fallback;
 }
 
-export function getStoredOverrides(): ThemeOverrides {
+/** Override tersimpan pengguna; bila belum ada pakai `fallback` (default project). */
+export function getStoredOverrides(fallback: ThemeOverrides = {}): ThemeOverrides {
   try {
     const raw = localStorage.getItem(OVERRIDES_KEY);
-    if (!raw) return {};
+    if (!raw) return { ...fallback };
     const parsed = JSON.parse(raw) as ThemeOverrides;
     return { ...parsed };
   } catch {
-    return {};
+    return { ...fallback };
   }
 }
 

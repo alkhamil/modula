@@ -1,6 +1,6 @@
 import type { TemplateContext } from '../../engine/context';
 import { menuIconName, modulePages } from '../../engine/registration';
-import { normalizeParentPath, prettifyParent } from '../../naming';
+import { humanizePascal, normalizeParentPath, prettifyParent } from '../../naming';
 
 /** Prefix relatif dari file di root modul ke `src/` (`../` per level folder + 1). */
 function srcPrefix(ctx: TemplateContext): string {
@@ -12,7 +12,7 @@ function srcPrefix(ctx: TemplateContext): string {
 export function routesTemplate(ctx: TemplateContext): string {
   const { names, config } = ctx;
   const base = config.permissionKey;
-  const label = names.entityPlural;
+  const label = humanizePascal(names.entityPlural);
   const listPath = `/${names.routeBase}`;
   const pages = modulePages(ctx);
 
@@ -48,7 +48,7 @@ export function routesTemplate(ctx: TemplateContext): string {
 export function navigationTemplate(ctx: TemplateContext): string {
   const { names, config, permissions } = ctx;
   const base = config.permissionKey;
-  const label = names.entityPlural;
+  const label = humanizePascal(names.entityPlural);
   const icon = menuIconName(config);
   const parentPath = normalizeParentPath(config.parentName);
   const parent = parentPath

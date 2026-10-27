@@ -24,9 +24,17 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeName>(getInitialTheme);
-  const [overrides, setOverridesState] = useState<ThemeOverrides>(getStoredOverrides);
+interface ThemeProviderProps {
+  children: ReactNode;
+  /** Thema awal bila pengguna belum memilih (default `light`). */
+  defaultTheme?: ThemeName;
+  /** Override awal (mis. warna primary project) bila pengguna belum mengubahnya. */
+  defaultOverrides?: ThemeOverrides;
+}
+
+export function ThemeProvider({ children, defaultTheme, defaultOverrides }: ThemeProviderProps) {
+  const [theme, setThemeState] = useState<ThemeName>(() => getInitialTheme(defaultTheme));
+  const [overrides, setOverridesState] = useState<ThemeOverrides>(() => getStoredOverrides(defaultOverrides));
 
   useEffect(() => {
     applyTheme(theme, overrides);
@@ -46,8 +54,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const resetOverrides = useCallback(() => {
     clearStoredOverrides();
-    setOverridesState({});
-  }, []);
+    setOverridesState({ ...defaultOverrides });
+  }, [defaultOverrides]);
 
   const value = useMemo<ThemeContextValue>(() => {
     const merged: ThemeTokens = { ...themes[theme], ...overrides };

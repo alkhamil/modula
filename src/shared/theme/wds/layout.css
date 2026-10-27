@@ -55,6 +55,18 @@
     padding: var(--wds-padding-8) 0;
   }
 
+  /* Logo brand dari file (project hasil Create Project): diskalakan ke tinggi header, rasio tetap. */
+  .wds-sidenav__brand-img {
+    display: block;
+    max-width: 100%;
+    height: 2rem;
+    object-fit: contain;
+  }
+
+  .wds-sidenav__brand-img--mini {
+    width: 2rem;
+  }
+
   .wds-sidenav__section {
     margin: var(--wds-sz-side-navbar-others-gap) 0 0;
     padding-left: var(--wds-sz-side-navbar-label-padding-left);

@@ -42,6 +42,11 @@ export function toPermissionKey(moduleName: string): string {
     .replace(/^[^a-z]+/, '');
 }
 
+/** Label tampil dari PascalCase: `DefaultChild1` → `Default Child 1` (kata tunggal tak berubah). */
+export function humanizePascal(pascal: string): string {
+  return pascal.replace(/([a-z])([A-Z0-9])/g, '$1 $2').replace(/([0-9])([A-Z])/g, '$1 $2');
+}
+
 /** Plural naif untuk URL/route (`region` → `regions`). */
 export function toPluralKebab(kebab: string): string {
   if (kebab.endsWith('y') && !/[aeiou]y$/.test(kebab)) return `${kebab.slice(0, -1)}ies`;
