@@ -2631,6 +2631,9 @@
         },
         "slots": {
           "note": "Aksi berupa tombol rata kanan."
+        },
+        "position": {
+          "note": "Pilihan posisi sama dengan Tooltip: sisi, sudut (tepi rata), dan `auto`."
         }
       },
       "examples": {},
@@ -2639,7 +2642,7 @@
         "children": "Pemicunya.",
         "text": "Judul dan teks pendukung.",
         "content": "Isi tambahan; tombol aksi berbagi lebar sama rata.",
-        "placement": "Sisi yang diinginkan; dijepit dalam viewport.",
+        "placement": "Sisi atau sudut pilihan (tepi rata); `auto` memilih sisi yang cukup ruangnya; dijepit di dalam viewport.",
         "testId": "Dipetakan ke data-testid."
       },
       "tokens": {

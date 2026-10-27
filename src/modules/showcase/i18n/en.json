@@ -2631,6 +2631,9 @@
         },
         "slots": {
           "note": "Actions are right-aligned buttons."
+        },
+        "position": {
+          "note": "Same position options as Tooltip: sides, corners (edge aligned) and `auto`."
         }
       },
       "examples": {},
@@ -2639,7 +2642,7 @@
         "children": "The trigger.",
         "text": "Heading and supporting text.",
         "content": "Extra body; the action buttons share the width equally.",
-        "placement": "Preferred side; clamped to the viewport.",
+        "placement": "Preferred side or corner (edge aligned); `auto` picks the side with room; clamped to the viewport.",
         "testId": "Mapped to data-testid."
       },
       "tokens": {

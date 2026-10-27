@@ -1,9 +1,10 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
-type Side = 'top' | 'bottom' | 'left' | 'right';
-/** Posisi: empat sisi, sudut atas/bawah-kiri/kanan (tepi tooltip rata dengan pemicu), atau `auto` (sisi dengan ruang cukup). */
-type Placement = Side | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'auto';
+import { initialSide, placeOverlay, type OverlayPlacement, type PlacementSide } from './overlayPlacement';
+
+type Side = PlacementSide;
+type Placement = OverlayPlacement;
 
 interface TooltipProps {
   content?: ReactNode;
@@ -61,34 +62,8 @@ function Tooltip({
     const r = triggerRef.current.getBoundingClientRect();
     const tip = tipRef.current.getBoundingClientRect();
     const arrowSize = 8;
-    const [rawSide, align] = placement === 'auto' ? [undefined, undefined] : (placement.split('-') as [Side, 'left' | 'right' | undefined]);
-    let side: Side;
-    if (rawSide) {
-      side = rawSide;
-    } else {
-      // Auto: atas bila muat, lalu bawah, lalu sisi horizontal dengan ruang terbesar.
-      const room = {
-        top: r.top - tip.height - GAP - EDGE,
-        bottom: window.innerHeight - r.bottom - tip.height - GAP - EDGE,
-        right: window.innerWidth - r.right - tip.width - GAP - EDGE,
-        left: r.left - tip.width - GAP - EDGE,
-      };
-      side = room.top >= 0 ? 'top' : room.bottom >= 0 ? 'bottom' : room.right >= room.left ? 'right' : 'left';
-    }
+    const { side, left, top } = placeOverlay(r, tip, placement, GAP, EDGE);
     const vertical = side === 'top' || side === 'bottom';
-    const centerLeft = r.left + r.width / 2 - tip.width / 2;
-    let left = vertical
-      ? align === 'left'
-        ? r.left
-        : align === 'right'
-          ? r.right - tip.width
-          : centerLeft
-      : side === 'left'
-        ? r.left - tip.width - GAP
-        : r.right + GAP;
-    let top = vertical ? (side === 'top' ? r.top - tip.height - GAP : r.bottom + GAP) : r.top + r.height / 2 - tip.height / 2;
-    left = clamp(left, EDGE, window.innerWidth - tip.width - EDGE);
-    top = clamp(top, EDGE, window.innerHeight - tip.height - EDGE);
     const arrow = vertical
       ? { left: clamp(r.left + r.width / 2 - left - arrowSize / 2, 8, tip.width - 8 - arrowSize) }
       : { top: clamp(r.top + r.height / 2 - top - arrowSize / 2, 8, tip.height - 8 - arrowSize) };
@@ -97,7 +72,7 @@ function Tooltip({
     setLayout({ side, left, top, arrow });
   }, [visible, placement, content]);
 
-  const side: Side = layout?.side ?? (placement === 'auto' ? 'top' : (placement.split('-')[0] as Side));
+  const side: Side = layout?.side ?? initialSide(placement);
   const arrowSide: Record<Side, Record<string, number | string>> = {
     top: { bottom: 'calc(var(--wds-sz-tooltip-arrow-size) / -2)' },
     bottom: { top: 'calc(var(--wds-sz-tooltip-arrow-size) / -2)' },

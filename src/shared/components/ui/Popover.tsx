@@ -1,7 +1,9 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
-type Placement = 'top' | 'bottom' | 'left' | 'right';
+import { placeOverlay, type OverlayPlacement } from './overlayPlacement';
+
+type Placement = OverlayPlacement;
 
 interface PopoverProps {
   /** Pemicu (dibuka/ditutup saat diklik). */
@@ -14,6 +16,7 @@ interface PopoverProps {
   actions?: ReactNode;
   /** Ukuran WDS (token Size): xs | sm | md | lg | xl. */
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  /** Posisi terhadap pemicu: top | bottom | left | right, plus top-left | top-right | bottom-left | bottom-right | auto. */
   placement?: Placement;
   /** Paksa terbuka (mis. dokumentasi). */
   open?: boolean;
@@ -23,7 +26,6 @@ interface PopoverProps {
 
 const GAP = 12;
 const EDGE = 8;
-const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), Math.max(min, max));
 
 /** Popover WDS: panel mengambang berisi judul, teks, isi, dan aksi; ditutup lewat klik luar / Escape. */
 function Popover({
@@ -39,7 +41,7 @@ function Popover({
   testId,
 }: PopoverProps) {
   const [openState, setOpenState] = useState(false);
-  const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+  const [pos, setPos] = useState<{ left: number; top: number; side: string } | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const open = forced ?? openState;
@@ -48,14 +50,10 @@ function Popover({
     if (!open || !triggerRef.current || !panelRef.current) return;
     const r = triggerRef.current.getBoundingClientRect();
     const p = panelRef.current.getBoundingClientRect();
-    const vertical = placement === 'top' || placement === 'bottom';
-    let left = vertical ? r.left + r.width / 2 - p.width / 2 : placement === 'left' ? r.left - p.width - GAP : r.right + GAP;
-    let top = vertical ? (placement === 'top' ? r.top - p.height - GAP : r.bottom + GAP) : r.top + r.height / 2 - p.height / 2;
-    left = clamp(left, EDGE, window.innerWidth - p.width - EDGE);
-    top = clamp(top, EDGE, window.innerHeight - p.height - EDGE);
+    const { side, left, top } = placeOverlay(r, p, placement, GAP, EDGE);
     // Posisi bergantung pada ukuran DOM yang baru terukur; satu render lanjutan memang diperlukan.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPos({ left, top });
+    setPos({ left, top, side });
   }, [open, placement, title, description, content, actions]);
 
   useLayoutEffect(() => {
@@ -85,7 +83,7 @@ function Popover({
             ref={panelRef}
             role="dialog"
             data-testid={testId}
-            data-placement={placement}
+            data-placement={pos?.side ?? placement}
             data-wds-size={size}
             className="wds-popover"
             style={{ left: pos?.left ?? 0, top: pos?.top ?? 0, visibility: pos ? 'visible' : 'hidden' }}

@@ -164,10 +164,11 @@ export const popoverDoc: ComponentDoc = {
   component: PopoverDemo,
   codeName: "Popover",
   baseProps: { placement: 'bottom' },
-  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'placement', kind: 'select', options: ['bottom', 'top', 'left', 'right'] }, { prop: 'title', kind: 'text' }, { prop: 'description', kind: 'text' }],
+  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'placement', kind: 'select', options: ['bottom', 'bottom-left', 'bottom-right', 'top', 'top-left', 'top-right', 'left', 'right', 'auto'] }, { prop: 'title', kind: 'text' }, { prop: 'description', kind: 'text' }],
   figmaMapping: [
     { id: "styles", figma: "Popover styles", values: "default", prop: "— (CSS)" },
     { id: "slots", figma: "Title · text · actions", values: "slots", prop: "title · description · actions" },
+    { id: "position", figma: "Position (same options as Tooltip)", values: "top, bottom, left, right, corners, auto", prop: "placement" },
   ],
   examples: [],
   props: [
@@ -175,7 +176,7 @@ export const popoverDoc: ComponentDoc = {
     { id: "children", name: "children", type: "ReactNode" },
     { id: "text", name: "title · description", type: "ReactNode" },
     { id: "content", name: "content · actions", type: "ReactNode" },
-    { id: "placement", name: "placement", type: "'top' | 'bottom' | 'left' | 'right'", default: "'bottom'" },
+    { id: "placement", name: "placement", type: "'top' | 'top-left' | 'top-right' | 'bottom' | 'bottom-left' | 'bottom-right' | 'left' | 'right' | 'auto'", default: "'bottom'" },
     { id: 'testId', name: 'testId', type: 'string' },
   ],
   tokens: ["--wds-bg-elevated", "--wds-stroke-subtle", "--wds-sz-popover-radius", "--wds-sz-popover-padding-top", "--wds-sz-popover-gap"].map((name) => ({ name })),
