@@ -232,7 +232,7 @@ function DocPage({ doc }: { doc: ComponentDoc }) {
   const dontList = list('guidelines.dont');
 
   return (
-    <div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_152px]" data-testid={`doc-${doc.slug}`}>
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_152px]" data-testid={`doc-${doc.slug}`}>
       <article className="flex min-w-0 flex-col gap-10">
         <header className="flex flex-col gap-3">
           <span className="w-fit rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
