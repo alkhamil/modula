@@ -84,12 +84,12 @@ Aturan wajib saat menulis atau mengubah kode frontend di repo ini
   aksesibilitas. Setiap komponen yang dibuat/diubah mengikuti Figma WDS wajib
   punya dokumen ini; properti & behavior harus dicocokkan dengan node Figma dan
   token (`tokens/tokens.json`).
-- Ikon memakai **WDS** gaya Outline + Bold Duotone (`src/shared/components/icons/`), tanpa
+- Ikon memakai **WDS** 5 gaya (Outline, Bold, Bold Duotone, Broken, Line Duotone; `src/shared/components/icons/`), tanpa
   `lucide-react`. Pakai statis: `import { Pen, TrashBinTrash } from
   '<…>/shared/components/icons'` (styling via `className` `h-4 w-4`, warna
   ikut `text-*` karena `currentColor`). Nama dinamis (ikon menu dari definisi,
   picker): `<WdsIcon name="Database" />` (dimuat lazy per kategori;
-  `variant="bold-duotone"` untuk gaya Bold Duotone, default `outline`). Ikon baru
+  `variant` = `outline` (default) | `bold` | `bold-duotone` | `broken` | `line-duotone`). Ikon baru
   di app: tambahkan ke `CURATED` di `scripts/build-wds-icons.mjs` lalu
   `npm run icons:build` (file `core.tsx`, `wds/*.tsx`, `wds/index.json` hasil
   generate — jangan edit manual; sumber SVG `src/assets/icons/wds/`, diunduh

@@ -1,4 +1,4 @@
-/* Generate komponen React ikon WDS (Outline + Bold Duotone) dari SVG hasil
+/* Generate komponen React ikon WDS (5 gaya: Outline, Bold, Bold Duotone, Broken, Line Duotone) dari SVG hasil
  * `scripts/download-wds-icons.py` (`src/assets/icons/wds/manifest.json`).
  *
  * Output (jangan edit manual, jalankan ulang `npm run icons:build`):
@@ -17,10 +17,13 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'src/shared/components/icons');
-/** Style → folder output. Outline = default (statis di core.tsx + lazy); Bold Duotone = lazy (`variant`). */
+/** Style → folder output. Outline = default (statis di core.tsx + lazy); sisanya lazy (`variant`). */
 const STYLES = [
   { name: 'Outline', dir: 'outline' },
+  { name: 'Bold', dir: 'bold' },
   { name: 'Bold Duotone', dir: 'bold-duotone' },
+  { name: 'Broken', dir: 'broken' },
+  { name: 'Line Duotone', dir: 'line-duotone' },
 ];
 
 /** Ikon yang diekspor lewat barrel `shared/components/icons` (dipakai langsung di app). */
@@ -116,7 +119,7 @@ const coreBody = [...CURATED]
   .map((name) => `export const ${name} = /*#__PURE__*/ createIcon(${JSON.stringify(name)}, ${JSON.stringify(markupOf.get(name))});`)
   .join('\n');
 const boldMarkupOf = new Map();
-for (const items of collected[1].byCategory.values()) for (const { name, markup } of items) boldMarkupOf.set(name, markup);
+for (const items of collected.find((c) => c.dir === 'bold-duotone').byCategory.values()) for (const { name, markup } of items) boldMarkupOf.set(name, markup);
 const boldBody = BOLD_CURATED.map(
   (name) => `export const ${name}Bold = /*#__PURE__*/ createIcon(${JSON.stringify(`${name}Bold`)}, ${JSON.stringify(boldMarkupOf.get(name))});`,
 ).join('\n');

@@ -3054,8 +3054,6 @@
       "searchPlaceholder": "Search icons…",
       "searchLabel": "Search icons",
       "styleLabel": "Icon style",
-      "outline": "Outline",
-      "boldDuotone": "Bold Duotone",
       "count": "{{shown}} of {{total}} icons",
       "loadMore": "Show more",
       "noResults": "No matching icons.",

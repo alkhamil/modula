@@ -6,6 +6,13 @@ import { WDS_ICON_INDEX, WDS_ICON_NAMES } from '../../../shared/components/icons
 import DocSection from '../components/DocSection';
 
 const PAGE_SIZE = 120;
+const VARIANTS: { value: WdsIconVariant; label: string }[] = [
+  { value: 'outline', label: 'Outline' },
+  { value: 'bold', label: 'Bold' },
+  { value: 'bold-duotone', label: 'Bold Duotone' },
+  { value: 'broken', label: 'Broken' },
+  { value: 'line-duotone', label: 'Line Duotone' },
+];
 
 /** Galeri ikon WDS: cari, pilih gaya (Outline / Bold Duotone), klik untuk menyalin nama. */
 function IconsPage() {
@@ -50,10 +57,7 @@ function IconsPage() {
           aria-label={t('docs.icons.styleLabel')}
           value={variant}
           onChange={(v) => setVariant(v as WdsIconVariant)}
-          options={[
-            { value: 'outline', label: t('docs.icons.outline') },
-            { value: 'bold-duotone', label: t('docs.icons.boldDuotone') },
-          ]}
+          options={VARIANTS.map((v) => ({ value: v.value, label: v.label }))}
         />
       </div>
       <p className="text-xs text-muted-foreground" role="status">

@@ -4,8 +4,8 @@ import { wdsIconCategory } from './names';
 
 type CategoryModule = Record<string, IconComponent>;
 
-/** Gaya ikon WDS: `outline` (default) atau `bold-duotone`. */
-export type WdsIconVariant = 'outline' | 'bold-duotone';
+/** Gaya ikon WDS (5 gaya di Figma): `outline` (default), `bold`, `bold-duotone`, `broken`, `line-duotone`. */
+export type WdsIconVariant = 'outline' | 'bold' | 'bold-duotone' | 'broken' | 'line-duotone';
 
 // Satu chunk per style + kategori, dimuat saat dibutuhkan.
 const loaders = import.meta.glob<CategoryModule>('./wds/*/*.tsx');
