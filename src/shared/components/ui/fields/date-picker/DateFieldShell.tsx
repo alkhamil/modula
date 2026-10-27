@@ -17,7 +17,8 @@ export function dateFieldState({ disabled, readOnly, error, open, hasValue, forc
   if (disabled) return 'disabled';
   if (readOnly) return 'read-only';
   if (error) return hasValue ? 'error-filled' : 'error-empty';
-  if (open || forced === 'selected') return 'selected';
+  // Token "Date Picker states": focused = stroke fokus (sama dengan selected) + cincin fokus.
+  if (open || forced === 'selected' || forced === 'focused') return 'selected';
   return hasValue ? 'filled' : 'default';
 }
 

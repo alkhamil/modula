@@ -59,7 +59,7 @@ export const datePickerDoc: ComponentDoc = {
   name: 'Date Picker',
   category: 'forms',
   importStatement: "import { DatePicker } from 'shared/components/ui';",
-  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-9536',
+  figmaUrl: 'https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-9537',
   component: DatePickerDemo,
   codeName: 'DatePicker',
   codeExtra: ['value={value}', 'onChange={setValue}'],
