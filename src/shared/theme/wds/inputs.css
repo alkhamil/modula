@@ -118,40 +118,6 @@
     text-align: center;
   }
 
-  /* ---- Label text ---- */
-  .wds-label-text {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--wds-spacing-4);
-    color: var(--wds-text-primary);
-    font-family: var(--wds-sz-text-title-font-family);
-    font-weight: var(--wds-font-weight-medium);
-    font-size: var(--wds-sz-text-label-font-size);
-    line-height: var(--wds-sz-text-label-line-height);
-  }
-
-  .wds-label-text[data-weight='regular'] {
-    font-weight: var(--wds-font-weight-regular);
-  }
-
-  .wds-label-text[data-weight='semibold'] {
-    font-weight: var(--wds-font-weight-semi-bold);
-  }
-
-  .wds-label-text__mandatory {
-    color: var(--wds-text-danger);
-  }
-
-  .wds-label-text__icon {
-    display: inline-flex;
-    color: var(--wds-icons-tertiary);
-  }
-
-  .wds-label-text__icon > svg {
-    width: 16px;
-    height: 16px;
-  }
-
   /* ---- Dropdown menu + compact select ---- */
   .wds-dropdown {
     position: relative;
@@ -353,72 +319,11 @@
   }
 
   /* ---- Toast ---- */
+  /* Toast = Alert melayang: pembungkus hanya memberi bayangan + radius agar terpisah dari konten. */
   .wds-toast {
-    box-sizing: border-box;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--wds-sz-toast-container-gap);
-    padding: var(--wds-padding-12) var(--wds-sz-toast-padding-right) var(--wds-padding-12) var(--wds-padding-16);
-    border-radius: var(--wds-sz-toast-radius);
-    background-color: var(--wds-neutral-900);
-    color: var(--wds-text-inverse);
+    border-radius: var(--wds-radius-8);
     box-shadow:
       0 2px 4px rgb(16 24 40 / 6%),
       0 4px 8px rgb(16 24 40 / 10%);
-    font-family: var(--wds-sz-text-body-font-family);
-    font-weight: var(--wds-font-weight-medium);
-    font-size: var(--wds-sz-text-body-font-size);
-    line-height: var(--wds-sz-text-body-line-height);
-  }
-
-  .wds-toast__icon {
-    display: inline-flex;
-    flex-shrink: 0;
-  }
-
-  .wds-toast__icon > svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .wds-toast[data-variant='success'] .wds-toast__icon {
-    color: var(--wds-icons-success);
-  }
-
-  .wds-toast[data-variant='error'] .wds-toast__icon {
-    color: var(--wds-icons-danger);
-  }
-
-  .wds-toast[data-variant='warning'] .wds-toast__icon {
-    color: var(--wds-icons-warning);
-  }
-
-  .wds-toast[data-variant='info'] .wds-toast__icon {
-    color: var(--wds-primary-300);
-  }
-
-  .wds-toast__message {
-    flex: 1;
-  }
-
-  .wds-toast__close {
-    display: inline-flex;
-    flex-shrink: 0;
-    cursor: pointer;
-    border: 0;
-    background: transparent;
-    padding: 0;
-    color: var(--wds-icons-inverse);
-  }
-
-  .wds-toast__close > svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .wds-toast__close:focus-visible {
-    outline: 1px solid var(--wds-stroke-focus);
-    outline-offset: 2px;
-    border-radius: var(--wds-radius-4);
   }
 }

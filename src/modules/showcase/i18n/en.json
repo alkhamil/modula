@@ -2558,42 +2558,6 @@
         "Buttons are labelled Decrease / Increase; the value is a live region."
       ]
     },
-    "label-text": {
-      "summary": "WDS label text for fields: three weights, a red required mark and an optional trailing icon.",
-      "figma": {
-        "weight": {
-          "note": "Medium is the default."
-        },
-        "mandatory": {
-          "note": "The red asterisk comes after the optional info icon."
-        }
-      },
-      "examples": {
-        "weights": {
-          "title": "Weights"
-        }
-      },
-      "props": {
-        "size": "Size from the Size tokens.",
-        "weight": "Font weight.",
-        "required": "Shows the required mark.",
-        "trailing": "Icon after the label (e.g. help).",
-        "htmlFor": "Associates the label with a field.",
-        "testId": "Mapped to data-testid."
-      },
-      "tokens": {
-        "--wds-text-primary": "Label text.",
-        "--wds-text-danger": "Required mark.",
-        "--wds-icons-tertiary": "Trailing icon.",
-        "--wds-sz-text-label-font-size": "Font size."
-      },
-      "behavior": [
-        "FormItem already renders this style for its labels."
-      ],
-      "accessibility": [
-        "Use htmlFor so clicking the label focuses the field."
-      ]
-    },
     "compact-select": {
       "summary": "WDS compact select: a small text or icon trigger that opens a dropdown menu to pick one option.",
       "figma": {
@@ -2731,10 +2695,10 @@
       ]
     },
     "toast": {
-      "summary": "WDS toast: a dark transient message with a status icon and close button, shown through the useToast hook.",
+      "summary": "WDS toast: a transient message shown through the useToast hook; it renders an Alert (light) with a close button.",
       "figma": {
         "styles": {
-          "note": "Dark background; the icon color follows the variant."
+          "note": "Rendered as an Alert: the colors and status icon follow the Alert style (error = danger)."
         }
       },
       "examples": {},
@@ -2746,16 +2710,17 @@
         "testId": "Mapped to data-testid."
       },
       "tokens": {
-        "--wds-neutral-900": "Toast background.",
-        "--wds-text-inverse": "Toast text.",
-        "--wds-icons-inverse": "Close icon.",
-        "--wds-sz-toast-radius": "Corner radius."
+        "--wds-bg-success-subtle": "Success background (other statuses similar).",
+        "--wds-bg-danger-subtle": "Error background.",
+        "--wds-bg-warning-subtle": "Warning background.",
+        "--wds-bg-info-subtle": "Info background.",
+        "--wds-sz-icon-size": "Status icon size."
       },
       "behavior": [
         "Hides itself after the duration; the close button hides it sooner."
       ],
       "accessibility": [
-        "Error and warning use role=\"alert\"; others role=\"status\"."
+        "Error and warning use role=\"alert\" (from Alert); others role=\"status\"."
       ]
     },
     "section-header": {

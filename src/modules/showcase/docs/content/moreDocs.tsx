@@ -13,7 +13,6 @@ import {
   IconWrapperDemo,
   ImageCarouselDemo,
   ImagePlaceholderDemo,
-  LabelTextDemo,
   LegendDemo,
   ListItemDemo,
   MenuItemDemo,
@@ -111,33 +110,6 @@ export const quantitySelectorDoc: ComponentDoc = {
     { id: 'testId', name: 'testId', type: 'string' },
   ],
   tokens: ["--wds-bg-surface", "--wds-bg-subtle", "--wds-stroke-subtle", "--wds-icons-secondary", "--wds-text-primary"].map((name) => ({ name })),
-};
-
-export const labelTextDoc: ComponentDoc = {
-  slug: "label-text",
-  name: "LabelText",
-  category: "forms",
-  importStatement: "import { LabelText } from 'shared/components/ui';",
-  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-11264",
-  component: LabelTextDemo,
-  codeName: "LabelText",
-  baseProps: { weight: 'medium' },
-  baseChildren: 'Email address',
-  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'weight', kind: 'select', options: ['regular', 'medium', 'semibold'] }, { prop: 'required', kind: 'boolean' }],
-  figmaMapping: [
-    { id: "weight", figma: "Label text (mode)", values: "Regular, Medium, Semi Bold", prop: "weight" },
-    { id: "mandatory", figma: "Mandatory · Info icon", values: "boolean", prop: "required · trailing" },
-  ],
-  examples: [{ id: 'weights', variants: ['regular', 'medium', 'semibold'].map((w) => ({ label: w, props: { weight: w } })) }],
-  props: [
-    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
-    { id: "weight", name: "weight", type: "'regular' | 'medium' | 'semibold'", default: "'medium'" },
-    { id: "required", name: "required", type: "boolean", default: "false" },
-    { id: "trailing", name: "trailing", type: "ReactNode" },
-    { id: "htmlFor", name: "htmlFor", type: "string" },
-    { id: 'testId', name: 'testId', type: 'string' },
-  ],
-  tokens: ["--wds-text-primary", "--wds-text-danger", "--wds-icons-tertiary", "--wds-sz-text-label-font-size"].map((name) => ({ name })),
 };
 
 export const compactSelectDoc: ComponentDoc = {
@@ -259,7 +231,7 @@ export const toastDoc: ComponentDoc = {
   baseProps: { variant: 'success', message: 'Changes saved' },
   controls: [{ prop: 'variant', kind: 'select', options: ['success', 'error', 'warning', 'info'] }, { prop: 'message', kind: 'text' }],
   figmaMapping: [
-    { id: "styles", figma: "Toast styles", values: "default", prop: "variant" },
+    { id: "styles", figma: "Toast styles", values: "success, error, warning, info (rendered as Alert)", prop: "variant" },
   ],
   examples: [],
   props: [
@@ -269,7 +241,7 @@ export const toastDoc: ComponentDoc = {
     { id: "container", name: "containerId · className · widthClass", type: "string" },
     { id: 'testId', name: 'testId', type: 'string' },
   ],
-  tokens: ["--wds-neutral-900", "--wds-text-inverse", "--wds-icons-inverse", "--wds-sz-toast-radius"].map((name) => ({ name })),
+  tokens: ["--wds-bg-success-subtle", "--wds-bg-danger-subtle", "--wds-bg-warning-subtle", "--wds-bg-info-subtle", "--wds-sz-icon-size"].map((name) => ({ name })),
 };
 
 export const sectionHeaderDoc: ComponentDoc = {
@@ -783,7 +755,6 @@ export const moreDocs: ComponentDoc[] = [
   otpInputDoc,
   pinInputDoc,
   quantitySelectorDoc,
-  labelTextDoc,
   compactSelectDoc,
   dropdownMenuDoc,
   listItemDoc,

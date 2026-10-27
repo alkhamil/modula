@@ -63,7 +63,7 @@ dibuat), tetapi **belum** satu per satu dengan `tokens.json` dan tabel Propertie
 - FileUpload (`file-upload`), FileUploadCard (`file-upload-card`)
 - SearchBar (`search-bar`), SegmentedControl (`segmented-control`), Slider (`slider`), Rating (`rating`)
 - OtpInput (`otp-input`), PinInput (`pin-input`), QuantitySelector (`quantity-selector`)
-- LabelText (`label-text`), CompactSelect (`compact-select`), ChatInput (`chat-input`)
+- CompactSelect (`compact-select`), ChatInput (`chat-input`)
 
 ### Feedback
 - Dialog (`dialog`), Drawer (`drawer`), Tooltip (`tooltip`), Popover (`popover`)

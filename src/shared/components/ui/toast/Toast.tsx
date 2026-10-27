@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { CheckCircle, CloseCircle, Cross, DangerTriangle, InfoCircle } from '../../icons';
+import Alert from '../Alert';
 import { ToastContext, type ToastVariant, type ShowToastParams } from './toast-context';
 
 interface ToastItemData {
@@ -12,13 +12,6 @@ interface ToastItemData {
   className?: string;
   widthClass?: string;
 }
-
-const variantIcons: Record<ToastVariant, typeof CheckCircle> = {
-  success: CheckCircle,
-  error: CloseCircle,
-  warning: DangerTriangle,
-  info: InfoCircle,
-};
 
 let toastId = 0;
 
@@ -43,25 +36,16 @@ function defaultClassFor(target: HTMLElement): string {
   return 'absolute inset-x-0 top-14 z-50';
 }
 
+/** Toast = `Alert` melayang: style (success/error→danger/warning/info) dan tombol tutup dari Alert. */
 function ToastItem({ item, onClose }: { item: ToastItemData; onClose: (id: number) => void }) {
-  const Icon = variantIcons[item.variant];
-
   return (
-    <div
-      data-testid={`toast-${item.variant}`}
-      data-variant={item.variant}
-      role={item.variant === 'error' || item.variant === 'warning' ? 'alert' : 'status'}
-      className={['wds-toast', item.widthClass ?? 'w-175'].join(' ')}
-    >
-      <span className="wds-toast__icon">
-        <Icon />
-      </span>
-      <span className="wds-toast__message">{item.message}</span>
-      {item.closable !== false && (
-        <button type="button" aria-label="Close" onClick={() => onClose(item.id)} className="wds-toast__close">
-          <Cross />
-        </button>
-      )}
+    <div className={['wds-toast', item.widthClass ?? 'w-175'].join(' ')}>
+      <Alert
+        testId={`toast-${item.variant}`}
+        variant={item.variant}
+        message={item.message}
+        onClose={item.closable !== false ? () => onClose(item.id) : undefined}
+      />
     </div>
   );
 }

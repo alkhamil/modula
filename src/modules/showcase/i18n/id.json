@@ -2558,42 +2558,6 @@
         "Tombol berlabel Decrease / Increase; nilai adalah live region."
       ]
     },
-    "label-text": {
-      "summary": "Label teks WDS untuk field: tiga bobot, tanda wajib merah, dan ikon akhir opsional.",
-      "figma": {
-        "weight": {
-          "note": "Medium adalah default."
-        },
-        "mandatory": {
-          "note": "Tanda bintang merah muncul setelah ikon info opsional."
-        }
-      },
-      "examples": {
-        "weights": {
-          "title": "Bobot"
-        }
-      },
-      "props": {
-        "size": "Ukuran dari token Size.",
-        "weight": "Bobot font.",
-        "required": "Menampilkan tanda wajib.",
-        "trailing": "Ikon setelah label (mis. bantuan).",
-        "htmlFor": "Menghubungkan label dengan field.",
-        "testId": "Dipetakan ke data-testid."
-      },
-      "tokens": {
-        "--wds-text-primary": "Teks label.",
-        "--wds-text-danger": "Tanda wajib.",
-        "--wds-icons-tertiary": "Ikon akhir.",
-        "--wds-sz-text-label-font-size": "Ukuran font."
-      },
-      "behavior": [
-        "FormItem sudah memakai style ini untuk labelnya."
-      ],
-      "accessibility": [
-        "Gunakan htmlFor agar klik label memfokuskan field."
-      ]
-    },
     "compact-select": {
       "summary": "Compact select WDS: pemicu kecil berupa teks atau ikon yang membuka menu dropdown untuk memilih satu opsi.",
       "figma": {
@@ -2731,10 +2695,10 @@
       ]
     },
     "toast": {
-      "summary": "Toast WDS: pesan sementara gelap dengan ikon status dan tombol tutup, ditampilkan lewat hook useToast.",
+      "summary": "Toast WDS: pesan sementara lewat hook useToast; dirender sebagai Alert (light) dengan tombol tutup.",
       "figma": {
         "styles": {
-          "note": "Latar gelap; warna ikon mengikuti variant."
+          "note": "Dirender sebagai Alert: warna dan ikon status mengikuti style Alert (error = danger)."
         }
       },
       "examples": {},
@@ -2746,16 +2710,17 @@
         "testId": "Dipetakan ke data-testid."
       },
       "tokens": {
-        "--wds-neutral-900": "Latar toast.",
-        "--wds-text-inverse": "Teks toast.",
-        "--wds-icons-inverse": "Ikon tutup.",
-        "--wds-sz-toast-radius": "Radius sudut."
+        "--wds-bg-success-subtle": "Latar sukses (status lain serupa).",
+        "--wds-bg-danger-subtle": "Latar error.",
+        "--wds-bg-warning-subtle": "Latar peringatan.",
+        "--wds-bg-info-subtle": "Latar info.",
+        "--wds-sz-icon-size": "Ukuran ikon status."
       },
       "behavior": [
         "Menyembunyikan diri setelah durasi; tombol tutup menyembunyikannya lebih cepat."
       ],
       "accessibility": [
-        "Error dan warning memakai role=\"alert\"; lainnya role=\"status\"."
+        "Error dan warning memakai role=\"alert\" (dari Alert); lainnya role=\"status\"."
       ]
     },
     "section-header": {

@@ -15,7 +15,6 @@ import {
   IconWrapper,
   ImageCarousel,
   ImagePlaceholder,
-  LabelText,
   Legend,
   ListItem,
   MenuItem,
@@ -57,10 +56,6 @@ export function PinInputDemo(props: P<typeof PinInput>) {
 export function QuantitySelectorDemo(props: P<typeof QuantitySelector>) {
   const [value, setValue] = useState(2);
   return <QuantitySelector {...props} value={value} onChange={setValue} min={0} max={10} />;
-}
-
-export function LabelTextDemo(props: ComponentProps<typeof LabelText>) {
-  return <LabelText {...props} />;
 }
 
 const REGIONS = [
