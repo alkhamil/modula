@@ -502,8 +502,9 @@ button.wds-cal__title:hover {
   margin: 0;
 }
 
-.wds-cal .react-datepicker__month-text,
-.wds-cal .react-datepicker__year-text {
+/* Spesifisitas setara aturan `display: block` di atas (.datepicker-inline-reset … month-text), dan letaknya setelahnya. */
+.wds-cal .datepicker-inline-reset .react-datepicker__month .react-datepicker__month-text,
+.wds-cal .datepicker-inline-reset .react-datepicker__year-text {
   position: relative;
   z-index: 0;
   display: flex;
