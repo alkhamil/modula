@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { CheckCircle, CloseCircle, InfoCircle } from '../../../shared/components/icons';
 import CodeBlock from './CodeBlock';
+import FigmaIcon from './FigmaIcon';
 import Playground from './Playground';
 import { docCode, resolveProps } from './render';
 import type { ComponentDoc, DocExample, DocMatrix, GroupDoc, TokenDoc } from './types';
@@ -238,22 +239,26 @@ function DocPage({ doc }: { doc: ComponentDoc }) {
           <span className="w-fit rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
             {t(`categories.${doc.category}`)}
           </span>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{doc.name}</h1>
-          <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{c('summary')}</p>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="min-w-0 flex-1 basis-80">
-              <CodeBlock code={doc.importStatement} />
-            </div>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">{doc.name}</h1>
             {doc.figmaUrl && (
               <a
                 href={doc.figmaUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-xs font-medium text-foreground hover:border-primary hover:text-primary"
+                aria-label={t('header.openFigma')}
+                title={t('header.openFigma')}
+                className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
               >
-                {t('header.openFigma')}
+                <FigmaIcon className="h-4 w-auto" />
               </a>
             )}
+          </div>
+          <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{c('summary')}</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="min-w-0 flex-1 basis-80">
+              <CodeBlock code={doc.importStatement} />
+            </div>
           </div>
         </header>
 
