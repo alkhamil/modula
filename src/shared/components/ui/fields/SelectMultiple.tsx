@@ -476,7 +476,7 @@ function SelectMultiple({
         </>
       )}
       <span className="wds-field__icon" aria-hidden="true">
-        {open ? <AltArrowUp /> : <AltArrowDown />}
+        {open || forcedState === 'focused' ? <AltArrowUp /> : <AltArrowDown />}
       </span>
     </>
   );

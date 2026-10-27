@@ -382,7 +382,7 @@ function SelectSingle({
       ) : null}
       {trailingIcon && <span className="wds-field__icon">{trailingIcon}</span>}
       <span className="wds-field__icon" onClick={searchable ? undefined : handleToggle} aria-hidden="true">
-        {open ? <AltArrowUp /> : <AltArrowDown />}
+        {open || forcedState === 'focused' ? <AltArrowUp /> : <AltArrowDown />}
       </span>
     </>
   );
