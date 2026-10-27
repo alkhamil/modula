@@ -3047,6 +3047,19 @@
       "accessibility": [
         "Built on react-datepicker, which supports keyboard navigation."
       ]
+    },
+    "icons": {
+      "title": "Icons",
+      "description": "WDS icon library. Click an icon to copy its name; use it as <Name /> from shared/components/icons or <WdsIcon name=\"Name\" />.",
+      "searchPlaceholder": "Search icons…",
+      "searchLabel": "Search icons",
+      "styleLabel": "Icon style",
+      "outline": "Outline",
+      "boldDuotone": "Bold Duotone",
+      "count": "{{shown}} of {{total}} icons",
+      "loadMore": "Show more",
+      "noResults": "No matching icons.",
+      "copied": "Copied {{name}}"
     }
   }
 }

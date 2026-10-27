@@ -1,5 +1,5 @@
 import type { RouteObject } from 'react-router';
-import { TypographyPage, ColorsPage, UiPage, ComponentsIndexPage, ComponentDocPage } from './index';
+import { TypographyPage, ColorsPage, IconsPage, UiPage, ComponentsIndexPage, ComponentDocPage } from './index';
 
 export const showcaseRoutes: RouteObject[] = [
   {
@@ -39,6 +39,16 @@ export const showcaseRoutes: RouteObject[] = [
       breadcrumb: [
         { label: 'Component', labelKey: 'nav.components' },
         { label: 'Colors', labelKey: 'nav.colors' },
+      ],
+    },
+  },
+  {
+    path: 'components/icons',
+    element: <IconsPage />,
+    handle: {
+      breadcrumb: [
+        { label: 'Component', labelKey: 'nav.components' },
+        { label: 'Icons', labelKey: 'nav.icons' },
       ],
     },
   },

@@ -41,6 +41,7 @@ function DocsLayout({ children }: { children: ReactNode }) {
             {[
               { to: '/components/typography', label: t('nav.typography') },
               { to: '/components/colors', label: t('nav.colors') },
+              { to: '/components/icons', label: t('nav.icons') },
               { to: '/components/ui', label: t('nav.ui') },
             ].map((item) => (
               <NavLink

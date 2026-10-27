@@ -34,7 +34,8 @@
     "colors": "Warna",
     "ui": "UI",
     "docs": "Dokumentasi",
-    "others": "Lainnya"
+    "others": "Lainnya",
+    "icons": "Ikon"
   },
   "auth": {
     "profile": "Profil",

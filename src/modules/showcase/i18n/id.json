@@ -3047,6 +3047,19 @@
       "accessibility": [
         "Dibangun di atas react-datepicker yang mendukung navigasi keyboard."
       ]
+    },
+    "icons": {
+      "title": "Ikon",
+      "description": "Pustaka ikon WDS. Klik ikon untuk menyalin namanya; pakai sebagai <Nama /> dari shared/components/icons atau <WdsIcon name=\"Nama\" />.",
+      "searchPlaceholder": "Cari ikon…",
+      "searchLabel": "Cari ikon",
+      "styleLabel": "Gaya ikon",
+      "outline": "Outline",
+      "boldDuotone": "Bold Duotone",
+      "count": "{{shown}} dari {{total}} ikon",
+      "loadMore": "Tampilkan lebih banyak",
+      "noResults": "Tidak ada ikon yang cocok.",
+      "copied": "Menyalin {{name}}"
     }
   }
 }

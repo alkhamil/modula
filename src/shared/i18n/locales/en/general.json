@@ -34,7 +34,8 @@
     "colors": "Colors",
     "ui": "UI",
     "docs": "Docs",
-    "others": "Others"
+    "others": "Others",
+    "icons": "Icons"
   },
   "auth": {
     "profile": "Profile",
