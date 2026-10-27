@@ -1,7 +1,7 @@
 import { icon, type ComponentDoc } from '../types';
 import { TooltipDemo } from './feedbackDemos';
 
-const PLACEMENTS = ['top', 'bottom', 'left', 'right'];
+const PLACEMENTS = ['top', 'top-left', 'top-right', 'bottom', 'bottom-left', 'bottom-right', 'left', 'right', 'auto'];
 
 export const tooltipDoc: ComponentDoc = {
   slug: 'tooltip',
@@ -22,7 +22,7 @@ export const tooltipDoc: ComponentDoc = {
   ],
   figmaMapping: [
     { id: 'text', figma: 'Text (TEXT)', values: 'free text', prop: 'content' },
-    { id: 'position', figma: 'Position (variant)', values: 'Bottom, Top, Left, Right', prop: 'placement' },
+    { id: 'position', figma: 'Position (variant)', values: 'Bottom, Top, Left, Right (+ top-left, top-right, bottom-left, bottom-right, auto)', prop: 'placement' },
     { id: 'leading', figma: 'Show leading · Leading (slot)', values: 'boolean + icon', prop: 'leading' },
     { id: 'styles', figma: 'Tooltip styles (mode)', values: 'default', prop: '— (CSS)' },
   ],
@@ -33,7 +33,7 @@ export const tooltipDoc: ComponentDoc = {
   props: [
     { id: 'size', name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { id: 'content', name: 'content', type: 'ReactNode' },
-    { id: 'placement', name: 'placement', type: "'top' | 'bottom' | 'left' | 'right'", default: "'top'" },
+    { id: 'placement', name: 'placement', type: "'top' | 'top-left' | 'top-right' | 'bottom' | 'bottom-left' | 'bottom-right' | 'left' | 'right' | 'auto'", default: "'top'" },
     { id: 'leading', name: 'leading', type: 'ReactNode' },
     { id: 'maxWidth', name: 'maxWidth · minWidth', type: 'number', default: '300 / —' },
     { id: 'open', name: 'open', type: 'boolean' },

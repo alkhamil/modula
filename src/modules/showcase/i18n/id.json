@@ -1333,7 +1333,7 @@
           "note": "Isi tooltip."
         },
         "position": {
-          "note": "Sisi yang diinginkan; dibatasi dalam viewport."
+          "note": "Sisi pilihan, atau sudut (top-left, top-right, bottom-left, bottom-right: tepi tooltip rata dengan tepi pemicu). `auto` memilih sisi yang cukup ruangnya; selalu dijepit di dalam viewport."
         },
         "leading": {
           "note": "Ikon opsional sebelum teks."
@@ -1352,7 +1352,7 @@
       },
       "props": {
         "content": "Isi tooltip.",
-        "placement": "Sisi yang diinginkan.",
+        "placement": "Sisi pilihan, atau sudut (tepi rata); `auto` memilih sisi yang cukup ruangnya.",
         "leading": "Ikon sebelum teks.",
         "maxWidth": "Batas lebar dalam px.",
         "open": "Memaksa tooltip terbuka (terkontrol).",

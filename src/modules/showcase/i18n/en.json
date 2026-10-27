@@ -1333,7 +1333,7 @@
           "note": "Tooltip content."
         },
         "position": {
-          "note": "Preferred side; clamped to the viewport."
+          "note": "Preferred side, or a corner (top-left, top-right, bottom-left, bottom-right: the tooltip edge lines up with the trigger edge). `auto` picks the side with room; always clamped to the viewport."
         },
         "leading": {
           "note": "Optional icon before the text."
@@ -1352,7 +1352,7 @@
       },
       "props": {
         "content": "Tooltip content.",
-        "placement": "Preferred side.",
+        "placement": "Preferred side, or a corner (edge aligned); `auto` picks the side with room.",
         "leading": "Icon before the text.",
         "maxWidth": "Width limits in px.",
         "open": "Forces the tooltip open (controlled).",
