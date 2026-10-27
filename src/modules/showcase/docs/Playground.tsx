@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as Icons from '../../../shared/components/icons';
+import { AltArrowDown, AltArrowUp } from '../../../shared/components/icons';
 import CodeBlock from './CodeBlock';
 import { docCode, resolveProps } from './render';
 import { icon, isRawRef, type ComponentDoc, type DocControl } from './types';
@@ -104,12 +105,14 @@ function ControlRow({
   );
 }
 
-/** Playground: preview lebar di atas, panel kontrol (grid) di bawahnya, lalu kode JSX. */
+/** Playground: preview lebar, menu dropdown Controls (grid) di bawahnya, lalu kode JSX. */
 function Playground({ doc }: { doc: ComponentDoc }) {
   const [props, setProps] = useState<Record<string, unknown>>(doc.baseProps);
   const [children, setChildren] = useState(doc.baseChildren ?? '');
   const { t } = useTranslation();
   const [background, setBackground] = useState<Background>('white');
+  const [controlsOpen, setControlsOpen] = useState(false);
+  const controlsId = useId();
   const Component = doc.component;
   const resolved = useMemo(() => resolveProps(props), [props]);
   const iconOnly = Boolean(props.iconOnly);
@@ -142,9 +145,19 @@ function Playground({ doc }: { doc: ComponentDoc }) {
           {doc.baseChildren !== undefined && !iconOnly ? children : undefined}
         </Component>
       </div>
-      <section className="flex flex-col gap-4 border-t border-border p-4" aria-label={t('docs.playground.controlsLabel')}>
-        <div className="flex items-center justify-between">
-          <h3 className="text-[13px] font-semibold text-foreground">{t('docs.playground.controls')}</h3>
+      <section className="border-t border-border" aria-label={t('docs.playground.controlsLabel')}>
+        <div className="flex items-center justify-between gap-2 px-4 py-2">
+          <button
+            type="button"
+            aria-expanded={controlsOpen}
+            aria-controls={controlsId}
+            onClick={() => setControlsOpen((open) => !open)}
+            className="flex cursor-pointer items-center gap-1.5 text-[13px] font-semibold text-foreground"
+          >
+            {t('docs.playground.controls')}
+            {dirty && <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />}
+            {controlsOpen ? <AltArrowUp className="h-4 w-4" /> : <AltArrowDown className="h-4 w-4" />}
+          </button>
           <button
             type="button"
             disabled={!dirty}
@@ -157,22 +170,24 @@ function Playground({ doc }: { doc: ComponentDoc }) {
             {t('docs.playground.reset')}
           </button>
         </div>
-        <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 xl:grid-cols-3">
-          {doc.baseChildren !== undefined && (
-            <div className="flex flex-col gap-1.5">
-              <span className="font-mono text-[11px] text-foreground">children</span>
-              <input aria-label="children" className={inputClass} value={children} onChange={(e) => setChildren(e.target.value)} />
-            </div>
-          )}
-          {doc.controls.map((control) => (
-            <ControlRow
-              key={control.label ?? control.prop}
-              control={control}
-              value={props[control.prop]}
-              onChange={(next) => setProps((prev) => ({ ...prev, [control.prop]: next }))}
-            />
-          ))}
-        </div>
+        {controlsOpen && (
+          <div id={controlsId} className="grid grid-cols-1 gap-x-6 gap-y-4 border-t border-border p-4 sm:grid-cols-2 xl:grid-cols-3">
+            {doc.baseChildren !== undefined && (
+              <div className="flex flex-col gap-1.5">
+                <span className="font-mono text-[11px] text-foreground">children</span>
+                <input aria-label="children" className={inputClass} value={children} onChange={(e) => setChildren(e.target.value)} />
+              </div>
+            )}
+            {doc.controls.map((control) => (
+              <ControlRow
+                key={control.label ?? control.prop}
+                control={control}
+                value={props[control.prop]}
+                onChange={(next) => setProps((prev) => ({ ...prev, [control.prop]: next }))}
+              />
+            ))}
+          </div>
+        )}
       </section>
       <CodeBlock code={code} flush height="9rem" />
     </div>
