@@ -164,10 +164,21 @@
     line-height: var(--wds-sz-text-body-line-height);
   }
 
+  /* Baris pertama teks (judul bila ada, jika tidak pesan): tombol tutup disejajarkan ke tengahnya. */
+  .wds-alert {
+    --a-first-line: var(--wds-sz-text-body-line-height);
+    --a-close-size: 24px;
+  }
+
+  .wds-alert[data-has-title='true'] {
+    --a-first-line: var(--wds-font-line-height-16);
+  }
+
   .wds-alert__close {
     display: inline-flex;
-    width: 24px;
-    height: 24px;
+    width: var(--a-close-size);
+    height: var(--a-close-size);
+    margin-top: calc((var(--a-first-line) - var(--a-close-size)) / 2);
     flex-shrink: 0;
     cursor: pointer;
     border: 0;

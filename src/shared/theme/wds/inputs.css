@@ -245,8 +245,7 @@
   }
 
   /* Tombol tutup toast diperkecil (Alert: 24px). */
-  .wds-toast .wds-alert__close {
-    width: 16px;
-    height: 16px;
+  .wds-toast .wds-alert {
+    --a-close-size: 16px;
   }
 }
