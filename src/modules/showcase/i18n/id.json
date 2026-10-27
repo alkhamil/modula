@@ -2759,40 +2759,6 @@
         "Item aktif memiliki aria-current=\"page\"."
       ]
     },
-    "featured-icon": {
-      "summary": "Featured icon WDS: ikon di dalam wadah berwarna, lingkaran atau kotak membulat.",
-      "figma": {
-        "styles": {
-          "note": "Style light memberi tint latar; dark membalik ikon."
-        },
-        "shape": {
-          "note": "Square memakai radius featured-icon."
-        }
-      },
-      "examples": {
-        "styles": {
-          "title": "Style"
-        }
-      },
-      "props": {
-        "icon": "Ikonnya.",
-        "appearance": "Style Figma.",
-        "shape": "Bentuk wadah.",
-        "testId": "Dipetakan ke data-testid."
-      },
-      "tokens": {
-        "--wds-primary-100": "Latar primary light.",
-        "--wds-primary-500": "Latar primary dark / ikon.",
-        "--wds-neutral-200": "Latar gray.",
-        "--wds-sz-featured-icon-container-size": "Ukuran wadah."
-      },
-      "behavior": [
-        "Dipakai di header Dialog dan Empty State."
-      ],
-      "accessibility": [
-        "Dekoratif; teks di sekitarnya membawa makna."
-      ]
-    },
     "activity-feed": {
       "summary": "Activity feed WDS: daftar entri dengan avatar (titik online), nama dan waktu, deskripsi, konektor putus-putus, titik status, aksi, dan konten per tipe (text, file, labels, chat).",
       "figma": {

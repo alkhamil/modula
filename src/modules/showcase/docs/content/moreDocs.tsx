@@ -6,7 +6,6 @@ import {
   CalendarDemo,
   CompactSelectDemo,
   DropdownMenuDemo,
-  FeaturedIconDemo,
   LegendDemo,
   NavItemDemo,
   OtpInputDemo,
@@ -265,30 +264,6 @@ export const navItemDoc: ComponentDoc = {
     { id: 'testId', name: 'testId', type: 'string' },
   ],
   tokens: ["--wds-bg-brand-subtle", "--wds-bg-brand", "--wds-text-brand", "--wds-icons-secondary", "--wds-sz-nav-item-padding-top"].map((name) => ({ name })),
-};
-
-export const featuredIconDoc: ComponentDoc = {
-  slug: "featured-icon",
-  name: "FeaturedIcon",
-  category: "feedback",
-  importStatement: "import { FeaturedIcon } from 'shared/components/ui';",
-  component: FeaturedIconDemo,
-  codeName: "FeaturedIcon",
-  codeExtra: ["icon={<InfoCircle />}"],
-  baseProps: { appearance: 'primary-light', shape: 'circle' },
-  controls: [{ prop: 'appearance', kind: 'select', options: ['primary-light', 'primary-dark', 'gray-light'] }, { prop: 'shape', kind: 'select', options: ['circle', 'square'] }],
-  figmaMapping: [
-    { id: "styles", figma: "Featured icon styles (mode)", values: "primary light, primary dark, gray light", prop: "appearance" },
-    { id: "shape", figma: "Featured icon shape (mode)", values: "circle, square", prop: "shape" },
-  ],
-  examples: [{ id: 'styles', variants: ['primary-light', 'primary-dark', 'gray-light'].map((a) => ({ label: a, props: { appearance: a } })) }],
-  props: [
-    { id: "icon", name: "icon", type: "ReactNode" },
-    { id: "appearance", name: "appearance", type: "'primary-light' | 'primary-dark' | 'gray-light'", default: "'primary-light'" },
-    { id: "shape", name: "shape", type: "'circle' | 'square'", default: "'circle'" },
-    { id: 'testId', name: 'testId', type: 'string' },
-  ],
-  tokens: ["--wds-primary-100", "--wds-primary-500", "--wds-neutral-200", "--wds-sz-featured-icon-container-size"].map((name) => ({ name })),
 };
 
 export const activityFeedDoc: ComponentDoc = {
@@ -557,7 +532,6 @@ export const moreDocs: ComponentDoc[] = [
   toastDoc,
   sectionHeaderDoc,
   navItemDoc,
-  featuredIconDoc,
   activityFeedDoc,
   barLineChartDoc,
   pieChartDoc,

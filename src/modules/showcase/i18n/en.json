@@ -2759,40 +2759,6 @@
         "The current item has aria-current=\"page\"."
       ]
     },
-    "featured-icon": {
-      "summary": "WDS featured icon: an icon inside a colored container, circle or rounded square.",
-      "figma": {
-        "styles": {
-          "note": "Light styles tint the background; dark inverts the icon."
-        },
-        "shape": {
-          "note": "Square uses the featured-icon radius."
-        }
-      },
-      "examples": {
-        "styles": {
-          "title": "Styles"
-        }
-      },
-      "props": {
-        "icon": "The icon.",
-        "appearance": "Figma style.",
-        "shape": "Container shape.",
-        "testId": "Mapped to data-testid."
-      },
-      "tokens": {
-        "--wds-primary-100": "Primary light background.",
-        "--wds-primary-500": "Primary dark background / icon.",
-        "--wds-neutral-200": "Gray background.",
-        "--wds-sz-featured-icon-container-size": "Container size."
-      },
-      "behavior": [
-        "Used in Dialog and Empty State headers."
-      ],
-      "accessibility": [
-        "Decorative; the surrounding text carries the meaning."
-      ]
-    },
     "activity-feed": {
       "summary": "WDS activity feed: a list of entries with an avatar (online dot), name and time, description, a dashed connector, a status dot, an action and content per type (text, file, labels, chat).",
       "figma": {

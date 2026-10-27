@@ -22,7 +22,6 @@ export { default as BarLineChart } from './charts/BarLineChart';
 export { default as Legend } from './charts/Legend';
 export { default as PieChart } from './charts/PieChart';
 export { default as RadarChart } from './charts/RadarChart';
-export { default as FeaturedIcon } from './FeaturedIcon';
 export { default as NavItem } from './NavItem';
 export { default as ScrollBar } from './ScrollBar';
 export { default as SectionHeader } from './SectionHeader';

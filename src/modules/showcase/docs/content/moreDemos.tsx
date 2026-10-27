@@ -9,7 +9,6 @@ import {
   Button,
   CompactSelect,
   DropdownMenu,
-  FeaturedIcon,
   Legend,
   NavItem,
   OtpInput,
@@ -23,7 +22,7 @@ import {
   useToast,
 } from '../../../../shared/components/ui';
 import type { ShowToastParams } from '../../../../shared/components/ui';
-import { Database, Settings, InfoCircle, Pen, TrashBinTrash, Download } from '../../../../shared/components/icons';
+import { Database, Settings, Pen, TrashBinTrash, Download } from '../../../../shared/components/icons';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type P<T extends JSXElementConstructor<any>> = Partial<ComponentProps<T>>;
@@ -128,10 +127,6 @@ export function NavItemDemo(props: P<typeof NavItem>) {
       <NavItem label="Dashboard" icon={<Database />} badge={3} {...props} />
     </div>
   );
-}
-
-export function FeaturedIconDemo(props: P<typeof FeaturedIcon>) {
-  return <FeaturedIcon icon={<InfoCircle />} {...props} />;
 }
 
 export function ActivityFeedDemo({ type = 'default', ...props }: P<typeof ActivityFeed> & { type?: 'default' | 'text' | 'file' | 'labels' | 'chat' }) {

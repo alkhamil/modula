@@ -67,7 +67,7 @@ dibuat), tetapi **belum** satu per satu dengan `tokens.json` dan tabel Propertie
 
 ### Feedback
 - Dialog (`dialog`), Drawer (`drawer`), Tooltip (`tooltip`), Popover (`popover`)
-- Toast (`toast`), Progress (`progress`), FeaturedIcon (`featured-icon`)
+- Toast (`toast`), Progress (`progress`)
 
 ### Data
 - Table (`table`), TableToolbar (`table-toolbar`), Pagination (`pagination`)
