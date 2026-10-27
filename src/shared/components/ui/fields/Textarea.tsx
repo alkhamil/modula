@@ -9,8 +9,10 @@ interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>
   error?: string;
   /** Teks pendukung di bawah field (digantikan `error`). */
   hint?: ReactNode;
-  /** Tinggi mengikuti isi (Figma "Dynamic?"); tanpa handle resize. */
-  autoGrow?: boolean;
+  /** Figma "Dynamic?": aktifkan handle resize vertikal (default: tinggi tetap 128px). */
+  dynamic?: boolean;
+  /** Figma "Show Scroll Bar": tampilkan scrollbar saat isi melebihi tinggi (default disembunyikan). */
+  showScrollBar?: boolean;
   sanitize?: (value: string) => string;
   /** Hanya dokumentasi: paksa state (`selected`, `typing`, `focused`). */
   'data-wds-state'?: string;
@@ -27,7 +29,8 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       size = 'md',
       error,
       hint,
-      autoGrow = false,
+      dynamic = false,
+      showScrollBar = false,
       className = '',
       disabled,
       readOnly,
@@ -74,7 +77,8 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         className={['wds-field', className].filter(Boolean).join(' ')}
         data-kind="textarea"
         data-state={state}
-        data-autogrow={autoGrow ? 'true' : undefined}
+        data-dynamic={dynamic ? 'true' : undefined}
+        data-scrollbar={showScrollBar ? 'true' : undefined}
         data-wds-size={size}
         data-wds-state={forcedState}
       >

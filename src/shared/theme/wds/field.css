@@ -154,12 +154,26 @@
 
   .wds-field[data-kind='textarea'] .wds-field__input {
     min-height: 100%;
+    resize: none;
+    /* Figma "Show Scroll Bar" = false: isi tetap bisa di-scroll, scrollbar disembunyikan. */
+    scrollbar-width: none;
+  }
+
+  .wds-field[data-kind='textarea'] .wds-field__input::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Figma "Dynamic?" = true: handle resize vertikal. */
+  .wds-field[data-kind='textarea'][data-dynamic='true'] .wds-field__input {
     resize: vertical;
   }
 
-  .wds-field[data-kind='textarea'][data-autogrow='true'] .wds-field__input {
-    resize: none;
-    field-sizing: content;
+  .wds-field[data-kind='textarea'][data-scrollbar='true'] .wds-field__input {
+    scrollbar-width: thin;
+  }
+
+  .wds-field[data-kind='textarea'][data-scrollbar='true'] .wds-field__input::-webkit-scrollbar {
+    display: initial;
   }
 
   .wds-field__hint {

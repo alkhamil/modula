@@ -841,7 +841,7 @@
           "note": "Derived from interaction and props: focus (selected / typing), value (filled), disabled, readOnly, error."
         },
         "size": {
-          "note": "Height from padding + line height (44px at md); text 12/14/14/16/16."
+          "note": "Text and padding from the Size tokens; the box is 128px tall (min)."
         },
         "focus": {
           "values": "1px stroke outside, 2px gap",
@@ -849,11 +849,11 @@
         },
         "dynamic": {
           "values": "boolean",
-          "note": "autoGrow: height follows the content and the resize handle is removed."
+          "note": "Enables the vertical resize handle (default: fixed 128px height)."
         },
         "scrollbar": {
           "values": "boolean",
-          "note": "The native scrollbar is used."
+          "note": "Shows the scrollbar when the content overflows (default: hidden, still scrollable)."
         },
         "counter": {
           "values": "text",
@@ -867,9 +867,9 @@
         "validation": {
           "title": "Hint and error"
         },
-        "autogrow": {
-          "title": "Auto grow",
-          "description": "Height follows the content (Figma “Dynamic?”)."
+        "dynamic": {
+          "title": "Dynamic and scroll bar",
+          "description": "Resize handle (Figma “Dynamic?”) and visible scrollbar (Figma “Show Scroll Bar”)."
         }
       },
       "matrices": {
@@ -885,9 +885,10 @@
         "sanitize": "Cleans the value on every change.",
         "disabled": "Disabled / read-only states.",
         "maxLength": "Limit; also shows the n/max counter in the hint row.",
-        "autoGrow": "Height follows the content (Figma “Dynamic?”); no resize handle.",
         "rows": "Initial row count (minimum height is 128px).",
-        "rest": "name, maxLength, aria-*, etc. are passed to the <textarea>."
+        "rest": "name, maxLength, aria-*, etc. are passed to the <textarea>.",
+        "dynamic": "Figma “Dynamic?”: vertical resize handle.",
+        "showScrollBar": "Figma “Show Scroll Bar”: shows the scrollbar."
       },
       "tokens": {
         "--wds-bg-surface": "Field background.",

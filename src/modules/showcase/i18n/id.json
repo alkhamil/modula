@@ -841,7 +841,7 @@
           "note": "Diturunkan dari interaksi dan props: fokus (selected / typing), nilai (filled), disabled, readOnly, error."
         },
         "size": {
-          "note": "Tinggi dari padding + line height (44px pada md); teks 12/14/14/16/16."
+          "note": "Teks dan padding dari token Size; tinggi kotak 128px (minimum)."
         },
         "focus": {
           "values": "stroke 1px di luar, jarak 2px",
@@ -849,11 +849,11 @@
         },
         "dynamic": {
           "values": "boolean",
-          "note": "autoGrow: tinggi mengikuti isi dan handle resize dihapus."
+          "note": "Mengaktifkan handle resize vertikal (default: tinggi tetap 128px)."
         },
         "scrollbar": {
           "values": "boolean",
-          "note": "Memakai scrollbar bawaan browser."
+          "note": "Menampilkan scrollbar saat isi melebihi tinggi (default: tersembunyi, tetap bisa di-scroll)."
         },
         "counter": {
           "values": "teks",
@@ -867,9 +867,9 @@
         "validation": {
           "title": "Hint dan error"
         },
-        "autogrow": {
-          "title": "Tinggi otomatis",
-          "description": "Tinggi mengikuti isi (Figma “Dynamic?”)."
+        "dynamic": {
+          "title": "Dynamic dan scroll bar",
+          "description": "Handle resize (Figma “Dynamic?”) dan scrollbar terlihat (Figma “Show Scroll Bar”)."
         }
       },
       "matrices": {
@@ -885,9 +885,10 @@
         "sanitize": "Membersihkan nilai di setiap perubahan.",
         "disabled": "State disabled / read-only.",
         "maxLength": "Batas; juga menampilkan penghitung n/max di baris hint.",
-        "autoGrow": "Tinggi mengikuti isi (Figma “Dynamic?”); tanpa handle resize.",
         "rows": "Jumlah baris awal (tinggi minimum 128px).",
-        "rest": "name, maxLength, aria-*, dst. diteruskan ke <textarea>."
+        "rest": "name, maxLength, aria-*, dst. diteruskan ke <textarea>.",
+        "dynamic": "Figma “Dynamic?”: handle resize vertikal.",
+        "showScrollBar": "Figma “Show Scroll Bar”: menampilkan scrollbar."
       },
       "tokens": {
         "--wds-bg-surface": "Latar field.",
