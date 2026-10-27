@@ -1,5 +1,5 @@
 import { type ChangeEvent, type InputHTMLAttributes, type ReactNode, forwardRef, useState } from 'react';
-import { CloseCircle, DangerCircle, Eye, EyeClosed, QuestionCircle } from '../../icons';
+import { AltArrowDown, CloseCircle, DangerCircle, Eye, EyeClosed, QuestionCircle } from '../../icons';
 import { stripNonAscii } from '../../../utils';
 import Tooltip from '../Tooltip';
 import { fieldSlot, fieldState, type FieldSize } from './fieldState';
@@ -51,7 +51,7 @@ function formatCurrency(value: string): string {
 
 /**
  * Input Field WDS. `prepend`/`append` = ikon/konten leading/trailing di dalam field;
- * `prependGroup`/`appendGroup` = Type "Leading/Trailing dropdown" (segmen berlatar).
+ * `prependGroup`/`appendGroup` = Type "Leading/Trailing dropdown" (segmen berlatar + chevron).
  * Warna dan state (default, selected, typing, filled, disabled, error, read-only) dari token.
  */
 const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
@@ -138,7 +138,12 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
         data-wds-state={forcedState}
       >
         <div className="wds-field__box">
-          {prependGroup && <div className="wds-field__dd wds-field__dd--lead">{prependGroup}</div>}
+          {prependGroup && (
+            <div className="wds-field__dd wds-field__dd--lead">
+              {prependGroup}
+              <AltArrowDown aria-hidden="true" />
+            </div>
+          )}
           <div className="wds-field__content">
             {prepend && <span className={`wds-field__icon ${addonClassName}`}>{prepend}</span>}
             <input
@@ -201,7 +206,12 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
               </Tooltip>
             )}
           </div>
-          {appendGroup && <div className="wds-field__dd wds-field__dd--trail">{appendGroup}</div>}
+          {appendGroup && (
+            <div className="wds-field__dd wds-field__dd--trail">
+              {appendGroup}
+              <AltArrowDown aria-hidden="true" />
+            </div>
+          )}
         </div>
         {slot && (
           <p

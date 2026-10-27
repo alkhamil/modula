@@ -60,10 +60,10 @@
     outline: 0;
     background: transparent;
     color: var(--f-fg);
-    font-family: var(--wds-sz-text-body-font-family);
-    font-weight: var(--wds-font-weight-regular);
-    font-size: var(--wds-sz-text-body-font-size);
-    line-height: var(--wds-sz-text-body-line-height);
+    font-family: var(--wds-sz-text-label-font-family);
+    font-weight: var(--wds-sz-text-label-font-weight);
+    font-size: var(--wds-sz-text-label-font-size);
+    line-height: var(--wds-sz-text-label-line-height);
   }
 
   .wds-field__input::placeholder {
@@ -118,14 +118,17 @@
     gap: var(--wds-sz-input-field-leading-dropdown-gap);
     background-color: var(--f-dd-bg);
     color: var(--f-dd-fg);
-    font-family: var(--wds-sz-text-body-font-family);
-    font-weight: var(--wds-font-weight-regular);
-    font-size: var(--wds-sz-text-body-font-size);
-    line-height: var(--wds-sz-text-body-line-height);
+    font-family: var(--wds-sz-text-cta-font-family);
+    font-weight: var(--wds-sz-text-cta-font-weight);
+    font-size: var(--wds-sz-text-cta-font-size);
+    line-height: var(--wds-sz-text-cta-line-height);
     white-space: nowrap;
   }
 
   .wds-field__dd svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
     color: var(--f-dd-icon);
   }
 

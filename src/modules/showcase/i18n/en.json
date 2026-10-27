@@ -762,7 +762,7 @@
         "appearance": "Figma Input styles: box (default) or underline.",
         "help": "Help icon at the end of the field; the content shows as a tooltip.",
         "prepend": "Leading / trailing icon or content inside the field.",
-        "group": "Type “Leading / Trailing dropdown”: a tinted segment (e.g. country code, unit).",
+        "group": "Type “Leading / Trailing dropdown”: a tinted segment with a chevron (e.g. country code, unit); medium text.",
         "clearable": "Shows a clear button while there is text.",
         "currency": "Formats digits as currency (id-ID); onChange receives the raw digits.",
         "invalid": "Error state without a message.",

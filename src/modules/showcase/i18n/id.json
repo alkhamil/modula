@@ -762,7 +762,7 @@
         "appearance": "Figma Input styles: box (default) atau underline.",
         "help": "Ikon bantuan di ujung field; isinya tampil sebagai tooltip.",
         "prepend": "Ikon atau konten leading / trailing di dalam field.",
-        "group": "Type “Leading / Trailing dropdown”: segmen berlatar (mis. kode negara, satuan).",
+        "group": "Type “Leading / Trailing dropdown”: segmen berlatar dengan chevron (mis. kode negara, satuan); teks medium.",
         "clearable": "Menampilkan tombol hapus selama ada teks.",
         "currency": "Memformat angka sebagai mata uang (id-ID); onChange menerima angka mentahnya.",
         "invalid": "State error tanpa pesan.",
