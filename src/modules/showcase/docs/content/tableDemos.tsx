@@ -1,5 +1,5 @@
 import { useState, type ComponentProps } from 'react';
-import { Badge, Pagination, Table, TableToolbar, UserCell } from '../../../../shared/components/ui';
+import { Badge, Pagination, Table, TableToolbar } from '../../../../shared/components/ui';
 import { Download, TrashBinTrash } from '../../../../shared/components/icons';
 
 /** Demo Pagination: state halaman dikelola di sini; jumlah halaman tetap. */
@@ -51,7 +51,12 @@ export function TableDemo(
         {...rest}
         isRowHighlighted={highlightFirst ? (row) => row.id === 1 : undefined}
         columns={[
-          { key: 'name', header: 'Name', sortable: true, render: (row) => <UserCell name={row.name} supporting={row.email} /> },
+          { key: 'name', header: 'Name', sortable: true, render: (row) => (
+            <span className="flex flex-col">
+              <span className="font-medium text-foreground">{row.name}</span>
+              <span className="text-xs text-muted-foreground">{row.email}</span>
+            </span>
+          ) },
           { key: 'status', header: 'Status', render: (row) => <Badge variant={row.status === 'active' ? 'success' : 'neutral'}>{row.status}</Badge> },
           { key: 'role', header: 'Role' },
           {

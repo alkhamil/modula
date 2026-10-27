@@ -2623,43 +2623,6 @@
         "Uses role=\"menu\" and \"menuitem\"."
       ]
     },
-    "list-item": {
-      "summary": "WDS list item: a row with leading element, title, supporting text and trailing accessory; default, pressed, selected and disabled.",
-      "figma": {
-        "states": {
-          "note": "Pressed shows while the item is held down."
-        },
-        "slots": {
-          "note": "Icons, avatars, badges or buttons."
-        }
-      },
-      "examples": {
-        "states": {
-          "title": "States"
-        }
-      },
-      "props": {
-        "size": "Size from the Size tokens.",
-        "title": "Main and supporting text.",
-        "leading": "Elements before and after the text.",
-        "selected": "State flags.",
-        "onClick": "Makes the row a button.",
-        "testId": "Mapped to data-testid."
-      },
-      "tokens": {
-        "--wds-bg-brand-subtle": "Selected row.",
-        "--wds-bg-pressed": "Pressed row.",
-        "--wds-text-primary": "Title.",
-        "--wds-text-secondary": "Supporting text.",
-        "--wds-sz-list-item-radius": "Corner radius."
-      },
-      "behavior": [
-        "Without onClick the row is a plain div."
-      ],
-      "accessibility": [
-        "Interactive rows expose aria-pressed for selection."
-      ]
-    },
     "popover": {
       "summary": "WDS popover: a floating panel with title, text, custom content and actions, opened by clicking its trigger.",
       "figma": {
@@ -2827,122 +2790,6 @@
         "Decorative; the surrounding text carries the meaning."
       ]
     },
-    "icon-wrapper": {
-      "summary": "WDS icon wrapper: gives any icon a fixed size and the primary icon color.",
-      "figma": {
-        "color": {
-          "note": "Single style: primary icon color."
-        }
-      },
-      "examples": {},
-      "props": {
-        "children": "The icon.",
-        "size": "Side length in px.",
-        "testId": "Mapped to data-testid."
-      },
-      "tokens": {
-        "--wds-icons-primary": "Icon color."
-      },
-      "behavior": [
-        "The icon fills the wrapper."
-      ],
-      "accessibility": [
-        "Decorative by default; label the control around it."
-      ]
-    },
-    "image": {
-      "summary": "WDS image / placeholder: a flat gray block with nine preset aspect ratios that shows the image once there is a source. Default or rounded corners.",
-      "figma": {
-        "styles": {
-          "note": "Rounded uses radius 16."
-        },
-        "ratio": {
-          "note": "Nine presets: 1:1, 16:9, 4:3, 3:2, 2:1, 5:2, 3:4, 2:3, 1:2."
-        }
-      },
-      "examples": {
-        "styles": {
-          "title": "Styles"
-        }
-      },
-      "props": {
-        "ratio": "Aspect ratio (Figma Ratio); ignored when height is set.",
-        "src": "Image URL and alt text.",
-        "appearance": "Figma Image style.",
-        "size": "Frame size.",
-        "testId": "Mapped to data-testid."
-      },
-      "tokens": {
-        "--wds-bg-subtle-3": "Placeholder background.",
-        "--wds-icons-tertiary": "Placeholder icon.",
-        "--wds-radius-16": "Rounded radius."
-      },
-      "behavior": [
-        "Images are cropped to fill the frame."
-      ],
-      "accessibility": [
-        "Provide alt text for meaningful images."
-      ]
-    },
-    "image-carousel": {
-      "summary": "WDS image carousel: slides with previous / next buttons and dot indicators where the active dot stretches.",
-      "figma": {
-        "config": {
-          "note": "The active dot follows the slide index."
-        },
-        "controls": {
-          "note": "Current dot uses the brand color; others the disabled color."
-        }
-      },
-      "examples": {},
-      "props": {
-        "slides": "Slide content.",
-        "defaultIndex": "Initial slide.",
-        "showArrows": "Previous / next buttons (Figma shows only the dots).",
-        "testId": "Mapped to data-testid."
-      },
-      "tokens": {
-        "--wds-bg-brand": "Current dot.",
-        "--wds-bg-disabled": "Inactive dots.",
-        "--wds-sz-carousel-dot-size": "Dot size.",
-        "--wds-sz-carousel-dot-width-current": "Active dot width.",
-        "--wds-sz-carousel-dot-gap": "Gap between dots."
-      },
-      "behavior": [
-        "Navigation wraps around at both ends."
-      ],
-      "accessibility": [
-        "Dots are tabs; arrows have accessible names."
-      ]
-    },
-    "scroll-area": {
-      "summary": "WDS scroll area: a scrollable container with a thin custom scrollbar in default, grey-track or outline style.",
-      "figma": {
-        "styles": {
-          "note": "Grey fills the track; outline adds a track border."
-        }
-      },
-      "examples": {},
-      "props": {
-        "size": "Size from the Size tokens.",
-        "children": "Scrollable content.",
-        "appearance": "Figma Scrollbar style.",
-        "maxHeight": "Height at which scrolling starts.",
-        "testId": "Mapped to data-testid."
-      },
-      "tokens": {
-        "--wds-stroke-default": "Thumb and outline.",
-        "--wds-bg-subtle-2": "Grey track.",
-        "--wds-sz-scrollbar-size": "Scrollbar thickness.",
-        "--wds-sz-scrollbar-thumb-length": "Minimum thumb length."
-      },
-      "behavior": [
-        "Uses the native scrollbar styled with CSS; Firefox gets a thin variant."
-      ],
-      "accessibility": [
-        "The area is focusable so keyboard users can scroll it."
-      ]
-    },
     "activity-feed": {
       "summary": "WDS activity feed: a list of entries with an avatar (online dot), name and time, description, a dashed connector, a status dot, an action and content per type (text, file, labels, chat).",
       "figma": {
@@ -2986,72 +2833,6 @@
       ],
       "accessibility": [
         "Rendered as an ordered list; the action button has an accessible name."
-      ]
-    },
-    "chat-message": {
-      "summary": "WDS chat message bubble: received (with avatar and name) or sent (brand-filled with a read receipt).",
-      "figma": {
-        "types": {
-          "note": "Received is subtle with a sharp top-left corner; sent is brand-filled with a sharp top-right."
-        },
-        "meta": {
-          "note": "Receipt only on sent; name only on received."
-        }
-      },
-      "examples": {
-        "types": {
-          "title": "Types"
-        }
-      },
-      "props": {
-        "size": "Size from the Size tokens.",
-        "message": "Bubble text and timestamp.",
-        "type": "Figma Chat message type.",
-        "name": "Sender name and avatar (received).",
-        "receipt": "Read receipt on sent messages.",
-        "testId": "Mapped to data-testid."
-      },
-      "tokens": {
-        "--wds-bg-subtle": "Received bubble.",
-        "--wds-bg-brand": "Sent bubble.",
-        "--wds-text-on-brand": "Sent text.",
-        "--wds-text-tertiary": "Name and meta.",
-        "--wds-sz-chat-message-bubble-max-width": "Max bubble width."
-      },
-      "behavior": [
-        "Bubble width is capped at 260px."
-      ],
-      "accessibility": [
-        "Pair messages with visible timestamps."
-      ]
-    },
-    "chat-input": {
-      "summary": "WDS chat input: a pill message field with an attach button and a send button that enables once there is text.",
-      "figma": {
-        "styles": {
-          "note": "Surface bar with a subtle top border and a subtle field."
-        }
-      },
-      "examples": {},
-      "props": {
-        "size": "Size from the Size tokens.",
-        "value": "Controlled text and change handler.",
-        "onSend": "Called on submit with non-empty text.",
-        "placeholder": "Placeholder text and disabled state.",
-        "testId": "Mapped to data-testid."
-      },
-      "tokens": {
-        "--wds-bg-surface": "Bar background.",
-        "--wds-bg-subtle": "Field background.",
-        "--wds-stroke-subtle": "Top border.",
-        "--wds-icons-brand": "Send button.",
-        "--wds-sz-chat-input-gap": "Gap between parts."
-      },
-      "behavior": [
-        "Enter submits the form; empty text cannot be sent."
-      ],
-      "accessibility": [
-        "Attach and send buttons have accessible names."
       ]
     },
     "bar-line-chart": {
@@ -3232,46 +3013,6 @@
         "Built on react-datepicker, which supports keyboard navigation."
       ]
     },
-    "menu-item": {
-      "summary": "WDS menu item: a selectable row with leading and trailing slots and optional supporting text. The same item is used inside DropdownMenu and Select.",
-      "figma": {
-        "states": {
-          "note": "Pressed shows while the item is held down."
-        },
-        "slots": {
-          "note": "Icon, avatar, checkbox or radio before; badge, chevron or toggle after."
-        },
-        "size": {
-          "note": "Padding and text follow the Size tokens."
-        }
-      },
-      "examples": {
-        "states": {
-          "title": "States"
-        }
-      },
-      "props": {
-        "label": "Main and supporting text.",
-        "slots": "Elements before and after the text.",
-        "size": "Size from the Size tokens.",
-        "state": "State flags.",
-        "onClick": "Called on click.",
-        "testId": "Mapped to data-testid."
-      },
-      "tokens": {
-        "--wds-bg-brand-subtle": "Selected row.",
-        "--wds-bg-pressed": "Pressed row.",
-        "--wds-text-primary": "Label.",
-        "--wds-text-danger": "Destructive.",
-        "--wds-icons-primary": "Icons."
-      },
-      "behavior": [
-        "Inside DropdownMenu the item closes the menu after its handler runs."
-      ],
-      "accessibility": [
-        "Use role=\"menuitem\" when placed inside a menu container."
-      ]
-    },
     "scroll-bar": {
       "summary": "WDS scroll bar: a position indicator with arrow buttons at both ends and a draggable thumb, vertical or horizontal.",
       "figma": {
@@ -3302,73 +3043,10 @@
         "--wds-sz-scrollbar-thumb-size": "Thumb inset."
       },
       "behavior": [
-        "Click or drag the track to move; arrows and arrow keys move by the step prop.",
-        "ScrollArea styles the native scrollbar of a container; ScrollBar is the standalone indicator."
+        "Click or drag the track to move; arrows and arrow keys move by the step prop."
       ],
       "accessibility": [
         "role=\"scrollbar\" with aria-valuenow; focusable with arrow, Home and End keys."
-      ]
-    },
-    "file-upload-card": {
-      "summary": "WDS file upload card: a file row with progress, status text, retry and delete. FileUpload uses it for the chosen files.",
-      "figma": {
-        "states": {
-          "note": "Error uses the danger fill and shows a retry button."
-        },
-        "type": {
-          "note": "Bar sits under the text; fill tints the card background."
-        }
-      },
-      "examples": {
-        "states": {
-          "title": "States"
-        }
-      },
-      "props": {
-        "name": "File name and formatted size.",
-        "status": "Figma card state.",
-        "progress": "Upload progress and its style.",
-        "actions": "Retry (error only), delete and extra actions.",
-        "testId": "Mapped to data-testid."
-      },
-      "tokens": {
-        "--wds-bg-surface": "Card background.",
-        "--wds-bg-danger-subtle": "Error background.",
-        "--wds-stroke-danger": "Error border.",
-        "--wds-bg-disabled": "Disabled background.",
-        "--wds-icons-danger": "Delete icon."
-      },
-      "behavior": [
-        "Progress is data-driven; the component does not upload by itself."
-      ],
-      "accessibility": [
-        "The progress bar uses role=\"progressbar\"; buttons have accessible names."
-      ]
-    },
-    "user-cell": {
-      "summary": "WDS user cell: an avatar with name and supporting text, used in table cells and lists.",
-      "figma": {
-        "cell": {
-          "note": "Matches the user cell in the Figma Table."
-        }
-      },
-      "examples": {},
-      "props": {
-        "name": "Name and supporting text (e.g. email).",
-        "src": "Photo and online dot.",
-        "size": "Avatar size.",
-        "testId": "Mapped to data-testid."
-      },
-      "tokens": {
-        "--wds-text-primary": "Name.",
-        "--wds-text-secondary": "Supporting text.",
-        "--wds-bg-brand-subtle": "Avatar background."
-      },
-      "behavior": [
-        "Long names truncate with an ellipsis."
-      ],
-      "accessibility": [
-        "The avatar is decorative; the name carries the meaning."
       ]
     }
   }

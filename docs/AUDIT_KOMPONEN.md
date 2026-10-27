@@ -60,25 +60,24 @@ dibuat), tetapi **belum** satu per satu dengan `tokens.json` dan tabel Propertie
 - Checkbox (`checkbox`), RadioButton (`radio`), Toggle (`toggle`)
 - InputField (`input-field`), Textarea (`textarea`), Select (`select`)
 - DatePicker (`date-picker`) — memakai panel Calendar yang sudah diubah; perlu dicek ulang
-- FileUpload (`file-upload`), FileUploadCard (`file-upload-card`)
+- FileUpload (`file-upload`)
 - SearchBar (`search-bar`), SegmentedControl (`segmented-control`), Slider (`slider`), Rating (`rating`)
 - OtpInput (`otp-input`), PinInput (`pin-input`), QuantitySelector (`quantity-selector`)
-- CompactSelect (`compact-select`), ChatInput (`chat-input`)
+- CompactSelect (`compact-select`)
 
 ### Feedback
 - Dialog (`dialog`), Drawer (`drawer`), Tooltip (`tooltip`), Popover (`popover`)
 - Toast (`toast`), Progress (`progress`), FeaturedIcon (`featured-icon`)
 
 ### Data
-- Table (`table`), TableToolbar (`table-toolbar`), Pagination (`pagination`), UserCell (`user-cell`)
-- Card (`card`), EmptyState (`empty-state`), ListItem (`list-item`), MenuItem (`menu-item`)
-- DropdownMenu (`dropdown-menu`), ImagePlaceholder (`image`), ImageCarousel (`image-carousel`)
-- ChatMessage (`chat-message`)
+- Table (`table`), TableToolbar (`table-toolbar`), Pagination (`pagination`)
+- Card (`card`), EmptyState (`empty-state`)
+- DropdownMenu (`dropdown-menu`)
 
 ### Layout
 - PageHeader (`page-header`), Profile (`profile`), SideNavbar (`side-navbar`)
-- Divider (`divider`), SectionHeader (`section-header`), IconWrapper (`icon-wrapper`)
-- ScrollBar (`scroll-bar`), ScrollArea (`scroll-area`)
+- Divider (`divider`), SectionHeader (`section-header`)
+- ScrollBar (`scroll-bar`)
 
 ### Navigation
 - Link (`link`), NavItem (`nav-item`), Stepper (`stepper`), Tabs (`tabs`)
@@ -90,7 +89,6 @@ dibuat), tetapi **belum** satu per satu dengan `tokens.json` dan tabel Propertie
 ## Celah yang sudah diketahui (di luar daftar di atas)
 
 - Alert: tipe di Figma pilihan tunggal (action atau close), kita mengizinkan keduanya.
-- ScrollArea memakai scrollbar bawaan browser; ScrollBar berdiri sendiri.
 - Chart masih disederhanakan dibanding Figma.
 - Dialog: footer tanpa pemisah (keputusan desain); Pagination dan Drawer baru dibandingkan sebagian.
 - Token `accordion.container-gap` belum dipakai.

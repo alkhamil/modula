@@ -4,18 +4,10 @@ import {
   ActivityGaugeDemo,
   BarLineChartDemo,
   CalendarDemo,
-  ChatInputDemo,
-  ChatMessageDemo,
   CompactSelectDemo,
   DropdownMenuDemo,
   FeaturedIconDemo,
-  FileUploadCardDemo,
-  IconWrapperDemo,
-  ImageCarouselDemo,
-  ImagePlaceholderDemo,
   LegendDemo,
-  ListItemDemo,
-  MenuItemDemo,
   NavItemDemo,
   OtpInputDemo,
   PieChartDemo,
@@ -23,11 +15,9 @@ import {
   PopoverDemo,
   QuantitySelectorDemo,
   RadarChartDemo,
-  ScrollAreaDemo,
   ScrollBarDemo,
   SectionHeaderDemo,
   ToastDemo,
-  UserCellDemo,
 } from './moreDemos';
 
 export const otpInputDoc: ComponentDoc = {
@@ -165,33 +155,6 @@ export const dropdownMenuDoc: ComponentDoc = {
   tokens: ["--wds-bg-elevated", "--wds-stroke-subtle", "--wds-bg-brand-subtle", "--wds-text-danger", "--wds-sz-dropdown-padding-top"].map((name) => ({ name })),
 };
 
-export const listItemDoc: ComponentDoc = {
-  slug: "list-item",
-  name: "ListItem",
-  category: "data",
-  importStatement: "import { ListItem } from 'shared/components/ui';",
-  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-11362",
-  component: ListItemDemo,
-  codeName: "ListItem",
-  codeExtra: ["onClick={handleClick}"],
-  baseProps: {},
-  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'title', kind: 'text' }, { prop: 'description', kind: 'text' }, { prop: 'selected', kind: 'boolean' }, { prop: 'disabled', kind: 'boolean' }],
-  figmaMapping: [
-    { id: "states", figma: "List item states", values: "default, pressed, selected, disabled", prop: "selected · disabled" },
-    { id: "slots", figma: "Leading · trailing", values: "nodes", prop: "leading · trailing" },
-  ],
-  examples: [{ id: 'states', variants: [{ label: 'default', props: {} }, { label: 'selected', props: { selected: true } }, { label: 'disabled', props: { disabled: true } }] }],
-  props: [
-    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
-    { id: "title", name: "title · description", type: "ReactNode" },
-    { id: "leading", name: "leading · trailing", type: "ReactNode" },
-    { id: "selected", name: "selected · disabled", type: "boolean", default: "false" },
-    { id: "onClick", name: "onClick", type: "() => void" },
-    { id: 'testId', name: 'testId', type: 'string' },
-  ],
-  tokens: ["--wds-bg-brand-subtle", "--wds-bg-pressed", "--wds-text-primary", "--wds-text-secondary", "--wds-sz-list-item-radius"].map((name) => ({ name })),
-};
-
 export const popoverDoc: ComponentDoc = {
   slug: "popover",
   name: "Popover",
@@ -327,102 +290,6 @@ export const featuredIconDoc: ComponentDoc = {
   tokens: ["--wds-primary-100", "--wds-primary-500", "--wds-neutral-200", "--wds-sz-featured-icon-container-size"].map((name) => ({ name })),
 };
 
-export const iconWrapperDoc: ComponentDoc = {
-  slug: "icon-wrapper",
-  name: "IconWrapper",
-  category: "layout",
-  importStatement: "import { IconWrapper } from 'shared/components/ui';",
-  component: IconWrapperDemo,
-  codeName: "IconWrapper",
-  codeExtra: ["children={<Settings />}"],
-  baseProps: { size: 20 },
-  controls: [{ prop: 'size', kind: 'text' }],
-  figmaMapping: [
-    { id: "color", figma: "Icon wrapper styles", values: "icons.primary", prop: "— (CSS)" },
-  ],
-  examples: [],
-  props: [
-    { id: "children", name: "children", type: "ReactNode" },
-    { id: "size", name: "size", type: "number", default: "20" },
-    { id: 'testId', name: 'testId', type: 'string' },
-  ],
-  tokens: ["--wds-icons-primary"].map((name) => ({ name })),
-};
-
-export const imageDoc: ComponentDoc = {
-  slug: "image",
-  name: "ImagePlaceholder",
-  category: "data",
-  importStatement: "import { ImagePlaceholder } from 'shared/components/ui';",
-  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-10823",
-  component: ImagePlaceholderDemo,
-  codeName: "ImagePlaceholder",
-  baseProps: { appearance: 'default' },
-  controls: [{ prop: 'ratio', kind: 'select', options: ['1:1', '16:9', '4:3', '3:2', '2:1', '5:2', '3:4', '2:3', '1:2'] }, { prop: 'appearance', kind: 'select', options: ['default', 'rounded'] }],
-  figmaMapping: [
-    { id: "styles", figma: "Image styles (mode)", values: "default, rounded", prop: "appearance" },
-    { id: "ratio", figma: "Ratio", values: "1:1 … 1:2", prop: "ratio" },
-  ],
-  examples: [{ id: 'styles', variants: [{ label: 'default', props: { appearance: 'default' } }, { label: 'rounded', props: { appearance: 'rounded' } }] }],
-  props: [
-    { id: "ratio", name: "ratio", type: "'1:1' | '16:9' | '4:3' | '3:2' | '2:1' | '5:2' | '3:4' | '2:3' | '1:2'", default: "'1:1'" },
-    { id: "src", name: "src · alt", type: "string" },
-    { id: "appearance", name: "appearance", type: "'default' | 'rounded'", default: "'default'" },
-    { id: "size", name: "width · height", type: "number | string", default: "'100%' · 160" },
-    { id: 'testId', name: 'testId', type: 'string' },
-  ],
-  tokens: ["--wds-bg-subtle-3", "--wds-icons-tertiary", "--wds-radius-16"].map((name) => ({ name })),
-};
-
-export const imageCarouselDoc: ComponentDoc = {
-  slug: "image-carousel",
-  name: "ImageCarousel",
-  category: "data",
-  importStatement: "import { ImageCarousel } from 'shared/components/ui';",
-  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-10656",
-  component: ImageCarouselDemo,
-  codeName: "ImageCarousel",
-  codeExtra: ["slides={slides}"],
-  baseProps: { showArrows: false },
-  controls: [{ prop: 'showArrows', kind: 'boolean' }],
-  figmaMapping: [
-    { id: "config", figma: "Carousel config", values: "1st–5th active", prop: "defaultIndex" },
-    { id: "controls", figma: "Carousel controls styles", values: "default", prop: "— (CSS)" },
-  ],
-  examples: [],
-  props: [
-    { id: "slides", name: "slides", type: "ReactNode[]" },
-    { id: "defaultIndex", name: "defaultIndex", type: "number", default: "0" },
-    { id: "showArrows", name: "showArrows", type: "boolean", default: "false" },
-    { id: 'testId', name: 'testId', type: 'string' },
-  ],
-  tokens: ["--wds-bg-brand", "--wds-bg-disabled", "--wds-sz-carousel-dot-size", "--wds-sz-carousel-dot-width-current", "--wds-sz-carousel-dot-gap"].map((name) => ({ name })),
-};
-
-export const scrollAreaDoc: ComponentDoc = {
-  slug: "scroll-area",
-  name: "ScrollArea",
-  category: "layout",
-  importStatement: "import { ScrollArea } from 'shared/components/ui';",
-  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9930-12811",
-  component: ScrollAreaDemo,
-  codeName: "ScrollArea",
-  baseProps: { appearance: 'default' },
-  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'appearance', kind: 'select', options: ['default', 'grey', 'outline'] }],
-  figmaMapping: [
-    { id: "styles", figma: "Scrollbar styles (mode)", values: "default, grey background, outline", prop: "appearance" },
-  ],
-  examples: [],
-  props: [
-    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
-    { id: "children", name: "children", type: "ReactNode" },
-    { id: "appearance", name: "appearance", type: "'default' | 'grey' | 'outline'", default: "'default'" },
-    { id: "maxHeight", name: "maxHeight", type: "number | string", default: "200" },
-    { id: 'testId', name: 'testId', type: 'string' },
-  ],
-  tokens: ["--wds-stroke-default", "--wds-bg-subtle-2", "--wds-sz-scrollbar-size", "--wds-sz-scrollbar-thumb-length"].map((name) => ({ name })),
-};
-
 export const activityFeedDoc: ComponentDoc = {
   slug: "activity-feed",
   name: "ActivityFeed",
@@ -452,57 +319,6 @@ export const activityFeedDoc: ComponentDoc = {
     { id: 'testId', name: 'testId', type: 'string' },
   ],
   tokens: ["--wds-stroke-default", "--wds-text-primary", "--wds-text-tertiary", "--wds-bg-brand", "--wds-sz-activity-feed-gap", "--wds-sz-activity-feed-chat-container-padding-top"].map((name) => ({ name })),
-};
-
-export const chatMessageDoc: ComponentDoc = {
-  slug: "chat-message",
-  name: "ChatMessage",
-  category: "data",
-  importStatement: "import { ChatMessage } from 'shared/components/ui';",
-  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-9159",
-  component: ChatMessageDemo,
-  codeName: "ChatMessage",
-  baseProps: { type: 'received' },
-  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'type', kind: 'select', options: ['received', 'sent'] }, { prop: 'message', kind: 'text' }, { prop: 'receipt', kind: 'boolean' }],
-  figmaMapping: [
-    { id: "types", figma: "Chat message types (mode)", values: "received, sent", prop: "type" },
-    { id: "meta", figma: "Receipt · name", values: "visible", prop: "receipt · name" },
-  ],
-  examples: [{ id: 'types', variants: [{ label: 'received', props: { type: 'received' } }, { label: 'sent', props: { type: 'sent', receipt: true } }] }],
-  props: [
-    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
-    { id: "message", name: "message · time", type: "ReactNode" },
-    { id: "type", name: "type", type: "'received' | 'sent'", default: "'received'" },
-    { id: "name", name: "name · avatar", type: "string · ReactNode" },
-    { id: "receipt", name: "receipt", type: "boolean", default: "false" },
-    { id: 'testId', name: 'testId', type: 'string' },
-  ],
-  tokens: ["--wds-bg-subtle", "--wds-bg-brand", "--wds-text-on-brand", "--wds-text-tertiary", "--wds-sz-chat-message-bubble-max-width"].map((name) => ({ name })),
-};
-
-export const chatInputDoc: ComponentDoc = {
-  slug: "chat-input",
-  name: "ChatInput",
-  category: "forms",
-  importStatement: "import { ChatInput } from 'shared/components/ui';",
-  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-9159",
-  component: ChatInputDemo,
-  codeName: "ChatInput",
-  codeExtra: ["value={text}", "onChange={setText}", "onSend={send}"],
-  baseProps: { placeholder: 'Type a message' },
-  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'placeholder', kind: 'text' }, { prop: 'disabled', kind: 'boolean' }],
-  figmaMapping: [
-    { id: "styles", figma: "Chat input styles", values: "default", prop: "— (CSS)" },
-  ],
-  examples: [],
-  props: [
-    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
-    { id: "value", name: "value · onChange", type: "string · (value: string) => void" },
-    { id: "onSend", name: "onSend", type: "() => void" },
-    { id: "placeholder", name: "placeholder · disabled", type: "string · boolean" },
-    { id: 'testId', name: 'testId', type: 'string' },
-  ],
-  tokens: ["--wds-bg-surface", "--wds-bg-subtle", "--wds-stroke-subtle", "--wds-icons-brand", "--wds-sz-chat-input-gap"].map((name) => ({ name })),
 };
 
 export const barLineChartDoc: ComponentDoc = {
@@ -657,33 +473,6 @@ export const calendarDoc: ComponentDoc = {
   tokens: ["--wds-bg-page", "--wds-bg-brand", "--wds-text-primary", "--wds-stroke-subtle", "--wds-sz-calendar-content-padding-top", "--wds-sz-calendar-month-cell-size"].map((name) => ({ name })),
 };
 
-export const menuItemDoc: ComponentDoc = {
-  slug: "menu-item",
-  name: "MenuItem",
-  category: "data",
-  importStatement: "import { MenuItem } from 'shared/components/ui';",
-  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9928-11540",
-  component: MenuItemDemo,
-  codeName: "MenuItem",
-  baseProps: { size: 'md' },
-  controls: [{ prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'label', kind: 'text' }, { prop: 'selected', kind: 'boolean' }, { prop: 'disabled', kind: 'boolean' }, { prop: 'destructive', kind: 'boolean' }],
-  figmaMapping: [
-    { id: "states", figma: "Menu item states", values: "default, pressed, selected, disabled, destructive", prop: "selected · disabled · destructive" },
-    { id: "slots", figma: "Leading · text · trailing", values: "slots", prop: "leading · label · description · trailing" },
-    { id: "size", figma: "Size Modes", values: "xs, sm, md, lg, xl", prop: "size" },
-  ],
-  examples: [{ id: 'states', variants: [{ label: 'default', props: {} }, { label: 'selected', props: { selected: true } }, { label: 'disabled', props: { disabled: true } }, { label: 'destructive', props: { destructive: true } }] }],
-  props: [
-    { id: "label", name: "label · description", type: "ReactNode" },
-    { id: "slots", name: "leading · trailing", type: "ReactNode" },
-    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
-    { id: "state", name: "selected · disabled · destructive", type: "boolean", default: "false" },
-    { id: "onClick", name: "onClick", type: "() => void" },
-    { id: 'testId', name: 'testId', type: 'string' },
-  ],
-  tokens: ["--wds-bg-brand-subtle", "--wds-bg-pressed", "--wds-text-primary", "--wds-text-danger", "--wds-icons-primary"].map((name) => ({ name })),
-};
-
 export const scrollBarDoc: ComponentDoc = {
   slug: "scroll-bar",
   name: "ScrollBar",
@@ -712,81 +501,23 @@ export const scrollBarDoc: ComponentDoc = {
   tokens: ["--wds-stroke-default", "--wds-bg-subtle-2", "--wds-icons-tertiary", "--wds-sz-scrollbar-size", "--wds-sz-scrollbar-thumb-size"].map((name) => ({ name })),
 };
 
-export const fileUploadCardDoc: ComponentDoc = {
-  slug: "file-upload-card",
-  name: "FileUploadCard",
-  category: "forms",
-  importStatement: "import { FileUploadCard } from 'shared/components/ui';",
-  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11233-15800",
-  component: FileUploadCardDemo,
-  codeName: "FileUploadCard",
-  baseProps: { status: 'uploading', progressType: 'bar' },
-  controls: [{ prop: 'status', kind: 'select', options: ['uploading', 'uploaded', 'error', 'filled', 'disabled'] }, { prop: 'progressType', kind: 'select', options: ['bar', 'fill'] }, { prop: 'progress', kind: 'text' }],
-  figmaMapping: [
-    { id: "states", figma: "File Upload Cards states", values: "uploading, uploaded, error, filled, disabled", prop: "status" },
-    { id: "type", figma: "Type", values: "progress bar, progress fill", prop: "progressType" },
-  ],
-  examples: [{ id: 'states', variants: ['uploading', 'uploaded', 'error', 'filled', 'disabled'].map((s) => ({ label: s, props: { status: s } })) }],
-  props: [
-    { id: "name", name: "name · size", type: "string" },
-    { id: "status", name: "status", type: "'uploading' | 'uploaded' | 'error' | 'filled' | 'disabled'", default: "'filled'" },
-    { id: "progress", name: "progress · progressType", type: "number · 'bar' | 'fill'", default: "0 · 'bar'" },
-    { id: "actions", name: "onRetry · onRemove · extraActions", type: "function · ReactNode" },
-    { id: 'testId', name: 'testId', type: 'string' },
-  ],
-  tokens: ["--wds-bg-surface", "--wds-bg-danger-subtle", "--wds-stroke-danger", "--wds-bg-disabled", "--wds-icons-danger"].map((name) => ({ name })),
-};
-
-export const userCellDoc: ComponentDoc = {
-  slug: "user-cell",
-  name: "UserCell",
-  category: "data",
-  importStatement: "import { UserCell } from 'shared/components/ui';",
-  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=11237-1438",
-  component: UserCellDemo,
-  codeName: "UserCell",
-  baseProps: { size: 'md' },
-  controls: [{ prop: 'name', kind: 'text' }, { prop: 'supporting', kind: 'text' }, { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'online', kind: 'boolean' }],
-  figmaMapping: [
-    { id: "cell", figma: "Table cell (avatar + text)", values: "avatar, title, supporting text", prop: "name · supporting" },
-  ],
-  examples: [],
-  props: [
-    { id: "name", name: "name · supporting", type: "string · ReactNode" },
-    { id: "src", name: "src · online", type: "string · boolean" },
-    { id: "size", name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
-    { id: 'testId', name: 'testId', type: 'string' },
-  ],
-  tokens: ["--wds-text-primary", "--wds-text-secondary", "--wds-bg-brand-subtle"].map((name) => ({ name })),
-};
-
 export const moreDocs: ComponentDoc[] = [
   otpInputDoc,
   pinInputDoc,
   quantitySelectorDoc,
   compactSelectDoc,
   dropdownMenuDoc,
-  listItemDoc,
   popoverDoc,
   toastDoc,
   sectionHeaderDoc,
   navItemDoc,
   featuredIconDoc,
-  iconWrapperDoc,
-  imageDoc,
-  imageCarouselDoc,
-  scrollAreaDoc,
   activityFeedDoc,
-  chatMessageDoc,
-  chatInputDoc,
   barLineChartDoc,
   pieChartDoc,
   radarChartDoc,
   activityGaugeDoc,
   legendDoc,
   calendarDoc,
-  menuItemDoc,
   scrollBarDoc,
-  fileUploadCardDoc,
-  userCellDoc,
 ];

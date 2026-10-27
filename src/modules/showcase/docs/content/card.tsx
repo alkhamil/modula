@@ -1,4 +1,4 @@
-import { Button, ImagePlaceholder } from '../../../../shared/components/ui';
+import { Button } from '../../../../shared/components/ui';
 import { raw, type ComponentDoc } from '../types';
 import { CardDemo } from './surfaceDemos';
 
@@ -13,7 +13,7 @@ const FOOTER = raw(
   </>,
 );
 
-const MEDIA = raw('<ImagePlaceholder height={120} />', <ImagePlaceholder height={120} />);
+const MEDIA = raw('<div className="h-[120px] bg-surface" />', <div className="h-[120px] bg-surface" />);
 const BODY_ACTIONS = raw(
   `<>
   <Button hierarchy="secondary">Learn more</Button>

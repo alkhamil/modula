@@ -7,17 +7,10 @@ import {
   Calendar,
   Badge,
   Button,
-  ChatInput,
-  ChatMessage,
   CompactSelect,
   DropdownMenu,
   FeaturedIcon,
-  IconWrapper,
-  ImageCarousel,
-  ImagePlaceholder,
   Legend,
-  ListItem,
-  MenuItem,
   NavItem,
   OtpInput,
   PieChart,
@@ -25,10 +18,7 @@ import {
   Popover,
   QuantitySelector,
   RadarChart,
-  ScrollArea,
   ScrollBar,
-  FileUploadCard,
-  UserCell,
   SectionHeader,
   useToast,
 } from '../../../../shared/components/ui';
@@ -91,21 +81,6 @@ export function DropdownMenuDemo(props: P<typeof DropdownMenu>) {
   );
 }
 
-export function ListItemDemo(props: P<typeof ListItem>) {
-  return (
-    <div className="w-[min(100%,380px)]">
-      <ListItem
-        title="Database"
-        description="Primary instance"
-        leading={<Database />}
-        trailing={<Badge variant="success">Live</Badge>}
-        onClick={() => {}}
-        {...props}
-      />
-    </div>
-  );
-}
-
 export function PopoverDemo(props: P<typeof Popover>) {
   return (
     <div className="h-64 pt-4">
@@ -159,41 +134,6 @@ export function FeaturedIconDemo(props: P<typeof FeaturedIcon>) {
   return <FeaturedIcon icon={<InfoCircle />} {...props} />;
 }
 
-export function IconWrapperDemo(props: P<typeof IconWrapper>) {
-  return <IconWrapper {...props}>{<Settings />}</IconWrapper>;
-}
-
-export function ImagePlaceholderDemo(props: P<typeof ImagePlaceholder>) {
-  return <ImagePlaceholder width={220} {...props} />;
-}
-
-export function ImageCarouselDemo(props: P<typeof ImageCarousel>) {
-  return (
-    <div className="w-[min(100%,320px)]">
-      <ImageCarousel
-        {...props}
-        slides={[1, 2, 3, 4].map((n) => (
-          <ImagePlaceholder key={n} height={160} appearance="rounded" />
-        ))}
-      />
-    </div>
-  );
-}
-
-export function ScrollAreaDemo(props: P<typeof ScrollArea>) {
-  return (
-    <div className="w-[min(100%,320px)]">
-      <ScrollArea maxHeight={140} {...props}>
-        {Array.from({ length: 12 }, (_, i) => (
-          <p key={i} className="py-1 text-sm text-(--wds-text-secondary)">
-            Row {i + 1}
-          </p>
-        ))}
-      </ScrollArea>
-    </div>
-  );
-}
-
 export function ActivityFeedDemo({ type = 'default', ...props }: P<typeof ActivityFeed> & { type?: 'default' | 'text' | 'file' | 'labels' | 'chat' }) {
   return (
     <div className="w-[min(100%,440px)]">
@@ -214,23 +154,6 @@ export function ActivityFeedDemo({ type = 'default', ...props }: P<typeof Activi
           { name: 'Citra Dewi', time: '1 hour ago', description: 'Description' },
         ]}
       />
-    </div>
-  );
-}
-
-export function ChatMessageDemo(props: P<typeof ChatMessage>) {
-  return (
-    <div className="w-[min(100%,360px)]">
-      <ChatMessage message="Hi! Is the report ready?" name="Ayu" time="10:24" {...props} />
-    </div>
-  );
-}
-
-export function ChatInputDemo(props: P<typeof ChatInput>) {
-  const [value, setValue] = useState('');
-  return (
-    <div className="w-[min(100%,420px)]">
-      <ChatInput {...props} value={value} onChange={setValue} onSend={() => setValue('')} />
     </div>
   );
 }
@@ -320,27 +243,8 @@ export function LegendDemo(props: P<typeof Legend>) {
 // Avatar re-export supaya import tidak dianggap tak terpakai bila demo avatar dipakai di sini.
 export { Avatar };
 
-export function MenuItemDemo(props: P<typeof MenuItem>) {
-  return (
-    <div className="w-[min(100%,280px)]">
-      <MenuItem label="Menu item" description="Optional supporting text" leading={<Pen />} trailing={<Download />} {...props} />
-    </div>
-  );
-}
-
 export function ScrollBarDemo(props: P<typeof ScrollBar>) {
   const [value, setValue] = useState(20);
   return <ScrollBar {...props} value={value} onChange={setValue} aria-label="Scroll position" />;
 }
 
-export function FileUploadCardDemo(props: P<typeof FileUploadCard>) {
-  return (
-    <div className="w-[min(100%,420px)]">
-      <FileUploadCard name="Tech design requirements.pdf" size="200 KB" progress={80} onRemove={() => {}} onRetry={() => {}} {...props} />
-    </div>
-  );
-}
-
-export function UserCellDemo(props: P<typeof UserCell>) {
-  return <UserCell name="Olivia Rhye" supporting="olivia@example.com" {...props} />;
-}
