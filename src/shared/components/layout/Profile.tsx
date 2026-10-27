@@ -60,7 +60,7 @@ function Profile({
         className="wds-profile"
       >
         {showAvatar && <Avatar name={user?.name ?? initial} size="md" />}
-        <div className="wds-profile__text text-center">
+        <div className="wds-profile__text text-right">
           <p className="wds-profile__title">Hi, {firstName}</p>
           <p className="wds-profile__support">{user?.roleName ?? 'User'}</p>
         </div>
