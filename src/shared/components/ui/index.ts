@@ -68,7 +68,7 @@ export { default as DetailCard } from './DetailCard';
 export type { DetailRow } from './DetailCard';
 export { default as FormSkeleton } from './FormSkeleton';
 export { default as Alert } from './Alert';
-export type { AlertVariant } from './Alert';
+export type { AlertVariant, AlertAppearance } from './Alert';
 export { default as ToastProvider } from './toast/Toast';
 export { useToast } from './toast/toast-context';
 export type { ToastVariant, ShowToastParams } from './toast/toast-context';

@@ -2695,19 +2695,21 @@
       ]
     },
     "toast": {
-      "summary": "WDS toast: a transient message shown through the useToast hook; it renders an Alert (light) with a close button.",
+      "summary": "WDS toast: a transient Alert shown through the useToast hook, with the same properties as Alert and a small close button.",
       "figma": {
         "styles": {
-          "note": "Rendered as an Alert: the colors and status icon follow the Alert style (error = danger)."
+          "note": "Same properties as Alert; the toast is an Alert shown by `useToast`."
         }
       },
       "examples": {},
       "props": {
-        "message": "Toast content.",
-        "variant": "Icon and role.",
-        "duration": "Auto-hide delay and close button.",
-        "container": "Where and how wide the toast renders.",
-        "testId": "Mapped to data-testid."
+        "message": "Alert message and optional title.",
+        "variant": "Alert style (`error` = `danger`).",
+        "appearance": "Alert variant: basic, solid, light or left-stroke.",
+        "size": "Size from the Size tokens (same as Alert).",
+        "action": "Action button, like Alert.",
+        "duration": "Auto-hide delay and close button (a small icon).",
+        "container": "Where and how wide the toast renders."
       },
       "tokens": {
         "--wds-bg-success-subtle": "Success background (other statuses similar).",

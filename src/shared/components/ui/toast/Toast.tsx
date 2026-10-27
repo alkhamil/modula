@@ -1,16 +1,10 @@
 import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import Alert from '../Alert';
-import { ToastContext, type ToastVariant, type ShowToastParams } from './toast-context';
+import { ToastContext, type ShowToastParams } from './toast-context';
 
-interface ToastItemData {
+interface ToastItemData extends Omit<ShowToastParams, 'duration'> {
   id: number;
-  message: string | ReactNode;
-  variant: ToastVariant;
-  closable?: boolean;
-  containerId?: string;
-  className?: string;
-  widthClass?: string;
 }
 
 let toastId = 0;
@@ -44,6 +38,10 @@ function ToastItem({ item, onClose }: { item: ToastItemData; onClose: (id: numbe
         testId={`toast-${item.variant}`}
         variant={item.variant}
         message={item.message}
+        title={item.title}
+        appearance={item.appearance}
+        size={item.size}
+        action={item.action}
         onClose={item.closable !== false ? () => onClose(item.id) : undefined}
       />
     </div>
@@ -64,20 +62,9 @@ function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const showToast = useCallback(
-    ({
-      message,
-      variant,
-      duration = 4000,
-      closable,
-      containerId,
-      className,
-      widthClass,
-    }: ShowToastParams) => {
+    ({ duration = 4000, ...params }: ShowToastParams) => {
       const id = ++toastId;
-      setToasts((prev) => [
-        ...prev,
-        { id, message, variant, closable, containerId, className, widthClass },
-      ]);
+      setToasts((prev) => [...prev, { id, ...params }]);
       const timer = setTimeout(() => removeToast(id), duration);
       timersRef.current.set(id, timer);
     },

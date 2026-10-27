@@ -32,6 +32,7 @@ import {
   SectionHeader,
   useToast,
 } from '../../../../shared/components/ui';
+import type { ShowToastParams } from '../../../../shared/components/ui';
 import { Database, Settings, InfoCircle, Pen, TrashBinTrash, Download } from '../../../../shared/components/icons';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -127,9 +128,9 @@ export function PopoverDemo(props: P<typeof Popover>) {
   );
 }
 
-export function ToastDemo({ variant = 'success', message = 'Changes saved' }: { variant?: 'success' | 'error' | 'warning' | 'info'; message?: string }) {
+export function ToastDemo(props: Omit<ShowToastParams, 'message'> & { message?: string }) {
   const { showToast } = useToast();
-  return <Button onClick={() => showToast({ message, variant })}>Show toast</Button>;
+  return <Button onClick={() => showToast({ ...props, message: props.message ?? 'Changes saved' })}>Show toast</Button>;
 }
 
 export function SectionHeaderDemo(props: P<typeof SectionHeader>) {

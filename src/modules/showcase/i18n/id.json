@@ -2695,19 +2695,21 @@
       ]
     },
     "toast": {
-      "summary": "Toast WDS: pesan sementara lewat hook useToast; dirender sebagai Alert (light) dengan tombol tutup.",
+      "summary": "Toast WDS: Alert sementara yang ditampilkan lewat hook useToast, dengan properti sama seperti Alert dan tombol tutup kecil.",
       "figma": {
         "styles": {
-          "note": "Dirender sebagai Alert: warna dan ikon status mengikuti style Alert (error = danger)."
+          "note": "Properti sama dengan Alert; toast adalah Alert yang ditampilkan lewat `useToast`."
         }
       },
       "examples": {},
       "props": {
-        "message": "Isi toast.",
-        "variant": "Ikon dan role.",
-        "duration": "Jeda sembunyi otomatis dan tombol tutup.",
-        "container": "Tempat dan lebar render toast.",
-        "testId": "Dipetakan ke data-testid."
+        "message": "Pesan Alert dan judul opsional.",
+        "variant": "Style Alert (`error` = `danger`).",
+        "appearance": "Varian Alert: basic, solid, light, atau left-stroke.",
+        "size": "Ukuran dari token Size (sama dengan Alert).",
+        "action": "Tombol aksi, seperti Alert.",
+        "duration": "Jeda sembunyi otomatis dan tombol tutup (ikon kecil).",
+        "container": "Tempat dan lebar render toast."
       },
       "tokens": {
         "--wds-bg-success-subtle": "Latar sukses (status lain serupa).",
