@@ -4,7 +4,7 @@ import { selectionDoc } from './selectionDoc';
 export const radioDoc = selectionDoc({
   slug: 'radio-button',
   name: 'Radio Button',
-  node: '9930-12554',
+  node: '9930-12555',
   component: RadioDemo,
   real: 'RadioButton',
   labelProp: 'label',
