@@ -14,7 +14,6 @@ import {
   PopoverDemo,
   QuantitySelectorDemo,
   RadarChartDemo,
-  ScrollBarDemo,
   SectionHeaderDemo,
   ToastDemo,
 } from './moreDemos';
@@ -494,34 +493,6 @@ export const calendarDoc: ComponentDoc = {
   tokens: ["--wds-bg-page", "--wds-bg-brand", "--wds-text-primary", "--wds-stroke-subtle", "--wds-sz-calendar-content-padding-top", "--wds-sz-calendar-month-cell-size"].map((name) => ({ name })),
 };
 
-export const scrollBarDoc: ComponentDoc = {
-  slug: "scroll-bar",
-  name: "ScrollBar",
-  category: "layout",
-  importStatement: "import { ScrollBar } from 'shared/components/ui';",
-  figmaUrl: "https://www.figma.com/design/ThLaTINM5dmzPW4AsB8dnF/?node-id=9930-12811",
-  component: ScrollBarDemo,
-  codeName: "ScrollBar",
-  codeExtra: ["value={position}", "onChange={setPosition}"],
-  baseProps: { orientation: 'vertical', length: 180 },
-  controls: [{ prop: 'orientation', kind: 'select', options: ['vertical', 'horizontal'] }, { prop: 'appearance', kind: 'select', options: ['default', 'grey', 'outline'] }, { prop: 'size', kind: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] }, { prop: 'thumbSize', kind: 'text' }, { prop: 'length', kind: 'text' }],
-  figmaMapping: [
-    { id: "types", figma: "Type · Length", values: "vertical, horizontal", prop: "orientation · length" },
-    { id: "styles", figma: "Scrollbar styles (mode)", values: "default, grey background, outline", prop: "appearance" },
-    { id: "size", figma: "Size Modes", values: "xs, sm, md, lg, xl", prop: "size" },
-  ],
-  examples: [],
-  props: [
-    { id: "value", name: "value · onChange", type: "number (0–100) · (value: number) => void" },
-    { id: "thumbSize", name: "thumbSize · length", type: "number", default: "30 · 240" },
-    { id: "orientation", name: "orientation", type: "'vertical' | 'horizontal'", default: "'vertical'" },
-    { id: "appearance", name: "appearance", type: "'default' | 'grey' | 'outline'", default: "'default'" },
-    { id: "size", name: "size · step", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' · number", default: "'md' · 10" },
-    { id: 'testId', name: 'testId', type: 'string' },
-  ],
-  tokens: ["--wds-stroke-default", "--wds-bg-subtle-2", "--wds-icons-tertiary", "--wds-sz-scrollbar-size", "--wds-sz-scrollbar-thumb-size"].map((name) => ({ name })),
-};
-
 export const moreDocs: ComponentDoc[] = [
   otpInputDoc,
   pinInputDoc,
@@ -539,5 +510,4 @@ export const moreDocs: ComponentDoc[] = [
   activityGaugeDoc,
   legendDoc,
   calendarDoc,
-  scrollBarDoc,
 ];

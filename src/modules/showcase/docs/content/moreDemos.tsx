@@ -17,7 +17,6 @@ import {
   Popover,
   QuantitySelector,
   RadarChart,
-  ScrollBar,
   SectionHeader,
   useToast,
 } from '../../../../shared/components/ui';
@@ -233,9 +232,4 @@ export function LegendDemo(props: P<typeof Legend>) {
 
 // Avatar re-export supaya import tidak dianggap tak terpakai bila demo avatar dipakai di sini.
 export { Avatar };
-
-export function ScrollBarDemo(props: P<typeof ScrollBar>) {
-  const [value, setValue] = useState(20);
-  return <ScrollBar {...props} value={value} onChange={setValue} aria-label="Scroll position" />;
-}
 

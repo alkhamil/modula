@@ -3027,42 +3027,6 @@
       "accessibility": [
         "Dibangun di atas react-datepicker yang mendukung navigasi keyboard."
       ]
-    },
-    "scroll-bar": {
-      "summary": "Scroll bar WDS: indikator posisi dengan tombol panah di kedua ujung dan thumb yang bisa diseret, vertikal atau horizontal.",
-      "figma": {
-        "types": {
-          "note": "Panjang track diatur dalam px."
-        },
-        "styles": {
-          "note": "Grey mengisi track; outline menambah border."
-        },
-        "size": {
-          "note": "Ketebalan mengikuti token Size."
-        }
-      },
-      "examples": {},
-      "props": {
-        "value": "Posisi scroll dan handler perubahan.",
-        "thumbSize": "Panjang thumb (% track) dan panjang track (px).",
-        "orientation": "Arah.",
-        "appearance": "Style Scrollbar Figma.",
-        "size": "Ukuran dari token Size dan langkah panah.",
-        "testId": "Dipetakan ke data-testid."
-      },
-      "tokens": {
-        "--wds-stroke-default": "Thumb dan outline.",
-        "--wds-bg-subtle-2": "Track abu.",
-        "--wds-icons-tertiary": "Panah.",
-        "--wds-sz-scrollbar-size": "Ketebalan track.",
-        "--wds-sz-scrollbar-thumb-size": "Inset thumb."
-      },
-      "behavior": [
-        "Klik atau seret track untuk berpindah; panah dan tombol panah keyboard bergeser sesuai prop step."
-      ],
-      "accessibility": [
-        "role=\"scrollbar\" dengan aria-valuenow; bisa difokus dengan tombol panah, Home, dan End."
-      ]
     }
   }
 }

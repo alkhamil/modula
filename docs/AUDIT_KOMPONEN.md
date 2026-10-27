@@ -77,7 +77,6 @@ dibuat), tetapi **belum** satu per satu dengan `tokens.json` dan tabel Propertie
 ### Layout
 - PageHeader (`page-header`), Profile (`profile`), SideNavbar (`side-navbar`)
 - Divider (`divider`), SectionHeader (`section-header`)
-- ScrollBar (`scroll-bar`)
 
 ### Navigation
 - Link (`link`), NavItem (`nav-item`), Stepper (`stepper`), Tabs (`tabs`)
