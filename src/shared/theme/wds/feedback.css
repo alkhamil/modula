@@ -129,6 +129,16 @@
     line-height: var(--wds-font-line-height-16);
   }
 
+  /* Dengan judul: kotak ikon setinggi baris judul dan ikon di tengahnya, jadi sejajar dengan judul. */
+  .wds-alert[data-has-title='true'] .wds-alert__icon {
+    height: var(--wds-font-line-height-16);
+    align-items: center;
+  }
+
+  .wds-alert[data-has-title='true'] .wds-alert__icon > svg {
+    height: var(--wds-sz-icon-size);
+  }
+
   .wds-alert__message {
     color: var(--a-support);
     font-family: var(--wds-sz-text-body-font-family);
