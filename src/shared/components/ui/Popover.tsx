@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { cloneElement, isValidElement, useLayoutEffect, useRef, useState, type ReactElement, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 import { placeOverlay, type OverlayPlacement } from './overlayPlacement';
@@ -75,8 +75,11 @@ function Popover({
   }, [open, forced]);
 
   return (
-    <span ref={triggerRef} className={`relative inline-flex ${className}`} onClick={() => forced === undefined && setOpenState((v) => !v)} aria-expanded={open}>
-      {children}
+    <span ref={triggerRef} className={`relative inline-flex ${className}`} onClick={() => forced === undefined && setOpenState((v) => !v)}>
+      {/* aria-expanded / aria-haspopup ditaruh di pemicu sebenarnya (elemen fokus), bukan di pembungkus span. */}
+      {isValidElement(children)
+        ? cloneElement(children as ReactElement<Record<string, unknown>>, { 'aria-expanded': open, 'aria-haspopup': 'dialog' })
+        : children}
       {open &&
         createPortal(
           <div

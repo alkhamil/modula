@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 import { initialSide, placeOverlay, type OverlayPlacement, type PlacementSide } from './overlayPlacement';
@@ -56,6 +56,17 @@ function Tooltip({
   const triggerRef = useRef<HTMLSpanElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
   const visible = (open ?? shown) && Boolean(content);
+  const tipId = useId();
+
+  // WCAG 1.4.13: tooltip bisa ditutup dengan Escape tanpa memindahkan fokus/pointer.
+  useEffect(() => {
+    if (!shown) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setShown(false);
+    }
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [shown]);
 
   useLayoutEffect(() => {
     if (!visible || !triggerRef.current || !tipRef.current) return;
@@ -84,6 +95,7 @@ function Tooltip({
     ? createPortal(
         <div
           ref={tipRef}
+          id={tipId}
           role="tooltip"
           data-testid={testId}
           data-placement={side}
@@ -114,6 +126,7 @@ function Tooltip({
   return (
     <span
       ref={triggerRef}
+      aria-describedby={visible ? tipId : undefined}
       className={`relative inline-flex ${className}`}
       onMouseEnter={() => setShown(true)}
       onMouseLeave={() => setShown(false)}

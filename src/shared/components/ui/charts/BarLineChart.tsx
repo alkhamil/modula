@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import Legend from './Legend';
 import { SERIES } from './palette';
 
@@ -64,7 +64,8 @@ function BarLineChart({
   const y = (v: number) => PAD.top + innerH - (v / niceMax) * innerH;
   const base = PAD.top + innerH;
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => Math.round(niceMax * t));
-  const gid = `wds-area-${series.length}`;
+  // id gradien unik per chart (beberapa chart di satu halaman); titik dua dari useId dibuang agar aman di url(#…).
+  const gid = `wds-area-${useId().replace(/:/g, '')}`;
 
   const legendEl = (
     <Legend

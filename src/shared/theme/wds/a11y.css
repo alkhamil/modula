@@ -1,0 +1,34 @@
+/*
+ * Aksesibilitas lintas komponen. Di @layer components agar utility Tailwind tetap bisa menimpa.
+ */
+@layer components {
+  /*
+   * Area klik minimum 24×24px (WCAG 2.5.8) untuk kontrol ikon yang secara visual lebih kecil
+   * (token WDS: 16–20px). Pseudo-element transparan memperluas target tanpa mengubah tampilan/layout.
+   */
+  .wds-badge__remove,
+  .wds-field__action,
+  button.wds-rating__star,
+  .wds-qs__btn,
+  .wds-feed__action,
+  .wds-alert__action,
+  .wds-file-card__btn {
+    position: relative;
+  }
+
+  .wds-badge__remove::after,
+  .wds-field__action::after,
+  button.wds-rating__star::after,
+  .wds-qs__btn::after,
+  .wds-feed__action::after,
+  .wds-alert__action::after,
+  .wds-file-card__btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 24px);
+    height: max(100%, 24px);
+    transform: translate(-50%, -50%);
+  }
+}

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { AltArrowDown } from '../icons';
 
 export interface AccordionItem {
@@ -40,6 +40,8 @@ function Accordion({
   className = '',
   testId,
 }: AccordionProps) {
+  // Prefix unik per instance: beberapa Accordion di satu halaman tidak boleh berbagi id.
+  const uid = useId();
   const [inner, setInner] = useState<string[]>(defaultOpen);
   const open = value ?? inner;
 
@@ -60,8 +62,8 @@ function Accordion({
     >
       {items.map((item) => {
         const expanded = open.includes(item.value);
-        const headerId = `acc-h-${item.value}`;
-        const panelId = `acc-p-${item.value}`;
+        const headerId = `${uid}-h-${item.value}`;
+        const panelId = `${uid}-p-${item.value}`;
         return (
           <div key={item.value} className="wds-accordion__item" data-open={expanded || undefined}>
             <h3 className="wds-accordion__heading">
@@ -69,7 +71,7 @@ function Accordion({
                 type="button"
                 id={headerId}
                 aria-expanded={expanded}
-                aria-controls={panelId}
+                aria-controls={expanded ? panelId : undefined}
                 disabled={item.disabled}
                 onClick={() => toggle(item.value)}
                 className="wds-accordion__header"

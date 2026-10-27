@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { Cross } from '../icons';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface DrawerProps {
   open: boolean;
@@ -44,6 +45,9 @@ function Drawer({
   const [visible, setVisible] = useState(false);
   const asideRef = useRef<HTMLElement>(null);
   const closeTimer = useRef<number | null>(null);
+  const titleId = `${useId()}-title`;
+  // Drawer modal: fokus terkurung di panel dan dikembalikan ke pemicu saat ditutup (non-modal tidak).
+  useFocusTrap(open && modal && !isStatic && render, asideRef);
 
   useEffect(() => {
     if (open) {
@@ -116,6 +120,9 @@ function Drawer({
   const panel = (
     <aside
       ref={asideRef}
+      role={isStatic ? undefined : 'dialog'}
+      aria-modal={!isStatic && modal ? true : undefined}
+      aria-labelledby={title ? titleId : undefined}
       data-static={isStatic || undefined}
       data-wds-size="md"
       className={[
@@ -128,7 +135,9 @@ function Drawer({
     >
       {title && (
         <div className="wds-drawer__header">
-          <h2 className="wds-drawer__title">{title}</h2>
+          <h2 id={titleId} className="wds-drawer__title">
+            {title}
+          </h2>
           <button
             data-testid={testId ? `${testId}-close` : undefined}
             type="button"

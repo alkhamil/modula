@@ -6,3 +6,4 @@ export { useSessionStorage } from './useSessionStorage';
 export { useConfirmNavigation } from './useConfirmNavigation';
 export { useSelectDropdown } from './useSelectDropdown';
 export { useUrlPagination } from './useUrlPagination';
+export { useFocusTrap } from './useFocusTrap';

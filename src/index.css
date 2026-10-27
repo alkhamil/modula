@@ -25,6 +25,7 @@
 @import './shared/theme/wds/data.css';
 @import './shared/theme/wds/feedback.css';
 @import './shared/theme/wds/feedback.generated.css';
+@import './shared/theme/wds/a11y.css';
 
 /*
  * Token warna/radius Tailwind dipetakan ke CSS variables (--theme-*)

@@ -1,7 +1,8 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, useId, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Cross } from '../icons';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface DialogProps {
   open: boolean;
@@ -53,6 +54,12 @@ function Dialog({
   const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const live = open && !isStatic;
+  const panelRef = useRef<HTMLDivElement>(null);
+  const uid = useId();
+  const titleId = `${uid}-title`;
+  const descId = `${uid}-desc`;
+  // Fokus masuk ke dialog, berputar di dalamnya, dan kembali ke pemicu saat ditutup.
+  useFocusTrap(live, panelRef);
 
   useEffect(() => {
     if (!live) return;
@@ -85,11 +92,14 @@ function Dialog({
 
   const panel = (
     <div
+      ref={panelRef}
       data-testid={testId}
       data-wds-size={size}
       data-static={isStatic || undefined}
       role="dialog"
       aria-modal={isStatic ? undefined : true}
+      aria-labelledby={title ? titleId : undefined}
+      aria-describedby={description ? descId : undefined}
       className={[
         'wds-dialog',
         maxWidthStyles[maxWidth],
@@ -101,7 +111,11 @@ function Dialog({
         <div className="wds-dialog__header">
           <div className="wds-dialog__heading">
             {icon && <span className="wds-dialog__icon">{icon}</span>}
-            {title && <h2 className="wds-dialog__title">{title}</h2>}
+            {title && (
+              <h2 id={titleId} className="wds-dialog__title">
+                {title}
+              </h2>
+            )}
           </div>
           {!hideCloseButton && (
             <button
@@ -119,7 +133,11 @@ function Dialog({
       )}
       {(description || children) && (
         <div className="wds-dialog__content">
-          {description && <p className="wds-dialog__description">{description}</p>}
+          {description && (
+            <p id={descId} className="wds-dialog__description">
+              {description}
+            </p>
+          )}
           {children}
         </div>
       )}
