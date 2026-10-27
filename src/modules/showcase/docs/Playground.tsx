@@ -104,7 +104,7 @@ function ControlRow({
   );
 }
 
-/** Playground: preview di kiri, panel kontrol di kanan, kode JSX di bawah preview. */
+/** Playground: preview lebar di atas, panel kontrol (grid) di bawahnya, lalu kode JSX. */
 function Playground({ doc }: { doc: ComponentDoc }) {
   const [props, setProps] = useState<Record<string, unknown>>(doc.baseProps);
   const [children, setChildren] = useState(doc.baseChildren ?? '');
@@ -122,30 +122,27 @@ function Playground({ doc }: { doc: ComponentDoc }) {
   const dirty = props !== doc.baseProps || children !== (doc.baseChildren ?? '');
 
   return (
-    <div className="grid rounded-xl border border-border bg-background xl:h-[46rem] xl:grid-cols-[minmax(0,1fr)_280px]">
-      <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-t-xl xl:rounded-l-xl xl:rounded-tr-none">
-        <div className="flex items-center justify-between gap-2 border-b border-border bg-surface px-4 py-2">
-          <span className="text-[11px] font-medium text-muted-foreground">{t('docs.playground.preview')}</span>
-          <Segmented
-            label={t('docs.playground.background')}
-            value={background}
-            options={[...BACKGROUNDS]}
-            labels={{
-              white: t('docs.playground.backgrounds.white'),
-              gray: t('docs.playground.backgrounds.gray'),
-              dots: t('docs.playground.backgrounds.dots'),
-            }}
-            onChange={(b) => setBackground(b as Background)}
-          />
-        </div>
-        <div className={`flex h-[26rem] min-h-0 shrink-0 items-center xl:flex-1 justify-center overflow-auto p-10 xl:h-auto ${BG_CLASS[background]}`}>
-          <Component {...resolved} aria-label={iconOnly ? doc.name : undefined}>
-            {doc.baseChildren !== undefined && !iconOnly ? children : undefined}
-          </Component>
-        </div>
-        <CodeBlock code={code} flush height="9rem" />
+    <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-background">
+      <div className="flex items-center justify-between gap-2 border-b border-border bg-surface px-4 py-2">
+        <span className="text-[11px] font-medium text-muted-foreground">{t('docs.playground.preview')}</span>
+        <Segmented
+          label={t('docs.playground.background')}
+          value={background}
+          options={[...BACKGROUNDS]}
+          labels={{
+            white: t('docs.playground.backgrounds.white'),
+            gray: t('docs.playground.backgrounds.gray'),
+            dots: t('docs.playground.backgrounds.dots'),
+          }}
+          onChange={(b) => setBackground(b as Background)}
+        />
       </div>
-      <aside className="flex min-h-0 flex-col gap-4 overflow-y-auto border-t border-border p-4 xl:border-l xl:border-t-0" aria-label={t('docs.playground.controlsLabel')}>
+      <div className={`flex h-[24rem] min-h-0 w-full items-center justify-center overflow-auto p-10 xl:h-[30rem] ${BG_CLASS[background]}`}>
+        <Component {...resolved} aria-label={iconOnly ? doc.name : undefined}>
+          {doc.baseChildren !== undefined && !iconOnly ? children : undefined}
+        </Component>
+      </div>
+      <section className="flex flex-col gap-4 border-t border-border p-4" aria-label={t('docs.playground.controlsLabel')}>
         <div className="flex items-center justify-between">
           <h3 className="text-[13px] font-semibold text-foreground">{t('docs.playground.controls')}</h3>
           <button
@@ -160,21 +157,24 @@ function Playground({ doc }: { doc: ComponentDoc }) {
             {t('docs.playground.reset')}
           </button>
         </div>
-        {doc.baseChildren !== undefined && (
-          <div className="flex flex-col gap-1.5">
-            <span className="font-mono text-[11px] text-foreground">children</span>
-            <input aria-label="children" className={inputClass} value={children} onChange={(e) => setChildren(e.target.value)} />
-          </div>
-        )}
-        {doc.controls.map((control) => (
-          <ControlRow
-            key={control.label ?? control.prop}
-            control={control}
-            value={props[control.prop]}
-            onChange={(next) => setProps((prev) => ({ ...prev, [control.prop]: next }))}
-          />
-        ))}
-      </aside>
+        <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 xl:grid-cols-3">
+          {doc.baseChildren !== undefined && (
+            <div className="flex flex-col gap-1.5">
+              <span className="font-mono text-[11px] text-foreground">children</span>
+              <input aria-label="children" className={inputClass} value={children} onChange={(e) => setChildren(e.target.value)} />
+            </div>
+          )}
+          {doc.controls.map((control) => (
+            <ControlRow
+              key={control.label ?? control.prop}
+              control={control}
+              value={props[control.prop]}
+              onChange={(next) => setProps((prev) => ({ ...prev, [control.prop]: next }))}
+            />
+          ))}
+        </div>
+      </section>
+      <CodeBlock code={code} flush height="9rem" />
     </div>
   );
 }
