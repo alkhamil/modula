@@ -71,6 +71,11 @@
     opacity: 1;
   }
 
+  /* Teks yang sedang diketik (pencarian Select) memakai warna teks utama, bukan warna placeholder state "selected". */
+  .wds-field[data-kind='select'] .wds-field__input:not(:placeholder-shown):not(:disabled) {
+    color: var(--wds-text-primary);
+  }
+
   .wds-field__input:-webkit-autofill {
     -webkit-text-fill-color: var(--f-fg);
   }
