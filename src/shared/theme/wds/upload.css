@@ -151,7 +151,7 @@
     gap: var(--wds-sz-card-actions-gap);
     padding: var(--wds-sz-card-padding-top) var(--wds-sz-card-padding-right)
       var(--wds-sz-card-padding-bottom) var(--wds-sz-card-padding-left);
-    border: var(--wds-sz-table-stroke) solid var(--wds-stroke-default);
+    border: var(--wds-stroke-1) solid var(--wds-stroke-default);
     border-radius: var(--wds-radius-8);
     background-color: var(--wds-bg-surface);
   }
@@ -187,7 +187,8 @@
     min-width: 0;
     flex: 1;
     flex-direction: column;
-    gap: var(--wds-spacing-2);
+    /* Nama + ukuran rapat; progress dipisah text-gap (Figma "Content" gap = file-upload-area/text-gap). */
+    gap: var(--wds-sz-file-upload-area-text-gap);
   }
 
   .wds-file-card__progress {
@@ -197,8 +198,9 @@
   }
 
   .wds-file-card__pct {
-    color: var(--wds-text-tertiary);
-    font-size: var(--wds-sz-text-caption-font-size);
+    color: var(--wds-text-primary);
+    font-size: var(--wds-sz-text-hint-font-size);
+    line-height: var(--wds-sz-text-hint-line-height);
   }
 
   .wds-file-card__btn {
@@ -228,12 +230,14 @@
 
   .wds-file-card__icon {
     display: inline-flex;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
     border-radius: 9999px;
+    /* Jarak ikon–teks = card/body-gap (container memakai actions-gap). */
+    margin-right: calc(var(--wds-sz-card-body-gap) - var(--wds-sz-card-actions-gap));
     background-color: var(--wds-primary-100);
     color: var(--wds-icons-brand);
   }
@@ -247,9 +251,10 @@
     overflow: hidden;
     margin: 0;
     color: var(--wds-text-primary);
-    font-weight: var(--wds-font-weight-medium);
-    font-size: var(--wds-sz-text-body-font-size);
-    line-height: var(--wds-sz-text-body-line-height);
+    font-family: var(--wds-sz-text-title-font-family);
+    font-weight: var(--wds-sz-text-title-font-weight);
+    font-size: var(--wds-sz-text-title-font-size);
+    line-height: var(--wds-sz-text-title-line-height);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -257,7 +262,7 @@
   .wds-file-card__meta {
     margin: 0;
     color: var(--wds-text-tertiary);
-    font-size: var(--wds-sz-text-caption-font-size);
-    line-height: var(--wds-sz-text-caption-line-height);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
   }
 }
