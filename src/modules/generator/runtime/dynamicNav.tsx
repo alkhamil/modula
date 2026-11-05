@@ -1,7 +1,10 @@
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Database } from '../../../shared/components/icons';
 import ModuleMenuIcon from '../components/ModuleMenuIcon';
 import type { NavItemType } from '../../../shared/types/navigation';
 import type { MenuIcon, ModuleDefinition } from '../definitions';
+import { useDynamicDefinitions } from './hooks';
 import { definitionPermissions } from './types';
 import { moduleText, navLabelKey } from './moduleI18n';
 
@@ -66,3 +69,57 @@ export function buildDynamicNavItems(definitions: ModuleDefinition[]): NavItemTy
   }
   return [...groups.values(), ...flat];
 }
+
+/**
+ * Gabung nav statis + dinamis tanpa duplikat: modul hasil generate-ke-repo
+ * (statis, menutupi versi dinamis di route sama) menang — entri dinamis
+ * dengan path yang sudah ada dilewati, anak grup digabung per path.
+ * Tidak memutasi array statis.
+ */
+export function mergeDynamicNavItems(
+  staticItems: NavItemType[],
+  dynamicItems: NavItemType[],
+): NavItemType[] {
+  const merged: NavItemType[] = staticItems.map((item) => ({
+    ...item,
+    children: item.children ? [...item.children] : undefined,
+  }));
+  const usedPaths = new Set<string>();
+  for (const item of merged) {
+    if (item.path) usedPaths.add(item.path);
+    for (const child of item.children ?? []) usedPaths.add(child.path);
+  }
+  for (const dyn of dynamicItems) {
+    if (dyn.children) {
+      const group = merged.find((item) => item.label === dyn.label && item.children);
+      if (!group) {
+        merged.push(dyn);
+        for (const child of dyn.children) usedPaths.add(child.path);
+        continue;
+      }
+      for (const child of dyn.children) {
+        if (!usedPaths.has(child.path)) {
+          group.children!.push(child);
+          usedPaths.add(child.path);
+        }
+      }
+      continue;
+    }
+    if (dyn.path && !usedPaths.has(dyn.path)) {
+      merged.push(dyn);
+      usedPaths.add(dyn.path);
+    }
+  }
+  return merged;
+}
+
+/** Hook: gabungkan nav statis dengan item nav dari definisi published. */
+export function useMergedDynamicNav(staticItems: NavItemType[]): NavItemType[] {
+  const { i18n } = useTranslation();
+  const { data } = useDynamicDefinitions('published');
+  return useMemo(() => {
+    const dyn = data ? buildDynamicNavItems(data) : [];
+    return mergeDynamicNavItems(staticItems, dyn);
+  }, [staticItems, data, i18n.language]);
+}
+

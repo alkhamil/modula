@@ -1,9 +1,10 @@
 import { createBrowserRouter } from 'react-router';
-import ErrorStatePage from '../shared/components/ErrorStatePage';
+import { ErrorStatePage } from '../shared/components/ui';
 import { AuthProvider, PermissionGate } from './providers';
 import ProtectedAppShell from './ProtectedAppShell';
-import { LoginPage } from '../modules/auth/login';
-import { generatedRoutes } from './generated/routes';
+import { dashboardRoutes } from '../modules/dashboard/routes';
+// __ROUTE_IMPORTS__
+// __GENERATOR_IMPORTS__
 
 export const router = createBrowserRouter([
   {
@@ -15,13 +16,18 @@ export const router = createBrowserRouter([
           {
             element: <PermissionGate />,
             children: [
-              ...generatedRoutes,
-              { path: '*', element: <ErrorStatePage type="404" /> },
+              // Routes tiap modul hidup di `routes.tsx` modulnya.
+              ...dashboardRoutes,
+              // __GENERATOR_ROUTES__
+              { path: 'not-found', element: <ErrorStatePage type="404" />, handle: { notFound: true } },
+              // __FALLBACK_ROUTES__
+              { path: '*', element: <ErrorStatePage type="404" />, handle: { notFound: true } },
             ],
           },
         ],
       },
-      { path: 'login', element: <LoginPage /> },
+      // Halaman publik (di luar shell terproteksi).
+      // __PUBLIC_ROUTES__
     ],
   },
 ]);

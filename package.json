@@ -12,7 +12,9 @@
     "i18n:translate": "node scripts/i18n-translate.mjs --write",
     "i18n:check": "node scripts/i18n-translate.mjs --check",
     "icons:build": "node scripts/build-wds-icons.mjs",
-    "tokens:build": "node scripts/build-wds-tokens.mjs"
+    "tokens:build": "node scripts/build-wds-tokens.mjs",
+    "verify:project": "node scripts/verify-project/build.mjs",
+    "packs:examples": "node scripts/project/generate-example-packs.mjs"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",
@@ -27,6 +29,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-query": "^5.104.0",
     "axios": "^1.20.0",
+    "fflate": "^0.8.3",
     "i18next": "^26.4.2",
     "react": "^19.2.8",
     "react-datepicker": "^9.1.0",

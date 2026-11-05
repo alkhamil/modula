@@ -1,0 +1,13 @@
+{
+  "auth": {
+    "twoFactorTitle": "Two-factor verification",
+    "twoFactorHint": "Enter the 6-digit code from your authenticator app to finish signing in.",
+    "twoFactorDemo": "Demo (mock only): the code is {{code}}.",
+    "twoFactorCode": "Verification code",
+    "twoFactorVerify": "Verify",
+    "twoFactorFormat": "Enter the 6-digit code.",
+    "twoFactorInvalid": "The verification code is incorrect.",
+    "twoFactorFailed": "Verification failed.",
+    "backToLogin": "Back to login"
+  }
+}

@@ -1,11 +1,23 @@
 import { createContext } from 'react';
-import type { AuthUser, LoginPayload } from '../../modules/auth/login/types';
+
+export interface AuthUser {
+  username: string;
+  name: string;
+  role: string;
+  twoFactor?: boolean;
+}
+
+export interface AuthSession {
+  user: AuthUser;
+  token: string;
+  permissions: string[];
+}
 
 export interface AuthContextValue {
   user: AuthUser | null;
   permissions: string[];
   isAuthenticated: boolean;
-  login: (payload: LoginPayload) => Promise<void>;
+  signIn: (session: AuthSession) => void;
   logout: () => void;
   can: (key: string) => boolean;
 }

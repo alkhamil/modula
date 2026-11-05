@@ -1,0 +1,35 @@
+{
+  "id": "example-flat",
+  "label": "Example module: single (Default Module)",
+  "description": "Contoh modul CRUD tunggal tanpa parent: satu item menu di root. Dibangkitkan oleh module generator; ganti namanya sesuai kebutuhan.",
+  "default": true,
+  "requires": [],
+  "dependencies": {},
+  "inserts": [
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __GENERATOR_IMPORTS__",
+      "text": "import { defaultModuleRoutes } from '../modules/default-module/routes';"
+    },
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __GENERATOR_ROUTES__",
+      "text": "...defaultModuleRoutes,"
+    },
+    {
+      "file": "src/app/navigation.tsx",
+      "anchor": "// __GENERATOR_NAV_IMPORTS__",
+      "text": "import { defaultModuleNav } from '../modules/default-module/navigation';"
+    },
+    {
+      "file": "src/app/navigation.tsx",
+      "anchor": "// __GENERATOR_NAV_ENTRIES__",
+      "text": "defaultModuleNav,"
+    },
+    {
+      "file": "src/app/permissions.ts",
+      "anchor": "// __PERMISSION_KEYS__",
+      "text": "'default_module.view',\n'default_module.create',\n'default_module.update',\n'default_module.delete',\n'default_module.bulk_upload',\n'default_module.export',"
+    }
+  ]
+}

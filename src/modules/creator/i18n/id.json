@@ -1,0 +1,136 @@
+{
+  "creator": {
+    "nav": {
+      "home": "Beranda",
+      "create": "Buat Project",
+      "docs": "Design System",
+      "cta": "Buat Project"
+    },
+    "footer": {
+      "tagline": "Modula — Generator Basecode Project React & Dokumentasi WDS Design System."
+    },
+    "landing": {
+      "badge": "React 19 • Vite 8 • Tailwind CSS 4 • WDS Design System",
+      "title": "Rakit basecode project React siap pakai dalam hitungan menit",
+      "subtitle": "Atur kebutuhan aplikasi lewat wizard seperti proses instalasi: pilih fitur autentikasi plug-and-play dengan checkbox, modul bawaan User & Role, contoh modul child maupun parent-child, komponen WDS di shared/components, serta module generator yang tertanam langsung di dalam kode.",
+      "startWizard": "Mulai Buat Project",
+      "exploreDocs": "Lihat Design System",
+      "highlightsTitle": "Semua yang langsung tersedia di basecode project kamu",
+      "highlightsSubtitle": "Tanpa ketergantungan library UI eksternal — seluruh komponen disalin ke src/shared/components dan bebas dikustomisasi.",
+      "cards": {
+        "authTitle": "Autentikasi Plug & Play",
+        "authDesc": "Pilih fitur auth sesuai kebutuhan lewat checkbox: Login, Logout, Forgot & Reset Password, Register, hingga Two-Factor Authentication (2FA).",
+        "modulesTitle": "Modul Default User, Role & Contoh Modul",
+        "modulesDesc": "Langsung tersedia modul User & Role (lengkap dengan matriks permission, bulk upload & export Excel) serta contoh modul tunggal dan parent-child dengan nama generik.",
+        "generatorTitle": "Module Generator Tertanam",
+        "generatorDesc": "Di dalam kode project hasil sudah tertanam fitur /generator beserta Vite dev writer plugin, sehingga saat lanjut development kamu bisa membuat modul baru kapan saja.",
+        "dsTitle": "Komponen WDS Design System",
+        "dsDesc": "50+ komponen WDS (Button, InputField, Select, DatePicker, Table, FormArrayField, dll.) di src/shared/components lengkap dengan token tema light/dark."
+      },
+      "workflowTitle": "Alur instalasi pembuatan project",
+      "workflowSteps": {
+        "s1Title": "1. Project & Brand",
+        "s1Desc": "Isi nama project, unggah logo, dan tentukan tampilan sidebar saat collapsed.",
+        "s2Title": "2. Tema",
+        "s2Desc": "Pilih tema bawaan dan warna primary.",
+        "s3Title": "3. Auth & Modul Default",
+        "s3Desc": "Aktifkan alur auth, manajemen User & Role, dan modul contoh.",
+        "s4Title": "4. Unduh Basecode .zip",
+        "s4Desc": "Unduh arsip .zip project React + TypeScript lengkap dengan /generator yang siap dijalankan dengan npm install && npm run dev."
+      }
+    },
+    "wizard": {
+      "title": "Wizard Instalasi Project Baru",
+      "subtitle": "Ikuti langkah-langkah di bawah untuk memilih fitur, mengatur modul, dan mengunduh basecode project React kamu.",
+      "steps": {
+        "project": "Project & Brand",
+        "theme": "Tema",
+        "auth": "Fitur Auth",
+        "modules": "Modul Default",
+        "review": "Review & Unduh"
+      },
+      "back": "Kembali",
+      "next": "Lanjut",
+      "projectStep": {
+        "title": "Langkah 1 — Nama Project & Brand",
+        "desc": "Isi nama aplikasi dan unggah logo brand. Slug paket npm dibuat otomatis.",
+        "nameLabel": "Nama Project",
+        "namePlaceholder": "Portal Internal Perusahaan",
+        "nameRequired": "Nama project wajib diisi.",
+        "slugLabel": "Slug Package (package.json & nama folder zip)",
+        "stackTitle": "Arsitektur & Stack yang Disertakan",
+        "stackItems": {
+          "ui": "Komponen UI: src/shared/components (WDS Design System disalin langsung, tanpa install library UI)",
+          "data": "Lapisan Data: Mock-only dengan api/resolver.ts (saklar USE_MOCK siap dihubungkan ke backend Axios)",
+          "routing": "Routing & Guard: React Router 7 + RequireAuth + PermissionGate + i18next (ID & EN)",
+          "generator": "Generator Tertanam: Visual Module Generator (/generator) + Vite dev plugin penulis modul"
+        },
+        "brandTitle": "Logo brand",
+        "logoLabel": "Logo (sidebar terbuka)",
+        "logoSupporting": "SVG, PNG, JPG atau WebP · maks 512 KB. Tampil di kepala sidebar berlatar warna brand dan jadi favicon bila berformat SVG.",
+        "collapsedTitle": "Saat sidebar diciutkan (collapsed)",
+        "collapsedInitial": "Pakai huruf pertama nama project",
+        "collapsedUpload": "Unggah ikon ringkas",
+        "collapsedLabel": "Ikon ringkas (sidebar collapsed)",
+        "collapsedSupporting": "Paling baik persegi (mis. 64×64). SVG, PNG, JPG atau WebP · maks 512 KB.",
+        "previewTitle": "Pratinjau sidebar",
+        "previewExpanded": "Terbuka",
+        "previewCollapsed": "Collapsed",
+        "errorType": "File tidak didukung. Pakai SVG, PNG, JPG atau WebP.",
+        "errorSize": "Ukuran file lebih dari 512 KB."
+      },
+      "authStep": {
+        "title": "Langkah 3 — Pilih Fitur Autentikasi (Plug & Play)",
+        "desc": "Centang fitur autentikasi yang ingin dipasang ke src/modules/auth/. Route publik, tautan antar halaman auth, dan translasi akan dirakit otomatis.",
+        "selectAll": "Pilih Semua",
+        "resetDefault": "Reset Default",
+        "lockedBadge": "Wajib",
+        "selectedBadge": "Aktif"
+      },
+      "modulesStep": {
+        "title": "Langkah 4 — Modul Default & Contoh Modul",
+        "desc": "Modul User & Role serta contoh modul tunggal (child) dan induk-anak (parent-child) langsung aktif secara default.",
+        "coreGroup": "Modul Manajemen Akses Bawaan (Parent-Child: User Management)",
+        "exampleGroup": "Contoh Modul CRUD (Tunggal & Parent-Child, nama generik yang bisa diganti)",
+        "embeddedGroup": "Fitur Generator Tertanam",
+        "alwaysIncluded": "Selalu Tertanam",
+        "defaultBadge": "Default"
+      },
+      "reviewStep": {
+        "title": "Langkah 5 — Review & Unduh Basecode Project",
+        "desc": "Periksa kembali ringkasan instalasi project di bawah, lalu klik tombol Download Basecode (.zip).",
+        "summaryProject": "Identitas Project",
+        "summaryAuth": "Fitur Autentikasi",
+        "summaryModules": "Modul Bawaan & Contoh",
+        "summaryGenerator": "Module Generator",
+        "generatorNote": "Tertanam otomatis di route /generator (lengkap dengan Vite dev plugin untuk menulis modul baru ke src/modules/).",
+        "quickStartTitle": "Cara Menjalankan Project Setelah Diunduh",
+        "downloadBtn": "Download Basecode (.zip)",
+        "buildingBtn": "Merakit Arsip .zip…",
+        "successMsg": "Berhasil merakit {{fileName}} ({{count}} file). Silakan periksa unduhan browser kamu!",
+        "summaryBrand": "Brand & Tema",
+        "summaryRuntime": "Runtime",
+        "noLogo": "Tanpa logo (nama project)",
+        "logoSet": "Logo diunggah",
+        "collapsedInitial": "Collapsed: huruf pertama",
+        "collapsedIcon": "Collapsed: ikon ringkas",
+        "themeSummary": "Mode {{mode}} · {{color}}",
+        "nodeSummary": "Node.js {{version}} (.nvmrc)"
+      },
+      "themeStep": {
+        "title": "Langkah 2 — Tema",
+        "desc": "Pilih mode bawaan dan warna primary. Pengguna aplikasi hasil tetap bisa mengubah keduanya lewat pengatur tema.",
+        "modeLabel": "Mode bawaan",
+        "modeLight": "Terang",
+        "modeDark": "Gelap",
+        "colorLabel": "Warna primary",
+        "colorDefault": "Bawaan WDS",
+        "colorCustom": "Warna kustom",
+        "colorInvalid": "Pakai warna hex seperti #00487a.",
+        "previewTitle": "Pratinjau",
+        "previewButton": "Tombol primary",
+        "previewText": "Contoh teks pada tema ini"
+      }
+    }
+  }
+}

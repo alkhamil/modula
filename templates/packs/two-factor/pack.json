@@ -1,0 +1,56 @@
+{
+  "id": "two-factor",
+  "label": "Two-factor authentication",
+  "description": "Verifikasi kode 6 digit (/two-factor) setelah login untuk akun yang mengaktifkan 2FA. Mock: kode 123456.",
+  "requires": [
+    "login"
+  ],
+  "dependencies": {},
+  "inserts": [
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __ROUTE_IMPORTS__",
+      "text": "import { twoFactorRoutes } from '../modules/auth/two-factor/routes';"
+    },
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __PUBLIC_ROUTES__",
+      "text": "...twoFactorRoutes,"
+    },
+    {
+      "file": "src/app/moduleLocales.ts",
+      "anchor": "// __LOCALE_IMPORTS__",
+      "text": "import enTwoFactor from '../modules/auth/two-factor/i18n/en.json';\nimport idTwoFactor from '../modules/auth/two-factor/i18n/id.json';"
+    },
+    {
+      "file": "src/app/moduleLocales.ts",
+      "anchor": "// __LOCALES_EN__",
+      "text": "enTwoFactor,"
+    },
+    {
+      "file": "src/app/moduleLocales.ts",
+      "anchor": "// __LOCALES_ID__",
+      "text": "idTwoFactor,"
+    },
+    {
+      "file": "src/modules/auth/login/hooks/useLoginForm.ts",
+      "anchor": "// __LOGIN_FLOW_IMPORTS__",
+      "text": "import { needsTwoFactor, storePendingSession } from '../../two-factor/lib/pending';"
+    },
+    {
+      "file": "src/modules/auth/login/hooks/useLoginForm.ts",
+      "anchor": "// __LOGIN_FLOW_IMPORTS__",
+      "text": "import { useNavigate } from 'react-router';"
+    },
+    {
+      "file": "src/modules/auth/login/hooks/useLoginForm.ts",
+      "anchor": "// __LOGIN_FLOW_HOOKS__",
+      "text": "const navigate = useNavigate();"
+    },
+    {
+      "file": "src/modules/auth/login/hooks/useLoginForm.ts",
+      "anchor": "// __LOGIN_FLOW_STEPS__",
+      "text": "if (needsTwoFactor(result)) {\n        storePendingSession(result);\n        navigate('/two-factor');\n        return;\n      }"
+    }
+  ]
+}

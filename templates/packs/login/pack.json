@@ -1,0 +1,15 @@
+{
+  "id": "login",
+  "label": "Login",
+  "description": "Halaman login (username + password) dengan akun demo mock. Wajib: guard session mengarah ke /login.",
+  "locked": true,
+  "requires": [],
+  "dependencies": {},
+  "inserts": [
+    { "file": "src/app/router.tsx", "anchor": "// __ROUTE_IMPORTS__", "text": "import { loginRoutes } from '../modules/auth/login/routes';" },
+    { "file": "src/app/router.tsx", "anchor": "// __PUBLIC_ROUTES__", "text": "...loginRoutes," },
+    { "file": "src/app/moduleLocales.ts", "anchor": "// __LOCALE_IMPORTS__", "text": "import enLogin from '../modules/auth/login/i18n/en.json';\nimport idLogin from '../modules/auth/login/i18n/id.json';" },
+    { "file": "src/app/moduleLocales.ts", "anchor": "// __LOCALES_EN__", "text": "enLogin," },
+    { "file": "src/app/moduleLocales.ts", "anchor": "// __LOCALES_ID__", "text": "idLogin," }
+  ]
+}

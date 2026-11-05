@@ -1,0 +1,79 @@
+{
+  "id": "generator",
+  "label": "Module Generator",
+  "description": "Wizard 7 langkah (/generator) + runtime dinamis + dev plugin Generate ke repo untuk membuat modul CRUD baru saat development.",
+  "locked": true,
+  "requires": [],
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2"
+  },
+  "inserts": [
+    {
+      "file": "vite.config.ts",
+      "anchor": "// __VITE_IMPORTS__",
+      "text": "import { moduleWriterPlugin } from './vite-plugin/moduleWriter.ts';"
+    },
+    {
+      "file": "vite.config.ts",
+      "anchor": "// __VITE_PLUGINS__",
+      "text": "moduleWriterPlugin(),"
+    },
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __ROUTE_IMPORTS__",
+      "text": "import { generatorRoutes } from '../modules/generator/routes';\nimport { DynamicModuleRoutes } from '../modules/generator/runtime/DynamicRoutes';"
+    },
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __GENERATOR_ROUTES__",
+      "text": "...generatorRoutes,"
+    },
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __FALLBACK_ROUTES__",
+      "text": "{ path: '*', element: <DynamicModuleRoutes /> },"
+    },
+    {
+      "file": "src/app/navigation.tsx",
+      "anchor": "// __GENERATOR_NAV_IMPORTS__",
+      "text": "import { generatorNav } from '../modules/generator/navigation';"
+    },
+    {
+      "file": "src/app/navigation.tsx",
+      "anchor": "// __GENERATOR_NAV_ENTRIES__",
+      "text": "generatorNav,"
+    },
+    {
+      "file": "src/app/ProtectedAppShell.tsx",
+      "anchor": "// __SHELL_IMPORTS__",
+      "text": "import { useMergedDynamicNav } from '../modules/generator/runtime/dynamicNav';"
+    },
+    {
+      "file": "src/app/ProtectedAppShell.tsx",
+      "anchor": "// __SHELL_HOOKS__",
+      "text": "const mergedNavItems = useMergedDynamicNav(navItems);"
+    },
+    {
+      "file": "src/app/ProtectedAppShell.tsx",
+      "anchor": "// __SHELL_EXTRAS__",
+      "text": "navItems: mergedNavItems,"
+    },
+    {
+      "file": "src/app/moduleLocales.ts",
+      "anchor": "// __LOCALE_IMPORTS__",
+      "text": "import enGenerator from '../modules/generator/i18n/en.json';\nimport idGenerator from '../modules/generator/i18n/id.json';"
+    },
+    {
+      "file": "src/app/moduleLocales.ts",
+      "anchor": "// __LOCALES_EN__",
+      "text": "enGenerator,"
+    },
+    {
+      "file": "src/app/moduleLocales.ts",
+      "anchor": "// __LOCALES_ID__",
+      "text": "idGenerator,"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "example-nested",
+  "label": "Example modules: parent + children (Default Parent)",
+  "description": "Contoh dua modul CRUD di bawah satu parent \"Default Parent\": satu group menu dengan dua anak. Dibangkitkan oleh module generator; ganti namanya sesuai kebutuhan.",
+  "default": true,
+  "requires": [],
+  "dependencies": {},
+  "inserts": [
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __GENERATOR_IMPORTS__",
+      "text": "import { defaultItemRoutes } from '../modules/default-parent/default-item/routes';"
+    },
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __GENERATOR_ROUTES__",
+      "text": "...defaultItemRoutes,"
+    },
+    {
+      "file": "src/app/navigation.tsx",
+      "anchor": "// __GENERATOR_NAV_IMPORTS__",
+      "text": "import { defaultItemNav } from '../modules/default-parent/default-item/navigation';"
+    },
+    {
+      "file": "src/app/navigation.tsx",
+      "anchor": "// __GENERATOR_NAV_ENTRIES__",
+      "text": "defaultItemNav,"
+    },
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __GENERATOR_IMPORTS__",
+      "text": "import { defaultRecordRoutes } from '../modules/default-parent/default-record/routes';"
+    },
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __GENERATOR_ROUTES__",
+      "text": "...defaultRecordRoutes,"
+    },
+    {
+      "file": "src/app/navigation.tsx",
+      "anchor": "// __GENERATOR_NAV_IMPORTS__",
+      "text": "import { defaultRecordNav } from '../modules/default-parent/default-record/navigation';"
+    },
+    {
+      "file": "src/app/navigation.tsx",
+      "anchor": "// __GENERATOR_NAV_ENTRIES__",
+      "text": "defaultRecordNav,"
+    },
+    {
+      "file": "src/app/permissions.ts",
+      "anchor": "// __PERMISSION_KEYS__",
+      "text": "'default_item.view',\n'default_item.create',\n'default_item.update',\n'default_item.delete',\n'default_item.bulk_upload',\n'default_item.export',\n'default_record.view',\n'default_record.create',\n'default_record.update',\n'default_record.delete',\n'default_record.bulk_upload',\n'default_record.export',"
+    }
+  ]
+}

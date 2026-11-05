@@ -1,0 +1,12 @@
+{
+  "id": "logout",
+  "label": "Logout",
+  "description": "Tombol logout di menu profil; memanggil API logout (mock) lalu membersihkan sesi.",
+  "requires": ["login"],
+  "dependencies": {},
+  "inserts": [
+    { "file": "src/app/ProtectedAppShell.tsx", "anchor": "// __SHELL_IMPORTS__", "text": "import { useLogoutAction } from '../modules/auth/logout';" },
+    { "file": "src/app/ProtectedAppShell.tsx", "anchor": "// __SHELL_HOOKS__", "text": "const onLogout = useLogoutAction();" },
+    { "file": "src/app/ProtectedAppShell.tsx", "anchor": "// __SHELL_EXTRAS__", "text": "onLogout," }
+  ]
+}

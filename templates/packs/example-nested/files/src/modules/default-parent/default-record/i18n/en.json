@@ -1,0 +1,38 @@
+{
+  "default_record": {
+    "label": "Default Record",
+    "labelPlural": "Default Records",
+    "parentLabel": "Default Parent",
+    "breadcrumbs": {
+      "list": "Default Records",
+      "create": "Create",
+      "detail": "Detail",
+      "edit": "Edit"
+    },
+    "fields": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter name"
+      },
+      "code": {
+        "label": "Code",
+        "placeholder": "Enter code"
+      },
+      "sortOrder": {
+        "label": "Sort Order",
+        "placeholder": "Enter sort order"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter description"
+      }
+    },
+    "toast": {
+      "created": "Default Record created successfully.",
+      "updated": "Default Record updated successfully.",
+      "deleted": "Default Record deleted successfully",
+      "restored": "Default Record restored successfully",
+      "notFound": "Default Record not found"
+    }
+  }
+}

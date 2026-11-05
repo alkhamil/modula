@@ -5,8 +5,10 @@ import type { Plugin } from 'vite';
 import type { ModuleRegistration } from '../src/modules/generator/types.ts';
 import {
   registerModuleNav,
+  registerModulePermissions,
   registerModuleRoutes,
   unregisterModuleNav,
+  unregisterModulePermissions,
   unregisterModuleRoutes,
 } from './moduleRegistration.ts';
 
@@ -170,6 +172,14 @@ export function moduleWriterPlugin(): Plugin {
                 nextNav,
                 'utf8',
               );
+              const permFile = path.resolve(server.config.root, 'src', 'app', 'permissions.ts');
+              if (fs.existsSync(permFile)) {
+                fs.writeFileSync(
+                  permFile,
+                  registerModulePermissions(fs.readFileSync(permFile, 'utf8'), registration),
+                  'utf8',
+                );
+              }
             }
             sendJson(res, 200, { written: outcome.written, registered });
           })
@@ -207,6 +217,14 @@ export function moduleWriterPlugin(): Plugin {
             );
             fs.writeFileSync(routerFile, routeOutcome.source, 'utf8');
             fs.writeFileSync(navFile, navOutcome.source, 'utf8');
+            const permFile = path.resolve(server.config.root, 'src', 'app', 'permissions.ts');
+            if (fs.existsSync(permFile)) {
+              fs.writeFileSync(
+                permFile,
+                unregisterModulePermissions(fs.readFileSync(permFile, 'utf8'), registration),
+                'utf8',
+              );
+            }
             let deleted: string[] = [];
             if (typeof moduleDir === 'string' && moduleDir.trim() !== '') {
               const abs = resolveDeleteTarget(server.config.root, moduleDir);

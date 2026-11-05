@@ -1,0 +1,35 @@
+{
+  "id": "role",
+  "label": "Roles",
+  "description": "Modul Role + pemilihan permission, di grup menu User Management.",
+  "default": true,
+  "requires": [],
+  "dependencies": {},
+  "inserts": [
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __GENERATOR_IMPORTS__",
+      "text": "import { roleRoutes } from '../modules/user-management/role/routes';"
+    },
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __GENERATOR_ROUTES__",
+      "text": "...roleRoutes,"
+    },
+    {
+      "file": "src/app/navigation.tsx",
+      "anchor": "// __GENERATOR_NAV_IMPORTS__",
+      "text": "import { roleNav } from '../modules/user-management/role/navigation';"
+    },
+    {
+      "file": "src/app/navigation.tsx",
+      "anchor": "// __GENERATOR_NAV_ENTRIES__",
+      "text": "roleNav,"
+    },
+    {
+      "file": "src/app/permissions.ts",
+      "anchor": "// __PERMISSION_KEYS__",
+      "text": "'master-role.view',\n'master-role.create',\n'master-role.update',\n'master-role.delete',\n'master-role.bulk_upload',\n'master-role.export',"
+    }
+  ]
+}

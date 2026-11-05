@@ -1,0 +1,136 @@
+{
+  "creator": {
+    "nav": {
+      "home": "Home",
+      "create": "Create Project",
+      "docs": "Design System",
+      "cta": "New Project"
+    },
+    "footer": {
+      "tagline": "Modula — React Project Scaffolder & WDS Design System."
+    },
+    "landing": {
+      "badge": "React 19 • Vite 8 • Tailwind CSS 4 • WDS Design System",
+      "title": "Build production-ready React projects in minutes",
+      "subtitle": "Configure your project through an interactive installer wizard: plug-and-play authentication, built-in User & Role management, example flat & parent-child CRUD modules, WDS shared components, and an embedded module generator for future development.",
+      "startWizard": "Create Project Now",
+      "exploreDocs": "Explore Design System",
+      "highlightsTitle": "Everything included in your generated basecode",
+      "highlightsSubtitle": "No external UI lock-in — components are copied into src/shared/components and ready to customize.",
+      "cards": {
+        "authTitle": "Plug & Play Authentication",
+        "authDesc": "Pick the exact auth flows you need via checkboxes: Login, Logout, Forgot & Reset Password, Registration, and 6-digit Two-Factor Authentication.",
+        "modulesTitle": "Default User, Role & Example Modules",
+        "modulesDesc": "Ships with User & Role CRUD (including permission matrix, Excel bulk upload & export) plus a single module and a parent-child pair of generic example modules.",
+        "generatorTitle": "Embedded Module Generator",
+        "generatorDesc": "Your downloaded project includes the visual /generator wizard and Vite dev writer plugin so your team can scaffold new modules anytime during development.",
+        "dsTitle": "WDS Design System Built-In",
+        "dsDesc": "50+ accessible WDS components (Button, InputField, Select, DatePicker, Table, FormArrayField, and more) in src/shared/components with light/dark theme tokens."
+      },
+      "workflowTitle": "How the installer wizard works",
+      "workflowSteps": {
+        "s1Title": "1. Project & Brand",
+        "s1Desc": "Set the project name, upload your logo and choose what shows when the sidebar is collapsed.",
+        "s2Title": "2. Theme",
+        "s2Desc": "Pick the default theme and primary color.",
+        "s3Title": "3. Auth & Default Modules",
+        "s3Desc": "Toggle auth flows, User & Role management and the example modules.",
+        "s4Title": "4. Download .zip Basecode",
+        "s4Desc": "Get a clean, self-contained React + TypeScript repository with embedded /generator ready for npm install && npm run dev."
+      }
+    },
+    "wizard": {
+      "title": "Create New React Project",
+      "subtitle": "Follow the installation steps below to customize and download your project basecode.",
+      "steps": {
+        "project": "Project & Brand",
+        "theme": "Theme",
+        "auth": "Auth Features",
+        "modules": "Default Modules",
+        "review": "Review & Download"
+      },
+      "back": "Back",
+      "next": "Continue",
+      "projectStep": {
+        "title": "Step 1 — Project Name & Brand",
+        "desc": "Enter your application name and upload your brand logo. The npm package slug is generated automatically.",
+        "nameLabel": "Project Name",
+        "namePlaceholder": "My Enterprise Portal",
+        "nameRequired": "Project name is required.",
+        "slugLabel": "Package Slug (package.json & zip folder)",
+        "stackTitle": "Included Base Stack & Architecture",
+        "stackItems": {
+          "ui": "UI Components: src/shared/components (WDS Design System copied directly, no external UI library needed)",
+          "data": "Data Layer: Mock-first with api/resolver.ts (USE_MOCK toggle ready to switch to Axios backend)",
+          "routing": "Routing & Guards: React Router 7 + RequireAuth + PermissionGate + i18next (EN & ID)",
+          "generator": "Embedded Tooling: Visual Module Generator (/generator) + Vite dev file-writer plugin"
+        },
+        "brandTitle": "Brand logo",
+        "logoLabel": "Logo (expanded sidebar)",
+        "logoSupporting": "SVG, PNG, JPG or WebP · max 512 KB. Shown on the brand-colored sidebar header and used as the favicon when it is an SVG.",
+        "collapsedTitle": "When the sidebar is collapsed",
+        "collapsedInitial": "Use the first letter of the project name",
+        "collapsedUpload": "Upload a compact icon",
+        "collapsedLabel": "Compact icon (collapsed sidebar)",
+        "collapsedSupporting": "Square works best (for example 64×64). SVG, PNG, JPG or WebP · max 512 KB.",
+        "previewTitle": "Sidebar preview",
+        "previewExpanded": "Expanded",
+        "previewCollapsed": "Collapsed",
+        "errorType": "Unsupported file. Use SVG, PNG, JPG or WebP.",
+        "errorSize": "File is larger than 512 KB."
+      },
+      "authStep": {
+        "title": "Step 3 — Plug & Play Authentication Features",
+        "desc": "Select the authentication capabilities to include in src/modules/auth/. Selected routes, links, and locales are wired automatically.",
+        "selectAll": "Select All",
+        "resetDefault": "Reset to Default",
+        "lockedBadge": "Required",
+        "selectedBadge": "Included"
+      },
+      "modulesStep": {
+        "title": "Step 4 — Default & Example Modules",
+        "desc": "User & Role modules and sample flat / parent-child CRUD modules are enabled by default. You can toggle any of them below.",
+        "coreGroup": "Default Access Management Modules (Parent-Child: User Management)",
+        "exampleGroup": "Example CRUD Modules (Single & Parent-Child, generic names you can rename)",
+        "embeddedGroup": "Embedded Development Tooling",
+        "alwaysIncluded": "Always Embedded",
+        "defaultBadge": "Default"
+      },
+      "reviewStep": {
+        "title": "Step 5 — Review & Download Basecode",
+        "desc": "Verify your setup below and click Download Basecode (.zip) to build your project in the browser.",
+        "summaryProject": "Project Identity",
+        "summaryAuth": "Authentication Flows",
+        "summaryModules": "Pre-installed Modules",
+        "summaryGenerator": "Embedded Generator",
+        "generatorNote": "Included at /generator (with Vite dev writer plugin for generating new modules into src/modules/).",
+        "quickStartTitle": "Quick Start After Download",
+        "downloadBtn": "Download Basecode (.zip)",
+        "buildingBtn": "Building .zip Archive…",
+        "successMsg": "Successfully built {{fileName}} ({{count}} files). Check your browser downloads!",
+        "summaryBrand": "Brand & Theme",
+        "summaryRuntime": "Runtime",
+        "noLogo": "No logo (project name)",
+        "logoSet": "Logo uploaded",
+        "collapsedInitial": "Collapsed: first letter",
+        "collapsedIcon": "Collapsed: compact icon",
+        "themeSummary": "{{mode}} mode · {{color}}",
+        "nodeSummary": "Node.js {{version}} (.nvmrc)"
+      },
+      "themeStep": {
+        "title": "Step 2 — Theme",
+        "desc": "Choose the default mode and primary color. Users of the generated app can still change both from the theme switcher.",
+        "modeLabel": "Default mode",
+        "modeLight": "Light",
+        "modeDark": "Dark",
+        "colorLabel": "Primary color",
+        "colorDefault": "WDS default",
+        "colorCustom": "Custom color",
+        "colorInvalid": "Use a hex color like #00487a.",
+        "previewTitle": "Preview",
+        "previewButton": "Primary button",
+        "previewText": "Sample text on this theme"
+      }
+    }
+  }
+}

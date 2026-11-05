@@ -1,0 +1,37 @@
+{
+  "default_module": {
+    "label": "Default Module",
+    "labelPlural": "Default Modules",
+    "breadcrumbs": {
+      "list": "Default Modules",
+      "create": "Create",
+      "detail": "Detail",
+      "edit": "Edit"
+    },
+    "fields": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter name"
+      },
+      "code": {
+        "label": "Code",
+        "placeholder": "Enter code"
+      },
+      "sortOrder": {
+        "label": "Sort Order",
+        "placeholder": "Enter sort order"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter description"
+      }
+    },
+    "toast": {
+      "created": "Default Module created successfully.",
+      "updated": "Default Module updated successfully.",
+      "deleted": "Default Module deleted successfully",
+      "restored": "Default Module restored successfully",
+      "notFound": "Default Module not found"
+    }
+  }
+}

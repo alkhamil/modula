@@ -1,0 +1,15 @@
+{
+  "id": "forgot-password",
+  "label": "Forgot password",
+  "description": "Halaman lupa password (/forgot-password) dan reset password (/reset-password) dengan alur mock.",
+  "requires": ["login"],
+  "dependencies": {},
+  "inserts": [
+    { "file": "src/app/router.tsx", "anchor": "// __ROUTE_IMPORTS__", "text": "import { forgotPasswordRoutes } from '../modules/auth/forgot-password/routes';" },
+    { "file": "src/app/router.tsx", "anchor": "// __PUBLIC_ROUTES__", "text": "...forgotPasswordRoutes," },
+    { "file": "src/app/moduleLocales.ts", "anchor": "// __LOCALE_IMPORTS__", "text": "import enForgotPassword from '../modules/auth/forgot-password/i18n/en.json';\nimport idForgotPassword from '../modules/auth/forgot-password/i18n/id.json';" },
+    { "file": "src/app/moduleLocales.ts", "anchor": "// __LOCALES_EN__", "text": "enForgotPassword," },
+    { "file": "src/app/moduleLocales.ts", "anchor": "// __LOCALES_ID__", "text": "idForgotPassword," },
+    { "file": "src/modules/auth/login/auth-links.ts", "anchor": "// __AUTH_LINKS__", "text": "{ to: '/forgot-password', labelKey: 'auth.forgotPasswordLink', testId: 'auth-forgot-link' }," }
+  ]
+}

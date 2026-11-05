@@ -1,0 +1,17 @@
+{
+  "auth": {
+    "registerLink": "Buat akun",
+    "registerTitle": "Buat akun",
+    "register": "Daftar",
+    "fullName": "Nama lengkap",
+    "email": "Email",
+    "confirmPassword": "Konfirmasi password",
+    "haveAccount": "Sudah punya akun? Masuk",
+    "registerFieldsRequired": "Nama, username, email, dan password wajib diisi.",
+    "emailInvalid": "Format email tidak valid.",
+    "passwordTooShort": "Password minimal {{count}} karakter.",
+    "passwordMismatch": "Password tidak sama.",
+    "registerSuccess": "Akun dibuat. Silakan masuk.",
+    "registerFailed": "Pendaftaran gagal."
+  }
+}

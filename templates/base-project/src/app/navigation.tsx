@@ -1,5 +1,12 @@
-import { generatedNavItems } from './generated/navigation';
-import type { NavItemType } from '../shared/types/navigation';
+import type { ModuleNav, NavItemType } from '../shared/types/navigation';
+import { buildModuleNavItems } from '../shared/utils/moduleNav';
+import { dashboardNav } from '../modules/dashboard/navigation';
+// __GENERATOR_NAV_IMPORTS__
 
-/** Menu sidebar. Item di bawah ini ditulis tangan; menu module hasil Code Builder ada di `generated/navigation.tsx`. */
-export const navItems: NavItemType[] = [...generatedNavItems];
+/** Nav tiap modul, urutan = urutan menu. */
+const moduleNavEntries: ModuleNav[] = [
+  dashboardNav,
+  // __GENERATOR_NAV_ENTRIES__
+];
+
+export const navItems: NavItemType[] = buildModuleNavItems(moduleNavEntries);

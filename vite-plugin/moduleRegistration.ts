@@ -4,6 +4,9 @@ export const ROUTER_IMPORTS_ANCHOR = '// __GENERATOR_IMPORTS__';
 export const ROUTER_ROUTES_ANCHOR = '// __GENERATOR_ROUTES__';
 export const NAV_IMPORTS_ANCHOR = '// __GENERATOR_NAV_IMPORTS__';
 export const NAV_ENTRIES_ANCHOR = '// __GENERATOR_NAV_ENTRIES__';
+export const PERMISSION_KEYS_ANCHOR = '// __PERMISSION_KEYS__';
+
+const PERMISSION_ACTIONS = ['view', 'create', 'update', 'delete', 'bulk_upload', 'export'] as const;
 
 export interface RouteRegistrationOutcome {
   source: string;
@@ -141,3 +144,27 @@ export function unregisterModuleNav(
   );
   return { source: entry.source, removed: entry.removed };
 }
+
+/** Daftarkan permission keys modul di `permissions.ts` (bila anchor tersedia). Idempoten. */
+export function registerModulePermissions(source: string, reg: ModuleRegistration): string {
+  if (!source.includes(PERMISSION_KEYS_ANCHOR)) return source;
+  const base = reg.permissionView.replace(/\.view$/, '');
+  let next = source;
+  for (const action of PERMISSION_ACTIONS) {
+    const key = `${base}.${action}`;
+    if (!next.includes(`'${key}'`) && !next.includes(`"${key}"`)) {
+      next = insertLineBeforeAnchor(next, PERMISSION_KEYS_ANCHOR, `'${key}',`, 'permissions.ts');
+    }
+  }
+  return next;
+}
+
+/** Hapus permission keys modul dari `permissions.ts`. Idempoten. */
+export function unregisterModulePermissions(source: string, reg: ModuleRegistration): string {
+  const base = reg.permissionView.replace(/\.view$/, '');
+  return removeLines(
+    source,
+    new RegExp(`^\\s*['"]${escapeRe(base)}\\.(?:view|create|update|delete|bulk_upload|export)['"]\\s*,\\s*$`),
+  ).source;
+}
+

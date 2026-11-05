@@ -1,0 +1,22 @@
+{
+  "auth": {
+    "forgotPasswordLink": "Forgot password?",
+    "forgotPasswordTitle": "Forgot password",
+    "forgotPasswordHint": "Enter your account email and we will send a link to reset your password.",
+    "email": "Email",
+    "emailRequired": "Email is required.",
+    "sendResetLink": "Send reset link",
+    "resetLinkSent": "If the email is registered, a reset link has been sent.",
+    "openResetDemo": "Open reset page (demo, mock only)",
+    "backToLogin": "Back to login",
+    "resetPasswordTitle": "Reset password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "resetPassword": "Reset password",
+    "passwordTooShort": "Password must be at least {{count}} characters.",
+    "passwordMismatch": "Passwords do not match.",
+    "passwordUpdated": "Password updated. Redirecting to login…",
+    "resetTokenInvalid": "The reset link is invalid or has expired.",
+    "requestFailed": "Request failed. Please try again."
+  }
+}

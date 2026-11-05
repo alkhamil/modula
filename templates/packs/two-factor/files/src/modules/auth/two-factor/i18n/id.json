@@ -1,0 +1,13 @@
+{
+  "auth": {
+    "twoFactorTitle": "Verifikasi dua langkah",
+    "twoFactorHint": "Masukkan kode 6 digit dari aplikasi authenticator untuk menyelesaikan login.",
+    "twoFactorDemo": "Demo (hanya mock): kodenya {{code}}.",
+    "twoFactorCode": "Kode verifikasi",
+    "twoFactorVerify": "Verifikasi",
+    "twoFactorFormat": "Masukkan kode 6 digit.",
+    "twoFactorInvalid": "Kode verifikasi salah.",
+    "twoFactorFailed": "Verifikasi gagal.",
+    "backToLogin": "Kembali ke login"
+  }
+}

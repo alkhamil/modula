@@ -1,0 +1,15 @@
+{
+  "id": "register",
+  "label": "Register",
+  "description": "Halaman pendaftaran akun (/register); akun mock disimpan di localStorage dan bisa langsung login.",
+  "requires": ["login"],
+  "dependencies": {},
+  "inserts": [
+    { "file": "src/app/router.tsx", "anchor": "// __ROUTE_IMPORTS__", "text": "import { registerRoutes } from '../modules/auth/register/routes';" },
+    { "file": "src/app/router.tsx", "anchor": "// __PUBLIC_ROUTES__", "text": "...registerRoutes," },
+    { "file": "src/app/moduleLocales.ts", "anchor": "// __LOCALE_IMPORTS__", "text": "import enRegister from '../modules/auth/register/i18n/en.json';\nimport idRegister from '../modules/auth/register/i18n/id.json';" },
+    { "file": "src/app/moduleLocales.ts", "anchor": "// __LOCALES_EN__", "text": "enRegister," },
+    { "file": "src/app/moduleLocales.ts", "anchor": "// __LOCALES_ID__", "text": "idRegister," },
+    { "file": "src/modules/auth/login/auth-links.ts", "anchor": "// __AUTH_LINKS__", "text": "{ to: '/register', labelKey: 'auth.registerLink', testId: 'auth-register-link' }," }
+  ]
+}

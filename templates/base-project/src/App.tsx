@@ -1,17 +1,25 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { I18nextProvider } from 'react-i18next';
 import { RouterProvider } from 'react-router';
-import { ThemeProvider } from './shared/ui';
+import { defaultThemeOverrides, projectConfig } from './app/project.config';
 import { router } from './app/router';
 import { queryClient } from './shared/lib/queryClient';
+import { ThemeProvider } from './shared/theme';
+import { ToastProvider } from './shared/components/ui';
 import i18n from './shared/i18n';
 
 function App() {
   return (
     <I18nextProvider i18n={i18n}>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <RouterProvider router={router} />
+        <ThemeProvider
+          defaultTheme={projectConfig.theme}
+          defaultOverrides={defaultThemeOverrides}
+          storageKey={projectConfig.slug}
+        >
+          <ToastProvider>
+            <RouterProvider router={router} />
+          </ToastProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </I18nextProvider>

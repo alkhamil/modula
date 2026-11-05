@@ -1,28 +1,25 @@
-# Base project Midas
+# __PROJECT_NAME__
 
-Kerangka aplikasi yang dipakai Midas Code Builder untuk project baru (spec §5.2): shell aplikasi (router, navigasi, auth mock, guard permission), modul `auth/login` + `dashboard`, dan `shared/` tipis. Komponen UI dari library design system (saat ini `@midas/ui-cms`).
+Project React hasil wizard **Modula**: shell aplikasi (router, navigasi, auth mock, guard permission), komponen design system di `src/shared/components`, dan fitur auth yang dipilih saat project dibuat. Mock-only (tanpa backend) dengan lapisan `api/` yang siap diganti ke backend nyata.
 
 ## Menjalankan
 
+Butuh Node.js **__PROJECT_NODE__** (lihat `.nvmrc`; dengan nvm cukup `nvm use`).
+
 ```bash
 cp .env.example .env
-MIDAS_REGISTRY_TOKEN=... npm install     # @midas/* dari Midas Registry (lihat .npmrc)
+npm install
 npm run dev
 ```
 
 Login demo (mock): `admin` / `admin123`.
 
-## Styling
+## Struktur
 
-`src/index.css` cukup mengimpor Tailwind dan `shared/ui/library.css`:
+- `src/app/` — `router.tsx`, `navigation.tsx`, `moduleLocales.ts`, `ProtectedAppShell.tsx`, `providers/` (sesi auth + guard).
+- `src/modules/<modul>/` — satu folder per fitur/modul bisnis (`pages/`, `components/`, `api/`, `hooks/`, `types/`, `validation/`, `i18n/`).
+- `src/shared/` — design system (`components/ui`, `layout`, `icons`), `theme`, `hooks`, `lib`, `utils`, `types`, `i18n`.
 
-```css
-@import 'tailwindcss';
-@import './shared/ui/library.css';   /* → @import '<paket library>/tailwind.css': font, token tema, utility Tailwind & spacing */
-```
+## Beralih ke backend nyata
 
-Nama paket library hanya tertulis di dua file kecil (`src/shared/ui/index.ts`: `export * from '<paket>'`, dan `src/shared/ui/library.css`) serta `package.json`. Kode lain mengimpor komponen dari `shared/ui`. Code Builder membangkitkan kedua file itu sesuai library yang dipilih di project, jadi mengganti library tidak menyentuh kode lain.
-
-## Modul baru
-
-Modul hasil Code Builder ditulis ke `src/modules/` oleh `midas generate`, dan didaftarkan lewat `src/app/generated/{routes,navigation,locales,layout}` yang diimpor `router.tsx`, `navigation.tsx`, `moduleLocales.ts` dan `ProtectedAppShell.tsx` — file `generated/` dibangkitkan, jangan diedit manual. Lihat `AGENTS.md` untuk pakem struktur.
+Tiap modul memakai `api/resolver.ts` dengan saklar `USE_MOCK` di `api/mock.ts`. Set ke `false` untuk memakai `api/service.ts` (axios, base URL dari `VITE_API_BASE_URL`).

@@ -1,48 +1,35 @@
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { matchPath, Outlet, useLocation, useNavigate } from 'react-router';
-import { AppShell } from '../shared/ui';
-import { filterNavItems, resolveNavLabel } from '../shared/utils/navigation';
-import { appLayout } from './generated/layout';
-import { generatedPages } from './generated/pages';
+import type { ComponentProps } from 'react';
+import { AppShell } from '../shared/components/layout';
 import { navItems } from './navigation';
+import { projectConfig } from './project.config';
 import { RequireAuth, useAuth } from './providers';
+// __SHELL_IMPORTS__
 
-/** App shell terproteksi: guard session + menu (disaring permission) + user/logout dari auth. */
+const logo = projectConfig.logo ? (
+  <img src={projectConfig.logo} alt={projectConfig.name} className="wds-sidenav__brand-img" />
+) : undefined;
+const collapsedLogo = projectConfig.logoCollapsed ? (
+  <img src={projectConfig.logoCollapsed} alt={projectConfig.name} className="wds-sidenav__brand-img wds-sidenav__brand-img--mini" />
+) : undefined;
+
+/** App shell terproteksi: guard session + menu (disaring permission) + user dari auth. */
 function ProtectedAppShell() {
-  const { user, permissions, logout } = useAuth();
-  const { t } = useTranslation();
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  // Menu bersarang (induk → anak) diteruskan apa adanya ke Sidebar library; `flat` dipakai untuk mencari item aktif.
-  const items = useMemo(
-    () =>
-      filterNavItems(navItems, permissions).map((item) => ({
-        label: resolveNavLabel(item, t),
-        path: item.path,
-        icon: item.icon,
-        children: item.children?.map((child) => ({ label: resolveNavLabel(child, t), path: child.path })),
-      })),
-    [permissions, t],
-  );
-  const flat = useMemo(() => items.flatMap((item) => [...(item.path ? [{ label: item.label, path: item.path }] : []), ...(item.children ?? [])]), [items]);
-  const current = [...flat].sort((a, b) => b.path.length - a.path.length).find((i) => (i.path === '/' ? pathname === '/' : pathname === i.path || pathname.startsWith(`${i.path}/`)));
-  // Judul & breadcrumb dari konfigurasi Code Builder; halaman bawaan memakai label menu.
-  const page = generatedPages.find((p) => matchPath({ path: p.path, end: true }, pathname));
+  const { user, permissions } = useAuth();
+  // __SHELL_HOOKS__
+  const shellExtras: Partial<ComponentProps<typeof AppShell>> = {
+    // __SHELL_EXTRAS__
+  };
   return (
     <RequireAuth>
       <AppShell
-        navItems={items}
-        activePath={pathname}
-        onNavigate={navigate}
+        navItems={navItems}
+        permissions={permissions}
         user={user ? { name: user.name, roleName: user.role } : null}
-        title={page?.title ?? current?.label}
-        breadcrumbs={page?.breadcrumbs}
-        appName={appLayout.appName}
-        userMenu={[{ label: t('auth.logout'), danger: true, onClick: logout }]}
-      >
-        <Outlet />
-      </AppShell>
+        appName={projectConfig.name}
+        logo={logo}
+        collapsedLogo={collapsedLogo}
+        {...shellExtras}
+      />
     </RequireAuth>
   );
 }

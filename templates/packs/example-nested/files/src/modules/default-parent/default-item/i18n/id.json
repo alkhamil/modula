@@ -1,0 +1,38 @@
+{
+  "default_item": {
+    "label": "Default Item",
+    "labelPlural": "Default Items",
+    "parentLabel": "Default Parent",
+    "breadcrumbs": {
+      "list": "Default Items",
+      "create": "Create",
+      "detail": "Detail",
+      "edit": "Edit"
+    },
+    "fields": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter name"
+      },
+      "code": {
+        "label": "Code",
+        "placeholder": "Enter code"
+      },
+      "sortOrder": {
+        "label": "Sort Order",
+        "placeholder": "Enter sort order"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter description"
+      }
+    },
+    "toast": {
+      "created": "Default Item created successfully.",
+      "updated": "Default Item updated successfully.",
+      "deleted": "Default Item deleted successfully",
+      "restored": "Default Item restored successfully",
+      "notFound": "Default Item not found"
+    }
+  }
+}

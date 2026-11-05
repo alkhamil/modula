@@ -29,3 +29,6 @@ dist-test
 .env
 .env.*
 !.env.example
+
+# verifikasi project hasil wizard
+/.tmp/

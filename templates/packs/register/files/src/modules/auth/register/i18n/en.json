@@ -1,0 +1,17 @@
+{
+  "auth": {
+    "registerLink": "Create an account",
+    "registerTitle": "Create account",
+    "register": "Register",
+    "fullName": "Full name",
+    "email": "Email",
+    "confirmPassword": "Confirm password",
+    "haveAccount": "Already have an account? Log in",
+    "registerFieldsRequired": "Name, username, email and password are required.",
+    "emailInvalid": "Email format is invalid.",
+    "passwordTooShort": "Password must be at least {{count}} characters.",
+    "passwordMismatch": "Passwords do not match.",
+    "registerSuccess": "Account created. You can now log in.",
+    "registerFailed": "Registration failed."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "auth": {
+    "forgotPasswordLink": "Lupa password?",
+    "forgotPasswordTitle": "Lupa password",
+    "forgotPasswordHint": "Masukkan email akun kamu, kami kirim tautan untuk mengatur ulang password.",
+    "email": "Email",
+    "emailRequired": "Email wajib diisi.",
+    "sendResetLink": "Kirim tautan reset",
+    "resetLinkSent": "Bila email terdaftar, tautan reset sudah dikirim.",
+    "openResetDemo": "Buka halaman reset (demo, hanya mock)",
+    "backToLogin": "Kembali ke login",
+    "resetPasswordTitle": "Atur ulang password",
+    "newPassword": "Password baru",
+    "confirmPassword": "Konfirmasi password",
+    "resetPassword": "Atur ulang password",
+    "passwordTooShort": "Password minimal {{count}} karakter.",
+    "passwordMismatch": "Password tidak sama.",
+    "passwordUpdated": "Password diperbarui. Mengarahkan ke login…",
+    "resetTokenInvalid": "Tautan reset tidak valid atau sudah kedaluwarsa.",
+    "requestFailed": "Permintaan gagal. Coba lagi."
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "user",
+  "label": "Users",
+  "description": "Modul User (CRUD, bulk upload, export) di grup menu User Management.",
+  "default": true,
+  "requires": [],
+  "dependencies": {},
+  "inserts": [
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __GENERATOR_IMPORTS__",
+      "text": "import { userRoutes } from '../modules/user-management/user/routes';"
+    },
+    {
+      "file": "src/app/router.tsx",
+      "anchor": "// __GENERATOR_ROUTES__",
+      "text": "...userRoutes,"
+    },
+    {
+      "file": "src/app/navigation.tsx",
+      "anchor": "// __GENERATOR_NAV_IMPORTS__",
+      "text": "import { userNav } from '../modules/user-management/user/navigation';"
+    },
+    {
+      "file": "src/app/navigation.tsx",
+      "anchor": "// __GENERATOR_NAV_ENTRIES__",
+      "text": "userNav,"
+    },
+    {
+      "file": "src/app/permissions.ts",
+      "anchor": "// __PERMISSION_KEYS__",
+      "text": "'master-user.view',\n'master-user.create',\n'master-user.update',\n'master-user.delete',\n'master-user.bulk_upload',\n'master-user.export',"
+    }
+  ]
+}

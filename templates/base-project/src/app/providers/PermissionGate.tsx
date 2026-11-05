@@ -1,5 +1,5 @@
 import { Outlet, useMatches } from 'react-router';
-import ErrorStatePage from '../../shared/components/ErrorStatePage';
+import { ErrorStatePage } from '../../shared/components/ui';
 import { useAuth } from './useAuth';
 
 /**

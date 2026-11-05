@@ -39,7 +39,7 @@ import TestDataPanel from '../builder/TestDataPanel';
 import ListBuilderCanvas from '../builder/ListBuilderCanvas';
 import DetailBuilderCanvas from '../builder/DetailBuilderCanvas';
 import ContractPanel from '../builder/ContractPanel';
-import { clearDraft, loadDraft, saveDraft, valuesToSampleRow } from '../builder/draft';
+import { clearDraft, valuesToSampleRow } from '../builder/draft';
 import { publishModuleToRepo } from '../api/publishToRepo';
 
 const STEPS = [
@@ -108,23 +108,16 @@ function GeneratorPage() {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
-  const [initialDraft] = useState(loadDraft);
-  const [step, setStep] = useState(() =>
-    Math.min(initialDraft?.step ?? 0, STEPS.length - 1),
-  );
-  const [info, setInfo] = useState<ModuleInfoValue>(initialDraft?.info ?? INITIAL_INFO);
-  const [features, setFeatures] = useState<Record<FeatureKey, boolean>>(
-    initialDraft?.features ?? DEFAULT_FEATURES,
-  );
-  const [fields, setFields] = useState<GeneratorFieldConfig[]>(initialDraft?.fields ?? []);
-  const [layout, setLayout] = useState<ModuleLayout | null>(initialDraft?.layout ?? null);
-  const [deleteMode, setDeleteMode] = useState<DeleteMode>(initialDraft?.deleteMode ?? 'soft');
-  const [menuIcon, setMenuIcon] = useState<MenuIcon | null>(initialDraft?.menuIcon ?? null);
-  const [i18nDict, setI18nDict] = useState<ModuleI18nDict | undefined>(initialDraft?.i18n);
+  const [step, setStep] = useState(0);
+  const [info, setInfo] = useState<ModuleInfoValue>(INITIAL_INFO);
+  const [features, setFeatures] = useState<Record<FeatureKey, boolean>>(DEFAULT_FEATURES);
+  const [fields, setFields] = useState<GeneratorFieldConfig[]>([]);
+  const [layout, setLayout] = useState<ModuleLayout | null>(null);
+  const [deleteMode, setDeleteMode] = useState<DeleteMode>('soft');
+  const [menuIcon, setMenuIcon] = useState<MenuIcon | null>(null);
+  const [i18nDict, setI18nDict] = useState<ModuleI18nDict | undefined>(undefined);
   const [iconDialogOpen, setIconDialogOpen] = useState(false);
-  const [sampleRows, setSampleRows] = useState<DynamicListItem[]>(
-    initialDraft?.sampleRows ?? [],
-  );
+  const [sampleRows, setSampleRows] = useState<DynamicListItem[]>([]);
   const [stepError, setStepError] = useState<string | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishResult, setPublishResult] = useState<PublishResult | null>(null);
@@ -142,9 +135,8 @@ function GeneratorPage() {
   );
 
   useEffect(() => {
-    if (publishResult) return;
-    saveDraft({ info, features, fields, layout, deleteMode, menuIcon, i18n: i18nDict, sampleRows, step });
-  }, [info, features, fields, layout, deleteMode, menuIcon, i18nDict, sampleRows, step, publishResult]);
+    clearDraft();
+  }, []);
 
   const effectiveLayout = useMemo(
     () => normalizeLayout(layout ?? defaultLayoutForFields(fields), fields.map((f) => f.name)),
@@ -278,9 +270,7 @@ function GeneratorPage() {
   }
 
   function requestEdit(def: ModuleDefinition): void {
-    const draft = loadDraft();
-    const hasWork =
-      draft !== null && (draft.fields.length > 0 || draft.info.moduleName.trim() !== '');
+    const hasWork = fields.length > 0 || info.moduleName.trim() !== '';
     if (hasWork) {
       setEditTarget(def);
     } else {
@@ -469,12 +459,6 @@ function GeneratorPage() {
             <Alert variant="info" message={t('wizard.editingModule', { key: editingKey })} />
           )}
           {stepError && <Alert variant="error" message={stepError} />}
-          {initialDraft && step === 0 && (
-            <Alert
-              variant="info"
-              message="Draft terakhir dimuat otomatis. Selesaikan atau mulai baru."
-            />
-          )}
           <Card
             title={step === 6 ? t('wizard.steps.review') : `${t('wizard.builder')} — ${t(`wizard.steps.${STEPS[step]}`)}`}
             actions={
@@ -488,7 +472,7 @@ function GeneratorPage() {
                 >
                   {t('common.back')}
                 </Button>
-                {step === 0 && (
+                {(fields.length > 0 || info.moduleName.trim() !== '') && (
                   <Button type="button" variant="secondary" onClick={resetWizard}>
                     {t('wizard.discardDraft')}
                   </Button>
