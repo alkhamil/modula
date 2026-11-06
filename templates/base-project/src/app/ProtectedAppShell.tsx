@@ -1,15 +1,15 @@
 import type { ComponentProps } from 'react';
 import { AppShell } from '../shared/components/layout';
 import { navItems } from './navigation';
-import { projectConfig } from './project.config';
+import { assetUrl, projectConfig } from './project.config';
 import { RequireAuth, useAuth } from './providers';
 // __SHELL_IMPORTS__
 
 const logo = projectConfig.logo ? (
-  <img src={projectConfig.logo} alt={projectConfig.name} className="wds-sidenav__brand-img" />
+  <img src={assetUrl(projectConfig.logo)} alt={projectConfig.name} className="wds-sidenav__brand-img" />
 ) : undefined;
 const collapsedLogo = projectConfig.logoCollapsed ? (
-  <img src={projectConfig.logoCollapsed} alt={projectConfig.name} className="wds-sidenav__brand-img wds-sidenav__brand-img--mini" />
+  <img src={assetUrl(projectConfig.logoCollapsed)} alt={projectConfig.name} className="wds-sidenav__brand-img wds-sidenav__brand-img--mini" />
 ) : undefined;
 
 /** App shell terproteksi: guard session + menu (disaring permission) + user dari auth. */

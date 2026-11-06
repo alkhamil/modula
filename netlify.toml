@@ -1,0 +1,13 @@
+# Deploy situs Modula ke Netlify: build statis Vite + fallback SPA.
+# Wizard dan unduh .zip berjalan penuh di browser; "Jalankan di localhost" hanya ada saat `npm run dev`.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

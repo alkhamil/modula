@@ -22,7 +22,7 @@ export function brandExtension(file: Pick<File, 'type' | 'name'>): string | null
   return ext && ['svg', 'png', 'jpg', 'webp'].includes(ext) ? ext : null;
 }
 
-/** Kunci i18n error validasi (`creator.wizard.projectStep.*`), atau null bila file valid. */
+/** Kunci i18n error validasi (`creator.installer.identity.*`), atau null bila file valid. */
 export function validateBrandFile(file: File): 'errorType' | 'errorSize' | null {
   if (!brandExtension(file)) return 'errorType';
   if (file.size > MAX_BRAND_BYTES) return 'errorSize';

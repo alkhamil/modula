@@ -48,13 +48,13 @@ function SidebarPreview({ projectName, logoUrl, collapsedLogoUrl, primaryColor }
   );
 
   return (
-    <div className="flex flex-col gap-2" role="group" aria-label={t('creator.wizard.projectStep.previewTitle')}>
+    <div className="flex flex-col gap-2" role="group" aria-label={t('creator.installer.identity.previewTitle')}>
       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {t('creator.wizard.projectStep.previewTitle')}
+        {t('creator.installer.identity.previewTitle')}
       </h3>
       <div className="flex flex-wrap items-start gap-6">
-        {panel(t('creator.wizard.projectStep.previewExpanded'), false)}
-        {panel(t('creator.wizard.projectStep.previewCollapsed'), true)}
+        {panel(t('creator.installer.identity.previewExpanded'), false)}
+        {panel(t('creator.installer.identity.previewCollapsed'), true)}
       </div>
     </div>
   );

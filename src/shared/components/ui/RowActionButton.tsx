@@ -2,7 +2,7 @@ import { Eye, Pen, Restart, TrashBinTrash } from '../icons';
 
 export type RowActionKind = 'view' | 'edit' | 'delete' | 'restore';
 
-/** Warna ikon aksi: `default` = warna bawaan tiap aksi (info/warning/danger/success). */
+/** Warna ikon aksi: `default` = netral (Figma "Action icons": ikon abu-abu gelap); warna semantik hanya bila diminta. */
 export type RowActionColor = 'default' | 'info' | 'warning' | 'danger' | 'success' | 'muted';
 
 const ACTION_ICONS = {
@@ -12,11 +12,12 @@ const ACTION_ICONS = {
   restore: Restart,
 } as const;
 
+const NEUTRAL_ICON = 'text-(--wds-icons-secondary)';
 const DEFAULT_ICON_COLORS: Record<RowActionKind, string> = {
-  view: 'text-info',
-  edit: 'text-warning',
-  delete: 'text-danger',
-  restore: 'text-success',
+  view: NEUTRAL_ICON,
+  edit: NEUTRAL_ICON,
+  delete: NEUTRAL_ICON,
+  restore: NEUTRAL_ICON,
 };
 
 const COLOR_CLASSES: Record<Exclude<RowActionColor, 'default'>, string> = {
@@ -31,7 +32,7 @@ export interface RowActionButtonProps {
   action: RowActionKind;
   /** Ukuran ikon px (default 16). */
   iconSize?: number;
-  /** Override warna ikon (default = warna bawaan aksi). */
+  /** Override warna ikon (default = netral). */
   color?: RowActionColor;
   title?: string;
   testId?: string;
@@ -41,7 +42,7 @@ export interface RowActionButtonProps {
 
 /**
  * Tombol aksi baris tabel standar (lihat/ubah/hapus/restore):
- * tombol `h-7 w-7`, ikon memakai `iconSize` + warna aksi.
+ * tombol `h-7 w-7`, ikon memakai `iconSize` + warna netral (bisa di-override per aksi).
  */
 function RowActionButton({
   action,

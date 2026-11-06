@@ -32,3 +32,6 @@ dist-test
 
 # verifikasi project hasil wizard
 /.tmp/
+
+# project hasil wizard yang dijalankan lokal (dev)
+/.local-projects/

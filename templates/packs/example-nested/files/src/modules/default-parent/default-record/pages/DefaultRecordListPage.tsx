@@ -70,25 +70,16 @@ function DefaultRecordListPage() {
     <div data-testid="default-record-list-page">
       <Card
         testId="default-record-list-card"
+        flush
         title={t('runtime.listTitle', { singular: t('default_record.label') })}
+        description={t('runtime.listDescription', { plural: t('default_record.labelPlural').toLowerCase() })}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            {canExport && (
-              <Button
-                data-testid="default-record-export-button"
-                variant="secondary"
-                icon={<Download />}
-                onClick={() => exportData(queryParams)}
-                disabled={isExporting}
-              >
-                {isExporting ? t('runtime.exporting') : t('common.export')}
-              </Button>
-            )}
+          <>
             {canBulkUpload && (
               <Button
                 data-testid="default-record-bulk-upload-button"
-                variant="secondary"
-                icon={<Upload />}
+                hierarchy="secondary"
+                leadingIcon={<Upload />}
                 onClick={() => setBulkOpen(true)}
               >
                 {t('common.bulkUpload')}
@@ -97,27 +88,39 @@ function DefaultRecordListPage() {
             {canCreate && (
               <Button
                 data-testid="default-record-create-button"
-                icon={<AddCircle />}
+                leadingIcon={<AddCircle />}
                 onClick={() => navigate('/default-parent/default-records/create')}
               >
                 {t('runtime.createTitle', { singular: t('default_record.label') })}
               </Button>
             )}
-          </div>
+          </>
         }
       >
-        <div className="mb-4">
-          <TableToolbar
-            testId="default-record-filter"
-            searchValue={searchQuery}
-            onSearchChange={handleSearchChange}
-            filterFields={filterFields}
-            filterValues={filterValues}
-            onApply={handleApply}
-            onReset={handleReset}
-            searchParamName="search"
-          />
-        </div>
+        <TableToolbar
+          testId="default-record-filter"
+          searchValue={searchQuery}
+          onSearchChange={handleSearchChange}
+          filterFields={filterFields}
+          filterValues={filterValues}
+          onApply={handleApply}
+          onReset={handleReset}
+          searchParamName="search"
+          loading={isLoading}
+          actions={
+            canExport && (
+              <Button
+                data-testid="default-record-export-button"
+                hierarchy="secondary"
+                leadingIcon={<Download />}
+                onClick={() => exportData(queryParams)}
+                disabled={isExporting || isLoading}
+              >
+                {isExporting ? t('runtime.exporting') : t('common.export')}
+              </Button>
+            )
+          }
+        />
         <DefaultRecordTable
           testId="default-record-table"
           data={defaultRecords}

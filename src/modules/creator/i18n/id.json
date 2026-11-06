@@ -39,32 +39,43 @@
         "s4Desc": "Unduh arsip .zip project React + TypeScript lengkap dengan /generator yang siap dijalankan dengan npm install && npm run dev."
       }
     },
-    "wizard": {
-      "title": "Wizard Instalasi Project Baru",
-      "subtitle": "Ikuti langkah-langkah di bawah untuk memilih fitur, mengatur modul, dan mengunduh basecode project React kamu.",
+    "installer": {
+      "title": "Buat Project React Baru",
+      "subtitle": "Ikuti langkahnya seperti memasang aplikasi. Di akhir kamu mendapat project siap jalan dalam bentuk .zip.",
       "steps": {
-        "project": "Project & Brand",
-        "theme": "Tema",
-        "auth": "Fitur Auth",
-        "modules": "Modul Default",
-        "review": "Review & Unduh"
+        "identity": "Identitas",
+        "style": "Gaya & tema",
+        "modules": "Modul & fitur",
+        "review": "Ringkasan",
+        "install": "Pemasangan",
+        "finish": "Selesai"
       },
+      "stepOf": "Langkah {{current}} dari {{total}}",
       "back": "Kembali",
       "next": "Lanjut",
-      "projectStep": {
-        "title": "Langkah 1 — Nama Project & Brand",
-        "desc": "Isi nama aplikasi dan unggah logo brand. Slug paket npm dibuat otomatis.",
+      "install": {
+        "title": "Memasang…",
+        "desc": "Jangan tutup halaman ini.",
+        "stages": {
+          "structure": "Menyusun struktur project",
+          "designSystem": "Menyalin design system",
+          "style": "Menerapkan gaya {{style}} dan tema",
+          "brand": "Menerapkan nama dan logo",
+          "module": "Memasang: {{name}}",
+          "node": "Menulis .nvmrc (Node 24)",
+          "pack": "Mengemas arsip .zip"
+        },
+        "error": "Gagal membuat project: {{message}}",
+        "retry": "Coba lagi"
+      },
+      "startOver": "Mulai dari awal",
+      "identity": {
+        "title": "Identitas project",
+        "desc": "Beri nama project dan tambahkan logo. Slug paket dibuat otomatis.",
         "nameLabel": "Nama Project",
         "namePlaceholder": "Portal Internal Perusahaan",
         "nameRequired": "Nama project wajib diisi.",
         "slugLabel": "Slug Package (package.json & nama folder zip)",
-        "stackTitle": "Arsitektur & Stack yang Disertakan",
-        "stackItems": {
-          "ui": "Komponen UI: src/shared/components (WDS Design System disalin langsung, tanpa install library UI)",
-          "data": "Lapisan Data: Mock-only dengan api/resolver.ts (saklar USE_MOCK siap dihubungkan ke backend Axios)",
-          "routing": "Routing & Guard: React Router 7 + RequireAuth + PermissionGate + i18next (ID & EN)",
-          "generator": "Generator Tertanam: Visual Module Generator (/generator) + Vite dev plugin penulis modul"
-        },
         "brandTitle": "Logo brand",
         "logoLabel": "Logo (sidebar terbuka)",
         "logoSupporting": "SVG, PNG, JPG atau WebP · maks 512 KB. Tampil di kepala sidebar berlatar warna brand dan jadi favicon bila berformat SVG.",
@@ -79,57 +90,156 @@
         "errorType": "File tidak didukung. Pakai SVG, PNG, JPG atau WebP.",
         "errorSize": "Ukuran file lebih dari 512 KB."
       },
-      "authStep": {
-        "title": "Langkah 3 — Pilih Fitur Autentikasi (Plug & Play)",
-        "desc": "Centang fitur autentikasi yang ingin dipasang ke src/modules/auth/. Route publik, tautan antar halaman auth, dan translasi akan dirakit otomatis.",
-        "selectAll": "Pilih Semua",
-        "resetDefault": "Reset Default",
-        "lockedBadge": "Wajib",
-        "selectedBadge": "Aktif"
-      },
-      "modulesStep": {
-        "title": "Langkah 4 — Modul Default & Contoh Modul",
-        "desc": "Modul User & Role serta contoh modul tunggal (child) dan induk-anak (parent-child) langsung aktif secara default.",
-        "coreGroup": "Modul Manajemen Akses Bawaan (Parent-Child: User Management)",
-        "exampleGroup": "Contoh Modul CRUD (Tunggal & Parent-Child, nama generik yang bisa diganti)",
-        "embeddedGroup": "Fitur Generator Tertanam",
-        "alwaysIncluded": "Selalu Tertanam",
-        "defaultBadge": "Default"
-      },
-      "reviewStep": {
-        "title": "Langkah 5 — Review & Unduh Basecode Project",
-        "desc": "Periksa kembali ringkasan instalasi project di bawah, lalu klik tombol Download Basecode (.zip).",
-        "summaryProject": "Identitas Project",
-        "summaryAuth": "Fitur Autentikasi",
-        "summaryModules": "Modul Bawaan & Contoh",
-        "summaryGenerator": "Module Generator",
-        "generatorNote": "Tertanam otomatis di route /generator (lengkap dengan Vite dev plugin untuk menulis modul baru ke src/modules/).",
-        "quickStartTitle": "Cara Menjalankan Project Setelah Diunduh",
-        "downloadBtn": "Download Basecode (.zip)",
-        "buildingBtn": "Merakit Arsip .zip…",
-        "successMsg": "Berhasil merakit {{fileName}} ({{count}} file). Silakan periksa unduhan browser kamu!",
-        "summaryBrand": "Brand & Tema",
-        "summaryRuntime": "Runtime",
-        "noLogo": "Tanpa logo (nama project)",
-        "logoSet": "Logo diunggah",
-        "collapsedInitial": "Collapsed: huruf pertama",
-        "collapsedIcon": "Collapsed: ikon ringkas",
-        "themeSummary": "Mode {{mode}} · {{color}}",
-        "nodeSummary": "Node.js {{version}} (.nvmrc)"
-      },
-      "themeStep": {
-        "title": "Langkah 2 — Tema",
-        "desc": "Pilih mode bawaan dan warna primary. Pengguna aplikasi hasil tetap bisa mengubah keduanya lewat pengatur tema.",
+      "style": {
+        "title": "Gaya & tema",
+        "desc": "Pilih tampilan aplikasi. Semua contoh di langkah berikutnya mengikuti pilihan ini. Gaya selain Klasik adalah ekstensi WDS di luar file Figma.",
+        "styleLabel": "Gaya tampilan",
+        "comingSoon": "Segera hadir",
+        "official": "WDS resmi",
+        "screens": {
+          "login": "Login",
+          "forgot": "Lupa password",
+          "list": "Daftar data"
+        },
+        "styles": {
+          "classic": {
+            "name": "Klasik",
+            "desc": "Sidebar gelap berwarna brand, header di atas. Mengikuti Figma WDS."
+          },
+          "light": {
+            "name": "Terang",
+            "desc": "Sidebar putih bergaris tipis dan halaman login dua kolom."
+          },
+          "top": {
+            "name": "Menu atas",
+            "desc": "Tanpa sidebar, area konten lebar."
+          },
+          "rail": {
+            "name": "Ringkas",
+            "desc": "Sidebar ikon sempit dan tabel padat."
+          },
+          "floating": {
+            "name": "Melayang",
+            "desc": "Kartu membulat di atas latar lembut."
+          }
+        },
         "modeLabel": "Mode bawaan",
         "modeLight": "Terang",
         "modeDark": "Gelap",
         "colorLabel": "Warna primary",
         "colorDefault": "Bawaan WDS",
         "colorCustom": "Warna kustom",
-        "colorInvalid": "Pakai warna hex seperti #00487a.",
-        "previewTitle": "Pratinjau",
-        "previewButton": "Tombol primary",
-        "previewText": "Contoh teks pada tema ini"
+        "colorInvalid": "Pakai warna hex seperti #00487a."
+      },
+      "modules": {
+        "title": "Modul & fitur",
+        "desc": "Pilih yang mau dipasang. Gambar mengikuti gaya yang kamu pilih.",
+        "groups": {
+          "access": "Akses & keamanan",
+          "users": "Pengguna",
+          "data": "Data & operasional",
+          "system": "Selalu ikut"
+        },
+        "cards": {
+          "login": {
+            "name": "Login dan logout",
+            "desc": "Masuk dengan username dan password"
+          },
+          "forgot": {
+            "name": "Lupa password",
+            "desc": "Pemulihan lewat email"
+          },
+          "register": {
+            "name": "Registrasi",
+            "desc": "Pendaftaran akun baru"
+          },
+          "otp": {
+            "name": "Verifikasi dua langkah",
+            "desc": "Kode 6 digit saat masuk"
+          },
+          "users": {
+            "name": "Pengguna",
+            "desc": "Kelola akun"
+          },
+          "roles": {
+            "name": "Peran dan hak akses",
+            "desc": "Matriks hak akses per peran"
+          },
+          "exampleSingle": {
+            "name": "Contoh modul (tunggal)",
+            "desc": "Satu modul CRUD mandiri"
+          },
+          "exampleNested": {
+            "name": "Contoh modul (parent-child)",
+            "desc": "Satu grup menu dengan dua modul anak"
+          },
+          "dashboard": {
+            "name": "Dashboard",
+            "desc": "Ringkasan angka dan grafik"
+          },
+          "audit": {
+            "name": "Riwayat aktivitas",
+            "desc": "Siapa mengubah apa dan kapan"
+          },
+          "profile": {
+            "name": "Profil dan pengaturan akun",
+            "desc": "Ubah data diri dan password"
+          },
+          "notifications": {
+            "name": "Notifikasi dan persetujuan",
+            "desc": "Peringatan dan langkah persetujuan"
+          },
+          "generator": {
+            "name": "Module generator",
+            "desc": "Buat modul baru dari builder visual"
+          }
+        },
+        "required": "Wajib",
+        "comingSoon": "Segera hadir",
+        "count": "{{count}} modul dan fitur dipilih"
+      },
+      "review": {
+        "title": "Siap dipasang",
+        "desc": "Periksa ringkasan, lalu tekan Pasang.",
+        "project": "Project",
+        "logo": "Logo",
+        "noLogo": "Tanpa logo (nama project)",
+        "logoSet": "{{name}}",
+        "collapsed": "Sidebar collapsed",
+        "collapsedInitial": "Huruf pertama nama",
+        "collapsedIcon": "Ikon ringkas: {{name}}",
+        "style": "Gaya",
+        "theme": "Mode {{mode}} · {{color}}",
+        "modules": "Modul dan fitur",
+        "runtime": "Node.js",
+        "runtimeValue": "Node.js 24 (.nvmrc, tetap)"
+      },
+      "finish": {
+        "title": "Pemasangan selesai",
+        "desc": "Project kamu siap. Unduh, lalu jalankan perintah di bawah.",
+        "ready": "{{fileName}} siap diunduh ({{count}} file).",
+        "download": "Unduh .zip",
+        "downloaded": "Unduhan dimulai: {{fileName}}",
+        "quickStart": "Mulai cepat",
+        "live": {
+          "title": "Alamat Live Project",
+          "badge": "Siap Diakses",
+          "desc": "Aplikasi kamu langsung aktif dan bisa dicoba di alamat ini, baik di localhost maupun setelah dideploy:",
+          "open": "Buka Live ↗",
+          "copy": "Salin URL",
+          "copied": "URL live berhasil disalin ke clipboard!"
+        },
+        "local": {
+          "title": "Jalankan di localhost",
+          "intro": "Jalankan project ini sekarang dari dev server lokal, dengan alamatnya sendiri, dan tes dengan sungguhan. Hanya tersedia saat Modula berjalan dengan npm run dev.",
+          "run": "Jalankan di localhost",
+          "starting": "Memulai…",
+          "open": "Buka di tab baru",
+          "stop": "Hentikan",
+          "note": "Pemuatan halaman pertama bisa beberapa detik karena Vite menyiapkan dependensi. Project ditulis ke .local-projects/ dan berhenti saat kamu menekan Hentikan atau menutup dev server.",
+          "unavailable": "Menjalankan di localhost hanya tersedia saat Modula berjalan dengan npm run dev. Kamu tetap bisa mengunduh .zip.",
+          "error": "Project tidak bisa dijalankan: {{message}}"
+        }
       }
     }
   }

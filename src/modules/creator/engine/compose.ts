@@ -6,6 +6,7 @@
 import type { GeneratorConfig } from '../../generator/types';
 import { generateModule } from '../../generator/engine/moduleGenerator';
 import { buildRegistration } from '../../generator/engine/registration';
+import type { UiStyle } from '../../../shared/theme/theme';
 
 /** Sisipan teks ke file yang sudah ada, tepat di atas baris yang memuat `anchor`. */
 export interface PackInsert {
@@ -56,6 +57,8 @@ export interface ProjectOptions {
   slug: string;
   /** Thema awal project (default `light`). */
   theme?: ProjectThemeMode;
+  /** Gaya tampilan (default `classic` = WDS resmi). */
+  uiStyle?: UiStyle;
   /** Warna primary awal (hex `#rrggbb`); kosong = brand WDS bawaan. */
   primaryColor?: string;
   /** Logo sidebar & logo ringkas saat sidebar diciutkan (opsional). */
@@ -234,6 +237,7 @@ export function composeProject(input: ComposeInput): FileMap {
     __PROJECT_NAME__: input.project.name,
     __PROJECT_SLUG__: input.project.slug,
     __PROJECT_THEME__: input.project.theme ?? 'light',
+    __PROJECT_STYLE__: input.project.uiStyle ?? 'classic',
     __PROJECT_PRIMARY__: input.project.primaryColor ?? '',
     __PROJECT_LOGO__: logo,
     __PROJECT_LOGO_COLLAPSED__: brandPublicPath('logo-collapsed', input.project.brand?.collapsedLogo),

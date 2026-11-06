@@ -76,7 +76,8 @@ ${withDelete ? `  const deleteMutation = useDelete${names.entity}();
   return {
     ${names.camel}s: query.data?.list.content ?? [],
     totalRecords: query.data?.list.pagination?.total_elements ?? 0,
-    isLoading: query.isLoading,
+    // Spinner juga saat parameter berubah (cari/filter/sort): data lama hanya placeholder (Figma "Table - Search Loading").
+    isLoading: query.isLoading || query.isPlaceholderData,
     error: query.error?.message ?? null,
     refresh: () => query.refetch(),${withDelete ? `
     deleteTarget,

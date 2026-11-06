@@ -79,6 +79,9 @@ function DefaultRecordTable({
       data={data}
       rowKey={(r) => String(r.id)}
       fixedLayout={true}
+      headerStyle="gray"
+      showRowNumber
+      hideTotalRecords
       renderAction={(row) => (
         <div className="flex justify-evenly w-full gap-1">
           {onView && (

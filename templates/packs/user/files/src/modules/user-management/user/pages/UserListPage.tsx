@@ -68,25 +68,16 @@ function UserList() {
     <div data-testid="user-list-page">
       <Card
         testId="user-list-card"
+        flush
         title={t('runtime.listTitle', { singular: t('user.label') })}
+        description={t('runtime.listDescription', { plural: t('user.labelPlural').toLowerCase() })}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            {canExport && (
-              <Button
-                data-testid="user-export-button"
-                variant="secondary"
-                icon={<Download className="h-4 w-4" />}
-                onClick={() => exportData(queryParams)}
-                disabled={isExporting}
-              >
-                {isExporting ? t('runtime.exporting') : t('common.export')}
-              </Button>
-            )}
+          <>
             {canBulkUpload && (
               <Button
                 data-testid="user-bulk-upload-button"
-                variant="secondary"
-                icon={<Upload className="h-4 w-4" />}
+                hierarchy="secondary"
+                leadingIcon={<Upload className="h-4 w-4" />}
                 onClick={() => setBulkOpen(true)}
               >
                 {t('common.bulkUpload')}
@@ -95,27 +86,39 @@ function UserList() {
             {canCreate && (
               <Button
                 data-testid="user-create-button"
-                icon={<AddCircle className="h-4 w-4" />}
+                leadingIcon={<AddCircle className="h-4 w-4" />}
                 onClick={() => navigate('/user-management/user/create')}
               >
                 {t('runtime.createTitle', { singular: t('user.label') })}
               </Button>
             )}
-          </div>
+          </>
         }
       >
-        <div className="mb-4">
-          <TableToolbar
-            testId="user-filter"
-            searchValue={searchQuery}
-            onSearchChange={handleSearchChange}
-            filterFields={filterFields}
-            filterValues={filterValues}
-            onApply={handleApply}
-            onReset={handleReset}
-            searchParamName="search"
-          />
-        </div>
+        <TableToolbar
+          testId="user-filter"
+          searchValue={searchQuery}
+          onSearchChange={handleSearchChange}
+          filterFields={filterFields}
+          filterValues={filterValues}
+          onApply={handleApply}
+          onReset={handleReset}
+          searchParamName="search"
+          loading={isLoading}
+          actions={
+            canExport && (
+              <Button
+                data-testid="user-export-button"
+                hierarchy="secondary"
+                leadingIcon={<Download className="h-4 w-4" />}
+                onClick={() => exportData(queryParams)}
+                disabled={isExporting || isLoading}
+              >
+                {isExporting ? t('runtime.exporting') : t('common.export')}
+              </Button>
+            )
+          }
+        />
         <UserTable
           testId="user-table"
           data={users}

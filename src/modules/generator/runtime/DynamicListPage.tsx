@@ -78,25 +78,16 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
     <div data-testid={`${testPrefix}-list-page`}>
       <Card
         testId={`${testPrefix}-list-card`}
+        flush
         title={moduleTitle(def, 'list', t('runtime.listTitle', { singular: def.singularLabel }))}
+        description={t('runtime.listDescription', { plural: def.label.toLowerCase() })}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            {canExport && (
-              <Button
-                data-testid={`${testPrefix}-export-button`}
-                variant="secondary"
-                icon={<Download />}
-                onClick={() => exportData(queryParams)}
-                disabled={isExporting}
-              >
-                {isExporting ? t('runtime.exporting') : t('common.export')}
-              </Button>
-            )}
+          <>
             {canBulkUpload && (
               <Button
                 data-testid={`${testPrefix}-bulk-upload-button`}
-                variant="secondary"
-                icon={<Upload />}
+                hierarchy="secondary"
+                leadingIcon={<Upload />}
                 onClick={() => setBulkOpen(true)}
               >
                 {t('common.bulkUpload')}
@@ -105,27 +96,39 @@ function DynamicListPage({ def }: { def: ModuleDefinition }) {
             {canCreate && (
               <Button
                 data-testid={`${testPrefix}-create-button`}
-                icon={<AddCircle />}
+                leadingIcon={<AddCircle />}
                 onClick={() => navigate(`/${def.routeBase}/create`)}
               >
                 {moduleTitle(def, 'create', t('runtime.createTitle', { singular: def.singularLabel }))}
               </Button>
             )}
-          </div>
+          </>
         }
       >
-        <div className="mb-4">
-          <TableToolbar
-            testId={`${testPrefix}-filter`}
-            searchValue={searchQuery}
-            onSearchChange={handleSearchChange}
-            filterFields={filterFields}
-            filterValues={filterValues}
-            onApply={handleApply}
-            onReset={handleReset}
-            searchParamName="search"
-          />
-        </div>
+        <TableToolbar
+          testId={`${testPrefix}-filter`}
+          searchValue={searchQuery}
+          onSearchChange={handleSearchChange}
+          filterFields={filterFields}
+          filterValues={filterValues}
+          onApply={handleApply}
+          onReset={handleReset}
+          searchParamName="search"
+          loading={isLoading}
+          actions={
+            canExport && (
+              <Button
+                data-testid={`${testPrefix}-export-button`}
+                hierarchy="secondary"
+                leadingIcon={<Download />}
+                onClick={() => exportData(queryParams)}
+                disabled={isExporting || isLoading}
+              >
+                {isExporting ? t('runtime.exporting') : t('common.export')}
+              </Button>
+            )
+          }
+        />
         <DynamicTable
           testId={`${testPrefix}-table`}
           def={def}

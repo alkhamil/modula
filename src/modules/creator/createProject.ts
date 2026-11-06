@@ -31,11 +31,12 @@ export async function createProjectZip(input: CreateProjectInput): Promise<Creat
     customModules: input.customModules,
     project,
   });
-  const zip = zipProjectFiles(files, project.slug, composeProjectAssets(project));
+  const assets = composeProjectAssets(project);
+  const zip = zipProjectFiles(files, project.slug, assets);
   return {
     blob: new Blob([zip as BlobPart], { type: 'application/zip' }),
     fileName: `${project.slug}.zip`,
-    fileCount: Object.keys(files).length,
+    fileCount: Object.keys(files).length + Object.keys(assets).length,
     project,
   };
 }

@@ -60,7 +60,8 @@ export function useRoleList(params: GetRolesParams) {
   return {
     roles: query.data?.list.content ?? [],
     totalRecords: query.data?.list.pagination?.total_elements ?? 0,
-    isLoading: query.isLoading,
+    // Spinner juga saat parameter berubah (cari/filter/sort): data lama hanya placeholder.
+    isLoading: query.isLoading || query.isPlaceholderData,
     error: query.error?.message ?? null,
     refresh: () => query.refetch(),
     deleteTarget,

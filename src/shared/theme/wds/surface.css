@@ -68,6 +68,49 @@
     color: var(--wds-text-secondary);
   }
 
+  /* Body tanpa padding: toolbar + tabel + pagination menempel ke tepi card (Figma Table). */
+  .wds-card__body[data-flush] {
+    padding: 0;
+  }
+
+  .wds-card__body[data-flush] .wds-table__frame {
+    border-top: 0;
+  }
+
+  .wds-card__body[data-flush] .wds-pagination {
+    padding-right: var(--wds-padding-16);
+    padding-left: var(--wds-padding-16);
+  }
+
+  /* State loading tabel: spinner + teks di tengah, tanpa header/baris (Figma "Table - Search Loading"). */
+  .wds-table__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--wds-spacing-8);
+    min-height: 10rem;
+    padding: var(--wds-padding-32) var(--wds-padding-16);
+    color: var(--wds-text-secondary);
+    font-size: var(--wds-sz-text-body-font-size);
+    line-height: var(--wds-sz-text-body-line-height);
+  }
+
+  .wds-table__spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 3px solid var(--wds-bg-brand-subtle);
+    border-top-color: var(--wds-bg-brand);
+    border-radius: 9999px;
+    animation: wds-spin 0.9s linear infinite;
+  }
+
+  @keyframes wds-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   .wds-card__footer {
     display: flex;
     align-items: center;

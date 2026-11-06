@@ -1,10 +1,9 @@
 import { t } from 'i18next';
 import '../../../../shared/i18n';
 import type { UserListItem } from '../types';
-import { Table, Badge } from '../../../../shared/components/ui';
+import { Table, Badge, RowActionButton } from '../../../../shared/components/ui';
 
 import { formatDateTime } from '../../../../shared/utils';
-import { Eye, Pen, Restart, TrashBinTrash } from '../../../../shared/components/icons';
 
 interface Props {
   testId?: string;
@@ -53,12 +52,12 @@ function UserTable({
       key: 'name',
       header: t('user.fields.name.label'),
       sortable: true,
-      className: 'w-55',
+      className: 'w-44',
     },
-    { key: 'username', header: t('user.fields.username.label'), sortable: true, className: 'w-55' },
-    { key: 'email', header: t('user.fields.email.label'), className: 'w-55' },
-    { key: 'role_name', header: t('user.fields.role.label'), className: 'w-40' },
-    { key: 'created_by', header: t('table.createdBy'), className: 'w-40' },
+    { key: 'username', header: t('user.fields.username.label'), sortable: true, className: 'w-40' },
+    { key: 'email', header: t('user.fields.email.label'), className: 'w-60' },
+    { key: 'role_name', header: t('user.fields.role.label'), className: 'w-32' },
+    { key: 'created_by', header: t('table.createdBy'), className: 'w-24' },
     {
       key: 'created_date',
       header: t('table.createdDate'),
@@ -69,7 +68,7 @@ function UserTable({
       key: 'status',
       header: t('table.status'),
       sortable: false,
-      className: 'w-40',
+      className: 'w-28',
       render: (user: UserListItem) => (
         <Badge variant={user.status === 'active' ? 'success' : 'secondary'}>
           {user.status === 'active' ? t('common.active') : t('common.inactive')}
@@ -80,55 +79,50 @@ function UserTable({
 
   return (
     <Table<UserListItem>
-      actionWidth="w-40"
+      actionWidth="w-32"
       testId={testId}
       columns={columns}
       data={data}
       rowKey={(r) => String(r.id)}
       fixedLayout={true}
+      headerStyle="gray"
+      showRowNumber
+      hideTotalRecords
       renderAction={(user) => (
         <div className="flex justify-evenly w-full gap-1">
           {onView && (
-            <button
-              data-testid={`user-view-${user.id}`}
-              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
+            <RowActionButton
+              action="view"
+              testId={`user-view-${user.id}`}
               title={`View ${user.name}`}
               onClick={() => onView(user)}
-            >
-              <Eye className="h-4 w-4 text-info" />
-            </button>
+            />
           )}
           {onEdit && (
-            <button
-              data-testid={`user-edit-${user.id}`}
-              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
+            <RowActionButton
+              action="edit"
+              testId={`user-edit-${user.id}`}
               title={`Edit ${user.name}`}
               onClick={() => onEdit(user)}
-            >
-              <Pen className="h-4 w-4 text-warning" />
-            </button>
+            />
           )}
           {user.status === 'active' && onDelete && (
-            <button
-              data-testid={`user-delete-${user.id}`}
-              className={`flex h-7 w-7 items-center justify-center rounded-md ${isDeleting ? 'cursor-not-allowed opacity-40' : 'hover:bg-muted cursor-pointer'}`}
+            <RowActionButton
+              action="delete"
+              testId={`user-delete-${user.id}`}
               title={`Delete ${user.name}`}
               onClick={() => onDelete(user)}
               disabled={isDeleting}
-            >
-              <TrashBinTrash className="h-4 w-4 text-danger" />
-            </button>
+            />
           )}
           {user.status === 'inactive' && onRestore && (
-            <button
-              data-testid={`user-restore-${user.id}`}
-              className={`flex h-7 w-7 items-center justify-center rounded-md ${isRestoring ? 'cursor-not-allowed opacity-40' : 'hover:bg-muted cursor-pointer'}`}
+            <RowActionButton
+              action="restore"
+              testId={`user-restore-${user.id}`}
               title={`Restore ${user.name}`}
               onClick={() => onRestore(user)}
               disabled={isRestoring}
-            >
-              <Restart className="h-4 w-4 text-success" />
-            </button>
+            />
           )}
         </div>
       )}

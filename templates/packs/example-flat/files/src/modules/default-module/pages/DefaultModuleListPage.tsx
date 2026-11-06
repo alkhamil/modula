@@ -70,25 +70,16 @@ function DefaultModuleListPage() {
     <div data-testid="default-module-list-page">
       <Card
         testId="default-module-list-card"
+        flush
         title={t('runtime.listTitle', { singular: t('default_module.label') })}
+        description={t('runtime.listDescription', { plural: t('default_module.labelPlural').toLowerCase() })}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            {canExport && (
-              <Button
-                data-testid="default-module-export-button"
-                variant="secondary"
-                icon={<Download />}
-                onClick={() => exportData(queryParams)}
-                disabled={isExporting}
-              >
-                {isExporting ? t('runtime.exporting') : t('common.export')}
-              </Button>
-            )}
+          <>
             {canBulkUpload && (
               <Button
                 data-testid="default-module-bulk-upload-button"
-                variant="secondary"
-                icon={<Upload />}
+                hierarchy="secondary"
+                leadingIcon={<Upload />}
                 onClick={() => setBulkOpen(true)}
               >
                 {t('common.bulkUpload')}
@@ -97,27 +88,39 @@ function DefaultModuleListPage() {
             {canCreate && (
               <Button
                 data-testid="default-module-create-button"
-                icon={<AddCircle />}
+                leadingIcon={<AddCircle />}
                 onClick={() => navigate('/default-modules/create')}
               >
                 {t('runtime.createTitle', { singular: t('default_module.label') })}
               </Button>
             )}
-          </div>
+          </>
         }
       >
-        <div className="mb-4">
-          <TableToolbar
-            testId="default-module-filter"
-            searchValue={searchQuery}
-            onSearchChange={handleSearchChange}
-            filterFields={filterFields}
-            filterValues={filterValues}
-            onApply={handleApply}
-            onReset={handleReset}
-            searchParamName="search"
-          />
-        </div>
+        <TableToolbar
+          testId="default-module-filter"
+          searchValue={searchQuery}
+          onSearchChange={handleSearchChange}
+          filterFields={filterFields}
+          filterValues={filterValues}
+          onApply={handleApply}
+          onReset={handleReset}
+          searchParamName="search"
+          loading={isLoading}
+          actions={
+            canExport && (
+              <Button
+                data-testid="default-module-export-button"
+                hierarchy="secondary"
+                leadingIcon={<Download />}
+                onClick={() => exportData(queryParams)}
+                disabled={isExporting || isLoading}
+              >
+                {isExporting ? t('runtime.exporting') : t('common.export')}
+              </Button>
+            )
+          }
+        />
         <DefaultModuleTable
           testId="default-module-table"
           data={defaultModules}

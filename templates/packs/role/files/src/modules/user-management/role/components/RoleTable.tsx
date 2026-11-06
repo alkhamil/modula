@@ -1,10 +1,9 @@
 import { t } from 'i18next';
 import '../../../../shared/i18n';
 import type { RoleListItem } from '../types';
-import { Table, Badge } from '../../../../shared/components/ui';
+import { Table, Badge, RowActionButton } from '../../../../shared/components/ui';
 
 import { formatDateTime } from '../../../../shared/utils';
-import { Eye, Pen, Restart, TrashBinTrash } from '../../../../shared/components/icons';
 
 interface Props {
   testId?: string;
@@ -87,49 +86,44 @@ function RoleTable({
       data={data}
       rowKey={(r) => String(r.id)}
       fixedLayout={true}
+      headerStyle="gray"
+      showRowNumber
+      hideTotalRecords
       renderAction={(role) => (
         <div className="flex justify-evenly w-full gap-1">
           {onView && (
-            <button
-              data-testid={`role-view-${role.id}`}
-              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
+            <RowActionButton
+              action="view"
+              testId={`role-view-${role.id}`}
               title={`View ${role.name}`}
               onClick={() => onView(role)}
-            >
-              <Eye className="h-4 w-4 text-info" />
-            </button>
+            />
           )}
           {onEdit && (
-            <button
-              data-testid={`role-edit-${role.id}`}
-              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md hover:bg-muted"
+            <RowActionButton
+              action="edit"
+              testId={`role-edit-${role.id}`}
               title={`Edit ${role.name}`}
               onClick={() => onEdit(role)}
-            >
-              <Pen className="h-4 w-4 text-warning" />
-            </button>
+            />
           )}
           {role.status === 'active' && onDelete && (
-            <button
-              data-testid={`role-delete-${role.id}`}
-              className={`flex h-7 w-7 items-center justify-center rounded-md ${isDeleting ? 'cursor-not-allowed opacity-40' : 'hover:bg-muted cursor-pointer'}`}
+            <RowActionButton
+              action="delete"
+              testId={`role-delete-${role.id}`}
               title={`Delete ${role.name}`}
               onClick={() => onDelete(role)}
               disabled={isDeleting}
-            >
-              <TrashBinTrash className="h-4 w-4 text-danger" />
-            </button>
+            />
           )}
           {role.status === 'inactive' && onRestore && (
-            <button
-              data-testid={`role-restore-${role.id}`}
-              className={`flex h-7 w-7 items-center justify-center rounded-md ${isRestoring ? 'cursor-not-allowed opacity-40' : 'hover:bg-muted cursor-pointer'}`}
+            <RowActionButton
+              action="restore"
+              testId={`role-restore-${role.id}`}
               title={`Restore ${role.name}`}
               onClick={() => onRestore(role)}
               disabled={isRestoring}
-            >
-              <Restart className="h-4 w-4 text-success" />
-            </button>
+            />
           )}
         </div>
       )}

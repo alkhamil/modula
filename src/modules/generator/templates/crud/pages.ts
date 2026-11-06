@@ -93,28 +93,42 @@ ${needAuth ? '  const { can } = useAuth();\n' : ''}${needView ? `  const canView
     <div data-testid="${names.testId}-list-page">
       <Card
         testId="${names.testId}-list-card"
+        flush
         title={t('runtime.listTitle', { singular: t('${base}.label') })}
+        description={t('runtime.listDescription', { plural: t('${base}.labelPlural').toLowerCase() })}
 ${
-  withCreate || withBulk || withExport
+  withCreate || withBulk
     ? `        actions={
-          <div className="flex flex-wrap items-center gap-2">
-${withExport ? `            {canExport && (\n              <Button\n                data-testid="${names.testId}-export-button"\n                variant="secondary"\n                icon={<Download />}\n                onClick={() => exportData(queryParams)}\n                disabled={isExporting}\n              >\n                {isExporting ? t('runtime.exporting') : t('common.export')}\n              </Button>\n            )}\n` : ''}${withBulk ? `            {canBulkUpload && (\n              <Button\n                data-testid="${names.testId}-bulk-upload-button"\n                variant="secondary"\n                icon={<Upload />}\n                onClick={() => setBulkOpen(true)}\n              >\n                {t('common.bulkUpload')}\n              </Button>\n            )}\n` : ''}${withCreate ? `            {canCreate && (\n              <Button\n                data-testid="${names.testId}-create-button"\n                icon={<AddCircle />}\n                onClick={() => navigate('/${names.routeBase}/create')}\n              >\n                {t('runtime.createTitle', { singular: t('${base}.label') })}\n              </Button>\n            )}\n` : ''}          </div>
+          <>
+${withBulk ? `            {canBulkUpload && (\n              <Button\n                data-testid="${names.testId}-bulk-upload-button"\n                hierarchy="secondary"\n                leadingIcon={<Upload />}\n                onClick={() => setBulkOpen(true)}\n              >\n                {t('common.bulkUpload')}\n              </Button>\n            )}\n` : ''}${withCreate ? `            {canCreate && (\n              <Button\n                data-testid="${names.testId}-create-button"\n                leadingIcon={<AddCircle />}\n                onClick={() => navigate('/${names.routeBase}/create')}\n              >\n                {t('runtime.createTitle', { singular: t('${base}.label') })}\n              </Button>\n            )}\n` : ''}          </>
         }
 `
     : ''
 }      >
-        <div className="mb-4">
-          <TableToolbar
-            testId="${names.testId}-filter"
-            searchValue={searchQuery}
-            onSearchChange={handleSearchChange}
-            filterFields={filterFields}
-            filterValues={filterValues}
-            onApply={handleApply}
-            onReset={handleReset}
-            searchParamName="search"
-          />
-        </div>
+        <TableToolbar
+          testId="${names.testId}-filter"
+          searchValue={searchQuery}
+          onSearchChange={handleSearchChange}
+          filterFields={filterFields}
+          filterValues={filterValues}
+          onApply={handleApply}
+          onReset={handleReset}
+          searchParamName="search"
+          loading={isLoading}
+${withExport ? `          actions={
+            canExport && (
+              <Button
+                data-testid="${names.testId}-export-button"
+                hierarchy="secondary"
+                leadingIcon={<Download />}
+                onClick={() => exportData(queryParams)}
+                disabled={isExporting || isLoading}
+              >
+                {isExporting ? t('runtime.exporting') : t('common.export')}
+              </Button>
+            )
+          }
+` : ''}        />
         <${names.entity}Table
           testId="${names.testId}-table"
           data={${names.camel}s}

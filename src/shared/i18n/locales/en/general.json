@@ -98,7 +98,9 @@
     "createdBy": "Created By",
     "createdDate": "Created Date",
     "status": "Status",
-    "rowNumber": "No"
+    "rowNumber": "No",
+    "showing": "Showing {{from}}-{{to}} of {{total}} results",
+    "pleaseWait": "Please wait"
   },
   "array": {
     "add": "Add",
@@ -240,7 +242,8 @@
     "emptyList": "{{singular}} List is Empty",
     "emptyDesc": "There are no records to display at the moment.",
     "editTitle": "Edit {{singular}}",
-    "detailTitle": "{{singular}} Details"
+    "detailTitle": "{{singular}} Details",
+    "listDescription": "View, search, and manage {{plural}}."
   },
   "bulk": {
     "title": "Bulk Upload {{singular}}",

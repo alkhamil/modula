@@ -165,7 +165,8 @@ export function useDynamicList(def: ModuleDefinition, params: DynamicListParams)
   return {
     rows: query.data?.list.content ?? [],
     totalRecords: query.data?.list.pagination?.total_elements ?? 0,
-    isLoading: query.isLoading,
+    // Spinner juga saat parameter berubah (cari/filter/sort): data lama hanya placeholder.
+    isLoading: query.isLoading || query.isPlaceholderData,
     error: query.error ? (query.error as Error).message : null,
     refresh: () => query.refetch(),
   };

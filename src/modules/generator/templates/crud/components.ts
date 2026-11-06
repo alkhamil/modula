@@ -40,11 +40,14 @@ export function tableTemplate(ctx: TemplateContext): string {
   const withActions = withView || withEdit || withDelete;
   // Props tampilan tabel dibake dari definisi (layout.table.props).
   const tableProps = ctx.config.tableProps;
+  // Default mengikuti Figma "Table": header abu-abu, kolom No., tanpa baris "Total Records".
   const tableDisplayProps = [
     `fixedLayout={${tableProps?.fixedLayout ?? true}}`,
+    'headerStyle="gray"',
+    'showRowNumber',
     ...(tableProps?.dense ? ['dense'] : []),
     ...(tableProps?.hidePagination ? ['hidePagination'] : []),
-    ...(tableProps?.hideTotalRecords ? ['hideTotalRecords'] : []),
+    ...(tableProps?.hideTotalRecords === false ? [] : ['hideTotalRecords']),
     ...(tableProps?.stickyHeader ? ['stickyHeader'] : []),
     ...(tableProps?.stickyAction ? ['stickyAction'] : []),
     ...(tableProps?.actionPosition === 'left' ? ['actionPosition="left"'] : []),

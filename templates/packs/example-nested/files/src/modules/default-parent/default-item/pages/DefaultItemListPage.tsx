@@ -70,25 +70,16 @@ function DefaultItemListPage() {
     <div data-testid="default-item-list-page">
       <Card
         testId="default-item-list-card"
+        flush
         title={t('runtime.listTitle', { singular: t('default_item.label') })}
+        description={t('runtime.listDescription', { plural: t('default_item.labelPlural').toLowerCase() })}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            {canExport && (
-              <Button
-                data-testid="default-item-export-button"
-                variant="secondary"
-                icon={<Download />}
-                onClick={() => exportData(queryParams)}
-                disabled={isExporting}
-              >
-                {isExporting ? t('runtime.exporting') : t('common.export')}
-              </Button>
-            )}
+          <>
             {canBulkUpload && (
               <Button
                 data-testid="default-item-bulk-upload-button"
-                variant="secondary"
-                icon={<Upload />}
+                hierarchy="secondary"
+                leadingIcon={<Upload />}
                 onClick={() => setBulkOpen(true)}
               >
                 {t('common.bulkUpload')}
@@ -97,27 +88,39 @@ function DefaultItemListPage() {
             {canCreate && (
               <Button
                 data-testid="default-item-create-button"
-                icon={<AddCircle />}
+                leadingIcon={<AddCircle />}
                 onClick={() => navigate('/default-parent/default-items/create')}
               >
                 {t('runtime.createTitle', { singular: t('default_item.label') })}
               </Button>
             )}
-          </div>
+          </>
         }
       >
-        <div className="mb-4">
-          <TableToolbar
-            testId="default-item-filter"
-            searchValue={searchQuery}
-            onSearchChange={handleSearchChange}
-            filterFields={filterFields}
-            filterValues={filterValues}
-            onApply={handleApply}
-            onReset={handleReset}
-            searchParamName="search"
-          />
-        </div>
+        <TableToolbar
+          testId="default-item-filter"
+          searchValue={searchQuery}
+          onSearchChange={handleSearchChange}
+          filterFields={filterFields}
+          filterValues={filterValues}
+          onApply={handleApply}
+          onReset={handleReset}
+          searchParamName="search"
+          loading={isLoading}
+          actions={
+            canExport && (
+              <Button
+                data-testid="default-item-export-button"
+                hierarchy="secondary"
+                leadingIcon={<Download />}
+                onClick={() => exportData(queryParams)}
+                disabled={isExporting || isLoading}
+              >
+                {isExporting ? t('runtime.exporting') : t('common.export')}
+              </Button>
+            )
+          }
+        />
         <DefaultItemTable
           testId="default-item-table"
           data={defaultItems}

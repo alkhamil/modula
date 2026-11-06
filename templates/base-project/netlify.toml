@@ -1,0 +1,13 @@
+# Deploy ke Netlify: build statis Vite + fallback SPA (react-router memakai BrowserRouter).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+# Semua path jatuh ke index.html agar refresh / buka langsung di /login, /users, dst. tidak 404.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

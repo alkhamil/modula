@@ -5,6 +5,7 @@ import { getFirstAccessiblePath } from '../../../../shared/utils';
 import { useLoginForm } from '../hooks';
 import LoginForm from '../components/LoginForm';
 import DemoAccountsCard from '../components/DemoAccountsCard';
+import AuthLayout from '../components/AuthLayout';
 
 /** Halaman login: redirect bila sudah auth, sonst form + akun demo. */
 function LoginPage() {
@@ -18,20 +19,18 @@ function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface px-4 py-8">
-      <div className="flex w-full max-w-md flex-col stack-gap">
-        <LoginForm
-          username={form.username}
-          password={form.password}
-          error={form.error}
-          submitting={form.submitting}
-          onUsernameChange={form.setUsername}
-          onPasswordChange={form.setPassword}
-          onSubmit={form.handleSubmit}
-        />
-        <DemoAccountsCard onSelect={form.fillDemoAccount} />
-      </div>
-    </div>
+    <AuthLayout>
+      <LoginForm
+        username={form.username}
+        password={form.password}
+        error={form.error}
+        submitting={form.submitting}
+        onUsernameChange={form.setUsername}
+        onPasswordChange={form.setPassword}
+        onSubmit={form.handleSubmit}
+      />
+      <DemoAccountsCard onSelect={form.fillDemoAccount} />
+    </AuthLayout>
   );
 }
 

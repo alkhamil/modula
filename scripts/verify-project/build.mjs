@@ -43,6 +43,7 @@ const COMBOS = {
     selected: ['example-flat'],
     project: {
       theme: 'dark',
+      uiStyle: 'light',
       primaryColor: '#2b80af',
       brand: {
         logo: { ext: 'svg', bytes: new TextEncoder().encode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8"><rect width="8" height="8"/></svg>') },
@@ -136,7 +137,7 @@ for (const [combo, spec] of Object.entries(combos)) {
   if (JSON.parse(files['package.json']).engines?.node !== '>=24.0.0') fail(combo, 'engines.node harus >=24.0.0');
   if (projectExtra.brand) {
     const config = files['src/app/project.config.ts'];
-    for (const needle of ["'/brand/logo.svg'", "'/brand/logo-collapsed.png'", "'dark'", "'#2b80af'"]) {
+    for (const needle of ["'/brand/logo.svg'", "'/brand/logo-collapsed.png'", "'dark'", "'light' as UiStyle", "'#2b80af'"]) {
       if (!config.includes(needle)) fail(combo, `project.config.ts tidak memuat ${needle}`);
     }
     if (!files['index.html'].includes('href="/brand/logo.svg"')) fail(combo, 'favicon tidak memakai logo svg');

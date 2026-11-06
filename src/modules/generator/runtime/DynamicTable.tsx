@@ -126,7 +126,8 @@ function DynamicTable({
       fixedLayout={displayProps?.fixedLayout ?? true}
       dense={displayProps?.dense}
       hidePagination={displayProps?.hidePagination}
-      hideTotalRecords={displayProps?.hideTotalRecords}
+      headerStyle="gray"
+      hideTotalRecords={displayProps?.hideTotalRecords !== false}
       stickyHeader={displayProps?.stickyHeader}
       stickyAction={displayProps?.stickyAction}
       renderAction={

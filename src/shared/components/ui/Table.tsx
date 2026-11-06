@@ -226,7 +226,6 @@ function Table<T>({
   const resolvedFilteredDesc = filteredEmptyStateDescription ?? t('table.filteredDesc');
   const resolvedRetryLabel = retryLabel ?? t('table.retry');
 
-  const skeletonRows = Array.from({ length: pageSize }, (_, i) => i);
   const showAction = !!renderAction && !hideActionColumn;
   const totalColumns = columns.length + (showAction ? 1 : 0) + (showRowNumber ? 1 : 0);
   const emptyState = !loading && !error && data.length === 0;
@@ -326,6 +325,18 @@ function Table<T>({
     if (!el) return;
     el.scrollTop = 0;
     el.scrollIntoView({ block: 'start' });
+  }
+
+  // Loading (mis. saat pencarian): hanya spinner + teks, tanpa header/baris (Figma "Table - Search Loading").
+  if (loading) {
+    return (
+      <div data-testid={testId} data-table-style={headerStyle} data-loading className="wds-table-root w-full">
+        <div className="wds-table__loading" role="status" aria-live="polite">
+          <span className="wds-table__spinner" aria-hidden="true" />
+          <span>{t('table.pleaseWait', { defaultValue: 'Please wait' })}</span>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -431,39 +442,7 @@ function Table<T>({
               </tr>
             </thead>
             <tbody>
-              {loading ? (
-                skeletonRows.map((rowIdx) => (
-                  <tr key={`skeleton-${rowIdx}`}>
-                    {showRowNumber && (
-                      <td className={'wds-td w-12'}>
-                        <div className="mx-auto h-4 animate-pulse rounded bg-muted" />
-                      </td>
-                    )}
-                    {showAction && !actionRight && (
-                      <td
-                        className={`wds-td ${actionWidth}`}
-                      >
-                        <div className="mx-auto h-4 animate-pulse rounded bg-muted" />
-                      </td>
-                    )}
-                    {columns.map((col) => (
-                      <td
-                        key={col.key}
-                        className={'wds-td'}
-                      >
-                        <div className="h-4 animate-pulse rounded bg-muted" />
-                      </td>
-                    ))}
-                    {showAction && actionRight && (
-                      <td
-                        className={`wds-td ${actionWidth}`}
-                      >
-                        <div className="mx-auto h-4 animate-pulse rounded bg-muted" />
-                      </td>
-                    )}
-                  </tr>
-                ))
-              ) : error ? (
+              {error ? (
                 <tr>
                   <td colSpan={totalColumns} className="px-5 py-12">
                     <div className="sticky left-1/2 w-max -translate-x-1/2">
@@ -630,6 +609,11 @@ function Table<T>({
           pageSize={pageSize}
           onPageChange={handlePageChange}
           onPageSizeChange={onPageSizeChange}
+          summary={t('table.showing', {
+            from: formatNumber((page - 1) * pageSize + 1),
+            to: formatNumber(Math.min(page * pageSize, totalRecords)),
+            total: formatNumber(totalRecords),
+          })}
         />
       )}
     </div>

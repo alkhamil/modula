@@ -1,0 +1,114 @@
+/*
+ * Gaya tampilan aplikasi (`data-ui-style` di <html>, diisi ThemeProvider). `classic` = WDS resmi (Figma) dan
+ * tidak butuh aturan di sini. Gaya lain adalah EKSTENSI di luar Figma: hanya mengubah warna/tata letak shell,
+ * halaman auth, dan preset token — komponen WDS di dalamnya tidak diubah. Di @layer components.
+ */
+@layer components {
+  /* ---- Halaman auth (AuthLayout): panel brand hanya tampil di gaya yang memintanya ---- */
+  .wds-auth {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--theme-surface);
+  }
+
+  .wds-auth__brand {
+    display: none;
+  }
+
+  .wds-auth__panel {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    padding: var(--wds-padding-32) var(--wds-padding-16);
+  }
+
+  /* ---- Gaya "light" (Terang): sidebar putih bergaris tipis, auth dua kolom ---- */
+  :root[data-ui-style='light'] .wds-sidenav {
+    border-right: 1px solid var(--wds-stroke-default);
+    background-color: var(--wds-bg-surface);
+    color: var(--wds-text-primary);
+  }
+
+  :root[data-ui-style='light'] .wds-sidenav__section {
+    color: var(--wds-text-tertiary);
+  }
+
+  :root[data-ui-style='light'] .wds-sidenav__divider {
+    background-color: var(--wds-stroke-default);
+  }
+
+  :root[data-ui-style='light'] .wds-nav-item {
+    color: var(--wds-text-secondary);
+  }
+
+  :root[data-ui-style='light'] .wds-nav-item > svg {
+    color: var(--wds-icons-secondary);
+  }
+
+  :root[data-ui-style='light'] .wds-nav-item__chevron {
+    color: var(--wds-icons-tertiary);
+  }
+
+  :root[data-ui-style='light'] .wds-nav-item:hover {
+    background-color: var(--wds-bg-subtle);
+  }
+
+  :root[data-ui-style='light'] .wds-nav-item[aria-current='page'],
+  :root[data-ui-style='light'] .wds-nav-item[data-current] {
+    background-color: var(--wds-bg-brand-subtle);
+    color: var(--wds-text-brand);
+  }
+
+  :root[data-ui-style='light'] .wds-nav-item[aria-current='page'] > svg,
+  :root[data-ui-style='light'] .wds-nav-item[data-current] > svg {
+    color: var(--wds-icons-brand);
+  }
+
+  :root[data-ui-style='light'] .wds-nav-item:focus-visible {
+    outline-color: var(--wds-stroke-focus);
+  }
+
+  :root[data-ui-style='light'] .wds-sidenav__toggle {
+    border: 1px solid var(--wds-stroke-default);
+  }
+
+  :root[data-ui-style='light'] .wds-auth {
+    background-color: var(--wds-bg-surface);
+  }
+
+  :root[data-ui-style='light'] .wds-auth__brand {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: var(--wds-padding-48, 3rem);
+    background-color: var(--wds-bg-brand-pressed);
+    color: var(--wds-text-on-brand);
+  }
+
+  :root[data-ui-style='light'] .wds-auth__brand-name {
+    margin: 0;
+    font-weight: var(--wds-font-weight-semi-bold);
+    font-size: 1.75rem;
+    line-height: 2.25rem;
+  }
+
+  :root[data-ui-style='light'] .wds-auth__logo {
+    display: block;
+    max-width: 16rem;
+    height: 3rem;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  :root[data-ui-style='light'] .wds-auth__panel {
+    background-color: var(--wds-bg-surface);
+  }
+
+  @media (max-width: 1023px) {
+    :root[data-ui-style='light'] .wds-auth__brand {
+      display: none;
+    }
+  }
+}

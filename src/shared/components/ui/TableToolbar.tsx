@@ -62,6 +62,8 @@ interface TableToolbarProps {
   actions?: ReactNode;
   /** Konten di kiri sebelum pencarian, mis. Tabs / SegmentedControl (Figma "Calendar" type). */
   leading?: ReactNode;
+  /** Sedang memuat (mis. saat pencarian): tombol Filter nonaktif; pencarian tetap bisa diketik (Figma "Table - Search Loading"). */
+  loading?: boolean;
 }
 
 function validateRangeErrors(
@@ -94,6 +96,7 @@ function TableToolbar({
   withFilterButton = true,
   actions,
   leading,
+  loading = false,
 }: TableToolbarProps) {
   const { t } = useTranslation();
   const resolvedSearchPlaceholder = searchPlaceholder ?? t('filter.search');
@@ -263,6 +266,7 @@ function TableToolbar({
           size="md"
           leadingIcon={<Filter />}
           onClick={open}
+          disabled={loading}
         >
           {resolvedFilterTitle}
         </Button>

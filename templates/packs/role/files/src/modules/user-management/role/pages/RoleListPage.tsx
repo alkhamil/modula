@@ -68,25 +68,16 @@ function RoleList() {
     <div data-testid="role-list-page">
       <Card
         testId="role-list-card"
+        flush
         title={t('runtime.listTitle', { singular: t('role.label') })}
+        description={t('runtime.listDescription', { plural: t('role.labelPlural').toLowerCase() })}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            {canExport && (
-              <Button
-                data-testid="role-export-button"
-                variant="secondary"
-                icon={<Download className="h-4 w-4" />}
-                onClick={() => exportData(queryParams)}
-                disabled={isExporting}
-              >
-                {isExporting ? t('runtime.exporting') : t('common.export')}
-              </Button>
-            )}
+          <>
             {canBulkUpload && (
               <Button
                 data-testid="role-bulk-upload-button"
-                variant="secondary"
-                icon={<Upload className="h-4 w-4" />}
+                hierarchy="secondary"
+                leadingIcon={<Upload className="h-4 w-4" />}
                 onClick={() => setBulkOpen(true)}
               >
                 {t('common.bulkUpload')}
@@ -95,29 +86,41 @@ function RoleList() {
             {canCreate && (
               <Button
                 data-testid="role-create-button"
-                icon={<AddCircle className="h-4 w-4" />}
+                leadingIcon={<AddCircle className="h-4 w-4" />}
                 onClick={() => navigate('/user-management/role/create')}
               >
                 {t('runtime.createTitle', { singular: t('role.label') })}
               </Button>
             )}
-          </div>
+          </>
         }
       >
-        <div className="mb-4">
-          <TableToolbar
-            testId="role-filter"
-            searchValue={searchQuery}
-            onSearchChange={handleSearchChange}
-            filterFields={filterFields}
-            filterValues={filterValues}
-            onApply={handleApply}
-            onReset={handleReset}
-            searchPlaceholder="Search"
-            searchParamName="search"
-            withFilterButton={false}
-          />
-        </div>
+        <TableToolbar
+          testId="role-filter"
+          searchValue={searchQuery}
+          onSearchChange={handleSearchChange}
+          filterFields={filterFields}
+          filterValues={filterValues}
+          onApply={handleApply}
+          onReset={handleReset}
+          searchPlaceholder="Search"
+          withFilterButton={false}
+          searchParamName="search"
+          loading={isLoading}
+          actions={
+            canExport && (
+              <Button
+                data-testid="role-export-button"
+                hierarchy="secondary"
+                leadingIcon={<Download className="h-4 w-4" />}
+                onClick={() => exportData(queryParams)}
+                disabled={isExporting || isLoading}
+              >
+                {isExporting ? t('runtime.exporting') : t('common.export')}
+              </Button>
+            )
+          }
+        />
         <RoleTable
           testId="role-table"
           data={roles}

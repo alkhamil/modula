@@ -15,6 +15,7 @@ function App() {
         <ThemeProvider
           defaultTheme={projectConfig.theme}
           defaultOverrides={defaultThemeOverrides}
+          uiStyle={projectConfig.uiStyle}
           storageKey={projectConfig.slug}
         >
           <ToastProvider>

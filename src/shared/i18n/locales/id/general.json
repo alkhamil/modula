@@ -98,7 +98,9 @@
     "createdBy": "Dibuat Oleh",
     "createdDate": "Tanggal Dibuat",
     "status": "Status",
-    "rowNumber": "No"
+    "rowNumber": "No",
+    "showing": "Menampilkan {{from}}-{{to}} dari {{total}} hasil",
+    "pleaseWait": "Mohon tunggu"
   },
   "array": {
     "add": "Tambah",
@@ -240,7 +242,8 @@
     "emptyList": "Daftar {{singular}} Kosong",
     "emptyDesc": "Belum ada record untuk ditampilkan saat ini.",
     "editTitle": "Ubah {{singular}}",
-    "detailTitle": "Detail {{singular}}"
+    "detailTitle": "Detail {{singular}}",
+    "listDescription": "Lihat, cari, dan kelola {{plural}}."
   },
   "bulk": {
     "title": "Bulk Upload {{singular}}",

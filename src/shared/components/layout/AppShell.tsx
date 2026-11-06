@@ -23,6 +23,7 @@ interface AppShellProps {
   title?: string;
   /** Konten tambahan di header (mis. pemilih bahasa), sebelum avatar user. */
   headerExtra?: ReactNode;
+  children?: ReactNode;
 }
 
 function AppShell({
@@ -36,6 +37,7 @@ function AppShell({
   appName,
   title: titleOverride,
   headerExtra,
+  children,
 }: AppShellProps) {
   const { t } = useTranslation();
   const isNarrowScreen = useMediaQuery('(max-width: 1023px)');
@@ -130,7 +132,7 @@ function AppShell({
           </div>
         </PageHeader>
         <PageContent>
-          <Outlet />
+          {children ?? <Outlet />}
         </PageContent>
       </div>
     </div>

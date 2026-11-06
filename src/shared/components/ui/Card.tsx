@@ -23,6 +23,8 @@ interface CardProps {
   bodyActions?: ReactNode;
   /** Style WDS (Card styles): outlined | filled. */
   appearance?: 'outlined' | 'filled';
+  /** Body tanpa padding (mis. tabel/toolbar yang menempel ke tepi card, Figma "Table"). */
+  flush?: boolean;
 }
 
 function Card({
@@ -40,6 +42,7 @@ function Card({
   toggleIcon,
   size = 'md',
   appearance = 'outlined',
+  flush = false,
 }: CardProps) {
   const [open, setOpen] = useState(defaultOpen);
 
@@ -53,7 +56,8 @@ function Card({
   };
 
   // Layout WDS (Card): media di atas, judul + deskripsi + isi + aksi sama lebar, tanpa garis header.
-  if (media || description || bodyActions) {
+  // `description` + `actions` = header tabel/list (judul + teks pendukung di kiri, aksi di kanan, garis pemisah).
+  if (media || bodyActions || (description && !actions)) {
     return (
       <div
         data-testid={testId}
@@ -84,7 +88,7 @@ function Card({
       data-size={size}
       className={`wds-card ${className}`}
     >
-      {(title || actions) &&
+      {(title || description || actions) &&
         (collapsible ? (
           <button type="button" {...headerProps} data-collapsible>
             <div className="flex w-full flex-row items-center justify-between gap-2" aria-expanded={open}>
@@ -101,11 +105,22 @@ function Card({
           </button>
         ) : (
           <div {...headerProps}>
-            {title && <h3 className="wds-card__title">{title}</h3>}
+            {description ? (
+              <div className="wds-card__heading">
+                {title && <h3 className="wds-card__title">{title}</h3>}
+                <p className="wds-card__description">{description}</p>
+              </div>
+            ) : (
+              title && <h3 className="wds-card__title">{title}</h3>
+            )}
             {actions && <div className="flex items-center gap-2">{actions}</div>}
           </div>
         ))}
-      {open && <div className="wds-card__body">{children}</div>}
+      {open && (
+        <div className="wds-card__body" data-flush={flush || undefined}>
+          {children}
+        </div>
+      )}
       {open && footer && <div className="wds-card__footer">{footer}</div>}
     </div>
   );

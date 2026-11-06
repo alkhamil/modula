@@ -2,6 +2,13 @@ import { wdsPrimitives, wdsSemantic } from './wds.generated';
 
 export type ThemeName = 'light' | 'dark';
 
+/**
+ * Gaya tampilan aplikasi (tata letak shell + halaman auth + preset token), dipilih saat project dibuat.
+ * `classic` = Figma WDS resmi; lainnya ekstensi di luar Figma. Diterapkan sebagai `data-ui-style` di `<html>`.
+ */
+export type UiStyle = 'classic' | 'light' | 'top' | 'rail' | 'floating';
+export const UI_STYLES: readonly UiStyle[] = ['classic', 'light', 'top', 'rail', 'floating'];
+
 /** Satu-satunya sumber kebenaran token thema. Nilai di sini yang dipakai seluruh shared components. */
 export interface ThemeTokens {
   primary: string;

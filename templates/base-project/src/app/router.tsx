@@ -30,4 +30,7 @@ export const router = createBrowserRouter([
       // __PUBLIC_ROUTES__
     ],
   },
-]);
+], {
+  // Aplikasi bisa disajikan di sub-path (mis. `localhost:5300/nama-project/` saat dijalankan dari wizard Modula).
+  basename: import.meta.env.BASE_URL.replace(/\/$/, ''),
+});

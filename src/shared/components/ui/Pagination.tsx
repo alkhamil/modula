@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AltArrowLeft,
@@ -39,6 +39,8 @@ interface PaginationProps {
   /** Pemilih jumlah baris per halaman. */
   showRowsPerPage?: boolean;
   pageSizeOptions?: number[];
+  /** Ringkasan di samping pemilih baris, mis. "Showing 1-10 of 100 results" (Figma Table footer); menggantikan label "Rows per page". */
+  summary?: ReactNode;
   testId?: string;
 }
 
@@ -54,6 +56,7 @@ function Pagination({
   showLabels = false,
   showRowsPerPage = true,
   pageSizeOptions = [10, 20, 50, 100],
+  summary,
   testId,
 }: PaginationProps) {
   const { t } = useTranslation();
@@ -72,8 +75,10 @@ function Pagination({
             options={pageSizeOptions.map((n) => ({ label: String(n), value: String(n) }))}
             className="w-20"
           />
-          <span>{t('table.rowsPerPage')}</span>
+          <span>{summary ?? t('table.rowsPerPage')}</span>
         </div>
+      ) : summary ? (
+        <span className="wds-pagination__rows">{summary}</span>
       ) : (
         <span />
       )}

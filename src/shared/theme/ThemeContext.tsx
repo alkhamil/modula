@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
   DEFAULT_STORAGE_PREFIX,
@@ -10,7 +10,7 @@ import {
   persistTheme,
   themes,
 } from './theme';
-import type { ThemeName, ThemeOverrides, ThemeTokens } from './theme';
+import type { ThemeName, ThemeOverrides, ThemeTokens, UiStyle } from './theme';
 
 interface ThemeContextValue {
   theme: ThemeName;
@@ -32,6 +32,8 @@ interface ThemeProviderProps {
   defaultTheme?: ThemeName;
   /** Override awal (mis. warna primary project) bila pengguna belum mengubahnya. */
   defaultOverrides?: ThemeOverrides;
+  /** Gaya tampilan project (default `classic` = WDS resmi); ditulis ke `data-ui-style` di `<html>`. */
+  uiStyle?: UiStyle;
   /** Prefix kunci localStorage; project hasil wizard memakai slug-nya agar pilihan tak bentrok antar-app. */
   storageKey?: string;
 }
@@ -40,6 +42,7 @@ export function ThemeProvider({
   children,
   defaultTheme,
   defaultOverrides,
+  uiStyle = 'classic',
   storageKey = DEFAULT_STORAGE_PREFIX,
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<ThemeName>(() => getInitialTheme(defaultTheme, storageKey));
@@ -47,7 +50,13 @@ export function ThemeProvider({
   // Simpan hanya setelah pengguna mengubah thema; default project yang baru diterapkan bukan "pilihan pengguna".
   const touched = useRef(false);
 
-  useEffect(() => {
+  // Layout effect: gaya, tema, dan warna primary harus terpasang SEBELUM paint pertama, kalau tidak halaman
+  // berkedip dengan warna bawaan dulu (dan transition komponen membuat perubahannya terlihat pelan).
+  useLayoutEffect(() => {
+    document.documentElement.dataset.uiStyle = uiStyle;
+  }, [uiStyle]);
+
+  useLayoutEffect(() => {
     applyTheme(theme, overrides);
     if (touched.current) persistTheme(theme, overrides, storageKey);
   }, [theme, overrides, storageKey]);
