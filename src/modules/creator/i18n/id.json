@@ -44,17 +44,18 @@
       "subtitle": "Ikuti langkahnya seperti memasang aplikasi. Di akhir kamu mendapat project siap jalan dalam bentuk .zip.",
       "steps": {
         "identity": "Identitas",
-        "style": "Gaya & tema",
-        "modules": "Modul & fitur",
+        "style": "Tema & Warna",
+        "modules": "Modul & Fitur",
         "review": "Ringkasan",
-        "install": "Pemasangan",
+        "install": "Pembuatan",
         "finish": "Selesai"
       },
       "stepOf": "Langkah {{current}} dari {{total}}",
       "back": "Kembali",
       "next": "Lanjut",
+      "createProjectBtn": "Buat Proyek",
       "install": {
-        "title": "Memasang…",
+        "title": "Membuat Proyek…",
         "desc": "Jangan tutup halaman ini.",
         "stages": {
           "structure": "Menyusun struktur project",
@@ -195,6 +196,7 @@
           }
         },
         "required": "Wajib",
+        "alwaysIncluded": "Selalu disertakan",
         "comingSoon": "Segera hadir",
         "count": "{{count}} modul dan fitur dipilih"
       },

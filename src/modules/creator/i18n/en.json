@@ -44,17 +44,18 @@
       "subtitle": "Follow the steps like an installer. At the end you get a ready-to-run project as a .zip.",
       "steps": {
         "identity": "Identity",
-        "style": "Style & theme",
-        "modules": "Modules & features",
+        "style": "Theme & Color",
+        "modules": "Modules & Features",
         "review": "Review",
-        "install": "Installing",
+        "install": "Building",
         "finish": "Finish"
       },
       "stepOf": "Step {{current}} of {{total}}",
       "back": "Back",
       "next": "Continue",
+      "createProjectBtn": "Create Project",
       "install": {
-        "title": "Installing…",
+        "title": "Creating Project…",
         "desc": "Keep this page open.",
         "stages": {
           "structure": "Composing the project structure",
@@ -195,6 +196,7 @@
           }
         },
         "required": "Required",
+        "alwaysIncluded": "Always included",
         "comingSoon": "Coming soon",
         "count": "{{count}} modules and features selected"
       },

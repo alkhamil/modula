@@ -9,7 +9,13 @@ export interface SaveDefinitionResult {
   created: boolean;
 }
 
-const STORAGE_KEY = 'mock_definitions_v1';
+function getStorageKey(): string {
+  if (typeof document !== 'undefined') {
+    const slug = document.documentElement.dataset.projectSlug;
+    if (slug) return `${slug}_definitions_v1`;
+  }
+  return 'mock_definitions_v1';
+}
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -25,7 +31,7 @@ let cachedDefinitions: ModuleDefinition[] | null = null;
 
 function readStored(): ModuleDefinition[] | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(getStorageKey());
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
     return Array.isArray(parsed) ? (parsed as ModuleDefinition[]) : null;
@@ -36,7 +42,7 @@ function readStored(): ModuleDefinition[] | null {
 
 function persist(defs: ModuleDefinition[]): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defs));
+    localStorage.setItem(getStorageKey(), JSON.stringify(defs));
   } catch {
     // Abaikan: mode privat / kuota penuh — cache in-memory tetap jalan.
   }
@@ -54,7 +60,7 @@ function seedDefinitions(): ModuleDefinition[] {
 export function resetMockDefinitions(): void {
   cachedDefinitions = null;
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(getStorageKey());
   } catch {
     // Abaikan.
   }

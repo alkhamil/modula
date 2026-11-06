@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Link, NavLink, Outlet } from 'react-router';
+import { Link, NavLink, Outlet, useLocation } from 'react-router';
 import { Button } from '../../../shared/components/ui';
 import brandLogo from '../../../assets/icons/brand/brand.png';
 import { AddCircle, Database } from '../../../shared/components/icons';
@@ -9,6 +9,8 @@ import { ThemeSwitch } from '../../../shared/theme';
 /** Layout utama Modula bergaya web end-user (top navbar + konten terpusat + footer). */
 function WebLayout() {
   const { t } = useTranslation();
+  const location = useLocation();
+  const isCreatePage = location.pathname === '/create';
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     [
@@ -45,11 +47,13 @@ function WebLayout() {
           <div className="flex items-center gap-3">
             <LanguageSwitch testId="web-language-switch" />
             <ThemeSwitch testId="web-theme-switch" />
-            <Link to="/create" className="hidden sm:inline-flex">
-              <Button size="sm" testId="header-create-btn">
-                {t('creator.nav.cta')}
-              </Button>
-            </Link>
+            {!isCreatePage && (
+              <Link to="/create" className="hidden sm:inline-flex">
+                <Button size="sm" testId="header-create-btn">
+                  {t('creator.nav.cta')}
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
         <nav className="flex items-center gap-1 border-t border-border px-4 py-2 md:hidden" aria-label="Mobile navigation">

@@ -4,23 +4,17 @@ import {
   Alert,
   Badge,
   Button,
-  FileUpload,
   InputField,
-  RadioButtonGroup,
-  SegmentedControl,
   useToast,
 } from '../../../shared/components/ui';
-import { AltArrowLeft, AltArrowRight, Check, CheckCircle, Download } from '../../../shared/components/icons';
-import type { UiStyle } from '../../../shared/theme';
-import { BRAND_ACCEPT, HEX_COLOR, PRIMARY_PRESETS, readBrandAsset, validateBrandFile } from '../brand';
+import { AltArrowLeft, AltArrowRight, Check, CheckCircle, Download, WdsIcon } from '../../../shared/components/icons';
+import { getContrastForeground, type UiStyle } from '../../../shared/theme';
+import { HEX_COLOR, PRIMARY_PRESETS, readBrandAsset, validateBrandFile } from '../brand';
 import SidebarPreview from '../components/SidebarPreview';
-import StylePreview, { type PreviewScreen } from '../components/StylePreview';
 import { createProjectZip, downloadBlob, type CreatedProject } from '../createProject';
-import { saveProjectLiveConfig } from '../liveStore';
 import { localRunAvailable, runProjectLocally, stopProjectLocally, type LocalRunResult } from '../localRun';
 import { NODE_MAJOR, slugifyProjectName, type ProjectThemeMode } from '../engine/compose';
 import { MODULE_CARDS, MODULE_GROUPS, defaultCards, packIdsFor } from '../modules';
-import { UI_STYLE_OPTIONS } from '../uiStyles';
 
 const STEPS = ['identity', 'style', 'modules', 'review', 'install', 'finish'] as const;
 type Step = (typeof STEPS)[number];
@@ -48,16 +42,16 @@ function CreateProjectPage() {
   const [collapsedPreview, setCollapsedPreview] = useState<string | null>(null);
   const [collapsedError, setCollapsedError] = useState<string | null>(null);
 
-  // Gaya & tema.
-  const [uiStyle, setUiStyle] = useState<UiStyle>('classic');
-  const [themeMode, setThemeMode] = useState<ProjectThemeMode>('light');
-  const [colorChoice, setColorChoice] = useState('default');
+  // Tema & warna brand.
+  const uiStyle: UiStyle = 'classic';
+  const themeMode: ProjectThemeMode = 'light';
+  const [colorChoice, setColorChoice] = useState('primary');
   const [customColor, setCustomColor] = useState('#00487a');
 
   // Modul & fitur.
   const [selectedCards, setSelectedCards] = useState<string[]>(defaultCards);
 
-  // Pemasangan.
+  // Pembuatan project.
   const [log, setLog] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
   const [installError, setInstallError] = useState<string | null>(null);
@@ -73,21 +67,19 @@ function CreateProjectPage() {
     colorChoice === 'custom'
       ? customColorValid
         ? customColor.toLowerCase()
-        : ''
-      : (PRIMARY_PRESETS.find((preset) => preset.id === colorChoice)?.color ?? '');
-  const styleName = t(`creator.installer.style.styles.${uiStyle}.name`);
-  const modeLabel = t(themeMode === 'dark' ? 'creator.installer.style.modeDark' : 'creator.installer.style.modeLight');
+        : '#00487a'
+      : (PRIMARY_PRESETS.find((preset) => preset.id === colorChoice)?.color ?? '#00487a');
   const activeCards = MODULE_CARDS.filter((card) => card.ready && (card.locked || selectedCards.includes(card.id)));
   const installing = step === 'install' && !installError && !built;
 
   /** Terima file logo: validasi, simpan file + URL pratinjau (URL lama dilepas). */
   function pickBrand(
-    files: File | File[] | null,
+    files: File | File[] | FileList | null,
     set: { file: (f: File | null) => void; preview: (u: string | null) => void; error: (e: string | null) => void },
     previous: string | null,
   ) {
     if (previous) URL.revokeObjectURL(previous);
-    const file = Array.isArray(files) ? (files[0] ?? null) : files;
+    const file = files instanceof FileList ? (files[0] ?? null) : Array.isArray(files) ? (files[0] ?? null) : files;
     if (!file) {
       set.file(null);
       set.preview(null);
@@ -140,7 +132,7 @@ function CreateProjectPage() {
     const stages = [
       t('creator.installer.install.stages.structure'),
       t('creator.installer.install.stages.designSystem'),
-      t('creator.installer.install.stages.style', { style: styleName.toLowerCase() }),
+      t('creator.installer.install.stages.style', { style: themeMode }),
       t('creator.installer.install.stages.brand'),
       ...activeCards.map((card) => t('creator.installer.install.stages.module', { name: t(`creator.installer.modules.cards.${card.id}.name`) })),
       t('creator.installer.install.stages.node'),
@@ -155,7 +147,7 @@ function CreateProjectPage() {
         options: {
           theme: themeMode,
           uiStyle,
-          primaryColor: primaryColor || (projectSlug === 'fahmiapp' ? '#a01713' : undefined),
+          primaryColor: primaryColor || undefined,
           brand: {
             logo: logoFile ? await readBrandAsset(logoFile) : undefined,
             collapsedLogo: collapsedMode === 'upload' && collapsedFile ? await readBrandAsset(collapsedFile) : undefined,
@@ -173,17 +165,6 @@ function CreateProjectPage() {
     try {
       const created = await build;
       if (!alive()) return;
-      saveProjectLiveConfig({
-        name: projectName,
-        slug: projectSlug,
-        theme: themeMode,
-        uiStyle,
-        primaryColor: primaryColor || (projectSlug === 'fahmiapp' ? '#a01713' : undefined),
-        logoUrl: logoPreview,
-        collapsedLogoUrl: collapsedPreview,
-        selectedPacks: packIdsFor(selectedCards),
-        customModules: [],
-      });
       setBuilt(created);
       setStepIndex(5);
 
@@ -195,7 +176,7 @@ function CreateProjectPage() {
           selectedPacks: packIdsFor(selectedCards),
           theme: themeMode,
           uiStyle,
-          primaryColor: primaryColor || (projectSlug === 'fahmiapp' ? '#a01713' : undefined),
+          primaryColor: primaryColor || undefined,
           logoFile,
           collapsedLogoFile: collapsedMode === 'upload' ? collapsedFile : null,
         })
@@ -226,7 +207,7 @@ function CreateProjectPage() {
         selectedPacks: packIdsFor(selectedCards),
         theme: themeMode,
         uiStyle,
-        primaryColor: primaryColor || (projectSlug === 'fahmiapp' ? '#a01713' : undefined),
+        primaryColor: primaryColor || undefined,
         logoFile,
         collapsedLogoFile: collapsedMode === 'upload' ? collapsedFile : null,
       });
@@ -362,51 +343,34 @@ function CreateProjectPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col stack-gap rounded-xl border border-border p-4">
-                {sectionTitle('creator.installer.identity.brandTitle')}
-                <div>
-                  <span className="mb-1.5 block text-xs font-semibold text-foreground">{t('creator.installer.identity.logoLabel')}</span>
-                  <FileUpload
-                    size="sm"
-                    accept={BRAND_ACCEPT}
-                    value={logoFile}
-                    error={logoError ?? undefined}
-                    supportingText={t('creator.installer.identity.logoSupporting')}
-                    onChange={(files) => pickBrand(files, { file: setLogoFile, preview: setLogoPreview, error: setLogoError }, logoPreview)}
-                    testId="brand-logo-upload"
-                  />
-                </div>
-                <div className="flex flex-col field-gap">
-                  <span className="text-xs font-semibold text-foreground">{t('creator.installer.identity.collapsedTitle')}</span>
-                  <RadioButtonGroup
-                    direction="vertical"
-                    value={collapsedMode}
-                    onChange={(v) => setCollapsedMode(v as CollapsedMode)}
-                    options={[
-                      { value: 'initial', label: t('creator.installer.identity.collapsedInitial') },
-                      { value: 'upload', label: t('creator.installer.identity.collapsedUpload') },
-                    ]}
-                    testId="collapsed-mode"
-                  />
-                  {collapsedMode === 'upload' && (
-                    <FileUpload
-                      size="sm"
-                      accept={BRAND_ACCEPT}
-                      value={collapsedFile}
-                      error={collapsedError ?? undefined}
-                      supportingText={t('creator.installer.identity.collapsedSupporting')}
-                      onChange={(files) =>
-                        pickBrand(files, { file: setCollapsedFile, preview: setCollapsedPreview, error: setCollapsedError }, collapsedPreview)
-                      }
-                      testId="brand-collapsed-upload"
-                    />
-                  )}
-                </div>
+              <div className="rounded-xl border border-border p-4">
                 <SidebarPreview
                   projectName={projectName}
                   logoUrl={logoPreview}
                   collapsedLogoUrl={collapsedMode === 'upload' ? collapsedPreview : null}
                   primaryColor={primaryColor}
+                  onUploadLogo={(files) =>
+                    pickBrand(files, { file: setLogoFile, preview: setLogoPreview, error: setLogoError }, logoPreview)
+                  }
+                  onRemoveLogo={() => {
+                    if (logoPreview) URL.revokeObjectURL(logoPreview);
+                    setLogoFile(null);
+                    setLogoPreview(null);
+                    setLogoError(null);
+                  }}
+                  onUploadCollapsedLogo={(files) => {
+                    setCollapsedMode('upload');
+                    pickBrand(files, { file: setCollapsedFile, preview: setCollapsedPreview, error: setCollapsedError }, collapsedPreview);
+                  }}
+                  onRemoveCollapsedLogo={() => {
+                    if (collapsedPreview) URL.revokeObjectURL(collapsedPreview);
+                    setCollapsedFile(null);
+                    setCollapsedPreview(null);
+                    setCollapsedError(null);
+                    setCollapsedMode('initial');
+                  }}
+                  logoError={logoError}
+                  collapsedError={collapsedError}
                 />
               </div>
             </div>
@@ -414,73 +378,40 @@ function CreateProjectPage() {
 
           {step === 'style' && (
             <div className="flex flex-col stack-gap">
-              <div className="flex flex-col gap-2" data-testid="ui-style-picker">
-                <span className="text-xs font-semibold text-foreground">{t('creator.installer.style.styleLabel')}</span>
-                <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5" role="radiogroup" aria-label={t('creator.installer.style.styleLabel')}>
-                  {UI_STYLE_OPTIONS.map((option) => {
-                    const selected = uiStyle === option.id;
-                    return (
-                      <button
-                        key={option.id}
-                        type="button"
-                        role="radio"
-                        aria-checked={selected}
-                        aria-disabled={!option.ready}
-                        disabled={!option.ready}
-                        onClick={() => option.ready && setUiStyle(option.id)}
-                        data-testid={`ui-style-${option.id}`}
-                        className={[
-                          'relative flex flex-col gap-2 rounded-xl border p-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-primary',
-                          option.ready ? 'cursor-pointer hover:border-primary' : 'cursor-not-allowed opacity-60',
-                          selected ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-border bg-background',
-                        ].join(' ')}
-                      >
-                        <StylePreview style={option.id} screen="list" mode={themeMode} primaryColor={primaryColor} className="rounded-md border border-border" />
-                        <span className="text-xs font-semibold text-foreground">{t(`creator.installer.style.styles.${option.id}.name`)}</span>
-                        <span className="text-[11px] leading-snug text-muted-foreground">{t(`creator.installer.style.styles.${option.id}.desc`)}</span>
-                        {(!option.ready || option.id === 'classic') && (
-                          <span className="absolute right-3 top-3">
-                            <Badge variant={option.ready ? 'primary' : 'neutral'} size="sm">
-                              {t(option.ready ? 'creator.installer.style.official' : 'creator.installer.style.comingSoon')}
-                            </Badge>
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {(['login', 'forgot', 'list'] as PreviewScreen[]).map((screen) => (
-                    <div key={screen} className="flex flex-col gap-1">
-                      <StylePreview style={uiStyle} screen={screen} mode={themeMode} primaryColor={primaryColor} className="rounded-md border border-border" />
-                      <span className="text-[11px] text-muted-foreground">{t(`creator.installer.style.screens.${screen}`)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-semibold text-foreground">{t('creator.installer.style.modeLabel')}</span>
-                <div>
-                  <SegmentedControl
-                    size="sm"
-                    aria-label={t('creator.installer.style.modeLabel')}
-                    value={themeMode}
-                    onChange={(v) => setThemeMode(v as ProjectThemeMode)}
-                    options={[
-                      { value: 'light', label: t('creator.installer.style.modeLight') },
-                      { value: 'dark', label: t('creator.installer.style.modeDark') },
-                    ]}
-                    testId="theme-mode"
-                  />
-                </div>
-              </div>
-
+              {/* Warna Primary: Presets + Interactive Color Picker */}
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-semibold text-foreground">{t('creator.installer.style.colorLabel')}</span>
-                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('creator.installer.style.colorLabel')}>
-                  {PRIMARY_PRESETS.map((preset) => swatch(preset.id, preset.color, preset.id === 'default' ? t('creator.installer.style.colorDefault') : preset.color))}
+                <div className="flex flex-wrap items-center gap-2.5" role="radiogroup" aria-label={t('creator.installer.style.colorLabel')}>
+                  {PRIMARY_PRESETS.map((preset) => swatch(preset.id, preset.color, preset.color))}
                   {swatch('custom', customColorValid ? customColor : '', t('creator.installer.style.colorCustom'))}
+
+                  {/* Native Color Picker Tool dengan icon Pipette */}
+                  <label
+                    className={[
+                      'relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-2 transition-all hover:scale-105',
+                      colorChoice === 'custom' ? 'border-foreground ring-2 ring-primary' : 'border-border',
+                    ].join(' ')}
+                    title="Buka Color Picker"
+                  >
+                    <input
+                      type="color"
+                      value={primaryColor}
+                      onChange={(e) => {
+                        setCustomColor(e.target.value);
+                        setColorChoice('custom');
+                      }}
+                      className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                    />
+                    <span
+                      className="flex h-full w-full items-center justify-center rounded-full border-2 border-background shadow-xs"
+                      style={{
+                        backgroundColor: primaryColor,
+                        color: getContrastForeground(primaryColor),
+                      }}
+                    >
+                      <WdsIcon name="Pipette" className="h-4 w-4" />
+                    </span>
+                  </label>
                 </div>
                 {colorChoice === 'custom' && (
                   <div className="max-w-xs">
@@ -501,42 +432,64 @@ function CreateProjectPage() {
           {step === 'modules' && (
             <div className="flex flex-col stack-gap" data-testid="module-cards">
               {MODULE_GROUPS.map((group) => (
-                <div key={group} className="flex flex-col gap-2">
+                <div key={group} className="flex flex-col gap-2.5">
                   {sectionTitle(`creator.installer.modules.groups.${group}`)}
-                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     {MODULE_CARDS.filter((card) => card.group === group).map((card) => {
                       const on = card.ready && (card.locked || selectedCards.includes(card.id));
+                      const isDisabled = !card.ready || card.locked;
                       return (
                         <button
                           key={card.id}
                           type="button"
                           role="checkbox"
                           aria-checked={on}
-                          aria-disabled={!card.ready || card.locked}
-                          disabled={!card.ready}
-                          onClick={() => card.ready && !card.locked && toggleCard(card.id)}
+                          aria-disabled={isDisabled}
+                          disabled={isDisabled}
+                          onClick={() => !isDisabled && toggleCard(card.id)}
                           data-testid={`module-card-${card.id}`}
                           className={[
-                            'relative flex flex-col gap-2 rounded-xl border p-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-primary',
-                            card.ready && !card.locked ? 'cursor-pointer hover:border-primary' : 'cursor-default',
-                            !card.ready ? 'opacity-60' : '',
-                            on ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-border bg-background',
+                            'relative flex items-start gap-3 rounded-xl border p-3.5 text-left transition-all',
+                            !isDisabled
+                              ? 'cursor-pointer hover:border-primary/60 hover:bg-surface focus-visible:outline-2 focus-visible:outline-primary'
+                              : 'cursor-not-allowed',
+                            !card.ready ? 'opacity-50' : '',
+                            card.locked
+                              ? 'border-border/80 bg-muted/40'
+                              : on
+                                ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                                : 'border-border bg-card',
                           ].join(' ')}
                         >
-                          <StylePreview style={uiStyle} screen={card.thumb} mode={themeMode} primaryColor={primaryColor} className="rounded-md border border-border" />
-                          <span className="text-sm font-semibold text-foreground">{t(`creator.installer.modules.cards.${card.id}.name`)}</span>
-                          <span className="text-xs leading-snug text-muted-foreground">{t(`creator.installer.modules.cards.${card.id}.desc`)}</span>
-                          <span className="absolute right-3 top-3">
+                          <div
+                            className={[
+                              'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors',
+                              card.locked
+                                ? 'border-muted-foreground/30 bg-muted text-muted-foreground'
+                                : on
+                                  ? 'border-primary bg-primary text-primary-foreground'
+                                  : 'border-border bg-background',
+                            ].join(' ')}
+                          >
+                            {on && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                          </div>
+                          <div className="flex-1 min-w-0 pr-16">
+                            <span className="text-sm font-semibold text-foreground">
+                              {t(`creator.installer.modules.cards.${card.id}.name`)}
+                            </span>
+                            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                              {t(`creator.installer.modules.cards.${card.id}.desc`)}
+                            </p>
+                          </div>
+                          <div className="absolute right-3 top-3">
                             {!card.ready ? (
                               <Badge variant="neutral" size="sm">{t('creator.installer.modules.comingSoon')}</Badge>
                             ) : card.locked ? (
-                              <Badge variant="neutral" size="sm">{t('creator.installer.modules.required')}</Badge>
-                            ) : on ? (
-                              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                                <Check className="h-3 w-3" />
-                              </span>
+                              <Badge variant="neutral" size="sm">
+                                {t('creator.installer.modules.alwaysIncluded', { defaultValue: 'Always included' })}
+                              </Badge>
                             ) : null}
-                          </span>
+                          </div>
                         </button>
                       );
                     })}
@@ -561,7 +514,7 @@ function CreateProjectPage() {
               )}
               {summaryRow(
                 t('creator.installer.review.style'),
-                `${styleName} · ${t('creator.installer.review.theme', { mode: modeLabel, color: primaryColor || t('creator.installer.style.colorDefault') })}`,
+                t('creator.installer.review.theme', { mode: 'Light', color: primaryColor }),
               )}
               {summaryRow(
                 t('creator.installer.review.modules'),
@@ -603,48 +556,6 @@ function CreateProjectPage() {
           {step === 'finish' && built && (
             <div className="flex flex-col stack-gap" data-testid="finish-panel">
               <Alert variant="success" message={t('creator.installer.finish.ready', { fileName: built.fileName, count: built.fileCount })} />
-
-              {/* Alamat Live Project: localhost:port/:slug/live atau domain.com/:slug/live */}
-              <div className="flex flex-col gap-3 rounded-xl border border-primary/40 bg-primary/5 p-4" data-testid="live-url-panel">
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-foreground text-base">
-                      {t('creator.installer.finish.live.title')}
-                    </span>
-                    <Badge variant="primary" size="sm">
-                      {t('creator.installer.finish.live.badge')}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {t('creator.installer.finish.live.desc')}
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                  <div className="flex-1 flex items-center rounded-lg border border-border bg-card px-3 py-2 font-mono text-sm text-primary overflow-x-auto select-all">
-                    <span>{`${window.location.origin}/${projectSlug}/live${primaryColor ? `?color=${encodeURIComponent(primaryColor)}` : ''}`}</span>
-                  </div>
-                  <Button
-                    size="md"
-                    hierarchy="primary"
-                    onClick={() => window.open(`/${projectSlug}/live${primaryColor ? `?color=${encodeURIComponent(primaryColor)}` : ''}`, '_blank')}
-                    testId="open-live-url-btn"
-                  >
-                    {t('creator.installer.finish.live.open')}
-                  </Button>
-                  <Button
-                    size="md"
-                    hierarchy="secondary"
-                    onClick={() => {
-                      void navigator.clipboard.writeText(`${window.location.origin}/${projectSlug}/live${primaryColor ? `?color=${encodeURIComponent(primaryColor)}` : ''}`);
-                      toast.showToast({ variant: 'success', message: t('creator.installer.finish.live.copied') });
-                    }}
-                    testId="copy-live-url-btn"
-                  >
-                    {t('creator.installer.finish.live.copy')}
-                  </Button>
-                </div>
-              </div>
 
               <div className="flex flex-col gap-2">
                 {sectionTitle('creator.installer.finish.quickStart')}
@@ -722,7 +633,7 @@ function CreateProjectPage() {
               )}
               {step === 'review' ? (
                 <Button leadingIcon={<Download className="h-4 w-4" />} onClick={() => void runInstall()} testId="wizard-install-btn">
-                  {t('creator.installer.install')}
+                  {t('creator.installer.createProjectBtn')}
                 </Button>
               ) : (
                 <Button trailingIcon={<AltArrowRight className="h-4 w-4" />} onClick={() => goTo(stepIndex + 1)} testId="wizard-next-btn">

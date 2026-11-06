@@ -40,7 +40,11 @@
   "auth": {
     "profile": "Profile",
     "logout": "Logout",
-    "language": "Language"
+    "language": "Language",
+    "settings": "Settings"
+  },
+  "settings": {
+    "title": "Settings"
   },
   "theme": {
     "resetToDefault": "Reset to default",

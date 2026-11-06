@@ -23,7 +23,13 @@ export interface MutationResult {
   data: DynamicDetail;
 }
 
-const STORAGE_KEY = 'mock_records_v1';
+function getStorageKey(): string {
+  if (typeof document !== 'undefined') {
+    const slug = document.documentElement.dataset.projectSlug;
+    if (slug) return `${slug}_records_v1`;
+  }
+  return 'mock_records_v1';
+}
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -52,7 +58,7 @@ function loadPersisted(): void {
   if (persistedLoaded) return;
   persistedLoaded = true;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(getStorageKey());
     if (!raw) return;
     const parsed: unknown = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') return;
@@ -66,7 +72,7 @@ function loadPersisted(): void {
 
 function persist(): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.fromEntries(recordCache)));
+    localStorage.setItem(getStorageKey(), JSON.stringify(Object.fromEntries(recordCache)));
   } catch {
     // Abaikan: mode privat / kuota penuh — cache in-memory tetap jalan.
   }
@@ -102,7 +108,7 @@ export async function deleteModuleRecords(apiPlural: string): Promise<void> {
 export function resetMockRecords(): void {
   recordCache.clear();
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(getStorageKey());
   } catch {
     // Abaikan.
   }

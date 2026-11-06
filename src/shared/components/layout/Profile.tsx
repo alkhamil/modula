@@ -33,7 +33,7 @@ function Profile({
   testId,
 }: ProfileProps) {
   const { t } = useTranslation();
-  const resolvedSettingsLabel = settingsLabel ?? t('settings.title');
+  const resolvedSettingsLabel = settingsLabel ?? t('settings.title', { defaultValue: t('auth.settings', { defaultValue: 'Pengaturan' }) });
   const resolvedLogoutLabel = logoutLabel ?? t('auth.logout');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownAbove, setDropdownAbove] = useState(false);

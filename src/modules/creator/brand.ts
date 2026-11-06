@@ -36,16 +36,16 @@ export async function readBrandAsset(file: File): Promise<BrandAsset> {
   return { ext, bytes: new Uint8Array(await file.arrayBuffer()) };
 }
 
-/** Pilihan warna primary dari primitif WDS (`''` = warna brand WDS bawaan). */
+/** Pilihan warna primary bawaan (WDS primitives & palet populer). */
 export const PRIMARY_PRESETS: { id: string; color: string }[] = [
-  { id: 'default', color: '' },
-  { id: 'secondary', color: wdsPrimitives['secondary.500'] },
-  { id: 'tertiary', color: wdsPrimitives['tertiary.500'] },
-  { id: 'success', color: wdsPrimitives['success.500'] },
-  { id: 'info', color: wdsPrimitives['info.500'] },
-  { id: 'warning', color: wdsPrimitives['warning.500'] },
-  { id: 'danger', color: wdsPrimitives['danger.500'] },
-  { id: 'neutral', color: wdsPrimitives['neutral.500'] },
+  { id: 'primary', color: '#00487a' },
+  { id: 'secondary', color: wdsPrimitives['secondary.500'] || '#0284c7' },
+  { id: 'tertiary', color: wdsPrimitives['tertiary.500'] || '#0d9488' },
+  { id: 'success', color: wdsPrimitives['success.500'] || '#16a34a' },
+  { id: 'warning', color: wdsPrimitives['warning.500'] || '#d97706' },
+  { id: 'danger', color: '#a01713' },
+  { id: 'purple', color: '#7c3aed' },
+  { id: 'neutral', color: wdsPrimitives['neutral.500'] || '#475569' },
 ];
 
 export const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;

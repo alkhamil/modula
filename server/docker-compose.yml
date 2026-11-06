@@ -1,0 +1,20 @@
+services:
+  modula-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: modula-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DATA_DIR=/app/data
+      - CORS_ORIGINS=*
+      - BASE_DOMAIN=localhost:8080
+    volumes:
+      - modula_data:/app/data
+
+volumes:
+  modula_data:
+    driver: local

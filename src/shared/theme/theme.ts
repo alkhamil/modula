@@ -95,9 +95,6 @@ export const themes: Record<ThemeName, ThemeTokens> = {
 export interface ThemeOverrides {
   primary?: string;
   secondary?: string;
-  radiusSm?: string;
-  radiusMd?: string;
-  radiusLg?: string;
 }
 
 /** Prefix kunci localStorage bawaan; project hasil wizard memakai slug-nya agar tak bentrok antar-app di origin yang sama. */
@@ -170,6 +167,22 @@ function applyBrandOverride(root: HTMLElement, primary: string | undefined): voi
   BRAND_VARS.forEach((name) => root.style.setProperty(name, values[name]));
 }
 
+const LEGACY_RADIUS_VARS = [
+  '--wds-sz-radius-all',
+  '--wds-sz-card-radius',
+  '--wds-radius-0',
+  '--wds-radius-2',
+  '--wds-radius-4',
+  '--wds-radius-6',
+  '--wds-radius-8',
+  '--wds-radius-10',
+  '--wds-radius-12',
+  '--wds-radius-16',
+  '--f-radius',
+  '--cd-radius',
+  '--wds-sz-popover-radius',
+] as const;
+
 /** Terapkan thema: set `data-theme` + CSS variables dari token (tanpa menyimpan; lihat `persistTheme`). */
 export function applyTheme(name: ThemeName, overrides: ThemeOverrides = {}): void {
   const root = document.documentElement;
@@ -185,6 +198,7 @@ export function applyTheme(name: ThemeName, overrides: ThemeOverrides = {}): voi
     root.style.setProperty(toVarName(key), tokens[key]);
   });
   applyBrandOverride(root, overrides.primary);
+  LEGACY_RADIUS_VARS.forEach((name) => root.style.removeProperty(name));
 }
 
 /** Simpan pilihan pengguna (hanya dipanggil setelah pengguna mengubah thema, bukan saat default diterapkan). */
@@ -214,8 +228,11 @@ export function getStoredOverrides(fallback: ThemeOverrides = {}, prefix = DEFAU
   try {
     const raw = localStorage.getItem(storageKeys(prefix).overrides);
     if (!raw) return { ...fallback };
-    const parsed = JSON.parse(raw) as ThemeOverrides;
-    return { ...parsed };
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    delete parsed.radiusSm;
+    delete parsed.radiusMd;
+    delete parsed.radiusLg;
+    return { ...parsed } as ThemeOverrides;
   } catch {
     return { ...fallback };
   }

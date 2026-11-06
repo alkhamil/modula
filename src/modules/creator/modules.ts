@@ -1,6 +1,6 @@
 import type { PreviewScreen } from './components/StylePreview';
 
-export type ModuleGroup = 'access' | 'users' | 'data' | 'system';
+export type ModuleGroup = 'access' | 'users' | 'system';
 
 /** Kartu "Modul dan fitur" di wizard; satu kartu bisa memasang beberapa pack. */
 export interface ModuleCardDef {
@@ -8,8 +8,8 @@ export interface ModuleCardDef {
   group: ModuleGroup;
   /** Id pack yang dipasang kartu ini (urutan penerapan diatur `order.json`). */
   packIds: string[];
-  /** Gambar contoh yang diikutkan gaya terpilih. */
-  thumb: PreviewScreen;
+  /** Ikon / visual preview. */
+  thumb?: PreviewScreen;
   /** Wajib: selalu ikut, tidak bisa dimatikan. */
   locked?: boolean;
   /** Terpilih awal (default). */
@@ -18,7 +18,7 @@ export interface ModuleCardDef {
   ready: boolean;
 }
 
-export const MODULE_GROUPS: ModuleGroup[] = ['access', 'users', 'data', 'system'];
+export const MODULE_GROUPS: ModuleGroup[] = ['access', 'users', 'system'];
 
 export const MODULE_CARDS: ModuleCardDef[] = [
   { id: 'login', group: 'access', packIds: ['login', 'logout'], thumb: 'login', locked: true, defaultOn: true, ready: true },
@@ -27,12 +27,6 @@ export const MODULE_CARDS: ModuleCardDef[] = [
   { id: 'otp', group: 'access', packIds: ['two-factor'], thumb: 'otp', ready: true },
   { id: 'users', group: 'users', packIds: ['user'], thumb: 'users', defaultOn: true, ready: true },
   { id: 'roles', group: 'users', packIds: ['role'], thumb: 'list', defaultOn: true, ready: true },
-  { id: 'exampleSingle', group: 'data', packIds: ['example-flat'], thumb: 'list', defaultOn: true, ready: true },
-  { id: 'exampleNested', group: 'data', packIds: ['example-nested'], thumb: 'list', defaultOn: true, ready: true },
-  { id: 'dashboard', group: 'data', packIds: [], thumb: 'dash', ready: false },
-  { id: 'audit', group: 'data', packIds: [], thumb: 'audit', ready: false },
-  { id: 'profile', group: 'data', packIds: [], thumb: 'profile', ready: false },
-  { id: 'notifications', group: 'data', packIds: [], thumb: 'audit', ready: false },
   { id: 'generator', group: 'system', packIds: ['generator'], thumb: 'form', locked: true, defaultOn: true, ready: true },
 ];
 

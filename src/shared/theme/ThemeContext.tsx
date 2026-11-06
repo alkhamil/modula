@@ -54,7 +54,8 @@ export function ThemeProvider({
   // berkedip dengan warna bawaan dulu (dan transition komponen membuat perubahannya terlihat pelan).
   useLayoutEffect(() => {
     document.documentElement.dataset.uiStyle = uiStyle;
-  }, [uiStyle]);
+    document.documentElement.dataset.projectSlug = storageKey;
+  }, [uiStyle, storageKey]);
 
   useLayoutEffect(() => {
     applyTheme(theme, overrides);

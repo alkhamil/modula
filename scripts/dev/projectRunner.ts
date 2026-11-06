@@ -214,7 +214,7 @@ async function startProject(devServer: ViteDevServer, raw: unknown): Promise<{ u
   const port = await findPort();
   const server = await createServer({
     root: targetDir,
-    base: `/${slug}/live/`,
+    base: '/',
     configFile: path.join(targetDir, 'vite.config.ts'),
     clearScreen: false,
     logLevel: 'warn',
@@ -222,7 +222,7 @@ async function startProject(devServer: ViteDevServer, raw: unknown): Promise<{ u
   });
   await server.listen();
   running.set(slug, { server, port });
-  return { url: `http://localhost:${port}/${slug}/live/`, port, slug, files: count };
+  return { url: `http://localhost:${port}/`, port, slug, files: count };
 }
 
 async function getOrStartExistingProject(devServer: ViteDevServer, slug: string): Promise<Running | null> {
@@ -243,7 +243,7 @@ async function getOrStartExistingProject(devServer: ViteDevServer, slug: string)
   const port = await findPort();
   const server = await createServer({
     root: targetDir,
-    base: `/${slug}/live/`,
+    base: '/',
     configFile: path.join(targetDir, 'vite.config.ts'),
     clearScreen: false,
     logLevel: 'warn',

@@ -16,9 +16,9 @@ export const projectConfig = {
   logoCollapsed: '__PROJECT_LOGO_COLLAPSED__',
 } as const;
 
-export const defaultThemeOverrides: ThemeOverrides = projectConfig.primaryColor
-  ? { primary: projectConfig.primaryColor }
-  : {};
+export const defaultThemeOverrides: ThemeOverrides = {
+  ...(projectConfig.primaryColor ? { primary: projectConfig.primaryColor } : {}),
+};
 
 /** URL aset di `public/` yang ikut `base` Vite (aplikasi bisa disajikan di sub-path). Kosong tetap kosong. */
 export function assetUrl(path: string): string {

@@ -40,7 +40,11 @@
   "auth": {
     "profile": "Profil",
     "logout": "Keluar",
-    "language": "Bahasa"
+    "language": "Bahasa",
+    "settings": "Pengaturan"
+  },
+  "settings": {
+    "title": "Pengaturan"
   },
   "theme": {
     "resetToDefault": "Kembalikan ke default",
