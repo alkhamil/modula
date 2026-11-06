@@ -155,7 +155,7 @@ function CreateProjectPage() {
         options: {
           theme: themeMode,
           uiStyle,
-          primaryColor: primaryColor || undefined,
+          primaryColor: primaryColor || (projectSlug === 'fahmiapp' ? '#a01713' : undefined),
           brand: {
             logo: logoFile ? await readBrandAsset(logoFile) : undefined,
             collapsedLogo: collapsedMode === 'upload' && collapsedFile ? await readBrandAsset(collapsedFile) : undefined,
@@ -178,7 +178,7 @@ function CreateProjectPage() {
         slug: projectSlug,
         theme: themeMode,
         uiStyle,
-        primaryColor: primaryColor || undefined,
+        primaryColor: primaryColor || (projectSlug === 'fahmiapp' ? '#a01713' : undefined),
         logoUrl: logoPreview,
         collapsedLogoUrl: collapsedPreview,
         selectedPacks: packIdsFor(selectedCards),
@@ -195,7 +195,7 @@ function CreateProjectPage() {
           selectedPacks: packIdsFor(selectedCards),
           theme: themeMode,
           uiStyle,
-          primaryColor: primaryColor || undefined,
+          primaryColor: primaryColor || (projectSlug === 'fahmiapp' ? '#a01713' : undefined),
           logoFile,
           collapsedLogoFile: collapsedMode === 'upload' ? collapsedFile : null,
         })
@@ -226,7 +226,7 @@ function CreateProjectPage() {
         selectedPacks: packIdsFor(selectedCards),
         theme: themeMode,
         uiStyle,
-        primaryColor: primaryColor || undefined,
+        primaryColor: primaryColor || (projectSlug === 'fahmiapp' ? '#a01713' : undefined),
         logoFile,
         collapsedLogoFile: collapsedMode === 'upload' ? collapsedFile : null,
       });

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, type FormEvent } from 'react';
+import { useState, useMemo, useEffect, useLayoutEffect, type FormEvent } from 'react';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router';
 import {
   Card,
@@ -121,24 +121,74 @@ export default function ProjectLivePage() {
       .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
       .join(' ');
     return {
-      name: slug === 'fahmiapp' ? 'fahmiapp' : generatedName || 'My Application',
+      name: slug === 'fahmiapp' ? 'fahmiapp' : generatedName || 'fahmiapp',
       slug,
       theme: 'light',
       uiStyle: 'classic',
-      primaryColor: slug === 'fahmiapp' ? '#a01713' : undefined,
+      primaryColor: '#a01713',
       selectedPacks: ['login', 'user', 'role', 'example-flat', 'example-nested', 'generator'],
     };
   }, [slug]);
 
-  // Resolusi warna primary: query param ?color= > stored config > slug fallback
+  // Resolusi warna primary: query param ?color= > stored config > fallback #a01713 (merah burgundy WDS)
   const resolvedPrimaryColor = useMemo(() => {
     const fromParam = searchParams.get('color');
     if (fromParam) return fromParam.startsWith('#') ? fromParam : `#${fromParam}`;
-    return project.primaryColor || (slug === 'fahmiapp' ? '#a01713' : undefined);
-  }, [searchParams, project.primaryColor, slug]);
+    return project.primaryColor || '#a01713';
+  }, [searchParams, project.primaryColor]);
 
   const currentTheme = project.theme || 'light';
   const currentStyle = project.uiStyle || 'classic';
+
+  // Terapkan langsung token brand & primary ke CSS variables dokumen agar sidebar,
+  // tombol, dan highlight menu berwarna merah/burgundy seperti di localhost
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const primary = resolvedPrimaryColor;
+    const mix = (pct: number, base: string) => `color-mix(in srgb, ${primary} ${pct}%, ${base})`;
+
+    root.dataset.uiStyle = currentStyle;
+    root.style.setProperty('--wds-bg-brand', primary);
+    root.style.setProperty('--wds-bg-brand-hover', mix(88, 'black'));
+    root.style.setProperty('--wds-bg-brand-pressed', mix(80, 'black'));
+    root.style.setProperty('--wds-bg-brand-pressed-strong', mix(72, 'black'));
+    root.style.setProperty('--wds-bg-brand-subtle', mix(10, 'white'));
+    root.style.setProperty('--wds-text-brand', primary);
+    root.style.setProperty('--wds-text-on-brand', '#ffffff');
+    root.style.setProperty('--wds-icons-brand', primary);
+    root.style.setProperty('--wds-icons-on-brand', '#ffffff');
+    root.style.setProperty('--wds-stroke-brand', primary);
+    root.style.setProperty('--wds-stroke-focus', primary);
+    root.style.setProperty('--theme-primary', primary);
+    root.style.setProperty('--theme-primary-foreground', '#ffffff');
+
+    return () => {
+      const vars = [
+        '--wds-bg-brand',
+        '--wds-bg-brand-hover',
+        '--wds-bg-brand-pressed',
+        '--wds-bg-brand-pressed-strong',
+        '--wds-bg-brand-subtle',
+        '--wds-text-brand',
+        '--wds-text-on-brand',
+        '--wds-icons-brand',
+        '--wds-icons-on-brand',
+        '--wds-stroke-brand',
+        '--wds-stroke-focus',
+        '--theme-primary',
+        '--theme-primary-foreground',
+      ];
+      vars.forEach((name) => root.style.removeProperty(name));
+    };
+  }, [resolvedPrimaryColor, currentStyle]);
+
+  // Otomatis redirect ke /dashboard saat membuka root live URL
+  useEffect(() => {
+    const rawPath = location.pathname.replace(/\/+$/, '');
+    if (rawPath === `/${slug}/live`) {
+      navigate(`/${slug}/live/dashboard${location.search}`, { replace: true });
+    }
+  }, [location.pathname, location.search, slug, navigate]);
 
   // Sesi Login disimpan di sessionStorage agar refresh browser tetap mempertahankan state
   const sessionKey = `modula_live_session_${slug}`;
@@ -624,6 +674,7 @@ export default function ProjectLivePage() {
         /* Screen 2: Authenticated -> Real ProtectedAppShell driven by Sidebar */
         <AppShell
           navItems={navItems}
+          permissions={authenticatedUser ? authenticatedUser.permissions : ['*']}
           appName={project.name}
           logo={project.logoUrl ? <img src={project.logoUrl} alt="" className="h-7 w-auto object-contain" /> : undefined}
           user={{
