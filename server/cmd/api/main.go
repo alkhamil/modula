@@ -76,11 +76,7 @@ func main() {
 
 	// 1. Health check & status
 	mux.HandleFunc("GET /health", api.HealthCheck)
-	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
-			http.NotFound(w, r)
-			return
-		}
+	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, `{"service":"modula-backend-go","status":"running","health":"/health","api":"/api/projects"}`)
 	})
@@ -99,24 +95,27 @@ func main() {
 
 	// 3. Dynamic Headless CRUD Engine API
 	// Mengelola entri data per project dan per modul: /api/v1/{project}/{module}
-	mux.HandleFunc("/api/v1/{project}/{module}/{id}", func(w http.ResponseWriter, r *http.Request) {
-		project := r.PathValue("project")
-		module := r.PathValue("module")
-		id := r.PathValue("id")
-		api.HandleCRUD(w, r, project, module, id)
-	})
-	mux.HandleFunc("/api/v1/{project}/{module}", func(w http.ResponseWriter, r *http.Request) {
-		project := r.PathValue("project")
-		module := r.PathValue("module")
-		api.HandleCRUD(w, r, project, module, "")
-	})
+	for _, m := range []string{"GET", "POST", "PUT", "DELETE", "PATCH"} {
+		method := m
+		mux.HandleFunc(method+" /api/v1/{project}/{module}/{id}", func(w http.ResponseWriter, r *http.Request) {
+			project := r.PathValue("project")
+			module := r.PathValue("module")
+			id := r.PathValue("id")
+			api.HandleCRUD(w, r, project, module, id)
+		})
+		mux.HandleFunc(method+" /api/v1/{project}/{module}", func(w http.ResponseWriter, r *http.Request) {
+			project := r.PathValue("project")
+			module := r.PathValue("module")
+			api.HandleCRUD(w, r, project, module, "")
+		})
+	}
 
 	// 4. Live Preview SPA Handler
 	// Menyajikan static SPA dist yang telah dibuild: /{slug}/live/
-	mux.HandleFunc("/{slug}/live", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /{slug}/live", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, r.URL.Path+"/", http.StatusMovedPermanently)
 	})
-	mux.HandleFunc("/{slug}/live/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /{slug}/live/", func(w http.ResponseWriter, r *http.Request) {
 		slug := r.PathValue("slug")
 		api.ServeLivePreview(w, r, slug)
 	})
