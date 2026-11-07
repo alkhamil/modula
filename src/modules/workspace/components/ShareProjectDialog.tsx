@@ -99,7 +99,7 @@ export default function ShareProjectDialog({ project, onClose, onUpdated }: Shar
             </div>
 
             {/* Members */}
-            {project.members.map((m) => (
+            {(project.members || []).map((m) => (
               <div key={m.email} className="flex items-center justify-between p-3 text-xs">
                 <div className="flex flex-col">
                   <span className="font-semibold text-foreground">{m.name || m.email}</span>
@@ -111,7 +111,7 @@ export default function ShareProjectDialog({ project, onClose, onUpdated }: Shar
               </div>
             ))}
 
-            {project.members.length === 0 && (
+            {(!project.members || project.members.length === 0) && (
               <div className="p-4 text-center text-xs text-muted-foreground">
                 Belum ada anggota lain yang diundang ke proyek ini.
               </div>

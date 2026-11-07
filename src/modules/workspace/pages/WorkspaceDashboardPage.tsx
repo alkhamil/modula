@@ -23,21 +23,26 @@ export default function WorkspaceDashboardPage() {
 
   useEffect(() => {
     fetchWorkspaceProjects()
-      .then((data) => setProjects(data))
+      .then((data) => setProjects(Array.isArray(data) ? data : []))
+      .catch(() => setProjects([]))
       .finally(() => setLoading(false));
   }, []);
 
   const filteredProjects = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    const query = (search || '').trim().toLowerCase();
+    const userEmail = (user?.email || '').trim().toLowerCase();
+    const userId = user?.id || '';
+
     return projects.filter((p) => {
-      const matchSearch =
-        p.name.toLowerCase().includes(query) ||
-        p.slug.toLowerCase().includes(query) ||
-        p.description.toLowerCase().includes(query);
+      const pName = (p.name || '').toLowerCase();
+      const pSlug = (p.slug || '').toLowerCase();
+      const pDesc = (p.description || '').toLowerCase();
+      const matchSearch = pName.includes(query) || pSlug.includes(query) || pDesc.includes(query);
 
       if (!matchSearch) return false;
 
-      const isOwner = p.ownerId === user?.id || p.ownerEmail.toLowerCase() === user?.email.toLowerCase();
+      const pOwnerEmail = (p.ownerEmail || '').trim().toLowerCase();
+      const isOwner = (userId && p.ownerId === userId) || (userEmail && pOwnerEmail === userEmail);
       if (activeTab === 'mine') return isOwner;
       if (activeTab === 'shared') return !isOwner;
       return true;
@@ -45,13 +50,17 @@ export default function WorkspaceDashboardPage() {
   }, [projects, search, activeTab, user]);
 
   const stats = useMemo(() => {
+    const userEmail = (user?.email || '').trim().toLowerCase();
+    const userId = user?.id || '';
     const mine = projects.filter(
-      (p) => p.ownerId === user?.id || p.ownerEmail.toLowerCase() === user?.email.toLowerCase(),
+      (p) =>
+        (userId && p.ownerId === userId) ||
+        (userEmail && (p.ownerEmail || '').trim().toLowerCase() === userEmail),
     ).length;
     return {
       total: projects.length,
       mine,
-      shared: projects.length - mine,
+      shared: Math.max(0, projects.length - mine),
     };
   }, [projects, user]);
 
@@ -174,16 +183,22 @@ export default function WorkspaceDashboardPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredProjects.map((p) => {
-            const isOwner =
-              p.ownerId === user?.id || p.ownerEmail.toLowerCase() === user?.email.toLowerCase();
-            const memberInfo = p.members.find(
-              (m) => m.userId === user?.id || m.email.toLowerCase() === user?.email.toLowerCase(),
+            const userEmail = (user?.email || '').trim().toLowerCase();
+            const userId = user?.id || '';
+            const pOwnerEmail = (p.ownerEmail || '').trim().toLowerCase();
+            const isOwner = (userId && p.ownerId === userId) || (userEmail && pOwnerEmail === userEmail);
+
+            const members = Array.isArray(p.members) ? p.members : [];
+            const memberInfo = members.find(
+              (m) =>
+                (userId && m.userId === userId) ||
+                (userEmail && (m.email || '').trim().toLowerCase() === userEmail),
             );
             const userAccess = isOwner ? 'OWNER' : memberInfo?.accessLevel || 'VIEWER';
 
             return (
               <div
-                key={p.slug}
+                key={p.slug || p.id}
                 className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:border-primary/50 hover:shadow-md"
               >
                 <div className="flex flex-col gap-3">
@@ -213,7 +228,7 @@ export default function WorkspaceDashboardPage() {
                   {/* Title & Description */}
                   <div className="flex flex-col gap-1">
                     <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">
-                      {p.name}
+                      {p.name || p.slug}
                     </h3>
                     <p className="text-xs text-muted-foreground line-clamp-2">
                       {p.description || 'Tidak ada deskripsi tambahan.'}
@@ -224,8 +239,10 @@ export default function WorkspaceDashboardPage() {
                 {/* Footer Info & Actions */}
                 <div className="mt-5 border-t border-border pt-3.5 flex flex-col gap-3">
                   <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                    <span>Oleh: <strong className="text-foreground">{p.ownerName}</strong></span>
-                    <span>{new Date(p.updatedAt).toLocaleDateString()}</span>
+                    <span>
+                      Oleh: <strong className="text-foreground">{p.ownerName || p.ownerEmail || 'Internal'}</strong>
+                    </span>
+                    <span>{p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : 'Baru saja'}</span>
                   </div>
 
                   <div className="flex items-center justify-between gap-2">

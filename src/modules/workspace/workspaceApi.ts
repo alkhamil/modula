@@ -43,6 +43,26 @@ const DEFAULT_PROJECTS: WorkspaceProject[] = [
   },
 ];
 
+export function normalizeProject(raw: Partial<WorkspaceProject>): WorkspaceProject {
+  return {
+    id: raw.id || `prj-${raw.slug || Date.now()}`,
+    name: raw.name || raw.slug || 'Untitled Project',
+    slug: raw.slug || 'untitled',
+    description: raw.description || '',
+    theme: raw.theme || 'light',
+    primaryColor: raw.primaryColor || '#00487a',
+    logoUrl: raw.logoUrl || null,
+    ownerId: raw.ownerId || 'usr-superadmin',
+    ownerName: raw.ownerName || 'Super Administrator',
+    ownerEmail: raw.ownerEmail || 'superadmin@modula.io',
+    members: Array.isArray(raw.members) ? raw.members : [],
+    selectedPacks: Array.isArray(raw.selectedPacks) ? raw.selectedPacks : ['login', 'user', 'role', 'generator'],
+    createdAt: raw.createdAt || new Date().toISOString(),
+    updatedAt: raw.updatedAt || raw.createdAt || new Date().toISOString(),
+    status: raw.status || 'ready',
+  };
+}
+
 function readLocalProjects(): WorkspaceProject[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -50,7 +70,11 @@ function readLocalProjects(): WorkspaceProject[] {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_PROJECTS));
       return DEFAULT_PROJECTS;
     }
-    return JSON.parse(raw) as WorkspaceProject[];
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed.map(normalizeProject);
+    }
+    return DEFAULT_PROJECTS;
   } catch {
     return DEFAULT_PROJECTS;
   }
@@ -69,9 +93,12 @@ export async function fetchWorkspaceProjects(): Promise<WorkspaceProject[]> {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     if (res.ok) {
-      const data = (await res.json()) as WorkspaceProject[];
-      writeLocalProjects(data);
-      return data;
+      const data = (await res.json()) as Partial<WorkspaceProject>[];
+      if (Array.isArray(data)) {
+        const normalized = data.map(normalizeProject);
+        writeLocalProjects(normalized);
+        return normalized;
+      }
     }
   } catch {}
 
@@ -92,7 +119,7 @@ export async function createWorkspaceProject(payload: CreateProjectPayload): Pro
       body: JSON.stringify(payload),
     });
     if (res.ok) {
-      const created = (await res.json()) as WorkspaceProject;
+      const created = normalizeProject((await res.json()) as Partial<WorkspaceProject>);
       const local = readLocalProjects();
       writeLocalProjects([created, ...local.filter((p) => p.slug !== created.slug)]);
       return created;
@@ -102,7 +129,7 @@ export async function createWorkspaceProject(payload: CreateProjectPayload): Pro
   // Fallback lokal jika offline
   const now = new Date().toISOString();
   const slug = payload.slug || payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const newProj: WorkspaceProject = {
+  const newProj: WorkspaceProject = normalizeProject({
     id: `prj-${Date.now()}`,
     name: payload.name,
     slug,
@@ -118,7 +145,7 @@ export async function createWorkspaceProject(payload: CreateProjectPayload): Pro
     createdAt: now,
     updatedAt: now,
     status: 'ready',
-  };
+  });
 
   const current = readLocalProjects();
   writeLocalProjects([newProj, ...current]);
@@ -154,7 +181,7 @@ export async function shareWorkspaceProject(
       body: JSON.stringify({ email: targetEmail, accessLevel }),
     });
     if (res.ok) {
-      const updated = (await res.json()) as WorkspaceProject;
+      const updated = normalizeProject((await res.json()) as Partial<WorkspaceProject>);
       const current = readLocalProjects();
       writeLocalProjects(current.map((p) => (p.slug === slug ? updated : p)));
       return updated;
@@ -165,11 +192,12 @@ export async function shareWorkspaceProject(
   const target = current.find((p) => p.slug === slug);
   if (!target) throw new Error('Proyek tidak ditemukan');
 
-  const existingMember = target.members.find((m) => m.email.toLowerCase() === targetEmail.toLowerCase());
+  const members = Array.isArray(target.members) ? target.members : [];
+  const existingMember = members.find((m) => (m.email || '').toLowerCase() === targetEmail.toLowerCase());
   if (existingMember) {
     existingMember.accessLevel = accessLevel;
   } else {
-    target.members.push({
+    members.push({
       userId: `usr-${Date.now()}`,
       name: targetEmail.split('@')[0]!,
       email: targetEmail,
@@ -177,6 +205,7 @@ export async function shareWorkspaceProject(
       addedAt: new Date().toISOString(),
     });
   }
+  target.members = members;
   target.updatedAt = new Date().toISOString();
   writeLocalProjects(current);
   return target;
