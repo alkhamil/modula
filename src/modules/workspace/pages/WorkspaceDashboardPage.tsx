@@ -226,7 +226,10 @@ export default function WorkspaceDashboardPage() {
                   </div>
 
                   {/* Title & Description */}
-                  <div className="flex flex-col gap-1">
+                  <div
+                    className="flex flex-col gap-1 cursor-pointer"
+                    onClick={() => navigate(`/projects/${p.slug}/builder`)}
+                  >
                     <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">
                       {p.name || p.slug}
                     </h3>
@@ -249,7 +252,7 @@ export default function WorkspaceDashboardPage() {
                     <Button
                       size="sm"
                       leadingIcon={<Pen2 className="h-3.5 w-3.5" />}
-                      onClick={() => navigate('/generator')}
+                      onClick={() => navigate(`/projects/${p.slug}/builder`)}
                       className="flex-1"
                     >
                       Buka Builder

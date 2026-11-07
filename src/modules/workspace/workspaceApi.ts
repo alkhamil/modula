@@ -105,6 +105,25 @@ export async function fetchWorkspaceProjects(): Promise<WorkspaceProject[]> {
   return readLocalProjects();
 }
 
+export async function getWorkspaceProject(slug: string): Promise<WorkspaceProject | null> {
+  const token = getStoredToken();
+  try {
+    const res = await fetch(`/api/v1/projects/${slug}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (res.ok) {
+      const data = (await res.json()) as Partial<WorkspaceProject>;
+      if (data && data.slug) {
+        return normalizeProject(data);
+      }
+    }
+  } catch {}
+
+  const all = readLocalProjects();
+  const found = all.find((p) => p.slug === slug);
+  return found ? normalizeProject(found) : null;
+}
+
 export async function createWorkspaceProject(payload: CreateProjectPayload): Promise<WorkspaceProject> {
   const token = getStoredToken();
   const currentUser = getStoredUser();
