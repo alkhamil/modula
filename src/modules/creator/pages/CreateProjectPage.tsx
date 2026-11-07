@@ -12,6 +12,7 @@ import { getContrastForeground, type UiStyle } from '../../../shared/theme';
 import { HEX_COLOR, PRIMARY_PRESETS, readBrandAsset, validateBrandFile } from '../brand';
 import SidebarPreview from '../components/SidebarPreview';
 import { createProjectZip, downloadBlob, type CreatedProject } from '../createProject';
+import { saveProjectLiveConfig } from '../liveStore';
 import { localRunAvailable, runProjectLocally, stopProjectLocally, type LocalRunResult } from '../localRun';
 import { NODE_MAJOR, slugifyProjectName, type ProjectThemeMode } from '../engine/compose';
 import { MODULE_CARDS, MODULE_GROUPS, defaultCards, packIdsFor } from '../modules';
@@ -165,6 +166,32 @@ function CreateProjectPage() {
     try {
       const created = await build;
       if (!alive()) return;
+
+      saveProjectLiveConfig({
+        name: projectName,
+        slug: projectSlug,
+        theme: themeMode,
+        uiStyle,
+        primaryColor: primaryColor || undefined,
+        logoUrl: logoPreview,
+        collapsedLogoUrl: collapsedPreview,
+        selectedPacks: packIdsFor(selectedCards),
+        customModules: [],
+      });
+
+      // Sinkronkan ke Go Backend bila backend tersedia
+      fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: projectName,
+          slug: projectSlug,
+          theme: themeMode,
+          primaryColor: primaryColor || '',
+          selectedPacks: packIdsFor(selectedCards),
+        }),
+      }).catch(() => undefined);
+
       setBuilt(created);
       setStepIndex(5);
 
@@ -557,53 +584,92 @@ function CreateProjectPage() {
             <div className="flex flex-col stack-gap" data-testid="finish-panel">
               <Alert variant="success" message={t('creator.installer.finish.ready', { fileName: built.fileName, count: built.fileCount })} />
 
+              {/* Alamat Live Project: langsung aktif dan bisa dicoba baik di localhost maupun setelah dideploy */}
+              <div className="flex flex-col gap-3 rounded-xl border border-primary/40 bg-primary/5 p-4" data-testid="live-url-panel">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-foreground text-base">
+                      {t('creator.installer.finish.live.title')}
+                    </span>
+                    <Badge variant="primary" size="sm">
+                      {t('creator.installer.finish.live.badge')}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {t('creator.installer.finish.live.desc')}
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <div className="flex-1 flex items-center rounded-lg border border-border bg-card px-3 py-2 font-mono text-sm text-primary overflow-x-auto select-all">
+                    <span>{`${window.location.origin}/${projectSlug}/live${primaryColor ? `?color=${encodeURIComponent(primaryColor)}` : ''}`}</span>
+                  </div>
+                  <Button
+                    size="md"
+                    hierarchy="primary"
+                    onClick={() => window.open(`/${projectSlug}/live${primaryColor ? `?color=${encodeURIComponent(primaryColor)}` : ''}`, '_blank')}
+                    testId="open-live-url-btn"
+                  >
+                    {t('creator.installer.finish.live.open')}
+                  </Button>
+                  <Button
+                    size="md"
+                    hierarchy="secondary"
+                    onClick={() => {
+                      void navigator.clipboard.writeText(`${window.location.origin}/${projectSlug}/live${primaryColor ? `?color=${encodeURIComponent(primaryColor)}` : ''}`);
+                      toast.showToast({ variant: 'success', message: t('creator.installer.finish.live.copied') });
+                    }}
+                    testId="copy-live-url-btn"
+                  >
+                    {t('creator.installer.finish.live.copy')}
+                  </Button>
+                </div>
+              </div>
+
               <div className="flex flex-col gap-2">
                 {sectionTitle('creator.installer.finish.quickStart')}
                 <pre className="overflow-x-auto rounded-lg bg-surface p-3 font-mono text-xs text-foreground">
                   {`unzip ${built.fileName}\ncd ${projectSlug}\nnvm use   # Node ${NODE_MAJOR} (.nvmrc)\ncp .env.example .env\nnpm install\nnpm run dev`}
                 </pre>
               </div>
-              <div className="flex flex-col gap-2 rounded-xl border border-border p-4" data-testid="local-run-panel">
-                {sectionTitle('creator.installer.finish.local.title')}
-                {!localRunAvailable() ? (
-                  <p className="text-sm text-muted-foreground">{t('creator.installer.finish.local.unavailable')}</p>
-                ) : (
-                  <>
-                    <p className="text-sm text-muted-foreground">{t('creator.installer.finish.local.intro')}</p>
-                    {localRun.status === 'running' && localRun.result ? (
-                      <div className="flex flex-col gap-2">
-                        <a
-                          href={localRun.result.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-fit font-mono text-sm font-medium text-primary hover:underline"
-                          data-testid="local-run-url"
-                        >
-                          {localRun.result.url}
-                        </a>
-                        <p className="text-xs text-muted-foreground">{t('creator.installer.finish.local.note')}</p>
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={() => window.open(localRun.result?.url, '_blank', 'noopener,noreferrer')} testId="local-run-open-btn">
-                            {t('creator.installer.finish.local.open')}
-                          </Button>
-                          <Button size="sm" hierarchy="secondary" onClick={handleStopLocal} testId="local-run-stop-btn">
-                            {t('creator.installer.finish.local.stop')}
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <Button hierarchy="secondary" disabled={localRun.status === 'starting'} onClick={() => void handleRunLocal()} testId="local-run-btn">
-                          {t(localRun.status === 'starting' ? 'creator.installer.finish.local.starting' : 'creator.installer.finish.local.run')}
+
+              {localRunAvailable() && (
+                <div className="flex flex-col gap-2 rounded-xl border border-border p-4" data-testid="local-run-panel">
+                  {sectionTitle('creator.installer.finish.local.title')}
+                  <p className="text-sm text-muted-foreground">{t('creator.installer.finish.local.intro')}</p>
+                  {localRun.status === 'running' && localRun.result ? (
+                    <div className="flex flex-col gap-2">
+                      <a
+                        href={localRun.result.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-fit font-mono text-sm font-medium text-primary hover:underline"
+                        data-testid="local-run-url"
+                      >
+                        {localRun.result.url}
+                      </a>
+                      <p className="text-xs text-muted-foreground">{t('creator.installer.finish.local.note')}</p>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => window.open(localRun.result?.url, '_blank', 'noopener,noreferrer')} testId="local-run-open-btn">
+                          {t('creator.installer.finish.local.open')}
+                        </Button>
+                        <Button size="sm" hierarchy="secondary" onClick={handleStopLocal} testId="local-run-stop-btn">
+                          {t('creator.installer.finish.local.stop')}
                         </Button>
                       </div>
-                    )}
-                    {localRun.status === 'error' && (
-                      <Alert variant="error" message={t('creator.installer.finish.local.error', { message: localRun.error ?? '' })} />
-                    )}
-                  </>
-                )}
-              </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <Button hierarchy="secondary" disabled={localRun.status === 'starting'} onClick={() => void handleRunLocal()} testId="local-run-btn">
+                        {t(localRun.status === 'starting' ? 'creator.installer.finish.local.starting' : 'creator.installer.finish.local.run')}
+                      </Button>
+                    </div>
+                  )}
+                  {localRun.status === 'error' && (
+                    <Alert variant="error" message={t('creator.installer.finish.local.error', { message: localRun.error ?? '' })} />
+                  )}
+                </div>
+              )}
               <div className="flex flex-wrap gap-2">
                 <Button size="lg" leadingIcon={<Download className="h-5 w-5" />} onClick={handleDownload} testId="download-project-zip-btn">
                   {t('creator.installer.finish.download')}
