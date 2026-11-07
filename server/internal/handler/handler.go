@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,22 +11,32 @@ import (
 	"strings"
 	"time"
 
+	"modula-server/internal/auth"
 	"modula-server/internal/builder"
 	"modula-server/internal/config"
 	"modula-server/internal/crud"
+	"modula-server/internal/project"
 )
 
+type contextKey string
+
+const userContextKey contextKey = "currentUser"
+
 type API struct {
-	cfg     *config.Config
-	builder *builder.Manager
-	crud    *crud.Engine
+	cfg      *config.Config
+	builder  *builder.Manager
+	crud     *crud.Engine
+	auth     *auth.Manager
+	projects *project.Manager
 }
 
-func NewAPI(cfg *config.Config, b *builder.Manager, c *crud.Engine) *API {
+func NewAPI(cfg *config.Config, b *builder.Manager, c *crud.Engine, a *auth.Manager, p *project.Manager) *API {
 	return &API{
-		cfg:     cfg,
-		builder: b,
-		crud:    c,
+		cfg:      cfg,
+		builder:  b,
+		crud:     c,
+		auth:     a,
+		projects: p,
 	}
 }
 
@@ -48,9 +59,108 @@ func (a *API) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ListProjects mengambil seluruh daftar proyek.
-func (a *API) ListProjects(w http.ResponseWriter, r *http.Request) {
-	list, err := a.builder.List()
+// ExtractToken mengambil token dari header Authorization (Bearer <token>) atau x-auth-token.
+func (a *API) ExtractToken(r *http.Request) string {
+	authHeader := r.Header.Get("Authorization")
+	if strings.HasPrefix(strings.ToLower(authHeader), "bearer ") {
+		return strings.TrimSpace(authHeader[7:])
+	}
+	if tok := r.Header.Get("x-auth-token"); tok != "" {
+		return strings.TrimSpace(tok)
+	}
+	return ""
+}
+
+// CurrentUser mengembalikan data profil pengguna aktif dari request context.
+func (a *API) CurrentUser(r *http.Request) *auth.UserResponse {
+	if val := r.Context().Value(userContextKey); val != nil {
+		if u, ok := val.(*auth.UserResponse); ok {
+			return u
+		}
+	}
+	return nil
+}
+
+// WithAuth middleware untuk memvalidasi token sesi pengguna.
+func (a *API) WithAuth(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token := a.ExtractToken(r)
+		if token == "" {
+			a.sendError(w, http.StatusUnauthorized, "Autentikasi diperlukan. Silakan masuk terlebih dahulu.")
+			return
+		}
+
+		user, err := a.auth.ValidateToken(token)
+		if err != nil {
+			a.sendError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), userContextKey, user)
+		next(w, r.WithContext(ctx))
+	}
+}
+
+// -------------------------------------------------------------
+// AUTH ENDPOINTS (/api/v1/auth)
+// -------------------------------------------------------------
+
+// Login endpoint: POST /api/v1/auth/login
+func (a *API) Login(w http.ResponseWriter, r *http.Request) {
+	var payload struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		a.sendError(w, http.StatusBadRequest, "Payload JSON tidak valid")
+		return
+	}
+
+	user, token, err := a.auth.Login(payload.Email, payload.Password)
+	if err != nil {
+		a.sendError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	a.sendJSON(w, http.StatusOK, map[string]interface{}{
+		"token": token,
+		"user":  user,
+	})
+}
+
+// Logout endpoint: POST /api/v1/auth/logout
+func (a *API) Logout(w http.ResponseWriter, r *http.Request) {
+	token := a.ExtractToken(r)
+	if token != "" {
+		a.auth.Logout(token)
+	}
+	a.sendJSON(w, http.StatusOK, map[string]string{"message": "Berhasil keluar"})
+}
+
+// Me endpoint: GET /api/v1/auth/me
+func (a *API) Me(w http.ResponseWriter, r *http.Request) {
+	user := a.CurrentUser(r)
+	if user == nil {
+		a.sendError(w, http.StatusUnauthorized, "Pengguna tidak terautentikasi")
+		return
+	}
+	a.sendJSON(w, http.StatusOK, user)
+}
+
+// -------------------------------------------------------------
+// USER MANAGEMENT ENDPOINTS (/api/v1/users)
+// -------------------------------------------------------------
+
+// ListUsers endpoint: GET /api/v1/users (Khusus Admin / Super Admin)
+func (a *API) ListUsers(w http.ResponseWriter, r *http.Request) {
+	user := a.CurrentUser(r)
+	if user == nil || (user.Role != auth.RoleSuperAdmin && user.Role != auth.RoleAdmin) {
+		a.sendError(w, http.StatusForbidden, "Hanya Administrator yang memiliki akses ke daftar pengguna")
+		return
+	}
+
+	list, err := a.auth.ListUsers()
 	if err != nil {
 		a.sendError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -58,45 +168,242 @@ func (a *API) ListProjects(w http.ResponseWriter, r *http.Request) {
 	a.sendJSON(w, http.StatusOK, list)
 }
 
-// CreateProject mendaftarkan proyek baru.
-func (a *API) CreateProject(w http.ResponseWriter, r *http.Request) {
+// CreateUser endpoint: POST /api/v1/users (Khusus Admin / Super Admin)
+func (a *API) CreateUser(w http.ResponseWriter, r *http.Request) {
+	user := a.CurrentUser(r)
+	if user == nil || (user.Role != auth.RoleSuperAdmin && user.Role != auth.RoleAdmin) {
+		a.sendError(w, http.StatusForbidden, "Hanya Administrator yang dapat mendaftarkan akun internal baru")
+		return
+	}
+
 	var payload struct {
-		Name          string   `json:"name"`
-		Slug          string   `json:"slug"`
-		Theme         string   `json:"theme"`
-		PrimaryColor  string   `json:"primaryColor"`
-		SelectedPacks []string `json:"selectedPacks"`
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+		Role     string `json:"role"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		a.sendError(w, http.StatusBadRequest, "Invalid JSON payload")
+		a.sendError(w, http.StatusBadRequest, "Payload JSON tidak valid")
 		return
 	}
 
-	if payload.Name == "" || payload.Slug == "" {
-		a.sendError(w, http.StatusBadRequest, "Name and slug are required")
+	created, err := a.auth.CreateUser(payload.Name, payload.Email, payload.Password, payload.Role)
+	if err != nil {
+		a.sendError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	a.sendJSON(w, http.StatusCreated, created)
+}
+
+// UpdateUser endpoint: PUT /api/v1/users/{id}
+func (a *API) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	user := a.CurrentUser(r)
+	if user == nil || (user.Role != auth.RoleSuperAdmin && user.Role != auth.RoleAdmin) {
+		a.sendError(w, http.StatusForbidden, "Hanya Administrator yang dapat mengubah data akun internal")
 		return
 	}
 
-	meta := builder.ProjectMetadata{
-		Name:          payload.Name,
-		Slug:          payload.Slug,
-		Theme:         payload.Theme,
-		PrimaryColor:  payload.PrimaryColor,
-		SelectedPacks: payload.SelectedPacks,
-		CreatedAt:     time.Now(),
-		Status:        "ready",
+	id := r.PathValue("id")
+	if id == "" {
+		a.sendError(w, http.StatusBadRequest, "ID pengguna wajib disertakan")
+		return
 	}
 
-	if err := a.builder.Save(meta); err != nil {
+	var payload struct {
+		Name   string `json:"name"`
+		Role   string `json:"role"`
+		Status string `json:"status"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		a.sendError(w, http.StatusBadRequest, "Payload JSON tidak valid")
+		return
+	}
+
+	updated, err := a.auth.UpdateUser(id, payload.Name, payload.Role, payload.Status)
+	if err != nil {
+		a.sendError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	a.sendJSON(w, http.StatusOK, updated)
+}
+
+// -------------------------------------------------------------
+// PROJECT WORKSPACE ENDPOINTS (/api/v1/projects)
+// -------------------------------------------------------------
+
+// ListWorkspaceProjects endpoint: GET /api/v1/projects
+func (a *API) ListWorkspaceProjects(w http.ResponseWriter, r *http.Request) {
+	user := a.CurrentUser(r)
+	userID := ""
+	userRole := ""
+	if user != nil {
+		userID = user.ID
+		userRole = user.Role
+	}
+
+	list, err := a.projects.ListProjects(userID, userRole)
+	if err != nil {
 		a.sendError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	a.sendJSON(w, http.StatusCreated, meta)
+	a.sendJSON(w, http.StatusOK, list)
 }
 
-// DownloadZip mengompres direktori proyek menjadi .zip untuk diunduh.
+// CreateWorkspaceProject endpoint: POST /api/v1/projects
+func (a *API) CreateWorkspaceProject(w http.ResponseWriter, r *http.Request) {
+	user := a.CurrentUser(r)
+	userID := "usr-anonymous"
+	userName := "Internal User"
+	userEmail := "user@modula.io"
+	if user != nil {
+		userID = user.ID
+		userName = user.Name
+		userEmail = user.Email
+	}
+
+	var input project.Project
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		a.sendError(w, http.StatusBadRequest, "Payload JSON tidak valid")
+		return
+	}
+
+	created, err := a.projects.CreateProject(userID, userName, userEmail, input)
+	if err != nil {
+		a.sendError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Sinkronkan juga ke builder manager lama agar kompatibel
+	_ = a.builder.Save(builder.ProjectMetadata{
+		Name:          created.Name,
+		Slug:          created.Slug,
+		Theme:         created.Theme,
+		PrimaryColor:  created.PrimaryColor,
+		SelectedPacks: created.SelectedPacks,
+		CreatedAt:     created.CreatedAt,
+		Status:        "ready",
+	})
+
+	a.sendJSON(w, http.StatusCreated, created)
+}
+
+// GetWorkspaceProject endpoint: GET /api/v1/projects/{slug}
+func (a *API) GetWorkspaceProject(w http.ResponseWriter, r *http.Request) {
+	user := a.CurrentUser(r)
+	userID := ""
+	userRole := ""
+	if user != nil {
+		userID = user.ID
+		userRole = user.Role
+	}
+
+	slug := r.PathValue("slug")
+	proj, access, err := a.projects.GetProjectBySlug(slug, userID, userRole)
+	if err != nil {
+		a.sendError(w, http.StatusNotFound, err.Error())
+		return
+	}
+
+	a.sendJSON(w, http.StatusOK, map[string]interface{}{
+		"project":     proj,
+		"accessLevel": access,
+	})
+}
+
+// UpdateWorkspaceProject endpoint: PUT /api/v1/projects/{slug}
+func (a *API) UpdateWorkspaceProject(w http.ResponseWriter, r *http.Request) {
+	user := a.CurrentUser(r)
+	if user == nil {
+		a.sendError(w, http.StatusUnauthorized, "Autentikasi diperlukan")
+		return
+	}
+
+	slug := r.PathValue("slug")
+	var updates project.Project
+	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
+		a.sendError(w, http.StatusBadRequest, "Payload JSON tidak valid")
+		return
+	}
+
+	updated, err := a.projects.UpdateProject(slug, user.ID, user.Role, updates)
+	if err != nil {
+		a.sendError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	a.sendJSON(w, http.StatusOK, updated)
+}
+
+// DeleteWorkspaceProject endpoint: DELETE /api/v1/projects/{slug}
+func (a *API) DeleteWorkspaceProject(w http.ResponseWriter, r *http.Request) {
+	user := a.CurrentUser(r)
+	if user == nil {
+		a.sendError(w, http.StatusUnauthorized, "Autentikasi diperlukan")
+		return
+	}
+
+	slug := r.PathValue("slug")
+	if err := a.projects.DeleteProject(slug, user.ID, user.Role); err != nil {
+		a.sendError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	a.sendJSON(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("Proyek '%s' berhasil dihapus", slug)})
+}
+
+// ShareWorkspaceProject endpoint: POST /api/v1/projects/{slug}/share
+func (a *API) ShareWorkspaceProject(w http.ResponseWriter, r *http.Request) {
+	user := a.CurrentUser(r)
+	if user == nil {
+		a.sendError(w, http.StatusUnauthorized, "Autentikasi diperlukan")
+		return
+	}
+
+	slug := r.PathValue("slug")
+	var payload struct {
+		TargetEmail string `json:"email"`
+		AccessLevel string `json:"accessLevel"` // "EDITOR", "VIEWER"
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		a.sendError(w, http.StatusBadRequest, "Payload JSON tidak valid")
+		return
+	}
+
+	// Cari target user berdasarkan email
+	users, _ := a.auth.ListUsers()
+	var targetUser *auth.UserResponse
+	for _, u := range users {
+		if strings.EqualFold(u.Email, payload.TargetEmail) {
+			targetUser = &u
+			break
+		}
+	}
+
+	targetID := ""
+	targetName := payload.TargetEmail
+	if targetUser != nil {
+		targetID = targetUser.ID
+		targetName = targetUser.Name
+	}
+
+	access := payload.AccessLevel
+	if access != project.AccessEditor && access != project.AccessViewer {
+		access = project.AccessViewer
+	}
+
+	updated, err := a.projects.ShareProject(slug, user.ID, user.Role, targetID, targetName, payload.TargetEmail, access)
+	if err != nil {
+		a.sendError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	a.sendJSON(w, http.StatusOK, updated)
+}
+
+// -------------------------------------------------------------
+// LEGACY & CRUD MODULE COMPATIBILITY
+// -------------------------------------------------------------
+
 func (a *API) DownloadZip(w http.ResponseWriter, r *http.Request, slug string) {
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", slug))
@@ -105,7 +412,6 @@ func (a *API) DownloadZip(w http.ResponseWriter, r *http.Request, slug string) {
 	}
 }
 
-// BuildProject memicu proses npm build untuk proyek tertentu.
 func (a *API) BuildProject(w http.ResponseWriter, r *http.Request, slug string) {
 	if err := a.builder.BuildProject(slug); err != nil {
 		a.sendError(w, http.StatusInternalServerError, err.Error())
@@ -117,43 +423,34 @@ func (a *API) BuildProject(w http.ResponseWriter, r *http.Request, slug string) 
 	})
 }
 
-// ServeLivePreview menyajikan aplikasi live preview dengan routing SPA bawaan.
 func (a *API) ServeLivePreview(w http.ResponseWriter, r *http.Request, slug string) {
-	// Coba cari dari dist direktori proyek di server
 	distDir := a.builder.DistDir(slug)
 	if _, err := os.Stat(distDir); os.IsNotExist(err) {
-		// Fallback jika belum di-build: periksa folder .local-projects di workspace
 		distDir = filepath.Join(a.cfg.WorkspaceDir, ".local-projects", slug, "dist")
 		if _, err := os.Stat(distDir); os.IsNotExist(err) {
-			// Jika masih belum ada dist, periksa root direktori proyek langsung
 			distDir = filepath.Join(a.cfg.WorkspaceDir, ".local-projects", slug)
 		}
 	}
 
-	// Prefix yang di-strip: /:slug/live/
 	prefix := fmt.Sprintf("/%s/live", slug)
 	relPath := strings.TrimPrefix(r.URL.Path, prefix)
 	relPath = strings.TrimPrefix(relPath, "/")
 
 	targetPath := filepath.Join(distDir, relPath)
-
-	// Jika file ada secara fisik (mis. assets/app.js, styles.css, favicon.png)
 	if fi, err := os.Stat(targetPath); err == nil && !fi.IsDir() {
 		http.ServeFile(w, r, targetPath)
 		return
 	}
 
-	// Jika tidak ada atau merupakan route halaman (SPA), layani index.html
 	indexPath := filepath.Join(distDir, "index.html")
 	if _, err := os.Stat(indexPath); err == nil {
 		http.ServeFile(w, r, indexPath)
 		return
 	}
 
-	a.sendError(w, http.StatusNotFound, fmt.Sprintf("Live preview untuk project '%s' belum dibangun atau belum dijalankan di server.", slug))
+	a.sendError(w, http.StatusNotFound, fmt.Sprintf("Live preview untuk project '%s' belum dibangun.", slug))
 }
 
-// HandleCRUD routing untuk Dynamic CRUD Module Engine.
 func (a *API) HandleCRUD(w http.ResponseWriter, r *http.Request, project, module string, id string) {
 	switch r.Method {
 	case http.MethodGet:

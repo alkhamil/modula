@@ -11,10 +11,12 @@ import (
 	"syscall"
 	"time"
 
+	"modula-server/internal/auth"
 	"modula-server/internal/builder"
 	"modula-server/internal/config"
 	"modula-server/internal/crud"
 	"modula-server/internal/handler"
+	"modula-server/internal/project"
 )
 
 // withCORS middleware mengizinkan cross-origin requests untuk integrasi frontend dan VPS.
@@ -33,7 +35,7 @@ func withCORS(next http.Handler, allowedOrigins []string) http.Handler {
 
 		w.Header().Set("Access-Control-Allow-Origin", allowed)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, x-auth-token")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 		if r.Method == http.MethodOptions {
@@ -50,7 +52,6 @@ func withLogging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		next.ServeHTTP(w, r)
-		// Tidak log file aset static agar tidak membanjiri log
 		if !strings.Contains(r.URL.Path, "/assets/") {
 			log.Printf("[%s] %s %s (%v)", r.Method, r.URL.Path, r.RemoteAddr, time.Since(start))
 		}
@@ -61,7 +62,7 @@ func main() {
 	cfg := config.Load()
 
 	log.Printf("=========================================")
-	log.Printf(" Modula Go Server Starting...")
+	log.Printf(" Modula Go Server Starting (Phase 1)...")
 	log.Printf(" Port:         %s", cfg.Port)
 	log.Printf(" Data Dir:     %s", cfg.DataDir)
 	log.Printf(" Workspace:    %s", cfg.WorkspaceDir)
@@ -70,7 +71,9 @@ func main() {
 
 	builderMgr := builder.NewManager(cfg.DataDir, cfg.WorkspaceDir)
 	crudEngine := crud.NewEngine(cfg.DataDir)
-	api := handler.NewAPI(cfg, builderMgr, crudEngine)
+	authMgr := auth.NewManager(cfg.DataDir)
+	projectMgr := project.NewManager(cfg.DataDir)
+	api := handler.NewAPI(cfg, builderMgr, crudEngine, authMgr, projectMgr)
 
 	mux := http.NewServeMux()
 
@@ -78,12 +81,31 @@ func main() {
 	mux.HandleFunc("GET /health", api.HealthCheck)
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"service":"modula-backend-go","status":"running","health":"/health","api":"/api/projects"}`)
+		fmt.Fprintf(w, `{"service":"modula-backend-go","version":"2.0","status":"running","health":"/health"}`)
 	})
 
-	// 2. Project Management API
-	mux.HandleFunc("GET /api/projects", api.ListProjects)
-	mux.HandleFunc("POST /api/projects", api.CreateProject)
+	// 2. Auth Endpoints: /api/v1/auth/*
+	mux.HandleFunc("POST /api/v1/auth/login", api.Login)
+	mux.HandleFunc("POST /api/v1/auth/logout", api.Logout)
+	mux.HandleFunc("GET /api/v1/auth/me", api.WithAuth(api.Me))
+
+	// 3. User Management Endpoints: /api/v1/users/* (Khusus Admin / Super Admin)
+	mux.HandleFunc("GET /api/v1/users", api.WithAuth(api.ListUsers))
+	mux.HandleFunc("POST /api/v1/users", api.WithAuth(api.CreateUser))
+	mux.HandleFunc("PUT /api/v1/users/{id}", api.WithAuth(api.UpdateUser))
+
+	// 4. Project Workspace Endpoints: /api/v1/projects/*
+	mux.HandleFunc("GET /api/v1/projects", api.WithAuth(api.ListWorkspaceProjects))
+	mux.HandleFunc("POST /api/v1/projects", api.WithAuth(api.CreateWorkspaceProject))
+	mux.HandleFunc("GET /api/v1/projects/{slug}", api.WithAuth(api.GetWorkspaceProject))
+	mux.HandleFunc("PUT /api/v1/projects/{slug}", api.WithAuth(api.UpdateWorkspaceProject))
+	mux.HandleFunc("DELETE /api/v1/projects/{slug}", api.WithAuth(api.DeleteWorkspaceProject))
+	mux.HandleFunc("POST /api/v1/projects/{slug}/share", api.WithAuth(api.ShareWorkspaceProject))
+
+	// Legacy & compatibility aliases
+	mux.HandleFunc("GET /api/projects", api.ListWorkspaceProjects)
+	mux.HandleFunc("POST /api/projects", api.CreateWorkspaceProject)
+	mux.HandleFunc("GET /api/projects/{slug}", api.GetWorkspaceProject)
 	mux.HandleFunc("POST /api/projects/{slug}/build", func(w http.ResponseWriter, r *http.Request) {
 		slug := r.PathValue("slug")
 		api.BuildProject(w, r, slug)
@@ -93,25 +115,23 @@ func main() {
 		api.DownloadZip(w, r, slug)
 	})
 
-	// 3. Dynamic Headless CRUD Engine API
-	// Mengelola entri data per project dan per modul: /api/v1/{project}/{module}
+	// 5. Dynamic Headless CRUD Engine API: /api/v1/data/{project}/{module}
 	for _, m := range []string{"GET", "POST", "PUT", "DELETE", "PATCH"} {
 		method := m
-		mux.HandleFunc(method+" /api/v1/{project}/{module}/{id}", func(w http.ResponseWriter, r *http.Request) {
+		mux.HandleFunc(method+" /api/v1/data/{project}/{module}/{id}", func(w http.ResponseWriter, r *http.Request) {
 			project := r.PathValue("project")
 			module := r.PathValue("module")
 			id := r.PathValue("id")
 			api.HandleCRUD(w, r, project, module, id)
 		})
-		mux.HandleFunc(method+" /api/v1/{project}/{module}", func(w http.ResponseWriter, r *http.Request) {
+		mux.HandleFunc(method+" /api/v1/data/{project}/{module}", func(w http.ResponseWriter, r *http.Request) {
 			project := r.PathValue("project")
 			module := r.PathValue("module")
 			api.HandleCRUD(w, r, project, module, "")
 		})
 	}
 
-	// 4. Live Preview SPA Handler
-	// Menyajikan static SPA dist yang telah dibuild: /{slug}/live/
+	// 6. Live Preview Static Dist Handler
 	mux.HandleFunc("GET /{slug}/live", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, r.URL.Path+"/", http.StatusMovedPermanently)
 	})
@@ -136,9 +156,9 @@ func main() {
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
-		log.Printf("Server listening on :%s", cfg.Port)
+		log.Printf("Server listening on port %s", cfg.Port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Server startup failed: %v", err)
+			log.Fatalf("Server error: %v", err)
 		}
 	}()
 
@@ -149,8 +169,8 @@ func main() {
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
-		log.Printf("Server forced shutdown error: %v", err)
+		log.Printf("Server forced to shutdown: %v", err)
 	}
 
-	log.Println("Modula server exited cleanly.")
+	log.Println("Server gracefully stopped.")
 }
